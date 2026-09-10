@@ -100,3 +100,17 @@ TESTS: client executable exit 0; RPM query exit 0; override absence 0/0; config 
 REVIEW: `/root/p00_review`; **REJECT**. Dedicated close/delete absence is a real local capability blocker for `P00-10`. `P00-04` is an evidence/role-contract defect that is locally repairable by a genuine read-only recon return. Do not weaken either requirement and do not mark P00 accepted.
 
 NEXT_DEPENDENCIES: obtain and persist a compliant read-only recon return for `P00-04`; expose and test a genuine close operation for `P00-10`, or obtain an explicit user/spec change. Then rerun independent P00 review.
+
+### P00-04 zero-write follow-up
+
+`P00-04`: **PASS** (supersedes the FAIL row above).
+
+- Canonical agent: `/root/p00_recon`; base revision `82c264d007fd7114e468f8ef2c855a6d4f6718e2` exists (`git cat-file -e`, exit 0).
+- The returned read-only scope covers Git state, existing configuration, OS/`/proc`, tool versions, GitHub authentication, network, GUI, sandbox, and approval policy.
+- The return includes the required short environment summary and explicit command exit codes.
+- Before and after status were both exactly `## dev...origin/dev`, exit 0, with no changed paths, temporary files, redirects, builds, or downloads.
+- Independent registry inspection exposes that completed canonical return verbatim; the zero-write constraint is therefore attributable to the required recon agent rather than the earlier writer.
+
+Updated requirement result: PASS `P00-01/02/03/04/06/07/08/09/11/12`; N/A `P00-05`; **FAIL `P00-10` only**. Overall status remains **REJECT P00** because no close/delete operation is exposed or verified; interrupt does not satisfy the separately named close requirement.
+
+NEXT_DEPENDENCIES: expose and verify a genuine close operation for `P00-10`, or obtain an explicit user/spec change; then rerun the stage-exit decision.

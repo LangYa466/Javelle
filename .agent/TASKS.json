@@ -4,12 +4,12 @@
   "tasks": [
     {
       "id": "P00-RECON",
-      "owner": "/root/p00_repair",
-      "status": "FAILED",
+      "owner": "/root/p00_recon",
+      "status": "VERIFIED",
       "dependsOn": [],
       "evidence": [
         ".agent/reports/P00-RECON.md",
-        ".agent/reports/P00-REVIEW.md: P00-04 lacks a single attributable read-only environment recon return"
+        ".agent/reports/P00-REVIEW.md: P00-04 zero-write follow-up PASS"
       ]
     },
     {
