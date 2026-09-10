@@ -1,0 +1,41 @@
+{
+  "schemaVersion": 1,
+  "phase": "P00",
+  "tasks": [
+    {
+      "id": "P00-RECON",
+      "owner": "/root/p00_recon",
+      "status": "VERIFIED",
+      "dependsOn": [],
+      "evidence": ["agent completion summary; report file pending integration"]
+    },
+    {
+      "id": "P00-SPEC-COVERAGE",
+      "owner": "/root/p00_spec",
+      "status": "IMPLEMENTED",
+      "dependsOn": [],
+      "evidence": [".agent/reports/P00-SPEC-COVERAGE.md"]
+    },
+    {
+      "id": "P00-GIT",
+      "owner": "/root/p00_git_publish",
+      "status": "VERIFIED",
+      "dependsOn": [],
+      "evidence": [".agent/reports/P00-GIT.md"]
+    },
+    {
+      "id": "P00-REVIEW",
+      "owner": null,
+      "status": "READY",
+      "dependsOn": ["P00-RECON", "P00-SPEC-COVERAGE", "P00-GIT"],
+      "evidence": []
+    },
+    {
+      "id": "P01",
+      "owner": null,
+      "status": "TODO",
+      "dependsOn": ["P00-REVIEW"],
+      "evidence": []
+    }
+  ]
+}
