@@ -103,8 +103,25 @@ public final class RecursiveJavelleParser implements JavelleParser {
         }
         Token member = take();
         if (accept("(")) members.add(parseMethod(type, member));
-        else if (accept("{")) members.add(parseProperty(type, member));
-        else members.add(parseField(type, member));
+        else if (accept("{")) members.add(parseProperty(type, member, Optional.empty()));
+        else if (accept("=")) {
+          var initializerTokens = new ArrayList<Token>();
+          while (!at(TokenKind.EOF) && !at(TokenKind.NEWLINE) && !word("{")) {
+            if (at(TokenKind.SEMICOLON)) semicolon(take());
+            else initializerTokens.add(take());
+          }
+          if (accept("{") && !initializerTokens.isEmpty())
+            members.add(
+                parseProperty(type, member, Optional.of(buildExpression(initializerTokens))));
+          else
+            members.add(
+                parseField(
+                    type,
+                    member,
+                    initializerTokens.isEmpty()
+                        ? Optional.empty()
+                        : Optional.of(buildExpression(initializerTokens))));
+        } else members.add(parseField(type, member));
       } else if (word("for")) {
         members.add(unsupported("basic-for"));
       } else {
@@ -260,8 +277,10 @@ public final class RecursiveJavelleParser implements JavelleParser {
     return out;
   }
 
-  private FrontendNode parseProperty(Token type, Token name) {
+  private FrontendNode parseProperty(Token type, Token name, Optional<FrontendNode> initializer) {
     var accessors = new ArrayList<FrontendNode>();
+    initializer.ifPresent(
+        value -> accessors.add(node("PropertyInitializer", "", value.range(), List.of(value))));
     while (!at(TokenKind.EOF) && !word("}")) {
       skipLines();
       if (word("}")) break;
@@ -326,6 +345,16 @@ public final class RecursiveJavelleParser implements JavelleParser {
       var range = diagnostics.getLast().range();
       kids.add(node("ErrorNode", "", range, List.of()));
     }
+    return node("FieldDeclaration", name.value(), span(type, previous()), kids);
+  }
+
+  private FrontendNode parseField(
+      Token type, Token name, Optional<FrontendNode> parsedInitializer) {
+    var kids = new ArrayList<FrontendNode>();
+    parsedInitializer.ifPresent(kids::add);
+    if (!diagnostics.isEmpty() && diagnostics.getLast().code().value().equals("JV-SYN-0001"))
+      kids.add(node("ErrorNode", "", diagnostics.getLast().range(), List.of()));
+    syncLine();
     return node("FieldDeclaration", name.value(), span(type, previous()), kids);
   }
 

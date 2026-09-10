@@ -654,18 +654,18 @@ P03/P11 → P45 → P46 → P47 → P48
 **依賴：** P05  
 **產物：** core property → Java → javac 的可執行垂直切片
 
-- [ ] **P06-01** 實作 Java emission 的縮排、imports、class/method/field、必要分號與穩定 member ordering。
-- [ ] **P06-02** 將原生 property 的 default/custom accessor 轉成正常 Java methods，backing field 名稱與可見性符合 B3。
-- [ ] **P06-03** 實作最小 symbol-bound property reads/writes；普通 field 保持直接存取，不能按字串名字全域改寫。
-- [ ] **P06-04** 生成每個節點的 source map，建立 generated Java header 的來源／版本資訊但不含不穩定 timestamp。
-- [ ] **P06-05** 透過 javax.tools.JavaCompiler／對應公開介面實際編譯，保存 javac exit 與 diagnostics。[S04]
-- [ ] **P06-06** 執行 Java consumer，驗證 setName trim 行為、getter 值與私有 accessor 的存取限制。
-- [ ] **P06-07** 將 javac 型別不相容與缺符號錯誤映射回 .javelle 的精確 range，而非只回 build/generated 路徑。
-- [ ] **P06-08** 驗證兩次 emit 內容一致；反覆執行不產生重複 methods 或累積 imports。
-- [ ] **P06-09** 驗證生成 Java 本身可打開、閱讀、用正常 javac 編譯，不需要 Lombok processor。
-- [ ] **P06-10** 建立 generated-files ownership manifest，避免後續 cleanup 刪除非 Javelle 產生內容。
-- [ ] **P06-11** 用 reflection 驗證 field/modifier、method return/parameter types，不能只比 Java 字串。
-- [ ] **P06-12** 由 reviewer 破壞 setter 實作確認 consumer 測試會失敗，證明不是無效成功測試。
+- [x] **P06-01** 實作 Java emission 的縮排、imports、class/method/field、必要分號與穩定 member ordering。
+- [x] **P06-02** 將原生 property 的 default/custom accessor 轉成正常 Java methods，backing field 名稱與可見性符合 B3。
+- [x] **P06-03** 實作最小 symbol-bound property reads/writes；普通 field 保持直接存取，不能按字串名字全域改寫。
+- [x] **P06-04** 生成每個節點的 source map，建立 generated Java header 的來源／版本資訊但不含不穩定 timestamp。
+- [x] **P06-05** 透過 javax.tools.JavaCompiler／對應公開介面實際編譯，保存 javac exit 與 diagnostics。[S04]
+- [x] **P06-06** 執行 Java consumer，驗證 setName trim 行為、getter 值與私有 accessor 的存取限制。
+- [x] **P06-07** 將 javac 型別不相容與缺符號錯誤映射回 .javelle 的精確 range，而非只回 build/generated 路徑。
+- [x] **P06-08** 驗證兩次 emit 內容一致；反覆執行不產生重複 methods 或累積 imports。
+- [x] **P06-09** 驗證生成 Java 本身可打開、閱讀、用正常 javac 編譯，不需要 Lombok processor。
+- [x] **P06-10** 建立 generated-files ownership manifest，避免後續 cleanup 刪除非 Javelle 產生內容。
+- [x] **P06-11** 用 reflection 驗證 field/modifier、method return/parameter types，不能只比 Java 字串。
+- [x] **P06-12** 由 reviewer 破壞 setter 實作確認 consumer 測試會失敗，證明不是無效成功測試。
 
 **階段出口：** 真正產生、編譯並執行 class；可讀 Java 與來源錯誤定位有獨立證據。 所有項目另須通過根 `AGENTS.md` 的共同 DoD。
 

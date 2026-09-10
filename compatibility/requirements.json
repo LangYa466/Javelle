@@ -1206,133 +1206,277 @@
       "id": "P06-01",
       "section": "P06",
       "ownerRole": "compiler/spec/interop",
-      "implementationStatus": "NOT_IMPLEMENTED",
-      "verificationStatus": "NOT_VERIFIED",
-      "implementationPaths": [],
-      "testIds": [],
-      "evidencePaths": [],
-      "reviewerAgentId": null
+      "implementationStatus": "IMPLEMENTED",
+      "verificationStatus": "VERIFIED",
+      "implementationPaths": [
+        "compiler-core/src/main/java/org/javelle/compiler/core/emitter",
+        "compiler-core/src/main/java/org/javelle/compiler/core/lowering/EarlyLowerer.java",
+        "compiler-core/src/main/java/org/javelle/compiler/core/semantic",
+        "compiler-driver/src/main/java"
+      ],
+      "testIds": [
+        "P06EmitterTest",
+        "P06DriverTest",
+        "P06EndToEndTest",
+        "P06Release21Test"
+      ],
+      "evidencePaths": [
+        ".agent/reports/P06-REVIEW.md: Final focused review R05 — ACCEPT P06"
+      ],
+      "reviewerAgentId": "/root/p00_review"
     },
     {
       "id": "P06-02",
       "section": "P06",
       "ownerRole": "compiler/spec/interop",
-      "implementationStatus": "NOT_IMPLEMENTED",
-      "verificationStatus": "NOT_VERIFIED",
-      "implementationPaths": [],
-      "testIds": [],
-      "evidencePaths": [],
-      "reviewerAgentId": null
+      "implementationStatus": "IMPLEMENTED",
+      "verificationStatus": "VERIFIED",
+      "implementationPaths": [
+        "compiler-core/src/main/java/org/javelle/compiler/core/emitter",
+        "compiler-core/src/main/java/org/javelle/compiler/core/lowering/EarlyLowerer.java",
+        "compiler-core/src/main/java/org/javelle/compiler/core/semantic",
+        "compiler-driver/src/main/java"
+      ],
+      "testIds": [
+        "P06EmitterTest",
+        "P06DriverTest",
+        "P06EndToEndTest",
+        "P06Release21Test"
+      ],
+      "evidencePaths": [
+        ".agent/reports/P06-REVIEW.md: Final focused review R05 — ACCEPT P06"
+      ],
+      "reviewerAgentId": "/root/p00_review"
     },
     {
       "id": "P06-03",
       "section": "P06",
       "ownerRole": "compiler/spec/interop",
-      "implementationStatus": "NOT_IMPLEMENTED",
-      "verificationStatus": "NOT_VERIFIED",
-      "implementationPaths": [],
-      "testIds": [],
-      "evidencePaths": [],
-      "reviewerAgentId": null
+      "implementationStatus": "IMPLEMENTED",
+      "verificationStatus": "VERIFIED",
+      "implementationPaths": [
+        "compiler-core/src/main/java/org/javelle/compiler/core/emitter",
+        "compiler-core/src/main/java/org/javelle/compiler/core/lowering/EarlyLowerer.java",
+        "compiler-core/src/main/java/org/javelle/compiler/core/semantic",
+        "compiler-driver/src/main/java"
+      ],
+      "testIds": [
+        "P06EmitterTest",
+        "P06DriverTest",
+        "P06EndToEndTest",
+        "P06Release21Test"
+      ],
+      "evidencePaths": [
+        ".agent/reports/P06-REVIEW.md: Final focused review R05 — ACCEPT P06"
+      ],
+      "reviewerAgentId": "/root/p00_review"
     },
     {
       "id": "P06-04",
       "section": "P06",
       "ownerRole": "compiler/spec/interop",
-      "implementationStatus": "NOT_IMPLEMENTED",
-      "verificationStatus": "NOT_VERIFIED",
-      "implementationPaths": [],
-      "testIds": [],
-      "evidencePaths": [],
-      "reviewerAgentId": null
+      "implementationStatus": "IMPLEMENTED",
+      "verificationStatus": "VERIFIED",
+      "implementationPaths": [
+        "compiler-core/src/main/java/org/javelle/compiler/core/emitter",
+        "compiler-core/src/main/java/org/javelle/compiler/core/lowering/EarlyLowerer.java",
+        "compiler-core/src/main/java/org/javelle/compiler/core/semantic",
+        "compiler-driver/src/main/java"
+      ],
+      "testIds": [
+        "P06EmitterTest",
+        "P06DriverTest",
+        "P06EndToEndTest",
+        "P06Release21Test"
+      ],
+      "evidencePaths": [
+        ".agent/reports/P06-REVIEW.md: Final focused review R05 — ACCEPT P06"
+      ],
+      "reviewerAgentId": "/root/p00_review"
     },
     {
       "id": "P06-05",
       "section": "P06",
       "ownerRole": "compiler/spec/interop",
-      "implementationStatus": "NOT_IMPLEMENTED",
-      "verificationStatus": "NOT_VERIFIED",
-      "implementationPaths": [],
-      "testIds": [],
-      "evidencePaths": [],
-      "reviewerAgentId": null
+      "implementationStatus": "IMPLEMENTED",
+      "verificationStatus": "VERIFIED",
+      "implementationPaths": [
+        "compiler-core/src/main/java/org/javelle/compiler/core/emitter",
+        "compiler-core/src/main/java/org/javelle/compiler/core/lowering/EarlyLowerer.java",
+        "compiler-core/src/main/java/org/javelle/compiler/core/semantic",
+        "compiler-driver/src/main/java"
+      ],
+      "testIds": [
+        "P06EmitterTest",
+        "P06DriverTest",
+        "P06EndToEndTest",
+        "P06Release21Test"
+      ],
+      "evidencePaths": [
+        ".agent/reports/P06-REVIEW.md: Final focused review R05 — ACCEPT P06"
+      ],
+      "reviewerAgentId": "/root/p00_review"
     },
     {
       "id": "P06-06",
       "section": "P06",
       "ownerRole": "compiler/spec/interop",
-      "implementationStatus": "NOT_IMPLEMENTED",
-      "verificationStatus": "NOT_VERIFIED",
-      "implementationPaths": [],
-      "testIds": [],
-      "evidencePaths": [],
-      "reviewerAgentId": null
+      "implementationStatus": "IMPLEMENTED",
+      "verificationStatus": "VERIFIED",
+      "implementationPaths": [
+        "compiler-core/src/main/java/org/javelle/compiler/core/emitter",
+        "compiler-core/src/main/java/org/javelle/compiler/core/lowering/EarlyLowerer.java",
+        "compiler-core/src/main/java/org/javelle/compiler/core/semantic",
+        "compiler-driver/src/main/java"
+      ],
+      "testIds": [
+        "P06EmitterTest",
+        "P06DriverTest",
+        "P06EndToEndTest",
+        "P06Release21Test"
+      ],
+      "evidencePaths": [
+        ".agent/reports/P06-REVIEW.md: Final focused review R05 — ACCEPT P06"
+      ],
+      "reviewerAgentId": "/root/p00_review"
     },
     {
       "id": "P06-07",
       "section": "P06",
       "ownerRole": "compiler/spec/interop",
-      "implementationStatus": "NOT_IMPLEMENTED",
-      "verificationStatus": "NOT_VERIFIED",
-      "implementationPaths": [],
-      "testIds": [],
-      "evidencePaths": [],
-      "reviewerAgentId": null
+      "implementationStatus": "IMPLEMENTED",
+      "verificationStatus": "VERIFIED",
+      "implementationPaths": [
+        "compiler-core/src/main/java/org/javelle/compiler/core/emitter",
+        "compiler-core/src/main/java/org/javelle/compiler/core/lowering/EarlyLowerer.java",
+        "compiler-core/src/main/java/org/javelle/compiler/core/semantic",
+        "compiler-driver/src/main/java"
+      ],
+      "testIds": [
+        "P06EmitterTest",
+        "P06DriverTest",
+        "P06EndToEndTest",
+        "P06Release21Test"
+      ],
+      "evidencePaths": [
+        ".agent/reports/P06-REVIEW.md: Final focused review R05 — ACCEPT P06"
+      ],
+      "reviewerAgentId": "/root/p00_review"
     },
     {
       "id": "P06-08",
       "section": "P06",
       "ownerRole": "compiler/spec/interop",
-      "implementationStatus": "NOT_IMPLEMENTED",
-      "verificationStatus": "NOT_VERIFIED",
-      "implementationPaths": [],
-      "testIds": [],
-      "evidencePaths": [],
-      "reviewerAgentId": null
+      "implementationStatus": "IMPLEMENTED",
+      "verificationStatus": "VERIFIED",
+      "implementationPaths": [
+        "compiler-core/src/main/java/org/javelle/compiler/core/emitter",
+        "compiler-core/src/main/java/org/javelle/compiler/core/lowering/EarlyLowerer.java",
+        "compiler-core/src/main/java/org/javelle/compiler/core/semantic",
+        "compiler-driver/src/main/java"
+      ],
+      "testIds": [
+        "P06EmitterTest",
+        "P06DriverTest",
+        "P06EndToEndTest",
+        "P06Release21Test"
+      ],
+      "evidencePaths": [
+        ".agent/reports/P06-REVIEW.md: Final focused review R05 — ACCEPT P06"
+      ],
+      "reviewerAgentId": "/root/p00_review"
     },
     {
       "id": "P06-09",
       "section": "P06",
       "ownerRole": "compiler/spec/interop",
-      "implementationStatus": "NOT_IMPLEMENTED",
-      "verificationStatus": "NOT_VERIFIED",
-      "implementationPaths": [],
-      "testIds": [],
-      "evidencePaths": [],
-      "reviewerAgentId": null
+      "implementationStatus": "IMPLEMENTED",
+      "verificationStatus": "VERIFIED",
+      "implementationPaths": [
+        "compiler-core/src/main/java/org/javelle/compiler/core/emitter",
+        "compiler-core/src/main/java/org/javelle/compiler/core/lowering/EarlyLowerer.java",
+        "compiler-core/src/main/java/org/javelle/compiler/core/semantic",
+        "compiler-driver/src/main/java"
+      ],
+      "testIds": [
+        "P06EmitterTest",
+        "P06DriverTest",
+        "P06EndToEndTest",
+        "P06Release21Test"
+      ],
+      "evidencePaths": [
+        ".agent/reports/P06-REVIEW.md: Final focused review R05 — ACCEPT P06"
+      ],
+      "reviewerAgentId": "/root/p00_review"
     },
     {
       "id": "P06-10",
       "section": "P06",
       "ownerRole": "compiler/spec/interop",
-      "implementationStatus": "NOT_IMPLEMENTED",
-      "verificationStatus": "NOT_VERIFIED",
-      "implementationPaths": [],
-      "testIds": [],
-      "evidencePaths": [],
-      "reviewerAgentId": null
+      "implementationStatus": "IMPLEMENTED",
+      "verificationStatus": "VERIFIED",
+      "implementationPaths": [
+        "compiler-core/src/main/java/org/javelle/compiler/core/emitter",
+        "compiler-core/src/main/java/org/javelle/compiler/core/lowering/EarlyLowerer.java",
+        "compiler-core/src/main/java/org/javelle/compiler/core/semantic",
+        "compiler-driver/src/main/java"
+      ],
+      "testIds": [
+        "P06EmitterTest",
+        "P06DriverTest",
+        "P06EndToEndTest",
+        "P06Release21Test"
+      ],
+      "evidencePaths": [
+        ".agent/reports/P06-REVIEW.md: Final focused review R05 — ACCEPT P06"
+      ],
+      "reviewerAgentId": "/root/p00_review"
     },
     {
       "id": "P06-11",
       "section": "P06",
       "ownerRole": "compiler/spec/interop",
-      "implementationStatus": "NOT_IMPLEMENTED",
-      "verificationStatus": "NOT_VERIFIED",
-      "implementationPaths": [],
-      "testIds": [],
-      "evidencePaths": [],
-      "reviewerAgentId": null
+      "implementationStatus": "IMPLEMENTED",
+      "verificationStatus": "VERIFIED",
+      "implementationPaths": [
+        "compiler-core/src/main/java/org/javelle/compiler/core/emitter",
+        "compiler-core/src/main/java/org/javelle/compiler/core/lowering/EarlyLowerer.java",
+        "compiler-core/src/main/java/org/javelle/compiler/core/semantic",
+        "compiler-driver/src/main/java"
+      ],
+      "testIds": [
+        "P06EmitterTest",
+        "P06DriverTest",
+        "P06EndToEndTest",
+        "P06Release21Test"
+      ],
+      "evidencePaths": [
+        ".agent/reports/P06-REVIEW.md: Final focused review R05 — ACCEPT P06"
+      ],
+      "reviewerAgentId": "/root/p00_review"
     },
     {
       "id": "P06-12",
       "section": "P06",
       "ownerRole": "compiler/spec/interop",
-      "implementationStatus": "NOT_IMPLEMENTED",
-      "verificationStatus": "NOT_VERIFIED",
-      "implementationPaths": [],
-      "testIds": [],
-      "evidencePaths": [],
-      "reviewerAgentId": null
+      "implementationStatus": "IMPLEMENTED",
+      "verificationStatus": "VERIFIED",
+      "implementationPaths": [
+        "compiler-core/src/main/java/org/javelle/compiler/core/emitter",
+        "compiler-core/src/main/java/org/javelle/compiler/core/lowering/EarlyLowerer.java",
+        "compiler-core/src/main/java/org/javelle/compiler/core/semantic",
+        "compiler-driver/src/main/java"
+      ],
+      "testIds": [
+        "P06EmitterTest",
+        "P06DriverTest",
+        "P06EndToEndTest",
+        "P06Release21Test"
+      ],
+      "evidencePaths": [
+        ".agent/reports/P06-REVIEW.md: Final focused review R05 — ACCEPT P06"
+      ],
+      "reviewerAgentId": "/root/p00_review"
     },
     {
       "id": "P07-01",

@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "phase": "P06",
+  "phase": "P07/P08",
   "tasks": [
     {
       "id": "P00",
@@ -242,9 +242,30 @@
     },
     {
       "id": "P06",
+      "owner": "/root/p00_git_publish",
+      "status": "ACCEPTED",
+      "dependsOn": ["P05"],
+      "evidence": [".agent/reports/P06-CONTRACT.md", ".agent/reports/P06-CORE-EMITTER.md", ".agent/reports/P06-CORE-REPAIR.md", ".agent/reports/P06-DRIVER.md", ".agent/reports/P06-DRIVER-REPAIR.md", ".agent/reports/P06-DRIVER-MAPPING.md", ".agent/reports/P06-DRIVER-FINAL.md", ".agent/reports/P06-REVIEW.md: Final focused review R05 — ACCEPT P06"]
+    },
+    {
+      "id": "P06-REVIEW",
+      "owner": "/root/p00_review",
+      "status": "ACCEPTED",
+      "dependsOn": ["P06"],
+      "evidence": [".agent/reports/P06-REVIEW.md: Final focused review R05 — ACCEPT P06"]
+    },
+    {
+      "id": "P07",
       "owner": null,
       "status": "READY",
-      "dependsOn": ["P05"],
+      "dependsOn": ["P06"],
+      "evidence": []
+    },
+    {
+      "id": "P08",
+      "owner": null,
+      "status": "READY",
+      "dependsOn": ["P06"],
       "evidence": []
     }
   ]
