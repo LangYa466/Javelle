@@ -612,18 +612,18 @@ P03/P11 → P45 → P46 → P47 → P48
 **依賴：** P03  
 **產物：** compiler-core primitives、workspace-neutral 契約、source-map API
 
-- [ ] **P04-01** 實作不可變 SourceFile／SourceId／TextRange／LineMap，支持 UTF-8 檔案與 UTF-16 editor 座標換算。
-- [ ] **P04-02** 實作 Unicode 預處理到原始文字的 offset mapping，覆蓋 escape 改變換行與 surrogate pair 的案例。
-- [ ] **P04-03** 定義 token／trivia、CST／AST node ID、parent/child traversal 與錯誤節點，不依賴 IDE 類別。
-- [ ] **P04-04** 實作 Diagnostic code／severity／range／relatedInformation／fix metadata 與穩定 JSON serialization。
-- [ ] **P04-05** 定義 SymbolId、TypeRef、PropertyDescriptor、GeneratedMemberOrigin 與 ABI projection；ID 不用物件記憶體位址。
-- [ ] **P04-06** 定義 typed lowering IR／Java generation interfaces，記錄每個生成節點對應的來源或 synthetic 原因。
-- [ ] **P04-07** 實作 cancellation token、resource budget、輸入 fingerprint 與 thread-safe immutable snapshot 契約。
-- [ ] **P04-08** 實作 SourceMapSegment 的 direct／expanded／synthetic／related mapping，支援區間查詢而不是只存行號。
-- [ ] **P04-09** 為中文、emoji、CRLF、空檔、BOM、text block、Unicode newline 建立座標 roundtrip 測試。
-- [ ] **P04-10** 驗證 schema unknown fields／新版本拒絕策略與決定性 serialization，避免無序 Map 導致 snapshot 飄動。
-- [ ] **P04-11** 建立 internal implementation／public API 邊界與 API drift 檢查；禁止核心暴露 Gradle Project／PSI／LSP library types。
-- [ ] **P04-12** 由 interop reviewer 驗證一個來源節點展開多個 getter/setter 節點的定位，不容許只返回整個檔案位置。
+- [x] **P04-01** 實作不可變 SourceFile／SourceId／TextRange／LineMap，支持 UTF-8 檔案與 UTF-16 editor 座標換算。
+- [x] **P04-02** 實作 Unicode 預處理到原始文字的 offset mapping，覆蓋 escape 改變換行與 surrogate pair 的案例。
+- [x] **P04-03** 定義 token／trivia、CST／AST node ID、parent/child traversal 與錯誤節點，不依賴 IDE 類別。
+- [x] **P04-04** 實作 Diagnostic code／severity／range／relatedInformation／fix metadata 與穩定 JSON serialization。
+- [x] **P04-05** 定義 SymbolId、TypeRef、PropertyDescriptor、GeneratedMemberOrigin 與 ABI projection；ID 不用物件記憶體位址。
+- [x] **P04-06** 定義 typed lowering IR／Java generation interfaces，記錄每個生成節點對應的來源或 synthetic 原因。
+- [x] **P04-07** 實作 cancellation token、resource budget、輸入 fingerprint 與 thread-safe immutable snapshot 契約。
+- [x] **P04-08** 實作 SourceMapSegment 的 direct／expanded／synthetic／related mapping，支援區間查詢而不是只存行號。
+- [x] **P04-09** 為中文、emoji、CRLF、空檔、BOM、text block、Unicode newline 建立座標 roundtrip 測試。
+- [x] **P04-10** 驗證 schema unknown fields／新版本拒絕策略與決定性 serialization，避免無序 Map 導致 snapshot 飄動。
+- [x] **P04-11** 建立 internal implementation／public API 邊界與 API drift 檢查；禁止核心暴露 Gradle Project／PSI／LSP library types。
+- [x] **P04-12** 由 interop reviewer 驗證一個來源節點展開多個 getter/setter 節點的定位，不容許只返回整個檔案位置。
 
 **階段出口：** 核心模型可單獨測試、來源位置可 roundtrip，後端與 IDE 不用自行重新發明位置系統。 所有項目另須通過根 `AGENTS.md` 的共同 DoD。
 

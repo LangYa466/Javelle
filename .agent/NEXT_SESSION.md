@@ -1,7 +1,7 @@
 # Resume Javelle
 
 1. Run `sudo su` before every operation, then verify `git status --short --branch` and read `.agent/STATE.md`.
-2. Read the focused R1/R2 re-review in `.agent/reports/P03-REVIEW.md`; P03 is independently accepted and P04 is READY.
-3. Treat P03 acceptance as contract freeze only: grammar fixtures, Lombok compatibility, mixed compilation, source maps, and debugger behavior remain NOT_IMPLEMENTED until their implementation stages.
-4. Preserve unowned `.idea/vcs.xml`. Assign non-overlapping P04 core-model implementation and review packages against the frozen ABI/diagnostic/source-map contracts.
-5. Keep strict `verifyQuick` green and independently review P04 before unlocking P05.
+2. Read the final focused R04 section of `.agent/reports/P04-REVIEW.md`; P04 is independently accepted and P05 is READY.
+3. Preserve the P04 boundary: immutable source/coordinate/syntax model types, diagnostics, symbols, typed IR and source maps are implemented; real lexer/parser/semantic compilation remains downstream.
+4. Preserve unowned `.idea/vcs.xml`. Assign non-overlapping P05 lexer/parser implementation and independent adversarial review packages.
+5. Keep the 623-entry compiler-core API golden and strict `verifyQuick` green; independently review P05 before unlocking P06.

@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "phase": "P04",
+  "phase": "P05",
   "tasks": [
     {
       "id": "P00",
@@ -205,9 +205,23 @@
     },
     {
       "id": "P04",
+      "owner": "/root/p00_git_publish",
+      "status": "ACCEPTED",
+      "dependsOn": ["P03"],
+      "evidence": [".agent/reports/P04-CONTRACT.md", ".agent/reports/P04-CORE.md", ".agent/reports/P04-DIAG-GEN-REPAIR.md", ".agent/reports/P04-MAP-API-REPAIR.md", ".agent/reports/P04-MODELS-REPAIR.md", ".agent/reports/P04-FINAL-REPAIR.md", ".agent/reports/P04-REVIEW.md: Final focused R04 review — ACCEPT P04"]
+    },
+    {
+      "id": "P04-REVIEW",
+      "owner": "/root/p00_review",
+      "status": "ACCEPTED",
+      "dependsOn": ["P04"],
+      "evidence": [".agent/reports/P04-REVIEW.md"]
+    },
+    {
+      "id": "P05",
       "owner": null,
       "status": "READY",
-      "dependsOn": ["P03"],
+      "dependsOn": ["P04"],
       "evidence": []
     }
   ]

@@ -738,133 +738,253 @@
       "id": "P04-01",
       "section": "P04",
       "ownerRole": "compiler/spec/interop",
-      "implementationStatus": "NOT_IMPLEMENTED",
-      "verificationStatus": "NOT_VERIFIED",
-      "implementationPaths": [],
-      "testIds": [],
-      "evidencePaths": [],
-      "reviewerAgentId": null
+      "implementationStatus": "IMPLEMENTED",
+      "verificationStatus": "VERIFIED",
+      "implementationPaths": [
+        "compiler-core/src/main/java/"
+      ],
+      "testIds": [
+        "compiler-core:CoreModelTest",
+        "compiler-core:DiagnosticGenerationBudgetRepairTest",
+        "compiler-core:FinalRepairTest",
+        "compiler-core:ModelRepairTest",
+        "compiler-core:public-api-v1"
+      ],
+      "evidencePaths": [
+        ".agent/reports/P04-REVIEW.md"
+      ],
+      "reviewerAgentId": "/root/p00_review"
     },
     {
       "id": "P04-02",
       "section": "P04",
       "ownerRole": "compiler/spec/interop",
-      "implementationStatus": "NOT_IMPLEMENTED",
-      "verificationStatus": "NOT_VERIFIED",
-      "implementationPaths": [],
-      "testIds": [],
-      "evidencePaths": [],
-      "reviewerAgentId": null
+      "implementationStatus": "IMPLEMENTED",
+      "verificationStatus": "VERIFIED",
+      "implementationPaths": [
+        "compiler-core/src/main/java/"
+      ],
+      "testIds": [
+        "compiler-core:CoreModelTest",
+        "compiler-core:DiagnosticGenerationBudgetRepairTest",
+        "compiler-core:FinalRepairTest",
+        "compiler-core:ModelRepairTest",
+        "compiler-core:public-api-v1"
+      ],
+      "evidencePaths": [
+        ".agent/reports/P04-REVIEW.md"
+      ],
+      "reviewerAgentId": "/root/p00_review"
     },
     {
       "id": "P04-03",
       "section": "P04",
       "ownerRole": "compiler/spec/interop",
-      "implementationStatus": "NOT_IMPLEMENTED",
-      "verificationStatus": "NOT_VERIFIED",
-      "implementationPaths": [],
-      "testIds": [],
-      "evidencePaths": [],
-      "reviewerAgentId": null
+      "implementationStatus": "IMPLEMENTED",
+      "verificationStatus": "VERIFIED",
+      "implementationPaths": [
+        "compiler-core/src/main/java/"
+      ],
+      "testIds": [
+        "compiler-core:CoreModelTest",
+        "compiler-core:DiagnosticGenerationBudgetRepairTest",
+        "compiler-core:FinalRepairTest",
+        "compiler-core:ModelRepairTest",
+        "compiler-core:public-api-v1"
+      ],
+      "evidencePaths": [
+        ".agent/reports/P04-REVIEW.md"
+      ],
+      "reviewerAgentId": "/root/p00_review"
     },
     {
       "id": "P04-04",
       "section": "P04",
       "ownerRole": "compiler/spec/interop",
-      "implementationStatus": "NOT_IMPLEMENTED",
-      "verificationStatus": "NOT_VERIFIED",
-      "implementationPaths": [],
-      "testIds": [],
-      "evidencePaths": [],
-      "reviewerAgentId": null
+      "implementationStatus": "IMPLEMENTED",
+      "verificationStatus": "VERIFIED",
+      "implementationPaths": [
+        "compiler-core/src/main/java/"
+      ],
+      "testIds": [
+        "compiler-core:CoreModelTest",
+        "compiler-core:DiagnosticGenerationBudgetRepairTest",
+        "compiler-core:FinalRepairTest",
+        "compiler-core:ModelRepairTest",
+        "compiler-core:public-api-v1"
+      ],
+      "evidencePaths": [
+        ".agent/reports/P04-REVIEW.md"
+      ],
+      "reviewerAgentId": "/root/p00_review"
     },
     {
       "id": "P04-05",
       "section": "P04",
       "ownerRole": "compiler/spec/interop",
-      "implementationStatus": "NOT_IMPLEMENTED",
-      "verificationStatus": "NOT_VERIFIED",
-      "implementationPaths": [],
-      "testIds": [],
-      "evidencePaths": [],
-      "reviewerAgentId": null
+      "implementationStatus": "IMPLEMENTED",
+      "verificationStatus": "VERIFIED",
+      "implementationPaths": [
+        "compiler-core/src/main/java/"
+      ],
+      "testIds": [
+        "compiler-core:CoreModelTest",
+        "compiler-core:DiagnosticGenerationBudgetRepairTest",
+        "compiler-core:FinalRepairTest",
+        "compiler-core:ModelRepairTest",
+        "compiler-core:public-api-v1"
+      ],
+      "evidencePaths": [
+        ".agent/reports/P04-REVIEW.md"
+      ],
+      "reviewerAgentId": "/root/p00_review"
     },
     {
       "id": "P04-06",
       "section": "P04",
       "ownerRole": "compiler/spec/interop",
-      "implementationStatus": "NOT_IMPLEMENTED",
-      "verificationStatus": "NOT_VERIFIED",
-      "implementationPaths": [],
-      "testIds": [],
-      "evidencePaths": [],
-      "reviewerAgentId": null
+      "implementationStatus": "IMPLEMENTED",
+      "verificationStatus": "VERIFIED",
+      "implementationPaths": [
+        "compiler-core/src/main/java/"
+      ],
+      "testIds": [
+        "compiler-core:CoreModelTest",
+        "compiler-core:DiagnosticGenerationBudgetRepairTest",
+        "compiler-core:FinalRepairTest",
+        "compiler-core:ModelRepairTest",
+        "compiler-core:public-api-v1"
+      ],
+      "evidencePaths": [
+        ".agent/reports/P04-REVIEW.md"
+      ],
+      "reviewerAgentId": "/root/p00_review"
     },
     {
       "id": "P04-07",
       "section": "P04",
       "ownerRole": "compiler/spec/interop",
-      "implementationStatus": "NOT_IMPLEMENTED",
-      "verificationStatus": "NOT_VERIFIED",
-      "implementationPaths": [],
-      "testIds": [],
-      "evidencePaths": [],
-      "reviewerAgentId": null
+      "implementationStatus": "IMPLEMENTED",
+      "verificationStatus": "VERIFIED",
+      "implementationPaths": [
+        "compiler-core/src/main/java/"
+      ],
+      "testIds": [
+        "compiler-core:CoreModelTest",
+        "compiler-core:DiagnosticGenerationBudgetRepairTest",
+        "compiler-core:FinalRepairTest",
+        "compiler-core:ModelRepairTest",
+        "compiler-core:public-api-v1"
+      ],
+      "evidencePaths": [
+        ".agent/reports/P04-REVIEW.md"
+      ],
+      "reviewerAgentId": "/root/p00_review"
     },
     {
       "id": "P04-08",
       "section": "P04",
       "ownerRole": "compiler/spec/interop",
-      "implementationStatus": "NOT_IMPLEMENTED",
-      "verificationStatus": "NOT_VERIFIED",
-      "implementationPaths": [],
-      "testIds": [],
-      "evidencePaths": [],
-      "reviewerAgentId": null
+      "implementationStatus": "IMPLEMENTED",
+      "verificationStatus": "VERIFIED",
+      "implementationPaths": [
+        "compiler-core/src/main/java/"
+      ],
+      "testIds": [
+        "compiler-core:CoreModelTest",
+        "compiler-core:DiagnosticGenerationBudgetRepairTest",
+        "compiler-core:FinalRepairTest",
+        "compiler-core:ModelRepairTest",
+        "compiler-core:public-api-v1"
+      ],
+      "evidencePaths": [
+        ".agent/reports/P04-REVIEW.md"
+      ],
+      "reviewerAgentId": "/root/p00_review"
     },
     {
       "id": "P04-09",
       "section": "P04",
       "ownerRole": "compiler/spec/interop",
-      "implementationStatus": "NOT_IMPLEMENTED",
-      "verificationStatus": "NOT_VERIFIED",
-      "implementationPaths": [],
-      "testIds": [],
-      "evidencePaths": [],
-      "reviewerAgentId": null
+      "implementationStatus": "IMPLEMENTED",
+      "verificationStatus": "VERIFIED",
+      "implementationPaths": [
+        "compiler-core/src/main/java/"
+      ],
+      "testIds": [
+        "compiler-core:CoreModelTest",
+        "compiler-core:DiagnosticGenerationBudgetRepairTest",
+        "compiler-core:FinalRepairTest",
+        "compiler-core:ModelRepairTest",
+        "compiler-core:public-api-v1"
+      ],
+      "evidencePaths": [
+        ".agent/reports/P04-REVIEW.md"
+      ],
+      "reviewerAgentId": "/root/p00_review"
     },
     {
       "id": "P04-10",
       "section": "P04",
       "ownerRole": "compiler/spec/interop",
-      "implementationStatus": "NOT_IMPLEMENTED",
-      "verificationStatus": "NOT_VERIFIED",
-      "implementationPaths": [],
-      "testIds": [],
-      "evidencePaths": [],
-      "reviewerAgentId": null
+      "implementationStatus": "IMPLEMENTED",
+      "verificationStatus": "VERIFIED",
+      "implementationPaths": [
+        "compiler-core/src/main/java/"
+      ],
+      "testIds": [
+        "compiler-core:CoreModelTest",
+        "compiler-core:DiagnosticGenerationBudgetRepairTest",
+        "compiler-core:FinalRepairTest",
+        "compiler-core:ModelRepairTest",
+        "compiler-core:public-api-v1"
+      ],
+      "evidencePaths": [
+        ".agent/reports/P04-REVIEW.md"
+      ],
+      "reviewerAgentId": "/root/p00_review"
     },
     {
       "id": "P04-11",
       "section": "P04",
       "ownerRole": "compiler/spec/interop",
-      "implementationStatus": "NOT_IMPLEMENTED",
-      "verificationStatus": "NOT_VERIFIED",
-      "implementationPaths": [],
-      "testIds": [],
-      "evidencePaths": [],
-      "reviewerAgentId": null
+      "implementationStatus": "IMPLEMENTED",
+      "verificationStatus": "VERIFIED",
+      "implementationPaths": [
+        "compiler-core/src/main/java/"
+      ],
+      "testIds": [
+        "compiler-core:CoreModelTest",
+        "compiler-core:DiagnosticGenerationBudgetRepairTest",
+        "compiler-core:FinalRepairTest",
+        "compiler-core:ModelRepairTest",
+        "compiler-core:public-api-v1"
+      ],
+      "evidencePaths": [
+        ".agent/reports/P04-REVIEW.md"
+      ],
+      "reviewerAgentId": "/root/p00_review"
     },
     {
       "id": "P04-12",
       "section": "P04",
       "ownerRole": "compiler/spec/interop",
-      "implementationStatus": "NOT_IMPLEMENTED",
-      "verificationStatus": "NOT_VERIFIED",
-      "implementationPaths": [],
-      "testIds": [],
-      "evidencePaths": [],
-      "reviewerAgentId": null
+      "implementationStatus": "IMPLEMENTED",
+      "verificationStatus": "VERIFIED",
+      "implementationPaths": [
+        "compiler-core/src/main/java/"
+      ],
+      "testIds": [
+        "compiler-core:CoreModelTest",
+        "compiler-core:DiagnosticGenerationBudgetRepairTest",
+        "compiler-core:FinalRepairTest",
+        "compiler-core:ModelRepairTest",
+        "compiler-core:public-api-v1"
+      ],
+      "evidencePaths": [
+        ".agent/reports/P04-REVIEW.md"
+      ],
+      "reviewerAgentId": "/root/p00_review"
     },
     {
       "id": "P05-01",
