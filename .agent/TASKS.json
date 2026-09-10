@@ -1,11 +1,18 @@
 {
   "schemaVersion": 1,
-  "phase": "P00",
+  "phase": "P01",
   "tasks": [
+    {
+      "id": "P00",
+      "owner": "/root",
+      "status": "ACCEPTED",
+      "dependsOn": [],
+      "evidence": [".agent/reports/P00-REVIEW.md: Final P00 stage-exit review — ACCEPT P00"]
+    },
     {
       "id": "P00-RECON",
       "owner": "/root/p00_recon",
-      "status": "VERIFIED",
+      "status": "ACCEPTED",
       "dependsOn": [],
       "evidence": [
         ".agent/reports/P00-RECON.md",
@@ -15,39 +22,39 @@
     {
       "id": "P00-SPEC-COVERAGE",
       "owner": "/root/p00_spec",
-      "status": "IMPLEMENTED",
+      "status": "ACCEPTED",
       "dependsOn": [],
       "evidence": [".agent/reports/P00-SPEC-COVERAGE.md"]
     },
     {
       "id": "P00-GIT",
       "owner": "/root/p00_git_publish",
-      "status": "VERIFIED",
+      "status": "ACCEPTED",
       "dependsOn": [],
       "evidence": [".agent/reports/P00-GIT.md"]
     },
     {
       "id": "P00-LIFECYCLE",
       "owner": "/root/p00_probe",
-      "status": "BLOCKED",
+      "status": "ACCEPTED",
       "dependsOn": [],
       "evidence": [
         ".agent/reports/P00-CAPABILITY.md",
-        ".agent/reports/P00-REVIEW.md: P00-10 requires close verification, but no close/delete tool is exposed"
+        ".agent/reports/P00-DECISION.md: user authorized verified interrupt_agent as the environment's termination/close semantic"
       ]
     },
     {
       "id": "P00-REVIEW",
       "owner": "/root/p00_review",
-      "status": "FAILED",
+      "status": "ACCEPTED",
       "dependsOn": ["P00-RECON", "P00-SPEC-COVERAGE", "P00-GIT", "P00-LIFECYCLE"],
       "evidence": [".agent/reports/P00-REVIEW.md"]
     },
     {
       "id": "P01",
       "owner": null,
-      "status": "TODO",
-      "dependsOn": ["P00-REVIEW (must be ACCEPTED)"],
+      "status": "READY",
+      "dependsOn": ["P00"],
       "evidence": []
     }
   ]

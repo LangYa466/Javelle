@@ -528,18 +528,18 @@ P03/P11 → P45 → P46 → P47 → P48
 **依賴：** 無  
 **產物：** .agent 初始狀態、environment-report、真實 agent registry
 
-- [ ] **P00-01** 確認目前所在目錄就是使用者指定專案，記錄 Git root、工作目錄、dirty files 與既有 AGENTS／override；不修改使用者既有變更。
-- [ ] **P00-02** 讀取本檔 A～D；將 B/C/附錄的需求歸屬交給子代理建立覆蓋索引，禁止漏讀後直接實作。
-- [ ] **P00-03** 確認實際 Codex／客戶端版本與目前暴露的 subagent 工具，不能從名字或舊文章推定可用。
-- [ ] **P00-04** 真正建立一個 read-only recon 子代理，要求返回唯一 thread/agent ID、讀取範圍與環境短摘要；把證據寫入 registry。
-- [ ] **P00-05** 若無法建立子代理，標記 BLOCKED_SUBAGENT_CAPABILITY、提供最小已驗證修正方式，禁止主 thread 繼續單人實作。
-- [ ] **P00-06** 讀取官方 AGENTS 載入規則，檢查有效指示是否被 override／大小限制截斷；不擅自修改全域 project_doc_max_bytes。[S01]
-- [ ] **P00-07** 盤點 CPU、RAM、磁碟、JDK、Gradle、Node、套件管理器、GUI／headless、網路與 sandbox 限制，不假設可 sudo。
-- [ ] **P00-08** 設定預設最多 4 個活躍 agent、2 個寫入者、1 個重型 build；實際環境較小則下調並記錄。
-- [ ] **P00-09** 建立狀態／ownership／report 模板；安排不重疊的短 read-only 子包，確認回報不把原始 log 灌入主 session。
-- [ ] **P00-10** 驗證中止／關閉子代理、超時及等待能力；不要以 shell 背景程序或多個聊天角色冒充獨立 agent。
-- [ ] **P00-11** 列出外部發布憑證未提供、域名未定、Git remote 未授權等外部條件，與本地開發是否可行分開。
-- [ ] **P00-12** 完成可恢復起點：STATE、TASKS、OWNERSHIP、NEXT_SESSION 包含下一個可執行工作包，而非一句「環境正常」。
+- [x] **P00-01** 確認目前所在目錄就是使用者指定專案，記錄 Git root、工作目錄、dirty files 與既有 AGENTS／override；不修改使用者既有變更。
+- [x] **P00-02** 讀取本檔 A～D；將 B/C/附錄的需求歸屬交給子代理建立覆蓋索引，禁止漏讀後直接實作。
+- [x] **P00-03** 確認實際 Codex／客戶端版本與目前暴露的 subagent 工具，不能從名字或舊文章推定可用。
+- [x] **P00-04** 真正建立一個 read-only recon 子代理，要求返回唯一 thread/agent ID、讀取範圍與環境短摘要；把證據寫入 registry。
+- [x] **P00-05** 若無法建立子代理，標記 BLOCKED_SUBAGENT_CAPABILITY、提供最小已驗證修正方式，禁止主 thread 繼續單人實作。
+- [x] **P00-06** 讀取官方 AGENTS 載入規則，檢查有效指示是否被 override／大小限制截斷；不擅自修改全域 project_doc_max_bytes。[S01]
+- [x] **P00-07** 盤點 CPU、RAM、磁碟、JDK、Gradle、Node、套件管理器、GUI／headless、網路與 sandbox 限制，不假設可 sudo。
+- [x] **P00-08** 設定預設最多 4 個活躍 agent、2 個寫入者、1 個重型 build；實際環境較小則下調並記錄。
+- [x] **P00-09** 建立狀態／ownership／report 模板；安排不重疊的短 read-only 子包，確認回報不把原始 log 灌入主 session。
+- [x] **P00-10** 驗證中止／關閉子代理、超時及等待能力；不要以 shell 背景程序或多個聊天角色冒充獨立 agent。
+- [x] **P00-11** 列出外部發布憑證未提供、域名未定、Git remote 未授權等外部條件，與本地開發是否可行分開。
+- [x] **P00-12** 完成可恢復起點：STATE、TASKS、OWNERSHIP、NEXT_SESSION 包含下一個可執行工作包，而非一句「環境正常」。
 
 **階段出口：** 已有可追蹤真實子代理回報；若沒有，只能交付環境阻塞，不得把 P00 勾為完成。 所有項目另須通過根 `AGENTS.md` 的共同 DoD。
 

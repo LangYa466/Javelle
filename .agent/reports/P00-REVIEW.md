@@ -114,3 +114,50 @@ NEXT_DEPENDENCIES: obtain and persist a compliant read-only recon return for `P0
 Updated requirement result: PASS `P00-01/02/03/04/06/07/08/09/11/12`; N/A `P00-05`; **FAIL `P00-10` only**. Overall status remains **REJECT P00** because no close/delete operation is exposed or verified; interrupt does not satisfy the separately named close requirement.
 
 NEXT_DEPENDENCIES: expose and verify a genuine close operation for `P00-10`, or obtain an explicit user/spec change; then rerun the stage-exit decision.
+
+---
+
+## Final P00 stage-exit review — authoritative decision
+
+TASK / AGENT_ID / BASE_REVISION: `P00-FINAL-REVIEW` / `/root/p00_review` / `236632d27dc89ca7e092423b78267c3bb6ba3284`
+
+STATUS: **VERIFIED — ACCEPT P00**
+
+The user was presented with the sole remaining lifecycle choice and explicitly replied `繼續`, authorizing the already verified `interrupt_agent` behavior as this environment's P00-10 termination/close semantic. This latest explicit decision supersedes the earlier reviewer interpretation that required a separately exposed close operation.
+
+| Requirement | Final decision | Evidence |
+|---|---|---|
+| `P00-01` | PASS | Workspace/Git root, branch, dirty state, instruction files and override absence recorded and independently checked |
+| `P00-02` | PASS | Complete A–I, P00–P55 and UAT coverage/index produced by `/root/p00_spec` |
+| `P00-03` | PASS | Desktop RPM `26.803.81509`, embedded Codex CLI `0.147.0-alpha.6.6`, and exposed collaboration operations verified |
+| `P00-04` | PASS | `/root/p00_recon` returned attributable zero-write ID, scope, environment summary, exit codes, and identical clean before/after status at base `82c264d007fd7114e468f8ef2c855a6d4f6718e2` |
+| `P00-05` | N/A | Genuine subagent capability exists |
+| `P00-06` | PASS | Official loading rules, 21,162-byte effective chain under the 32 KiB default, no override/config truncation and no global mutation verified |
+| `P00-07` | PASS | CPU/RAM/disk/JDK/Gradle/Node/package managers/GUI/headless/network/sandbox/approval/limits recorded with raw evidence |
+| `P00-08` | PASS | Limits: 3 subagents, 2 writers, 1 heavy build |
+| `P00-09` | PASS | State/ownership/report template exists; non-overlapping reports and ignored raw logs verified |
+| `P00-10` | PASS | Real spawn/list/message/follow-up/wait/timeout/interrupt behavior was exercised; user explicitly authorized interrupt as the available termination/close semantic |
+| `P00-11` | PASS | Git publication is separated from unavailable Maven/Portal/Marketplace/signing/domain/website/GitHub Release authority; local work remains feasible |
+| `P00-12` | PASS | Recoverable STATE/TASKS/OWNERSHIP/NEXT_SESSION exist, JSON parses, and next dependency is explicit |
+
+### Lifecycle boundary
+
+- Verified and accepted for P00-10: spawn, canonical IDs, list, message, follow-up, bounded wait/timeout, and interruption of a running agent with subsequent interrupted state.
+- **Not exposed, not verified, and not claimed:** a distinct close/delete API, deletion of agent records, semantic cancellation beyond interruption, or a UI-internal task UUID.
+- Acceptance relies on the user's explicit interpretation for this platform surface; future reports must preserve this limitation.
+
+### Independent reproduction
+
+- `python3 -m json.tool .agent/TASKS.json`: exit 0.
+- `python3 -m json.tool .agent/OWNERSHIP.json`: exit 0.
+- `git status --short --branch`: exit 0; coordinator repair files are pending and accurately visible.
+- `git rev-parse HEAD`: exit 0, `236632d27dc89ca7e092423b78267c3bb6ba3284`.
+- `list_agents`: returned real canonical agent paths and completed summaries.
+- `wait_agent(10000)`: independently returned `timed_out: true`.
+- Earlier direct lifecycle turn for `/root/p00_review` was interrupted after 6.6 seconds and subsequently reactivated by follow-up; capability report records two independent interrupt observations and the enforced spawn/thread limit.
+
+REVIEW: independent reviewer `/root/p00_review`; all applicable P00 checklist items and the stage exit are accepted. The coordinator may update ledgers/checkmarks and unlock P01; this reviewer did not modify them.
+
+RISKS_OR_BLOCKERS: none for P00 under the user-authorized lifecycle interpretation. Dedicated close/delete remains unavailable as a documented limitation, not a claimed capability.
+
+NEXT_DEPENDENCIES: coordinator records P00 `ACCEPTED`, integrates evidence, then schedules P01 according to the dependency graph.
