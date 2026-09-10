@@ -534,133 +534,205 @@
       "id": "P03-01",
       "section": "P03",
       "ownerRole": "compiler/spec/interop",
-      "implementationStatus": "NOT_IMPLEMENTED",
-      "verificationStatus": "NOT_VERIFIED",
-      "implementationPaths": [],
-      "testIds": [],
-      "evidencePaths": [],
-      "reviewerAgentId": null
+      "implementationStatus": "IMPLEMENTED",
+      "verificationStatus": "VERIFIED",
+      "implementationPaths": [
+        "spec/"
+      ],
+      "testIds": [
+        "P03-SPEC-VALIDATION"
+      ],
+      "evidencePaths": [
+        ".agent/reports/P03-REVIEW.md"
+      ],
+      "reviewerAgentId": "/root/p00_review"
     },
     {
       "id": "P03-02",
       "section": "P03",
       "ownerRole": "compiler/spec/interop",
-      "implementationStatus": "NOT_IMPLEMENTED",
-      "verificationStatus": "NOT_VERIFIED",
-      "implementationPaths": [],
-      "testIds": [],
-      "evidencePaths": [],
-      "reviewerAgentId": null
+      "implementationStatus": "IMPLEMENTED",
+      "verificationStatus": "VERIFIED",
+      "implementationPaths": [
+        "spec/"
+      ],
+      "testIds": [
+        "P03-SPEC-VALIDATION"
+      ],
+      "evidencePaths": [
+        ".agent/reports/P03-REVIEW.md"
+      ],
+      "reviewerAgentId": "/root/p00_review"
     },
     {
       "id": "P03-03",
       "section": "P03",
       "ownerRole": "compiler/spec/interop",
-      "implementationStatus": "NOT_IMPLEMENTED",
-      "verificationStatus": "NOT_VERIFIED",
-      "implementationPaths": [],
-      "testIds": [],
-      "evidencePaths": [],
-      "reviewerAgentId": null
+      "implementationStatus": "IMPLEMENTED",
+      "verificationStatus": "VERIFIED",
+      "implementationPaths": [
+        "spec/"
+      ],
+      "testIds": [
+        "P03-SPEC-VALIDATION"
+      ],
+      "evidencePaths": [
+        ".agent/reports/P03-REVIEW.md"
+      ],
+      "reviewerAgentId": "/root/p00_review"
     },
     {
       "id": "P03-04",
       "section": "P03",
       "ownerRole": "compiler/spec/interop",
-      "implementationStatus": "NOT_IMPLEMENTED",
-      "verificationStatus": "NOT_VERIFIED",
-      "implementationPaths": [],
-      "testIds": [],
-      "evidencePaths": [],
-      "reviewerAgentId": null
+      "implementationStatus": "IMPLEMENTED",
+      "verificationStatus": "VERIFIED",
+      "implementationPaths": [
+        "spec/"
+      ],
+      "testIds": [
+        "P03-SPEC-VALIDATION"
+      ],
+      "evidencePaths": [
+        ".agent/reports/P03-REVIEW.md"
+      ],
+      "reviewerAgentId": "/root/p00_review"
     },
     {
       "id": "P03-05",
       "section": "P03",
       "ownerRole": "compiler/spec/interop",
-      "implementationStatus": "NOT_IMPLEMENTED",
-      "verificationStatus": "NOT_VERIFIED",
-      "implementationPaths": [],
-      "testIds": [],
-      "evidencePaths": [],
-      "reviewerAgentId": null
+      "implementationStatus": "IMPLEMENTED",
+      "verificationStatus": "VERIFIED",
+      "implementationPaths": [
+        "spec/"
+      ],
+      "testIds": [
+        "P03-SPEC-VALIDATION"
+      ],
+      "evidencePaths": [
+        ".agent/reports/P03-REVIEW.md"
+      ],
+      "reviewerAgentId": "/root/p00_review"
     },
     {
       "id": "P03-06",
       "section": "P03",
       "ownerRole": "compiler/spec/interop",
-      "implementationStatus": "NOT_IMPLEMENTED",
-      "verificationStatus": "NOT_VERIFIED",
-      "implementationPaths": [],
-      "testIds": [],
-      "evidencePaths": [],
-      "reviewerAgentId": null
+      "implementationStatus": "IMPLEMENTED",
+      "verificationStatus": "VERIFIED",
+      "implementationPaths": [
+        "spec/"
+      ],
+      "testIds": [
+        "P03-SPEC-VALIDATION"
+      ],
+      "evidencePaths": [
+        ".agent/reports/P03-REVIEW.md"
+      ],
+      "reviewerAgentId": "/root/p00_review"
     },
     {
       "id": "P03-07",
       "section": "P03",
       "ownerRole": "compiler/spec/interop",
-      "implementationStatus": "NOT_IMPLEMENTED",
-      "verificationStatus": "NOT_VERIFIED",
-      "implementationPaths": [],
-      "testIds": [],
-      "evidencePaths": [],
-      "reviewerAgentId": null
+      "implementationStatus": "IMPLEMENTED",
+      "verificationStatus": "VERIFIED",
+      "implementationPaths": [
+        "spec/"
+      ],
+      "testIds": [
+        "P03-SPEC-VALIDATION"
+      ],
+      "evidencePaths": [
+        ".agent/reports/P03-REVIEW.md"
+      ],
+      "reviewerAgentId": "/root/p00_review"
     },
     {
       "id": "P03-08",
       "section": "P03",
       "ownerRole": "compiler/spec/interop",
-      "implementationStatus": "NOT_IMPLEMENTED",
-      "verificationStatus": "NOT_VERIFIED",
-      "implementationPaths": [],
-      "testIds": [],
-      "evidencePaths": [],
-      "reviewerAgentId": null
+      "implementationStatus": "IMPLEMENTED",
+      "verificationStatus": "VERIFIED",
+      "implementationPaths": [
+        "spec/"
+      ],
+      "testIds": [
+        "P03-SPEC-VALIDATION"
+      ],
+      "evidencePaths": [
+        ".agent/reports/P03-REVIEW.md"
+      ],
+      "reviewerAgentId": "/root/p00_review"
     },
     {
       "id": "P03-09",
       "section": "P03",
       "ownerRole": "compiler/spec/interop",
-      "implementationStatus": "NOT_IMPLEMENTED",
-      "verificationStatus": "NOT_VERIFIED",
-      "implementationPaths": [],
-      "testIds": [],
-      "evidencePaths": [],
-      "reviewerAgentId": null
+      "implementationStatus": "IMPLEMENTED",
+      "verificationStatus": "VERIFIED",
+      "implementationPaths": [
+        "spec/"
+      ],
+      "testIds": [
+        "P03-SPEC-VALIDATION"
+      ],
+      "evidencePaths": [
+        ".agent/reports/P03-REVIEW.md"
+      ],
+      "reviewerAgentId": "/root/p00_review"
     },
     {
       "id": "P03-10",
       "section": "P03",
       "ownerRole": "compiler/spec/interop",
-      "implementationStatus": "NOT_IMPLEMENTED",
-      "verificationStatus": "NOT_VERIFIED",
-      "implementationPaths": [],
-      "testIds": [],
-      "evidencePaths": [],
-      "reviewerAgentId": null
+      "implementationStatus": "IMPLEMENTED",
+      "verificationStatus": "VERIFIED",
+      "implementationPaths": [
+        "spec/"
+      ],
+      "testIds": [
+        "P03-SPEC-VALIDATION"
+      ],
+      "evidencePaths": [
+        ".agent/reports/P03-REVIEW.md"
+      ],
+      "reviewerAgentId": "/root/p00_review"
     },
     {
       "id": "P03-11",
       "section": "P03",
       "ownerRole": "compiler/spec/interop",
-      "implementationStatus": "NOT_IMPLEMENTED",
-      "verificationStatus": "NOT_VERIFIED",
-      "implementationPaths": [],
-      "testIds": [],
-      "evidencePaths": [],
-      "reviewerAgentId": null
+      "implementationStatus": "IMPLEMENTED",
+      "verificationStatus": "VERIFIED",
+      "implementationPaths": [
+        "spec/"
+      ],
+      "testIds": [
+        "P03-SPEC-VALIDATION"
+      ],
+      "evidencePaths": [
+        ".agent/reports/P03-REVIEW.md"
+      ],
+      "reviewerAgentId": "/root/p00_review"
     },
     {
       "id": "P03-12",
       "section": "P03",
       "ownerRole": "compiler/spec/interop",
-      "implementationStatus": "NOT_IMPLEMENTED",
-      "verificationStatus": "NOT_VERIFIED",
-      "implementationPaths": [],
-      "testIds": [],
-      "evidencePaths": [],
-      "reviewerAgentId": null
+      "implementationStatus": "IMPLEMENTED",
+      "verificationStatus": "VERIFIED",
+      "implementationPaths": [
+        "spec/"
+      ],
+      "testIds": [
+        "P03-SPEC-VALIDATION"
+      ],
+      "evidencePaths": [
+        ".agent/reports/P03-REVIEW.md"
+      ],
+      "reviewerAgentId": "/root/p00_review"
     },
     {
       "id": "P04-01",

@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "phase": "P03",
+  "phase": "P04",
   "tasks": [
     {
       "id": "P00",
@@ -170,9 +170,44 @@
     },
     {
       "id": "P03",
+      "owner": "/root/p00_git_publish",
+      "status": "ACCEPTED",
+      "dependsOn": ["P02"],
+      "evidence": [".agent/reports/P03-LANGUAGE-SPEC.md", ".agent/reports/P03-JAVA-INVENTORY.md", ".agent/reports/P03-ABI-ADR.md", ".agent/reports/P03-REVIEW.md: Focused R1/R2 re-review — ACCEPT P03"]
+    },
+    {
+      "id": "P03-W01-JAVA-INVENTORY",
+      "owner": "/root/p00_recon",
+      "status": "ACCEPTED",
+      "dependsOn": ["P02"],
+      "evidence": [".agent/reports/P03-JAVA-INVENTORY.md", "spec/java-se-25-inventory.json"]
+    },
+    {
+      "id": "P03-W02-LANGUAGE-SPEC",
+      "owner": "/root/p00_spec",
+      "status": "ACCEPTED",
+      "dependsOn": ["P03-W01-JAVA-INVENTORY"],
+      "evidence": [".agent/reports/P03-LANGUAGE-SPEC.md", "spec/diagnostics/validate.py"]
+    },
+    {
+      "id": "P03-W03-ABI-ADR",
+      "owner": "/root/p00_repair",
+      "status": "ACCEPTED",
+      "dependsOn": ["P03-W02-LANGUAGE-SPEC"],
+      "evidence": [".agent/reports/P03-ABI-ADR.md", "spec/abi/index.json", "spec/adr/index.json"]
+    },
+    {
+      "id": "P03-REVIEW",
+      "owner": "/root/p00_review",
+      "status": "ACCEPTED",
+      "dependsOn": ["P03-W01-JAVA-INVENTORY", "P03-W02-LANGUAGE-SPEC", "P03-W03-ABI-ADR"],
+      "evidence": [".agent/reports/P03-REVIEW.md"]
+    },
+    {
+      "id": "P04",
       "owner": null,
       "status": "READY",
-      "dependsOn": ["P02"],
+      "dependsOn": ["P03"],
       "evidence": []
     }
   ]

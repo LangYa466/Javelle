@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "status": "accepted-design-not-implementation",
+  "decisions": [
+    {"id":"ADR-0001","requirement":"P03-04","path":"0001-property-visibility.md","status":"ACCEPTED"},
+    {"id":"ADR-0002","requirement":"P03-04","path":"0002-explicit-properties-only.md","status":"ACCEPTED"},
+    {"id":"ADR-0003","requirement":"P03-03","path":"0003-semicolon-free-for.md","status":"ACCEPTED"},
+    {"id":"ADR-0004","requirement":"P03-03","path":"0004-try-enum-separators.md","status":"ACCEPTED"},
+    {"id":"ADR-0005","requirement":"P03-02","path":"0005-grammar-statement-boundaries.md","status":"ACCEPTED"},
+    {"id":"ADR-0006","requirement":"P03-08","path":"0006-lombok-fqn-resolution.md","status":"ACCEPTED"},
+    {"id":"ADR-0007","requirement":"P03-11","path":"0007-runtime-and-annotations.md","status":"ACCEPTED"}
+  ]
+}

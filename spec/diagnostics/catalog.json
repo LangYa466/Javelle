@@ -1,0 +1,29 @@
+{
+  "schemaVersion": 1,
+  "namespace": "JV",
+  "rangeEncoding": "original-source-half-open",
+  "diagnostics": [
+    {"code":"JV-SYN-0001","severity":"ERROR","title":"Syntax semicolon is forbidden","fix":"Remove the token or apply the grammar-specific structural replacement."},
+    {"code":"JV-SYN-0002","severity":"ERROR","title":"Ambiguous or incomplete continuation","fix":"Complete the expression or format the continuation unambiguously."},
+    {"code":"JV-SYN-0003","severity":"ERROR","title":"Required expression must start on the same line","fix":"Move the first expression token beside return/throw/yield or open a parenthesized expression."},
+    {"code":"JV-SYN-0004","severity":"ERROR","title":"Invalid basic-for separators","fix":"Use two top-level colons; retain nested conditional colons."},
+    {"code":"JV-SYN-0005","severity":"ERROR","title":"Invalid resource separator","fix":"Place each complete resource on its own logical line."},
+    {"code":"JV-SYN-0006","severity":"ERROR","title":"Invalid enum member boundary","fix":"Use one top-level colon between constants and members."},
+    {"code":"JV-TYP-0001","severity":"ERROR","title":"Inferred local requires an initializer","fix":"Add a typed initializer or use an explicit type."},
+    {"code":"JV-TYP-0002","severity":"ERROR","title":"Cannot infer from null or untargeted functional expression","fix":"Provide a cast/target type or explicit declaration type."},
+    {"code":"JV-TYP-0003","severity":"ERROR","title":"var/val is not allowed in this declaration context","fix":"Use an explicit field, parameter, or return type."},
+    {"code":"JV-TYP-0004","severity":"ERROR","title":"Cannot reassign val","fix":"Remove reassignment or declare the local with var/explicit non-final type."},
+    {"code":"JV-PROP-0001","severity":"ERROR","title":"Duplicate accessor","fix":"Keep at most one getter and one setter."},
+    {"code":"JV-PROP-0002","severity":"ERROR","title":"Property operation is unavailable","fix":"Add an accessible accessor or stop reading/writing the property."},
+    {"code":"JV-PROP-0003","severity":"ERROR","title":"Final property cannot have a setter","fix":"Remove final or the setter."},
+    {"code":"JV-PROP-0004","severity":"ERROR","title":"Computed property has invalid storage requirement/modifier","fix":"Remove storage-only modifier or define valid storage."},
+    {"code":"JV-PROP-0005","severity":"ERROR","title":"Backing storage or generated accessor collision","fix":"Rename the source member or conflicting explicit declaration."},
+    {"code":"JV-PROP-0006","severity":"ERROR","title":"field is unavailable in this accessor context","fix":"Use field only where the current property has backing storage."},
+    {"code":"JV-PROP-0007","severity":"ERROR","title":"Annotation target is invalid for generated member","fix":"Place the annotation on a compatible field/accessor/parameter target."},
+    {"code":"JV-PROP-0008","severity":"ERROR","title":"Incompatible property metadata version","fix":"Recompile the dependency with a supported Javelle metadata schema."},
+    {"code":"JV-COMP-0001","severity":"ERROR","title":"Unsupported target-release feature","fix":"Raise --release or rewrite using supported Java semantics."},
+    {"code":"JV-COMP-0002","severity":"ERROR","title":"Compilation/processor rounds did not converge","fix":"Remove cyclic or duplicate generation and inspect related round diagnostics."}
+  ],
+  "implementationStatus": "NOT_IMPLEMENTED",
+  "verificationStatus": "NOT_VERIFIED"
+}

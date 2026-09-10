@@ -591,18 +591,18 @@ P03/P11 → P45 → P46 → P47 → P48
 **依賴：** P02  
 **產物：** spec/ 完整骨架與正式規則、ADR、需求追蹤表
 
-- [ ] **P03-01** 將 B1～B5 的語言規則轉成版本化 spec，明確標記 normative／informative／examples，不由 README 決定語義。
-- [ ] **P03-02** 完成 lexical grammar 與可驗證 EBNF；記錄換行、Unicode escape、contextual names 與 source span 契約。
-- [ ] **P03-03** 凍結無分號 for／try／enum、空語句、abstract method／annotation element／module directive 的替代與遷移規則。
-- [ ] **P03-04** 凍結 property visibility、backing field、default accessor、field context、constructor initialization、final／computed 規則。
-- [ ] **P03-05** 凍結 JavaBeans accessor 命名、boolean／縮寫、synthetic name collision、跨 jar metadata schema 與版號政策。
-- [ ] **P03-06** 凍結 var／val 的允許上下文、target typing、匿名／不可表達型別與 null 診斷；保留 Java var lambda parameter 的既有能力。
-- [ ] **P03-07** 逐章盤點 Java SE25 非 preview 特性，建立 Java21 profile 差異及 feature-to-test mapping；不得只列幾個常見語法。
-- [ ] **P03-08** 規定 Lombok FQN resolution、native versus strict-metadata profile、annotation collision 與 unsupported-feature 開發期診斷。
-- [ ] **P03-09** 定義 Java/Javelle 混合編譯與 processor rounds 契約、型別解析 phase 順序與不可終止時的診斷。
-- [ ] **P03-10** 定義 diagnostics code namespace、位置 encoding、相關資訊、source map many-to-one／synthetic mapping 與 schema evolution。
-- [ ] **P03-11** 將未在前期對話明定的決策建立 ADR，附至少兩個反例與測試；不得把可自主決策事項全部推回詢問使用者。
-- [ ] **P03-12** 由 reviewer 用 Java 反例攻擊文法／語義，修正文法歧義；spec draft 未解決的問題不得以「實作時再看」通過。
+- [x] **P03-01** 將 B1～B5 的語言規則轉成版本化 spec，明確標記 normative／informative／examples，不由 README 決定語義。
+- [x] **P03-02** 完成 lexical grammar 與可驗證 EBNF；記錄換行、Unicode escape、contextual names 與 source span 契約。
+- [x] **P03-03** 凍結無分號 for／try／enum、空語句、abstract method／annotation element／module directive 的替代與遷移規則。
+- [x] **P03-04** 凍結 property visibility、backing field、default accessor、field context、constructor initialization、final／computed 規則。
+- [x] **P03-05** 凍結 JavaBeans accessor 命名、boolean／縮寫、synthetic name collision、跨 jar metadata schema 與版號政策。
+- [x] **P03-06** 凍結 var／val 的允許上下文、target typing、匿名／不可表達型別與 null 診斷；保留 Java var lambda parameter 的既有能力。
+- [x] **P03-07** 逐章盤點 Java SE25 非 preview 特性，建立 Java21 profile 差異及 feature-to-test mapping；不得只列幾個常見語法。
+- [x] **P03-08** 規定 Lombok FQN resolution、native versus strict-metadata profile、annotation collision 與 unsupported-feature 開發期診斷。
+- [x] **P03-09** 定義 Java/Javelle 混合編譯與 processor rounds 契約、型別解析 phase 順序與不可終止時的診斷。
+- [x] **P03-10** 定義 diagnostics code namespace、位置 encoding、相關資訊、source map many-to-one／synthetic mapping 與 schema evolution。
+- [x] **P03-11** 將未在前期對話明定的決策建立 ADR，附至少兩個反例與測試；不得把可自主決策事項全部推回詢問使用者。
+- [x] **P03-12** 由 reviewer 用 Java 反例攻擊文法／語義，修正文法歧義；spec draft 未解決的問題不得以「實作時再看」通過。
 
 **階段出口：** B/C 中的硬性需求都有正式章節與需求 ID；三段 for、enum 邊界與 property visibility 等不再含糊。 所有項目另須通過根 `AGENTS.md` 的共同 DoD。
 

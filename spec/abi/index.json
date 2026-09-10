@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "status": "normative-contract-only",
+  "requirements": ["P03-05", "P03-08", "P03-09", "P03-10", "P03-11"],
+  "documents": [
+    {"id": "ABI-001", "path": "generated-java.md", "status": "FROZEN_NOT_IMPLEMENTED"},
+    {"id": "ABI-002", "path": "property-metadata.md", "status": "FROZEN_NOT_IMPLEMENTED"}
+  ],
+  "adrIndex": "../adr/index.json",
+  "sourceMap": "../source-map.md",
+  "lombok": "../lombok-compatibility.md"
+}
