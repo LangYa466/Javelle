@@ -59,7 +59,7 @@ public final class DefaultCompilerDriver implements CompilerDriver {
                     cancellation);
         BindingResult binding = new EarlySemanticBinder().bind(parsed, source, "main");
         if (binding.unit().isEmpty()) {
-          binding.diagnostics().forEach(d -> messages.add(frontendMessage(d)));
+          binding.diagnostics().forEach(d -> messages.add(frontendMessage(d, source)));
           return new CompileResult(false, -1, generated, messages, Optional.empty());
         }
         EmitResult emitted =
@@ -70,7 +70,7 @@ public final class DefaultCompilerDriver implements CompilerDriver {
                     tracker,
                     cancellation);
         if (!emitted.diagnostics().isEmpty()) {
-          emitted.diagnostics().forEach(d -> messages.add(frontendMessage(d)));
+          emitted.diagnostics().forEach(d -> messages.add(frontendMessage(d, source)));
           return new CompileResult(false, -1, generated, messages, Optional.empty());
         }
         generated.addAll(emitted.files());
@@ -267,13 +267,21 @@ public final class DefaultCompilerDriver implements CompilerDriver {
     };
   }
 
-  private static JavacMessage frontendMessage(org.javelle.compiler.core.diagnostic.Diagnostic d) {
+  private static JavacMessage frontendMessage(
+      org.javelle.compiler.core.diagnostic.Diagnostic d, SourceFile source) {
+    int start =
+        source.convertBoundary(
+            d.range().startOffset(), d.range().unit(), OffsetUnit.UNICODE_CODE_POINT, Bias.START);
+    int end =
+        source.convertBoundary(
+            d.range().endOffset(), d.range().unit(), OffsetUnit.UNICODE_CODE_POINT, Bias.END);
+    var mapped = new TextRange(OffsetUnit.UNICODE_CODE_POINT, start, end);
     return new JavacMessage(
         d.code(),
         d.severity(),
         "",
-        d.range(),
-        List.of(new SourceLocation(d.source(), d.range())),
+        mapped,
+        List.of(new SourceLocation(d.source(), mapped)),
         d.message());
   }
 

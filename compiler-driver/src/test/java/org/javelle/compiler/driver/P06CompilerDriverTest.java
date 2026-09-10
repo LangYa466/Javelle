@@ -37,6 +37,25 @@ class P06CompilerDriverTest {
   }
 
   @Test
+  void frontendRawUtf16DiagnosticIsConvertedToCodePointLocation() {
+    String bad = "// 😀\r\nclass Bad {\r\nint x = 1;\r\n}\r\n";
+    CompileResult result =
+        new DefaultCompilerDriver()
+            .compile(
+                request(bad, List.of(), root.resolve("generated"), root.resolve("classes")),
+                CancellationToken.none());
+    assertFalse(result.success());
+    JavacMessage message = result.diagnostics().getFirst();
+    assertEquals("JV-SYN-0001", message.code().value());
+    assertEquals(
+        org.javelle.compiler.core.source.OffsetUnit.UNICODE_CODE_POINT,
+        message.originalLocations().getFirst().range().unit());
+    assertEquals(
+        bad.codePointCount(0, bad.indexOf(';')),
+        message.originalLocations().getFirst().range().startOffset());
+  }
+
+  @Test
   void realMixedCompilationPublishesManifestAndRunsInSeparateJvm() throws Exception {
     Path consumer = root.resolve("src/demo/Consumer.java");
     Files.createDirectories(consumer.getParent());

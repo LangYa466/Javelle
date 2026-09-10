@@ -675,18 +675,18 @@ P03/P11 → P45 → P46 → P47 → P48
 **依賴：** P06  
 **產物：** javelle launcher、核心命令與 diagnostics schema
 
-- [ ] **P07-01** 建立跨平台 launcher 與 --version／--help，不要求使用者手拼 internal classpath。
-- [ ] **P07-02** 實作 check／compile／emit-java 的 vertical slice，共用 compiler-driver，不複製編譯管線。
-- [ ] **P07-03** 凍結 exit code：成功、使用錯誤、編譯錯誤、工具鏈／I/O、內部錯誤需有獨立可測約定。
-- [ ] **P07-04** 提供 --diagnostics json、固定 schemaVersion、stable code、range、related info、建議，不用 ANSI 字串冒充 JSON。
-- [ ] **P07-05** 正確分開 stdout 與 stderr；quiet／no-color、路徑含空格、非 ASCII 路徑、Windows quoting 都需處理。
-- [ ] **P07-06** 建立 explain 命令的錯誤碼索引，未知 code 回合理錯誤，不編造解釋。
-- [ ] **P07-07** 建立 doctor 的 JDK／classpath／版本檢查，明確區分 missing javac 與 source compile error。
-- [ ] **P07-08** 檔案輸出使用 atomic replace；編譯失敗不留下可誤認成功的新產物。
-- [ ] **P07-09** 執行 Ctrl-C／cancel／timeout 測試，退出時關閉 file manager/process，不能留下 daemon 洩漏。
-- [ ] **P07-10** 更新 docs 中已可用命令與 fixture，未完成命令在開發狀態標明，不能 --help 宣稱它已可用。
-- [ ] **P07-11** 產生真 CLI integration test，從外部 process 讀 JSON、驗證 exit code 與輸出檔案。
-- [ ] **P07-12** 由獨立 reviewer 在新的工作目錄執行基本範例，不依賴 developer IDE 的 classpath。
+- [x] **P07-01** 建立跨平台 launcher 與 --version／--help，不要求使用者手拼 internal classpath。
+- [x] **P07-02** 實作 check／compile／emit-java 的 vertical slice，共用 compiler-driver，不複製編譯管線。
+- [x] **P07-03** 凍結 exit code：成功、使用錯誤、編譯錯誤、工具鏈／I/O、內部錯誤需有獨立可測約定。
+- [x] **P07-04** 提供 --diagnostics json、固定 schemaVersion、stable code、range、related info、建議，不用 ANSI 字串冒充 JSON。
+- [x] **P07-05** 正確分開 stdout 與 stderr；quiet／no-color、路徑含空格、非 ASCII 路徑、Windows quoting 都需處理。
+- [x] **P07-06** 建立 explain 命令的錯誤碼索引，未知 code 回合理錯誤，不編造解釋。
+- [x] **P07-07** 建立 doctor 的 JDK／classpath／版本檢查，明確區分 missing javac 與 source compile error。
+- [x] **P07-08** 檔案輸出使用 atomic replace；編譯失敗不留下可誤認成功的新產物。
+- [x] **P07-09** 執行 Ctrl-C／cancel／timeout 測試，退出時關閉 file manager/process，不能留下 daemon 洩漏。
+- [x] **P07-10** 更新 docs 中已可用命令與 fixture，未完成命令在開發狀態標明，不能 --help 宣稱它已可用。
+- [x] **P07-11** 產生真 CLI integration test，從外部 process 讀 JSON、驗證 exit code 與輸出檔案。
+- [x] **P07-12** 由獨立 reviewer 在新的工作目錄執行基本範例，不依賴 developer IDE 的 classpath。
 
 **階段出口：** CLI 可由 shell／agent 真實呼叫，機器資料與人類日誌分離；後續 P39 補齊完整命令。 所有項目另須通過根 `AGENTS.md` 的共同 DoD。
 
@@ -696,18 +696,18 @@ P03/P11 → P45 → P46 → P47 → P48
 **依賴：** P04、P07  
 **產物：** workspace-model schema、讀寫／驗證器、實際單 module model
 
-- [ ] **P08-01** 實作 C2 schema 與版本化 JSON serializer/validator，沒有 Gradle 或 IntelliJ runtime 依賴。
-- [ ] **P08-02** 讀取單 module 的 main/test Java/Javelle roots、JDK、classpath 與 generated directories。
-- [ ] **P08-03** 區分 project logical path、file URI、resolved absolute path 與可重定位 cache key。
-- [ ] **P08-04** 加入 compile/runtime/processor classpath、module path、source JAR、target release 與 trust policy。
-- [ ] **P08-05** 處理空 source set、不存在目錄、重複 roots、符號連結、大小寫敏感差異並提供定位清楚的診斷。
-- [ ] **P08-06** 建立 model fingerprint，classpath/JDK/options/config 改變可使分析 cache 失效。
-- [ ] **P08-07** CLI 可 consume model 並編譯相同範例，不要求 server 自行 eval build.gradle。
-- [ ] **P08-08** 建立主／測試 module 間依賴與循環 model 診斷；分清 source code 循環參照與 build module 循環。
-- [ ] **P08-09** 增添 dirty buffer overlay 契約，source map 與 on-disk model 能跟 editor snapshot 分離。
-- [ ] **P08-10** 保證 checked-in examples 不含開發機的絕對 user home/JDK 路徑。
-- [ ] **P08-11** 建立 schema backward/forward compatibility 與 stale model refresh 測試。
-- [ ] **P08-12** 由另一個不依賴 Gradle 的 test client 讀 model，證明格式真正 editor/build-neutral。
+- [x] **P08-01** 實作 C2 schema 與版本化 JSON serializer/validator，沒有 Gradle 或 IntelliJ runtime 依賴。
+- [x] **P08-02** 讀取單 module 的 main/test Java/Javelle roots、JDK、classpath 與 generated directories。
+- [x] **P08-03** 區分 project logical path、file URI、resolved absolute path 與可重定位 cache key。
+- [x] **P08-04** 加入 compile/runtime/processor classpath、module path、source JAR、target release 與 trust policy。
+- [x] **P08-05** 處理空 source set、不存在目錄、重複 roots、符號連結、大小寫敏感差異並提供定位清楚的診斷。
+- [x] **P08-06** 建立 model fingerprint，classpath/JDK/options/config 改變可使分析 cache 失效。
+- [x] **P08-07** CLI 可 consume model 並編譯相同範例，不要求 server 自行 eval build.gradle。
+- [x] **P08-08** 建立主／測試 module 間依賴與循環 model 診斷；分清 source code 循環參照與 build module 循環。
+- [x] **P08-09** 增添 dirty buffer overlay 契約，source map 與 on-disk model 能跟 editor snapshot 分離。
+- [x] **P08-10** 保證 checked-in examples 不含開發機的絕對 user home/JDK 路徑。
+- [x] **P08-11** 建立 schema backward/forward compatibility 與 stale model refresh 測試。
+- [x] **P08-12** 由另一個不依賴 Gradle 的 test client 讀 model，證明格式真正 editor/build-neutral。
 
 **階段出口：** 同一 workspace model 可供 CLI、server 與 Gradle adapter 使用，模型不能硬耦合任何 IDE。 所有項目另須通過根 `AGENTS.md` 的共同 DoD。
 

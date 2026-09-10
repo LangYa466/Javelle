@@ -1482,265 +1482,481 @@
       "id": "P07-01",
       "section": "P07",
       "ownerRole": "compiler/spec/interop",
-      "implementationStatus": "NOT_IMPLEMENTED",
-      "verificationStatus": "NOT_VERIFIED",
-      "implementationPaths": [],
-      "testIds": [],
-      "evidencePaths": [],
-      "reviewerAgentId": null
+      "implementationStatus": "IMPLEMENTED",
+      "verificationStatus": "VERIFIED",
+      "implementationPaths": [
+        "compiler-cli/src/main/java",
+        "compiler-driver/src/main/java",
+        "spec/cli"
+      ],
+      "testIds": [
+        "JavelleCliTest",
+        "CliBlackBoxTest"
+      ],
+      "evidencePaths": [
+        ".agent/reports/P07-REVIEW.md: ACCEPT P07"
+      ],
+      "reviewerAgentId": "/root/p00_review"
     },
     {
       "id": "P07-02",
       "section": "P07",
       "ownerRole": "compiler/spec/interop",
-      "implementationStatus": "NOT_IMPLEMENTED",
-      "verificationStatus": "NOT_VERIFIED",
-      "implementationPaths": [],
-      "testIds": [],
-      "evidencePaths": [],
-      "reviewerAgentId": null
+      "implementationStatus": "IMPLEMENTED",
+      "verificationStatus": "VERIFIED",
+      "implementationPaths": [
+        "compiler-cli/src/main/java",
+        "compiler-driver/src/main/java",
+        "spec/cli"
+      ],
+      "testIds": [
+        "JavelleCliTest",
+        "CliBlackBoxTest"
+      ],
+      "evidencePaths": [
+        ".agent/reports/P07-REVIEW.md: ACCEPT P07"
+      ],
+      "reviewerAgentId": "/root/p00_review"
     },
     {
       "id": "P07-03",
       "section": "P07",
       "ownerRole": "compiler/spec/interop",
-      "implementationStatus": "NOT_IMPLEMENTED",
-      "verificationStatus": "NOT_VERIFIED",
-      "implementationPaths": [],
-      "testIds": [],
-      "evidencePaths": [],
-      "reviewerAgentId": null
+      "implementationStatus": "IMPLEMENTED",
+      "verificationStatus": "VERIFIED",
+      "implementationPaths": [
+        "compiler-cli/src/main/java",
+        "compiler-driver/src/main/java",
+        "spec/cli"
+      ],
+      "testIds": [
+        "JavelleCliTest",
+        "CliBlackBoxTest"
+      ],
+      "evidencePaths": [
+        ".agent/reports/P07-REVIEW.md: ACCEPT P07"
+      ],
+      "reviewerAgentId": "/root/p00_review"
     },
     {
       "id": "P07-04",
       "section": "P07",
       "ownerRole": "compiler/spec/interop",
-      "implementationStatus": "NOT_IMPLEMENTED",
-      "verificationStatus": "NOT_VERIFIED",
-      "implementationPaths": [],
-      "testIds": [],
-      "evidencePaths": [],
-      "reviewerAgentId": null
+      "implementationStatus": "IMPLEMENTED",
+      "verificationStatus": "VERIFIED",
+      "implementationPaths": [
+        "compiler-cli/src/main/java",
+        "compiler-driver/src/main/java",
+        "spec/cli"
+      ],
+      "testIds": [
+        "JavelleCliTest",
+        "CliBlackBoxTest"
+      ],
+      "evidencePaths": [
+        ".agent/reports/P07-REVIEW.md: ACCEPT P07"
+      ],
+      "reviewerAgentId": "/root/p00_review"
     },
     {
       "id": "P07-05",
       "section": "P07",
       "ownerRole": "compiler/spec/interop",
-      "implementationStatus": "NOT_IMPLEMENTED",
-      "verificationStatus": "NOT_VERIFIED",
-      "implementationPaths": [],
-      "testIds": [],
-      "evidencePaths": [],
-      "reviewerAgentId": null
+      "implementationStatus": "IMPLEMENTED",
+      "verificationStatus": "VERIFIED",
+      "implementationPaths": [
+        "compiler-cli/src/main/java",
+        "compiler-driver/src/main/java",
+        "spec/cli"
+      ],
+      "testIds": [
+        "JavelleCliTest",
+        "CliBlackBoxTest"
+      ],
+      "evidencePaths": [
+        ".agent/reports/P07-REVIEW.md: ACCEPT P07"
+      ],
+      "reviewerAgentId": "/root/p00_review"
     },
     {
       "id": "P07-06",
       "section": "P07",
       "ownerRole": "compiler/spec/interop",
-      "implementationStatus": "NOT_IMPLEMENTED",
-      "verificationStatus": "NOT_VERIFIED",
-      "implementationPaths": [],
-      "testIds": [],
-      "evidencePaths": [],
-      "reviewerAgentId": null
+      "implementationStatus": "IMPLEMENTED",
+      "verificationStatus": "VERIFIED",
+      "implementationPaths": [
+        "compiler-cli/src/main/java",
+        "compiler-driver/src/main/java",
+        "spec/cli"
+      ],
+      "testIds": [
+        "JavelleCliTest",
+        "CliBlackBoxTest"
+      ],
+      "evidencePaths": [
+        ".agent/reports/P07-REVIEW.md: ACCEPT P07"
+      ],
+      "reviewerAgentId": "/root/p00_review"
     },
     {
       "id": "P07-07",
       "section": "P07",
       "ownerRole": "compiler/spec/interop",
-      "implementationStatus": "NOT_IMPLEMENTED",
-      "verificationStatus": "NOT_VERIFIED",
-      "implementationPaths": [],
-      "testIds": [],
-      "evidencePaths": [],
-      "reviewerAgentId": null
+      "implementationStatus": "IMPLEMENTED",
+      "verificationStatus": "VERIFIED",
+      "implementationPaths": [
+        "compiler-cli/src/main/java",
+        "compiler-driver/src/main/java",
+        "spec/cli"
+      ],
+      "testIds": [
+        "JavelleCliTest",
+        "CliBlackBoxTest"
+      ],
+      "evidencePaths": [
+        ".agent/reports/P07-REVIEW.md: ACCEPT P07"
+      ],
+      "reviewerAgentId": "/root/p00_review"
     },
     {
       "id": "P07-08",
       "section": "P07",
       "ownerRole": "compiler/spec/interop",
-      "implementationStatus": "NOT_IMPLEMENTED",
-      "verificationStatus": "NOT_VERIFIED",
-      "implementationPaths": [],
-      "testIds": [],
-      "evidencePaths": [],
-      "reviewerAgentId": null
+      "implementationStatus": "IMPLEMENTED",
+      "verificationStatus": "VERIFIED",
+      "implementationPaths": [
+        "compiler-cli/src/main/java",
+        "compiler-driver/src/main/java",
+        "spec/cli"
+      ],
+      "testIds": [
+        "JavelleCliTest",
+        "CliBlackBoxTest"
+      ],
+      "evidencePaths": [
+        ".agent/reports/P07-REVIEW.md: ACCEPT P07"
+      ],
+      "reviewerAgentId": "/root/p00_review"
     },
     {
       "id": "P07-09",
       "section": "P07",
       "ownerRole": "compiler/spec/interop",
-      "implementationStatus": "NOT_IMPLEMENTED",
-      "verificationStatus": "NOT_VERIFIED",
-      "implementationPaths": [],
-      "testIds": [],
-      "evidencePaths": [],
-      "reviewerAgentId": null
+      "implementationStatus": "IMPLEMENTED",
+      "verificationStatus": "VERIFIED",
+      "implementationPaths": [
+        "compiler-cli/src/main/java",
+        "compiler-driver/src/main/java",
+        "spec/cli"
+      ],
+      "testIds": [
+        "JavelleCliTest",
+        "CliBlackBoxTest"
+      ],
+      "evidencePaths": [
+        ".agent/reports/P07-REVIEW.md: ACCEPT P07"
+      ],
+      "reviewerAgentId": "/root/p00_review"
     },
     {
       "id": "P07-10",
       "section": "P07",
       "ownerRole": "compiler/spec/interop",
-      "implementationStatus": "NOT_IMPLEMENTED",
-      "verificationStatus": "NOT_VERIFIED",
-      "implementationPaths": [],
-      "testIds": [],
-      "evidencePaths": [],
-      "reviewerAgentId": null
+      "implementationStatus": "IMPLEMENTED",
+      "verificationStatus": "VERIFIED",
+      "implementationPaths": [
+        "compiler-cli/src/main/java",
+        "compiler-driver/src/main/java",
+        "spec/cli"
+      ],
+      "testIds": [
+        "JavelleCliTest",
+        "CliBlackBoxTest"
+      ],
+      "evidencePaths": [
+        ".agent/reports/P07-REVIEW.md: ACCEPT P07"
+      ],
+      "reviewerAgentId": "/root/p00_review"
     },
     {
       "id": "P07-11",
       "section": "P07",
       "ownerRole": "compiler/spec/interop",
-      "implementationStatus": "NOT_IMPLEMENTED",
-      "verificationStatus": "NOT_VERIFIED",
-      "implementationPaths": [],
-      "testIds": [],
-      "evidencePaths": [],
-      "reviewerAgentId": null
+      "implementationStatus": "IMPLEMENTED",
+      "verificationStatus": "VERIFIED",
+      "implementationPaths": [
+        "compiler-cli/src/main/java",
+        "compiler-driver/src/main/java",
+        "spec/cli"
+      ],
+      "testIds": [
+        "JavelleCliTest",
+        "CliBlackBoxTest"
+      ],
+      "evidencePaths": [
+        ".agent/reports/P07-REVIEW.md: ACCEPT P07"
+      ],
+      "reviewerAgentId": "/root/p00_review"
     },
     {
       "id": "P07-12",
       "section": "P07",
       "ownerRole": "compiler/spec/interop",
-      "implementationStatus": "NOT_IMPLEMENTED",
-      "verificationStatus": "NOT_VERIFIED",
-      "implementationPaths": [],
-      "testIds": [],
-      "evidencePaths": [],
-      "reviewerAgentId": null
+      "implementationStatus": "IMPLEMENTED",
+      "verificationStatus": "VERIFIED",
+      "implementationPaths": [
+        "compiler-cli/src/main/java",
+        "compiler-driver/src/main/java",
+        "spec/cli"
+      ],
+      "testIds": [
+        "JavelleCliTest",
+        "CliBlackBoxTest"
+      ],
+      "evidencePaths": [
+        ".agent/reports/P07-REVIEW.md: ACCEPT P07"
+      ],
+      "reviewerAgentId": "/root/p00_review"
     },
     {
       "id": "P08-01",
       "section": "P08",
       "ownerRole": "compiler/spec/interop",
-      "implementationStatus": "NOT_IMPLEMENTED",
-      "verificationStatus": "NOT_VERIFIED",
-      "implementationPaths": [],
-      "testIds": [],
-      "evidencePaths": [],
-      "reviewerAgentId": null
+      "implementationStatus": "IMPLEMENTED",
+      "verificationStatus": "VERIFIED",
+      "implementationPaths": [
+        "workspace-model/src/main/java",
+        "gradle-plugin/src/main/java/org/javelle/gradle/workspace",
+        "spec/workspace"
+      ],
+      "testIds": [
+        "WorkspaceModelTest",
+        "WorkspaceModelExporterTest"
+      ],
+      "evidencePaths": [
+        ".agent/reports/P08-REVIEW.md: ACCEPT P08"
+      ],
+      "reviewerAgentId": "/root/p00_review"
     },
     {
       "id": "P08-02",
       "section": "P08",
       "ownerRole": "compiler/spec/interop",
-      "implementationStatus": "NOT_IMPLEMENTED",
-      "verificationStatus": "NOT_VERIFIED",
-      "implementationPaths": [],
-      "testIds": [],
-      "evidencePaths": [],
-      "reviewerAgentId": null
+      "implementationStatus": "IMPLEMENTED",
+      "verificationStatus": "VERIFIED",
+      "implementationPaths": [
+        "workspace-model/src/main/java",
+        "gradle-plugin/src/main/java/org/javelle/gradle/workspace",
+        "spec/workspace"
+      ],
+      "testIds": [
+        "WorkspaceModelTest",
+        "WorkspaceModelExporterTest"
+      ],
+      "evidencePaths": [
+        ".agent/reports/P08-REVIEW.md: ACCEPT P08"
+      ],
+      "reviewerAgentId": "/root/p00_review"
     },
     {
       "id": "P08-03",
       "section": "P08",
       "ownerRole": "compiler/spec/interop",
-      "implementationStatus": "NOT_IMPLEMENTED",
-      "verificationStatus": "NOT_VERIFIED",
-      "implementationPaths": [],
-      "testIds": [],
-      "evidencePaths": [],
-      "reviewerAgentId": null
+      "implementationStatus": "IMPLEMENTED",
+      "verificationStatus": "VERIFIED",
+      "implementationPaths": [
+        "workspace-model/src/main/java",
+        "gradle-plugin/src/main/java/org/javelle/gradle/workspace",
+        "spec/workspace"
+      ],
+      "testIds": [
+        "WorkspaceModelTest",
+        "WorkspaceModelExporterTest"
+      ],
+      "evidencePaths": [
+        ".agent/reports/P08-REVIEW.md: ACCEPT P08"
+      ],
+      "reviewerAgentId": "/root/p00_review"
     },
     {
       "id": "P08-04",
       "section": "P08",
       "ownerRole": "compiler/spec/interop",
-      "implementationStatus": "NOT_IMPLEMENTED",
-      "verificationStatus": "NOT_VERIFIED",
-      "implementationPaths": [],
-      "testIds": [],
-      "evidencePaths": [],
-      "reviewerAgentId": null
+      "implementationStatus": "IMPLEMENTED",
+      "verificationStatus": "VERIFIED",
+      "implementationPaths": [
+        "workspace-model/src/main/java",
+        "gradle-plugin/src/main/java/org/javelle/gradle/workspace",
+        "spec/workspace"
+      ],
+      "testIds": [
+        "WorkspaceModelTest",
+        "WorkspaceModelExporterTest"
+      ],
+      "evidencePaths": [
+        ".agent/reports/P08-REVIEW.md: ACCEPT P08"
+      ],
+      "reviewerAgentId": "/root/p00_review"
     },
     {
       "id": "P08-05",
       "section": "P08",
       "ownerRole": "compiler/spec/interop",
-      "implementationStatus": "NOT_IMPLEMENTED",
-      "verificationStatus": "NOT_VERIFIED",
-      "implementationPaths": [],
-      "testIds": [],
-      "evidencePaths": [],
-      "reviewerAgentId": null
+      "implementationStatus": "IMPLEMENTED",
+      "verificationStatus": "VERIFIED",
+      "implementationPaths": [
+        "workspace-model/src/main/java",
+        "gradle-plugin/src/main/java/org/javelle/gradle/workspace",
+        "spec/workspace"
+      ],
+      "testIds": [
+        "WorkspaceModelTest",
+        "WorkspaceModelExporterTest"
+      ],
+      "evidencePaths": [
+        ".agent/reports/P08-REVIEW.md: ACCEPT P08"
+      ],
+      "reviewerAgentId": "/root/p00_review"
     },
     {
       "id": "P08-06",
       "section": "P08",
       "ownerRole": "compiler/spec/interop",
-      "implementationStatus": "NOT_IMPLEMENTED",
-      "verificationStatus": "NOT_VERIFIED",
-      "implementationPaths": [],
-      "testIds": [],
-      "evidencePaths": [],
-      "reviewerAgentId": null
+      "implementationStatus": "IMPLEMENTED",
+      "verificationStatus": "VERIFIED",
+      "implementationPaths": [
+        "workspace-model/src/main/java",
+        "gradle-plugin/src/main/java/org/javelle/gradle/workspace",
+        "spec/workspace"
+      ],
+      "testIds": [
+        "WorkspaceModelTest",
+        "WorkspaceModelExporterTest"
+      ],
+      "evidencePaths": [
+        ".agent/reports/P08-REVIEW.md: ACCEPT P08"
+      ],
+      "reviewerAgentId": "/root/p00_review"
     },
     {
       "id": "P08-07",
       "section": "P08",
       "ownerRole": "compiler/spec/interop",
-      "implementationStatus": "NOT_IMPLEMENTED",
-      "verificationStatus": "NOT_VERIFIED",
-      "implementationPaths": [],
-      "testIds": [],
-      "evidencePaths": [],
-      "reviewerAgentId": null
+      "implementationStatus": "IMPLEMENTED",
+      "verificationStatus": "VERIFIED",
+      "implementationPaths": [
+        "workspace-model/src/main/java",
+        "gradle-plugin/src/main/java/org/javelle/gradle/workspace",
+        "spec/workspace"
+      ],
+      "testIds": [
+        "WorkspaceModelTest",
+        "WorkspaceModelExporterTest"
+      ],
+      "evidencePaths": [
+        ".agent/reports/P08-REVIEW.md: ACCEPT P08"
+      ],
+      "reviewerAgentId": "/root/p00_review"
     },
     {
       "id": "P08-08",
       "section": "P08",
       "ownerRole": "compiler/spec/interop",
-      "implementationStatus": "NOT_IMPLEMENTED",
-      "verificationStatus": "NOT_VERIFIED",
-      "implementationPaths": [],
-      "testIds": [],
-      "evidencePaths": [],
-      "reviewerAgentId": null
+      "implementationStatus": "IMPLEMENTED",
+      "verificationStatus": "VERIFIED",
+      "implementationPaths": [
+        "workspace-model/src/main/java",
+        "gradle-plugin/src/main/java/org/javelle/gradle/workspace",
+        "spec/workspace"
+      ],
+      "testIds": [
+        "WorkspaceModelTest",
+        "WorkspaceModelExporterTest"
+      ],
+      "evidencePaths": [
+        ".agent/reports/P08-REVIEW.md: ACCEPT P08"
+      ],
+      "reviewerAgentId": "/root/p00_review"
     },
     {
       "id": "P08-09",
       "section": "P08",
       "ownerRole": "compiler/spec/interop",
-      "implementationStatus": "NOT_IMPLEMENTED",
-      "verificationStatus": "NOT_VERIFIED",
-      "implementationPaths": [],
-      "testIds": [],
-      "evidencePaths": [],
-      "reviewerAgentId": null
+      "implementationStatus": "IMPLEMENTED",
+      "verificationStatus": "VERIFIED",
+      "implementationPaths": [
+        "workspace-model/src/main/java",
+        "gradle-plugin/src/main/java/org/javelle/gradle/workspace",
+        "spec/workspace"
+      ],
+      "testIds": [
+        "WorkspaceModelTest",
+        "WorkspaceModelExporterTest"
+      ],
+      "evidencePaths": [
+        ".agent/reports/P08-REVIEW.md: ACCEPT P08"
+      ],
+      "reviewerAgentId": "/root/p00_review"
     },
     {
       "id": "P08-10",
       "section": "P08",
       "ownerRole": "compiler/spec/interop",
-      "implementationStatus": "NOT_IMPLEMENTED",
-      "verificationStatus": "NOT_VERIFIED",
-      "implementationPaths": [],
-      "testIds": [],
-      "evidencePaths": [],
-      "reviewerAgentId": null
+      "implementationStatus": "IMPLEMENTED",
+      "verificationStatus": "VERIFIED",
+      "implementationPaths": [
+        "workspace-model/src/main/java",
+        "gradle-plugin/src/main/java/org/javelle/gradle/workspace",
+        "spec/workspace"
+      ],
+      "testIds": [
+        "WorkspaceModelTest",
+        "WorkspaceModelExporterTest"
+      ],
+      "evidencePaths": [
+        ".agent/reports/P08-REVIEW.md: ACCEPT P08"
+      ],
+      "reviewerAgentId": "/root/p00_review"
     },
     {
       "id": "P08-11",
       "section": "P08",
       "ownerRole": "compiler/spec/interop",
-      "implementationStatus": "NOT_IMPLEMENTED",
-      "verificationStatus": "NOT_VERIFIED",
-      "implementationPaths": [],
-      "testIds": [],
-      "evidencePaths": [],
-      "reviewerAgentId": null
+      "implementationStatus": "IMPLEMENTED",
+      "verificationStatus": "VERIFIED",
+      "implementationPaths": [
+        "workspace-model/src/main/java",
+        "gradle-plugin/src/main/java/org/javelle/gradle/workspace",
+        "spec/workspace"
+      ],
+      "testIds": [
+        "WorkspaceModelTest",
+        "WorkspaceModelExporterTest"
+      ],
+      "evidencePaths": [
+        ".agent/reports/P08-REVIEW.md: ACCEPT P08"
+      ],
+      "reviewerAgentId": "/root/p00_review"
     },
     {
       "id": "P08-12",
       "section": "P08",
       "ownerRole": "compiler/spec/interop",
-      "implementationStatus": "NOT_IMPLEMENTED",
-      "verificationStatus": "NOT_VERIFIED",
-      "implementationPaths": [],
-      "testIds": [],
-      "evidencePaths": [],
-      "reviewerAgentId": null
+      "implementationStatus": "IMPLEMENTED",
+      "verificationStatus": "VERIFIED",
+      "implementationPaths": [
+        "workspace-model/src/main/java",
+        "gradle-plugin/src/main/java/org/javelle/gradle/workspace",
+        "spec/workspace"
+      ],
+      "testIds": [
+        "WorkspaceModelTest",
+        "WorkspaceModelExporterTest"
+      ],
+      "evidencePaths": [
+        ".agent/reports/P08-REVIEW.md: ACCEPT P08"
+      ],
+      "reviewerAgentId": "/root/p00_review"
     },
     {
       "id": "P09-01",

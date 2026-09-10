@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "phase": "P07/P08",
+  "phase": "P09/P10",
   "tasks": [
     {
       "id": "P00",
@@ -256,16 +256,44 @@
     },
     {
       "id": "P07",
-      "owner": null,
-      "status": "READY",
+      "owner": "/root/p00_repair",
+      "status": "ACCEPTED",
       "dependsOn": ["P06"],
-      "evidence": []
+      "evidence": [".agent/reports/P07-CONTRACT.md", ".agent/reports/P07-CLI.md", ".agent/reports/P07-REVIEW.md: ACCEPT P07"]
+    },
+    {
+      "id": "P07-REVIEW",
+      "owner": "/root/p00_review",
+      "status": "ACCEPTED",
+      "dependsOn": ["P07"],
+      "evidence": [".agent/reports/P07-REVIEW.md"]
     },
     {
       "id": "P08",
+      "owner": "/root/p00_repair",
+      "status": "ACCEPTED",
+      "dependsOn": ["P04", "P07"],
+      "evidence": [".agent/reports/P08-CONTRACT.md", ".agent/reports/P08-MODEL.md", ".agent/reports/P08-MODEL-REPAIR.md", ".agent/reports/P08-INTEGRATION.md", ".agent/reports/P08-API-GOLDEN.md", ".agent/reports/P08-REVIEW.md: ACCEPT P08"]
+    },
+    {
+      "id": "P08-REVIEW",
+      "owner": "/root/p00_review",
+      "status": "ACCEPTED",
+      "dependsOn": ["P05", "P07", "P08"],
+      "evidence": [".agent/reports/P08-REVIEW.md"]
+    },
+    {
+      "id": "P09",
       "owner": null,
       "status": "READY",
-      "dependsOn": ["P06"],
+      "dependsOn": ["P06", "P08"],
+      "evidence": []
+    },
+    {
+      "id": "P10",
+      "owner": null,
+      "status": "READY",
+      "dependsOn": ["P08"],
       "evidence": []
     }
   ]

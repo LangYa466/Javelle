@@ -1,0 +1,274 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://javelle.dev/schema/workspace/workspace-model-v1.schema.json",
+  "title": "Javelle Workspace Model",
+  "description": "Editor/build-neutral immutable workspace snapshot shared by Gradle, CLI and LSP.",
+  "type": "object",
+  "required": ["schemaVersion", "serializationKind", "workspace", "modules", "overlays", "fingerprints", "limits"],
+  "properties": {
+    "schemaVersion": { "$ref": "#/$defs/schemaVersion" },
+    "serializationKind": { "enum": ["PORTABLE", "RESOLVED"] },
+    "producer": { "$ref": "#/$defs/producer" },
+    "workspace": { "$ref": "#/$defs/workspace" },
+    "modules": {
+      "type": "array",
+      "maxItems": 4096,
+      "items": { "$ref": "#/$defs/module" }
+    },
+    "overlays": {
+      "type": "array",
+      "maxItems": 10000,
+      "items": { "$ref": "#/$defs/overlay" }
+    },
+    "fingerprints": { "$ref": "#/$defs/fingerprints" },
+    "limits": { "$ref": "#/$defs/limits" },
+    "extensions": { "$ref": "#/$defs/extensions" }
+  },
+  "allOf": [
+    {
+      "if": { "properties": { "serializationKind": { "const": "PORTABLE" } } },
+      "then": {
+        "description": "Portable documents must contain no fileUri or resolvedAbsoluteUri fields; the semantic validator recursively enforces this invariant."
+      }
+    }
+  ],
+  "additionalProperties": true,
+  "$defs": {
+    "schemaVersion": {
+      "type": "object",
+      "required": ["major", "minor"],
+      "properties": {
+        "major": { "const": 1 },
+        "minor": { "type": "integer", "minimum": 0 }
+      },
+      "additionalProperties": true
+    },
+    "producer": {
+      "type": "object",
+      "required": ["name", "version"],
+      "properties": {
+        "name": { "type": "string", "minLength": 1, "maxLength": 128 },
+        "version": { "type": "string", "minLength": 1, "maxLength": 128 }
+      },
+      "additionalProperties": true
+    },
+    "workspace": {
+      "type": "object",
+      "required": ["logicalName", "logicalRoot", "caseSensitivity", "defaultEncoding", "trust"],
+      "properties": {
+        "logicalName": { "type": "string", "minLength": 1, "maxLength": 256 },
+        "logicalRoot": { "$ref": "#/$defs/logicalPath" },
+        "resolvedRoot": { "$ref": "#/$defs/pathRef" },
+        "caseSensitivity": { "enum": ["SENSITIVE", "INSENSITIVE", "UNKNOWN"] },
+        "defaultEncoding": { "const": "UTF-8" },
+        "trust": { "$ref": "#/$defs/trust" }
+      },
+      "additionalProperties": true
+    },
+    "logicalPath": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 4096,
+      "pattern": "^(?:\\.|[^/\\\\:]+)(?:/[^/\\\\:]+)*$"
+    },
+    "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+    "pathRef": {
+      "type": "object",
+      "required": ["logicalPath", "relocatableKey", "kind", "exists", "symlinkPolicy"],
+      "properties": {
+        "logicalPath": { "$ref": "#/$defs/logicalPath" },
+        "relocatableKey": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" },
+        "fileUri": { "type": "string", "format": "uri", "pattern": "^file:/" },
+        "resolvedAbsoluteUri": { "type": "string", "format": "uri", "pattern": "^file:/" },
+        "kind": { "enum": ["DIRECTORY", "FILE", "JAR", "JDK_EXECUTABLE"] },
+        "exists": { "type": "boolean" },
+        "symlinkPolicy": { "enum": ["REJECT", "RESOLVE_WITHIN_ROOT", "ALLOW_DECLARED_EXTERNAL"] },
+        "contentSha256": { "$ref": "#/$defs/sha256" }
+      },
+      "additionalProperties": true
+    },
+    "module": {
+      "type": "object",
+      "required": ["id", "logicalProjectPath", "sourceSets", "dependencies", "toolchain", "propertyMetadata"],
+      "properties": {
+        "id": { "type": "string", "pattern": "^[A-Za-z0-9_.:-]{1,256}$" },
+        "logicalProjectPath": { "type": "string", "pattern": "^:(?:[A-Za-z0-9_.-]+(?::[A-Za-z0-9_.-]+)*)?$" },
+        "sourceSets": {
+          "type": "array",
+          "maxItems": 128,
+          "items": { "$ref": "#/$defs/sourceSet" }
+        },
+        "dependencies": {
+          "type": "array",
+          "maxItems": 4096,
+          "items": { "$ref": "#/$defs/moduleDependency" }
+        },
+        "toolchain": { "$ref": "#/$defs/toolchain" },
+        "propertyMetadata": {
+          "type": "array",
+          "maxItems": 100000,
+          "items": { "$ref": "#/$defs/propertyMetadata" }
+        },
+        "extensions": { "$ref": "#/$defs/extensions" }
+      },
+      "additionalProperties": true
+    },
+    "sourceSet": {
+      "type": "object",
+      "required": ["name", "javaRoots", "javelleRoots", "generatedJavaRoots", "generatedClassRoots", "paths", "releases", "compilerOptions", "encoding", "trust"],
+      "properties": {
+        "name": { "type": "string", "pattern": "^[A-Za-z0-9_.-]{1,128}$" },
+        "javaRoots": { "$ref": "#/$defs/pathList" },
+        "javelleRoots": { "$ref": "#/$defs/pathList" },
+        "generatedJavaRoots": { "$ref": "#/$defs/pathList" },
+        "generatedClassRoots": { "$ref": "#/$defs/pathList" },
+        "paths": { "$ref": "#/$defs/compilationPaths" },
+        "releases": { "$ref": "#/$defs/releases" },
+        "compilerOptions": {
+          "type": "array",
+          "maxItems": 4096,
+          "items": { "type": "string", "maxLength": 8192 }
+        },
+        "encoding": { "const": "UTF-8" },
+        "trust": { "$ref": "#/$defs/trust" },
+        "onDiskSnapshotFingerprint": { "$ref": "#/$defs/sha256" }
+      },
+      "additionalProperties": true
+    },
+    "pathList": {
+      "type": "array",
+      "maxItems": 100000,
+      "items": { "$ref": "#/$defs/pathRef" }
+    },
+    "compilationPaths": {
+      "type": "object",
+      "required": ["compileClasspath", "runtimeClasspath", "processorPath", "modulePath", "sourceJars"],
+      "properties": {
+        "compileClasspath": { "$ref": "#/$defs/pathList" },
+        "runtimeClasspath": { "$ref": "#/$defs/pathList" },
+        "processorPath": { "$ref": "#/$defs/pathList" },
+        "modulePath": { "$ref": "#/$defs/pathList" },
+        "sourceJars": { "$ref": "#/$defs/pathList" }
+      },
+      "additionalProperties": true
+    },
+    "releases": {
+      "type": "object",
+      "required": ["source", "target", "release"],
+      "properties": {
+        "source": { "type": "integer", "minimum": 21, "maximum": 25 },
+        "target": { "type": "integer", "minimum": 21, "maximum": 25 },
+        "release": { "enum": [21, 25] }
+      },
+      "additionalProperties": true
+    },
+    "toolchain": {
+      "type": "object",
+      "required": ["executable", "javaVersion", "vendor", "runtimeFingerprint"],
+      "properties": {
+        "executable": { "$ref": "#/$defs/pathRef" },
+        "javaVersion": { "type": "string", "pattern": "^(21|25)(?:[.+_-].*)?$" },
+        "vendor": { "type": "string", "minLength": 1, "maxLength": 256 },
+        "runtimeFingerprint": { "$ref": "#/$defs/sha256" }
+      },
+      "additionalProperties": true
+    },
+    "trust": {
+      "type": "object",
+      "required": ["level", "allowBuildEvaluation", "allowProcessors", "allowNetwork", "allowUserCode"],
+      "properties": {
+        "level": { "enum": ["UNTRUSTED", "TRUSTED_BUILD", "TRUSTED_PROCESSORS"] },
+        "allowBuildEvaluation": { "type": "boolean" },
+        "allowProcessors": { "type": "boolean" },
+        "allowNetwork": { "type": "boolean" },
+        "allowUserCode": { "type": "boolean" },
+        "decisionSource": { "enum": ["DEFAULT", "USER", "POLICY"] }
+      },
+      "allOf": [
+        {
+          "if": { "properties": { "level": { "const": "UNTRUSTED" } } },
+          "then": {
+            "properties": {
+              "allowBuildEvaluation": { "const": false },
+              "allowProcessors": { "const": false },
+              "allowNetwork": { "const": false },
+              "allowUserCode": { "const": false }
+            }
+          }
+        }
+      ],
+      "additionalProperties": true
+    },
+    "moduleDependency": {
+      "type": "object",
+      "required": ["targetModuleId", "scope", "kind"],
+      "properties": {
+        "targetModuleId": { "type": "string", "minLength": 1, "maxLength": 256 },
+        "scope": { "enum": ["COMPILE", "RUNTIME", "TEST_COMPILE", "TEST_RUNTIME", "PROCESSOR"] },
+        "kind": { "enum": ["BUILD_ORDER", "SOURCE_VISIBILITY", "RUNTIME_ONLY"] },
+        "targetSourceSet": { "type": "string", "maxLength": 128 }
+      },
+      "additionalProperties": true
+    },
+    "propertyMetadata": {
+      "type": "object",
+      "required": ["ownerBinaryName", "propertyName", "typeDescriptor", "readable", "writable", "metadataVersion", "originFingerprint"],
+      "properties": {
+        "ownerBinaryName": { "type": "string", "minLength": 1, "maxLength": 4096 },
+        "propertyName": { "type": "string", "minLength": 1, "maxLength": 256 },
+        "typeDescriptor": { "type": "string", "minLength": 1, "maxLength": 4096 },
+        "getterName": { "type": "string", "maxLength": 256 },
+        "setterName": { "type": "string", "maxLength": 256 },
+        "readable": { "type": "boolean" },
+        "writable": { "type": "boolean" },
+        "metadataVersion": { "type": "integer", "minimum": 1 },
+        "originFingerprint": { "$ref": "#/$defs/sha256" }
+      },
+      "additionalProperties": true
+    },
+    "overlay": {
+      "type": "object",
+      "required": ["documentUri", "version", "contentSha256", "baseOnDiskFingerprint", "state"],
+      "properties": {
+        "documentUri": { "type": "string", "format": "uri", "maxLength": 8192 },
+        "version": { "type": "integer", "minimum": 0 },
+        "contentSha256": { "$ref": "#/$defs/sha256" },
+        "baseOnDiskFingerprint": { "$ref": "#/$defs/sha256" },
+        "state": { "enum": ["DIRTY", "SAVED", "DELETED"] },
+        "contentUtf8": { "type": "string", "maxLength": 16777216 }
+      },
+      "additionalProperties": true
+    },
+    "fingerprints": {
+      "type": "object",
+      "required": ["algorithm", "model", "configuration", "classpath", "toolchain", "options"],
+      "properties": {
+        "algorithm": { "const": "SHA-256" },
+        "model": { "$ref": "#/$defs/sha256" },
+        "configuration": { "$ref": "#/$defs/sha256" },
+        "classpath": { "$ref": "#/$defs/sha256" },
+        "toolchain": { "$ref": "#/$defs/sha256" },
+        "options": { "$ref": "#/$defs/sha256" }
+      },
+      "additionalProperties": true
+    },
+    "limits": {
+      "type": "object",
+      "required": ["maxDocumentBytes", "maxModules", "maxSourceSets", "maxPaths", "maxOverlays", "maxDependencyEdges"],
+      "properties": {
+        "maxDocumentBytes": { "type": "integer", "minimum": 1, "maximum": 67108864 },
+        "maxModules": { "type": "integer", "minimum": 1, "maximum": 4096 },
+        "maxSourceSets": { "type": "integer", "minimum": 1, "maximum": 65536 },
+        "maxPaths": { "type": "integer", "minimum": 1, "maximum": 100000 },
+        "maxOverlays": { "type": "integer", "minimum": 0, "maximum": 10000 },
+        "maxDependencyEdges": { "type": "integer", "minimum": 0, "maximum": 1000000 }
+      },
+      "additionalProperties": true
+    },
+    "extensions": {
+      "type": "object",
+      "propertyNames": { "pattern": "^[a-z][a-z0-9.-]{2,127}/[A-Za-z0-9_.-]{1,128}$" },
+      "additionalProperties": true
+    }
+  }
+}
