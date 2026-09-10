@@ -22,6 +22,21 @@ CONTRACT_CHANGES: none
 
 Evidence: `.agent/logs/P00-REVIEW/git-environment.txt`, `.agent/logs/P00-REVIEW/ledger-build-checks.txt`.
 
+### Git publication follow-up (supersedes the earlier Git snapshot)
+
+Reproduced after publication at `91ee504a5bc6f11e7ee7c8810f2ebe7f2f97c819`:
+
+| Check | Exit | Result |
+|---|---:|---|
+| `gh repo view ... --json visibility` | 0 | Repository visibility is `PUBLIC` |
+| Local identity presence | 0 / 0 | Repository-local `user.name` and `user.email` are configured; values were intentionally not recorded |
+| Global identity absence | 1 / 1 | Global `user.name` and `user.email` remain unset |
+| Local/remote branch refs | 0 | local `main`, local `dev`, remote `main`, and remote `dev` all resolve to `91ee504a5bc6f11e7ee7c8810f2ebe7f2f97c819` |
+| `git status --short --branch` before this review edit | 0 | Clean tree on `dev`, tracking `origin/dev` |
+| Reported history | 0 | `6364efdf356e9a189fce1eeb59e3ca77d335749a` is the initial baseline commit; `91ee504a5bc6f11e7ee7c8810f2ebe7f2f97c819` is the publication-evidence tip described by `P00-GIT.md` and shared by both branches |
+
+**Git sub-conclusion: VERIFIED.** Public repository publication, local-only identity configuration, clean pre-review worktree, and synchronized `main`/`dev` refs are independently confirmed. This does not change the rejection of the remaining non-Git P00 requirements.
+
 ## Requirement decision
 
 - **Satisfied:** `P00-01`, `P00-02`, `P00-08`, `P00-12`. Workspace/Git state is reproducible; full-plan coverage index records A–I/P00–P55/UAT; limits are below policy maxima; recovery ledgers contain a concrete next action.
@@ -32,18 +47,18 @@ Evidence: `.agent/logs/P00-REVIEW/git-environment.txt`, `.agent/logs/P00-REVIEW/
 - **Not satisfied — `P00-07`:** this reviewer reproduced major host tools, GUI and DNS, but the designated recon artifact is absent and sandbox/permission/network constraints are not recorded as a complete environment report.
 - **Not satisfied — `P00-09`:** state/ownership/report directories and two non-overlapping reports exist, but no report template exists and the missing recon report means the required short-report discipline is not evidenced end-to-end.
 - **Not satisfied — `P00-10`:** no persisted evidence demonstrates interrupt/close, timeout, and wait behavior. Agent names alone do not prove lifecycle operations.
-- **Not satisfied — `P00-11`:** the private Git remote is now explicitly authorized and created, but the ledgers do not separately enumerate remaining release credentials, signing/publishing authority, domain/namespace decisions, and locally non-blocking status. `publicationStatus: NOT_AUTHORIZED` is too coarse and partially stale for the already-authorized private Git operation.
+- **Not satisfied — `P00-11`:** Git repository publication is now independently verified, but this requirement also needs the remaining release credentials, signing/publishing authority, domain/namespace decisions, and locally non-blocking status separately enumerated. This follow-up does not review those non-Git conditions.
 
 ## Negative and boundary findings
 
 1. `P00-RECON` is marked `VERIFIED` without its required report. Reopen it; do not accept a chat-only completion summary.
-2. No initial commit means `main` and `dev` refs cannot yet be pushed. This is correctly blocked only by missing real Git identity, not by repository access.
-3. Current untracked state includes `.idea/`; the initial integration commit must review exactly what is intended rather than bulk-adding blindly.
+2. The earlier unborn-repository blocker is resolved: both published branches point to the same verified tip, and identity is configured locally without changing global identity.
+3. The worktree was clean before this review report was edited; this report edit itself is expected to make the tracked report dirty until an integration owner handles it.
 4. Missing aggregate Gradle tasks must stay explicitly unverified until P02 implements them; absence does not by itself fail P00.
 
 REVIEW: independent reviewer `/root/p00_review`; **REJECT** until all unsatisfied IDs above have reproducible evidence.
 
-RISKS_OR_BLOCKERS: Git identity requires user configuration; P00 evidence gaps are locally fixable and must not block that work. Do not update P00 to `ACCEPTED` or check its boxes yet.
+RISKS_OR_BLOCKERS: Git initialization/publication has no remaining blocker. Non-Git P00 evidence gaps remain locally fixable. Do not update P00 to `ACCEPTED` or check its boxes yet.
 
 NEXT_DEPENDENCIES: repair `P00-03`, `P00-04`, `P00-06`, `P00-07`, `P00-09`, `P00-10`, `P00-11`; rerun independent P00 review; only then unlock P01.
 
