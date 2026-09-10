@@ -1,0 +1,27 @@
+name: verify-quick
+
+on:
+  push:
+    branches: [main, dev]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+      - name: Provision pinned Java 25 toolchain
+        uses: actions/setup-java@be666c2fcd27ec809703dec50e508c2fdc7f6654 # v5.2.0
+        with:
+          distribution: temurin
+          java-version: '25'
+      - name: Validate governance independently
+        run: python3 .agent/tools/governance.py selftest
+      - name: Verify quick Gradle gates
+        run: ./gradlew --no-daemon --dependency-verification=strict verifyQuick
+
+# Until a real run URL/attempt is recorded in evidence, project status is CI_NOT_RUN.

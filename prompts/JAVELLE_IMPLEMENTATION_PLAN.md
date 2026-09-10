@@ -570,18 +570,18 @@ P03/P11 → P45 → P46 → P47 → P48
 **依賴：** P01  
 **產物：** Gradle multi-project、協作模板、架構檢查、baseline CI
 
-- [ ] **P02-01** 建立 C1 模組與最小可編譯依賴圖；檢查現有程式碼可復用部分，不產生沒功能的相容聲明。
-- [ ] **P02-02** 建立 Gradle Wrapper、version catalog、build-logic、統一 Java formatter/lint 與 reproducible archive 設定。
-- [ ] **P02-03** 新增 .editorconfig、.gitattributes、.gitignore，統一 UTF-8／LF；保留 Windows launcher 與 CRLF 測試。
-- [ ] **P02-04** 建立 AGENTS 指定的 STATE／TASKS／OWNERSHIP／reports／logs 目錄，日誌和暫存不進 Git。
-- [ ] **P02-05** 建立 schema 驗證工作，確保 task ID 唯一、依賴可拓撲排序、每個工作包有 owner 與驗收 evidence 欄位。
-- [ ] **P02-06** 建立 module dependency architecture test，阻擋 core→Gradle/IDE/LSP、server→IDE 與循環依賴。
-- [ ] **P02-07** 建立 testkit 的 source fixture、expected diagnostics、Java consumer、JAR 檢查與 process harness。
-- [ ] **P02-08** 建立 verifyQuick／verifyAll／releaseCheck 契約；尚未有的必要測試要顯示 incomplete，不能用空聚合任務回傳「全部通過」。
-- [ ] **P02-09** 建立本地角色配置範本；按實際版本驗證 schema 後才啟用，不硬編模型名、不提高費率或移除 approval。[S02]
-- [ ] **P02-10** 將本文件需求 ID 匯入 requirements manifest；checkbox 狀態必須由實際驗收記錄推進，不能批量預勾。
-- [ ] **P02-11** 建立清潔 worktree／共享 worktree 的 ownership與整合流程；測試兩個 agent 不會同時寫根建置檔。
-- [ ] **P02-12** 建立最小 CI：編譯、lint、architecture、manifest 檢查；CI 尚未執行與本地成功清楚區分。
+- [x] **P02-01** 建立 C1 模組與最小可編譯依賴圖；檢查現有程式碼可復用部分，不產生沒功能的相容聲明。
+- [x] **P02-02** 建立 Gradle Wrapper、version catalog、build-logic、統一 Java formatter/lint 與 reproducible archive 設定。
+- [x] **P02-03** 新增 .editorconfig、.gitattributes、.gitignore，統一 UTF-8／LF；保留 Windows launcher 與 CRLF 測試。
+- [x] **P02-04** 建立 AGENTS 指定的 STATE／TASKS／OWNERSHIP／reports／logs 目錄，日誌和暫存不進 Git。
+- [x] **P02-05** 建立 schema 驗證工作，確保 task ID 唯一、依賴可拓撲排序、每個工作包有 owner 與驗收 evidence 欄位。
+- [x] **P02-06** 建立 module dependency architecture test，阻擋 core→Gradle/IDE/LSP、server→IDE 與循環依賴。
+- [x] **P02-07** 建立 testkit 的 source fixture、expected diagnostics、Java consumer、JAR 檢查與 process harness。
+- [x] **P02-08** 建立 verifyQuick／verifyAll／releaseCheck 契約；尚未有的必要測試要顯示 incomplete，不能用空聚合任務回傳「全部通過」。
+- [x] **P02-09** 建立本地角色配置範本；按實際版本驗證 schema 後才啟用，不硬編模型名、不提高費率或移除 approval。[S02]
+- [x] **P02-10** 將本文件需求 ID 匯入 requirements manifest；checkbox 狀態必須由實際驗收記錄推進，不能批量預勾。
+- [x] **P02-11** 建立清潔 worktree／共享 worktree 的 ownership與整合流程；測試兩個 agent 不會同時寫根建置檔。
+- [x] **P02-12** 建立最小 CI：編譯、lint、architecture、manifest 檢查；CI 尚未執行與本地成功清楚區分。
 
 **階段出口：** 從乾淨 checkout 可跑真實初期測試；狀態與依賴圖能驗證，不能把未來 verifyAll 項目當成已完成。 所有項目另須通過根 `AGENTS.md` 的共同 DoD。
 

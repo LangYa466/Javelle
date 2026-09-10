@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "phase": "P02",
+  "phase": "P03",
   "tasks": [
     {
       "id": "P00",
@@ -128,9 +128,51 @@
     },
     {
       "id": "P02",
+      "owner": "/root/p00_git_publish",
+      "status": "ACCEPTED",
+      "dependsOn": ["P01"],
+      "evidence": [".agent/reports/P02-CONTRACT.md", ".agent/reports/P02-BUILD.md", ".agent/reports/P02-GOVERNANCE.md", ".agent/reports/P02-ARCHITECTURE.md", ".agent/reports/P02-TESTKIT.md", ".agent/reports/P02-INTEGRATION.md", ".agent/reports/P02-REVIEW.md: R06 focused final review — ACCEPT P02"]
+    },
+    {
+      "id": "P02-R01-GOVERNANCE",
+      "owner": "/root/p00_spec",
+      "status": "ACCEPTED",
+      "dependsOn": ["P01"],
+      "evidence": [".agent/reports/P02-GOVERNANCE.md"]
+    },
+    {
+      "id": "P02-R02-ARCHITECTURE",
+      "owner": "/root/p00_recon",
+      "status": "ACCEPTED",
+      "dependsOn": ["P01"],
+      "evidence": [".agent/reports/P02-ARCHITECTURE.md"]
+    },
+    {
+      "id": "P02-R03-TESTKIT",
+      "owner": "/root/p00_repair",
+      "status": "ACCEPTED",
+      "dependsOn": ["P01"],
+      "evidence": [".agent/reports/P02-TESTKIT.md"]
+    },
+    {
+      "id": "P02-R04-INTEGRATION",
+      "owner": "/root/p00_git_publish",
+      "status": "ACCEPTED",
+      "dependsOn": ["P02-R01-GOVERNANCE", "P02-R02-ARCHITECTURE", "P02-R03-TESTKIT"],
+      "evidence": [".agent/reports/P02-INTEGRATION.md"]
+    },
+    {
+      "id": "P02-REVIEW",
+      "owner": "/root/p00_review",
+      "status": "ACCEPTED",
+      "dependsOn": ["P02-R04-INTEGRATION"],
+      "evidence": [".agent/reports/P02-REVIEW.md"]
+    },
+    {
+      "id": "P03",
       "owner": null,
       "status": "READY",
-      "dependsOn": ["P01"],
+      "dependsOn": ["P02"],
       "evidence": []
     }
   ]
