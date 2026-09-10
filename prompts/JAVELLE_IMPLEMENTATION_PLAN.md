@@ -633,18 +633,18 @@ P03/P11 → P45 → P46 → P47 → P48
 **依賴：** P04  
 **產物：** 可解析 class/method/field/property 的 vertical slice
 
-- [ ] **P05-01** 實作真實 lexer 的識別符、關鍵字、字面量、註解、標點、newline 與 trivia，禁止 regex 全文替換。
-- [ ] **P05-02** 實作 package／import、class、method、顯式型別 field、局部宣告與基礎 expression grammar。
-- [ ] **P05-03** 解析 property block 的 get/set、自訂 body 與 access modifier，輸出帶 span 的 AST。
-- [ ] **P05-04** 實作 expression precedence、method call、member access、new、assignment 與基本 return/if/block。
-- [ ] **P05-05** 遵守無分號語句終止；對 `String x = "a;b"` 保留字串內分號，對真正語法分號產生具體 fix。
-- [ ] **P05-06** 新增未閉合 block、未完成 accessor、缺 expression 的 recovery node，不能遇到半行程式就 crash。
-- [ ] **P05-07** 建立 AST snapshot 但同時檢查 span／node kinds，不以單純 pretty-print 回顯源碼當 parser。
-- [ ] **P05-08** 建立 true-positive／true-negative fixture，確認非法 private var field／var null 不會被當成成功。
-- [ ] **P05-09** 只對已實作語法 advertise 能力；其他已知語法產生標記清晰的開發期 diagnostic，不忽略輸入。
-- [ ] **P05-10** 連接一個純 Java field 與一個 property 的 AST 差異測試，防止全域 auto-property 化。
-- [ ] **P05-11** 驗證同名普通識別符 get/set/field 在非 accessor 作用域的行為符合 spec。
-- [ ] **P05-12** 由 reviewer 用不完整編輯 buffer 重跑 parser，驗證穩定回復而非大量連鎖假錯。
+- [x] **P05-01** 實作真實 lexer 的識別符、關鍵字、字面量、註解、標點、newline 與 trivia，禁止 regex 全文替換。
+- [x] **P05-02** 實作 package／import、class、method、顯式型別 field、局部宣告與基礎 expression grammar。
+- [x] **P05-03** 解析 property block 的 get/set、自訂 body 與 access modifier，輸出帶 span 的 AST。
+- [x] **P05-04** 實作 expression precedence、method call、member access、new、assignment 與基本 return/if/block。
+- [x] **P05-05** 遵守無分號語句終止；對 `String x = "a;b"` 保留字串內分號，對真正語法分號產生具體 fix。
+- [x] **P05-06** 新增未閉合 block、未完成 accessor、缺 expression 的 recovery node，不能遇到半行程式就 crash。
+- [x] **P05-07** 建立 AST snapshot 但同時檢查 span／node kinds，不以單純 pretty-print 回顯源碼當 parser。
+- [x] **P05-08** 建立 true-positive／true-negative fixture，確認非法 private var field／var null 不會被當成成功。
+- [x] **P05-09** 只對已實作語法 advertise 能力；其他已知語法產生標記清晰的開發期 diagnostic，不忽略輸入。
+- [x] **P05-10** 連接一個純 Java field 與一個 property 的 AST 差異測試，防止全域 auto-property 化。
+- [x] **P05-11** 驗證同名普通識別符 get/set/field 在非 accessor 作用域的行為符合 spec。
+- [x] **P05-12** 由 reviewer 用不完整編輯 buffer 重跑 parser，驗證穩定回復而非大量連鎖假錯。
 
 **階段出口：** 有帶位置的真 parser，既能處理核心 property 範例，也會對錯誤輸入失敗；不算完整語言完成。 所有項目另須通過根 `AGENTS.md` 的共同 DoD。
 

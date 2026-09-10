@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "phase": "P05",
+  "phase": "P06",
   "tasks": [
     {
       "id": "P00",
@@ -219,9 +219,32 @@
     },
     {
       "id": "P05",
+      "owner": "/root/p00_repair",
+      "status": "ACCEPTED",
+      "dependsOn": ["P04"],
+      "evidence": [
+        ".agent/reports/P05-CONTRACT.md",
+        ".agent/reports/P05-FRONTEND.md",
+        ".agent/reports/P05-LEXER-REPAIR.md",
+        ".agent/reports/P05-PARSER-REPAIR.md",
+        ".agent/reports/P05-NUMERIC-REPAIR.md",
+        ".agent/reports/P05-UNSUPPORTED-GOLDEN.md",
+        ".agent/reports/P05-VARARGS-REPAIR.md",
+        ".agent/reports/P05-REVIEW.md: Final focused varargs review — ACCEPT P05"
+      ]
+    },
+    {
+      "id": "P05-REVIEW",
+      "owner": "/root/p00_review",
+      "status": "ACCEPTED",
+      "dependsOn": ["P05"],
+      "evidence": [".agent/reports/P05-REVIEW.md: Final focused varargs review — ACCEPT P05"]
+    },
+    {
+      "id": "P06",
       "owner": null,
       "status": "READY",
-      "dependsOn": ["P04"],
+      "dependsOn": ["P05"],
       "evidence": []
     }
   ]

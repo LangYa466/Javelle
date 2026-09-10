@@ -6,5 +6,10 @@ public enum TokenKind {
   LITERAL,
   SYMBOL,
   END_OF_FILE,
-  ERROR
+  ERROR,
+  NEWLINE,
+  SEMICOLON,
+  EOF,
+  OPERATOR,
+  PUNCTUATION
 }

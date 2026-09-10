@@ -990,133 +990,217 @@
       "id": "P05-01",
       "section": "P05",
       "ownerRole": "compiler/spec/interop",
-      "implementationStatus": "NOT_IMPLEMENTED",
-      "verificationStatus": "NOT_VERIFIED",
-      "implementationPaths": [],
-      "testIds": [],
-      "evidencePaths": [],
-      "reviewerAgentId": null
+      "implementationStatus": "IMPLEMENTED",
+      "verificationStatus": "VERIFIED",
+      "implementationPaths": [
+        "compiler-core/src/main/java/org/javelle/compiler/core/frontend"
+      ],
+      "testIds": [
+        "P05FrontendTest",
+        "P05LexerRepairTest"
+      ],
+      "evidencePaths": [
+        ".agent/reports/P05-REVIEW.md: Final focused varargs review — ACCEPT P05"
+      ],
+      "reviewerAgentId": "/root/p00_review"
     },
     {
       "id": "P05-02",
       "section": "P05",
       "ownerRole": "compiler/spec/interop",
-      "implementationStatus": "NOT_IMPLEMENTED",
-      "verificationStatus": "NOT_VERIFIED",
-      "implementationPaths": [],
-      "testIds": [],
-      "evidencePaths": [],
-      "reviewerAgentId": null
+      "implementationStatus": "IMPLEMENTED",
+      "verificationStatus": "VERIFIED",
+      "implementationPaths": [
+        "compiler-core/src/main/java/org/javelle/compiler/core/frontend"
+      ],
+      "testIds": [
+        "P05FrontendTest",
+        "P05LexerRepairTest"
+      ],
+      "evidencePaths": [
+        ".agent/reports/P05-REVIEW.md: Final focused varargs review — ACCEPT P05"
+      ],
+      "reviewerAgentId": "/root/p00_review"
     },
     {
       "id": "P05-03",
       "section": "P05",
       "ownerRole": "compiler/spec/interop",
-      "implementationStatus": "NOT_IMPLEMENTED",
-      "verificationStatus": "NOT_VERIFIED",
-      "implementationPaths": [],
-      "testIds": [],
-      "evidencePaths": [],
-      "reviewerAgentId": null
+      "implementationStatus": "IMPLEMENTED",
+      "verificationStatus": "VERIFIED",
+      "implementationPaths": [
+        "compiler-core/src/main/java/org/javelle/compiler/core/frontend"
+      ],
+      "testIds": [
+        "P05FrontendTest",
+        "P05LexerRepairTest"
+      ],
+      "evidencePaths": [
+        ".agent/reports/P05-REVIEW.md: Final focused varargs review — ACCEPT P05"
+      ],
+      "reviewerAgentId": "/root/p00_review"
     },
     {
       "id": "P05-04",
       "section": "P05",
       "ownerRole": "compiler/spec/interop",
-      "implementationStatus": "NOT_IMPLEMENTED",
-      "verificationStatus": "NOT_VERIFIED",
-      "implementationPaths": [],
-      "testIds": [],
-      "evidencePaths": [],
-      "reviewerAgentId": null
+      "implementationStatus": "IMPLEMENTED",
+      "verificationStatus": "VERIFIED",
+      "implementationPaths": [
+        "compiler-core/src/main/java/org/javelle/compiler/core/frontend"
+      ],
+      "testIds": [
+        "P05FrontendTest",
+        "P05LexerRepairTest"
+      ],
+      "evidencePaths": [
+        ".agent/reports/P05-REVIEW.md: Final focused varargs review — ACCEPT P05"
+      ],
+      "reviewerAgentId": "/root/p00_review"
     },
     {
       "id": "P05-05",
       "section": "P05",
       "ownerRole": "compiler/spec/interop",
-      "implementationStatus": "NOT_IMPLEMENTED",
-      "verificationStatus": "NOT_VERIFIED",
-      "implementationPaths": [],
-      "testIds": [],
-      "evidencePaths": [],
-      "reviewerAgentId": null
+      "implementationStatus": "IMPLEMENTED",
+      "verificationStatus": "VERIFIED",
+      "implementationPaths": [
+        "compiler-core/src/main/java/org/javelle/compiler/core/frontend"
+      ],
+      "testIds": [
+        "P05FrontendTest",
+        "P05LexerRepairTest"
+      ],
+      "evidencePaths": [
+        ".agent/reports/P05-REVIEW.md: Final focused varargs review — ACCEPT P05"
+      ],
+      "reviewerAgentId": "/root/p00_review"
     },
     {
       "id": "P05-06",
       "section": "P05",
       "ownerRole": "compiler/spec/interop",
-      "implementationStatus": "NOT_IMPLEMENTED",
-      "verificationStatus": "NOT_VERIFIED",
-      "implementationPaths": [],
-      "testIds": [],
-      "evidencePaths": [],
-      "reviewerAgentId": null
+      "implementationStatus": "IMPLEMENTED",
+      "verificationStatus": "VERIFIED",
+      "implementationPaths": [
+        "compiler-core/src/main/java/org/javelle/compiler/core/frontend"
+      ],
+      "testIds": [
+        "P05FrontendTest",
+        "P05LexerRepairTest"
+      ],
+      "evidencePaths": [
+        ".agent/reports/P05-REVIEW.md: Final focused varargs review — ACCEPT P05"
+      ],
+      "reviewerAgentId": "/root/p00_review"
     },
     {
       "id": "P05-07",
       "section": "P05",
       "ownerRole": "compiler/spec/interop",
-      "implementationStatus": "NOT_IMPLEMENTED",
-      "verificationStatus": "NOT_VERIFIED",
-      "implementationPaths": [],
-      "testIds": [],
-      "evidencePaths": [],
-      "reviewerAgentId": null
+      "implementationStatus": "IMPLEMENTED",
+      "verificationStatus": "VERIFIED",
+      "implementationPaths": [
+        "compiler-core/src/main/java/org/javelle/compiler/core/frontend"
+      ],
+      "testIds": [
+        "P05FrontendTest",
+        "P05LexerRepairTest"
+      ],
+      "evidencePaths": [
+        ".agent/reports/P05-REVIEW.md: Final focused varargs review — ACCEPT P05"
+      ],
+      "reviewerAgentId": "/root/p00_review"
     },
     {
       "id": "P05-08",
       "section": "P05",
       "ownerRole": "compiler/spec/interop",
-      "implementationStatus": "NOT_IMPLEMENTED",
-      "verificationStatus": "NOT_VERIFIED",
-      "implementationPaths": [],
-      "testIds": [],
-      "evidencePaths": [],
-      "reviewerAgentId": null
+      "implementationStatus": "IMPLEMENTED",
+      "verificationStatus": "VERIFIED",
+      "implementationPaths": [
+        "compiler-core/src/main/java/org/javelle/compiler/core/frontend"
+      ],
+      "testIds": [
+        "P05FrontendTest",
+        "P05LexerRepairTest"
+      ],
+      "evidencePaths": [
+        ".agent/reports/P05-REVIEW.md: Final focused varargs review — ACCEPT P05"
+      ],
+      "reviewerAgentId": "/root/p00_review"
     },
     {
       "id": "P05-09",
       "section": "P05",
       "ownerRole": "compiler/spec/interop",
-      "implementationStatus": "NOT_IMPLEMENTED",
-      "verificationStatus": "NOT_VERIFIED",
-      "implementationPaths": [],
-      "testIds": [],
-      "evidencePaths": [],
-      "reviewerAgentId": null
+      "implementationStatus": "IMPLEMENTED",
+      "verificationStatus": "VERIFIED",
+      "implementationPaths": [
+        "compiler-core/src/main/java/org/javelle/compiler/core/frontend"
+      ],
+      "testIds": [
+        "P05FrontendTest",
+        "P05LexerRepairTest"
+      ],
+      "evidencePaths": [
+        ".agent/reports/P05-REVIEW.md: Final focused varargs review — ACCEPT P05"
+      ],
+      "reviewerAgentId": "/root/p00_review"
     },
     {
       "id": "P05-10",
       "section": "P05",
       "ownerRole": "compiler/spec/interop",
-      "implementationStatus": "NOT_IMPLEMENTED",
-      "verificationStatus": "NOT_VERIFIED",
-      "implementationPaths": [],
-      "testIds": [],
-      "evidencePaths": [],
-      "reviewerAgentId": null
+      "implementationStatus": "IMPLEMENTED",
+      "verificationStatus": "VERIFIED",
+      "implementationPaths": [
+        "compiler-core/src/main/java/org/javelle/compiler/core/frontend"
+      ],
+      "testIds": [
+        "P05FrontendTest",
+        "P05LexerRepairTest"
+      ],
+      "evidencePaths": [
+        ".agent/reports/P05-REVIEW.md: Final focused varargs review — ACCEPT P05"
+      ],
+      "reviewerAgentId": "/root/p00_review"
     },
     {
       "id": "P05-11",
       "section": "P05",
       "ownerRole": "compiler/spec/interop",
-      "implementationStatus": "NOT_IMPLEMENTED",
-      "verificationStatus": "NOT_VERIFIED",
-      "implementationPaths": [],
-      "testIds": [],
-      "evidencePaths": [],
-      "reviewerAgentId": null
+      "implementationStatus": "IMPLEMENTED",
+      "verificationStatus": "VERIFIED",
+      "implementationPaths": [
+        "compiler-core/src/main/java/org/javelle/compiler/core/frontend"
+      ],
+      "testIds": [
+        "P05FrontendTest",
+        "P05LexerRepairTest"
+      ],
+      "evidencePaths": [
+        ".agent/reports/P05-REVIEW.md: Final focused varargs review — ACCEPT P05"
+      ],
+      "reviewerAgentId": "/root/p00_review"
     },
     {
       "id": "P05-12",
       "section": "P05",
       "ownerRole": "compiler/spec/interop",
-      "implementationStatus": "NOT_IMPLEMENTED",
-      "verificationStatus": "NOT_VERIFIED",
-      "implementationPaths": [],
-      "testIds": [],
-      "evidencePaths": [],
-      "reviewerAgentId": null
+      "implementationStatus": "IMPLEMENTED",
+      "verificationStatus": "VERIFIED",
+      "implementationPaths": [
+        "compiler-core/src/main/java/org/javelle/compiler/core/frontend"
+      ],
+      "testIds": [
+        "P05FrontendTest",
+        "P05LexerRepairTest"
+      ],
+      "evidencePaths": [
+        ".agent/reports/P05-REVIEW.md: Final focused varargs review — ACCEPT P05"
+      ],
+      "reviewerAgentId": "/root/p00_review"
     },
     {
       "id": "P06-01",
