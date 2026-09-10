@@ -9,6 +9,6 @@
     {"id": "/root/p00_recon", "role": "recon", "status": "completed", "ownedPaths": []},
     {"id": "/root/p00_spec", "role": "spec", "status": "completed", "ownedPaths": [".agent/reports/P00-SPEC-COVERAGE.md"]},
     {"id": "/root/p00_git_integration", "role": "integration", "status": "completed", "ownedPaths": []},
-    {"id": "/root/p00_git_publish", "role": "integration", "status": "running", "ownedPaths": [".git/", ".agent/STATE.md", ".agent/TASKS.json", ".agent/OWNERSHIP.json", ".agent/NEXT_SESSION.md", ".agent/reports/P00-GIT.md"]}
+    {"id": "/root/p00_git_publish", "role": "integration", "status": "completed", "ownedPaths": []}
   ]
 }

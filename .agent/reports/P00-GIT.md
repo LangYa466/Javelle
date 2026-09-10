@@ -36,4 +36,10 @@ The user explicitly authorized public publication and supplied `langya466@gmail.
 | `gh repo edit LangYa466/Javelle --visibility public --accept-visibility-change-consequences` | 0 | Repository visibility changed to `PUBLIC` |
 | repository-local `git config user.name/user.email` | 0 | `狼牙` / `langya466@gmail.com`; global config was not modified |
 
-Commit SHA and branch verification are appended after the initial commit is created.
+## Publication result
+
+- Initial baseline commit: `6364efdf356e9a189fce1eeb59e3ca77d335749a` (`chore(repo): establish initial Javelle baseline`).
+- `git push -u origin main`: exit 0; created remote `main`.
+- Evidence-finalization commit is the tip shared by `main` and `dev` when this report is published; verify it with `git rev-parse origin/main origin/dev` because a commit cannot truthfully embed its own SHA.
+- `dev` was created from the finalized `main` tip and pushed with upstream `origin/dev`; the working branch was left on `dev`.
+- GitHub repository: `https://github.com/LangYa466/Javelle`, visibility `PUBLIC`.
