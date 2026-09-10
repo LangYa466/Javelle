@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "checked": "2026-09-11",
+  "licenseExpression": "GPL-2.0-only WITH Classpath-exception-2.0",
+  "components": [
+    {"name":"Gradle Wrapper","version":"9.6.0","scope":"build-tool","license":"Apache-2.0","bundled":true,"sha256":"497c8c2a7e5031f6aa847f88104aa80a93532ec32ee17bdb8d1d2f67a194a9c7"},
+    {"name":"JUnit","version":"6.0.0","scope":"test","license":"EPL-2.0","bundled":false},
+    {"name":"Project Lombok","version":"1.18.48","scope":"test-oracle","license":"MIT","bundled":false,"sha256":"85477a4655ebb2c074a9099cfb749be454449fee564d4282610df1b85f7c508b"},
+    {"name":"Eclipse LSP4J","version":"1.0.0","scope":"planned-runtime","license":"EPL-2.0","bundled":false,"sha256":"ccd78893facc6bfcc359d56cba05d3d5b85eb41e4c40d4b4215ca45db5f416d9"},
+    {"name":"Eclipse LSP4J JSON-RPC","version":"1.0.0","scope":"planned-runtime","license":"EPL-2.0","bundled":false,"sha256":"9647feb0524bf763c878e12ab878a684102b81cccb3f77feecbec709d54f9bbb"}
+  ],
+  "releaseReviewRequired": ["resolved transitive graph", "IDE/JBR license manifest", "Node lockfile licenses", "archive-content SBOM", "Apache-2.0 and GPL distribution review"]
+}

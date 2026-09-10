@@ -53,9 +53,71 @@
     {
       "id": "P01",
       "owner": null,
-      "status": "READY",
+      "status": "FAILED",
       "dependsOn": ["P00"],
-      "evidence": []
+      "evidence": [
+        ".agent/reports/P01-VERSIONS.md",
+        ".agent/reports/P01-LICENSE.md",
+        ".agent/reports/P01-LOCK-PROPOSAL.md",
+        ".agent/reports/P01-INTEGRATION.md",
+        ".agent/reports/P01-REVIEW.md: REJECT P01; failures P01-01/04/05/06/07/11/12"
+      ]
+    },
+    {
+      "id": "P01-W01",
+      "owner": "/root/p00_recon",
+      "status": "IMPLEMENTED",
+      "dependsOn": ["P00"],
+      "evidence": [".agent/reports/P01-VERSIONS.md"]
+    },
+    {
+      "id": "P01-W02",
+      "owner": "/root/p00_spec",
+      "status": "IMPLEMENTED",
+      "dependsOn": ["P00"],
+      "evidence": [".agent/reports/P01-LICENSE.md"]
+    },
+    {
+      "id": "P01-W03",
+      "owner": "/root/p00_repair",
+      "status": "IMPLEMENTED",
+      "dependsOn": ["P01-W01", "P01-W02"],
+      "evidence": [".agent/reports/P01-LOCK-PROPOSAL.md"]
+    },
+    {
+      "id": "P01-W04",
+      "owner": "/root/p00_git_publish",
+      "status": "VERIFIED",
+      "dependsOn": ["P01-W01", "P01-W02", "P01-W03"],
+      "evidence": [".agent/reports/P01-INTEGRATION.md"]
+    },
+    {
+      "id": "P01-REVIEW",
+      "owner": "/root/p00_review",
+      "status": "FAILED",
+      "dependsOn": ["P01-W04"],
+      "evidence": [".agent/reports/P01-REVIEW.md"]
+    },
+    {
+      "id": "P01-R01-TOOLCHAINS",
+      "owner": null,
+      "status": "READY",
+      "dependsOn": ["P01-W04"],
+      "evidence": ["repair P01-01, P01-04, and P01-12 with native JDK 21 plus fixed IU/JBR/LSP/Plugin Verifier probes"]
+    },
+    {
+      "id": "P01-R02-LANGUAGE-DEPS",
+      "owner": null,
+      "status": "READY",
+      "dependsOn": ["P01-W04"],
+      "evidence": ["repair P01-05, P01-06, and P01-07 with Lombok inventory, LSP method/DTO mapping, and complete minimal dependency selection"]
+    },
+    {
+      "id": "P01-R03-WEBSITE-DEPS",
+      "owner": null,
+      "status": "READY",
+      "dependsOn": ["P01-W04"],
+      "evidence": ["repair P01-11 with fixed Node distribution/CI checksum, frontend manifest and lockfile, transitive licenses, install command, and OS matrix"]
     }
   ]
 }
