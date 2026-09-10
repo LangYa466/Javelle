@@ -1,0 +1,1183 @@
+{
+  "schemaVersion": 1,
+  "baseline": {
+    "coordinate": "org.projectlombok:lombok:1.18.48",
+    "sha256": "85477a4655ebb2c074a9099cfb749be454449fee564d4282610df1b85f7c508b",
+    "sourceTagCommit": "017d15c7222c88480c1f65f96a113f4cc0091462"
+  },
+  "counts": {
+    "publicSurfaceClassEntries": 151,
+    "configKeys": 82
+  },
+  "publicSurface": [
+    {
+      "entry": "lombok/AccessLevel.class",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "entry": "lombok/AllArgsConstructor$AnyAnnotation.class",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "entry": "lombok/AllArgsConstructor.class",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "entry": "lombok/Builder$Default.class",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "entry": "lombok/Builder$ObtainVia.class",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "entry": "lombok/Builder.class",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "entry": "lombok/CheckReturnValue.class",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "entry": "lombok/Cleanup.class",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "entry": "lombok/ConfigurationKeys$1.class",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "entry": "lombok/ConfigurationKeys$10.class",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "entry": "lombok/ConfigurationKeys$11.class",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "entry": "lombok/ConfigurationKeys$12.class",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "entry": "lombok/ConfigurationKeys$13.class",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "entry": "lombok/ConfigurationKeys$14.class",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "entry": "lombok/ConfigurationKeys$15.class",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "entry": "lombok/ConfigurationKeys$16.class",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "entry": "lombok/ConfigurationKeys$17.class",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "entry": "lombok/ConfigurationKeys$18.class",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "entry": "lombok/ConfigurationKeys$19.class",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "entry": "lombok/ConfigurationKeys$2.class",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "entry": "lombok/ConfigurationKeys$20.class",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "entry": "lombok/ConfigurationKeys$21.class",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "entry": "lombok/ConfigurationKeys$22.class",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "entry": "lombok/ConfigurationKeys$23.class",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "entry": "lombok/ConfigurationKeys$24.class",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "entry": "lombok/ConfigurationKeys$25.class",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "entry": "lombok/ConfigurationKeys$26.class",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "entry": "lombok/ConfigurationKeys$27.class",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "entry": "lombok/ConfigurationKeys$28.class",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "entry": "lombok/ConfigurationKeys$29.class",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "entry": "lombok/ConfigurationKeys$3.class",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "entry": "lombok/ConfigurationKeys$30.class",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "entry": "lombok/ConfigurationKeys$31.class",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "entry": "lombok/ConfigurationKeys$32.class",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "entry": "lombok/ConfigurationKeys$33.class",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "entry": "lombok/ConfigurationKeys$34.class",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "entry": "lombok/ConfigurationKeys$35.class",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "entry": "lombok/ConfigurationKeys$36.class",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "entry": "lombok/ConfigurationKeys$37.class",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "entry": "lombok/ConfigurationKeys$38.class",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "entry": "lombok/ConfigurationKeys$39.class",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "entry": "lombok/ConfigurationKeys$4.class",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "entry": "lombok/ConfigurationKeys$40.class",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "entry": "lombok/ConfigurationKeys$41.class",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "entry": "lombok/ConfigurationKeys$42.class",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "entry": "lombok/ConfigurationKeys$43.class",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "entry": "lombok/ConfigurationKeys$44.class",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "entry": "lombok/ConfigurationKeys$45.class",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "entry": "lombok/ConfigurationKeys$46.class",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "entry": "lombok/ConfigurationKeys$47.class",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "entry": "lombok/ConfigurationKeys$48.class",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "entry": "lombok/ConfigurationKeys$49.class",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "entry": "lombok/ConfigurationKeys$5.class",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "entry": "lombok/ConfigurationKeys$50.class",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "entry": "lombok/ConfigurationKeys$51.class",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "entry": "lombok/ConfigurationKeys$52.class",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "entry": "lombok/ConfigurationKeys$53.class",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "entry": "lombok/ConfigurationKeys$54.class",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "entry": "lombok/ConfigurationKeys$55.class",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "entry": "lombok/ConfigurationKeys$56.class",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "entry": "lombok/ConfigurationKeys$57.class",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "entry": "lombok/ConfigurationKeys$58.class",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "entry": "lombok/ConfigurationKeys$59.class",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "entry": "lombok/ConfigurationKeys$6.class",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "entry": "lombok/ConfigurationKeys$60.class",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "entry": "lombok/ConfigurationKeys$61.class",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "entry": "lombok/ConfigurationKeys$62.class",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "entry": "lombok/ConfigurationKeys$63.class",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "entry": "lombok/ConfigurationKeys$64.class",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "entry": "lombok/ConfigurationKeys$65.class",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "entry": "lombok/ConfigurationKeys$66.class",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "entry": "lombok/ConfigurationKeys$67.class",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "entry": "lombok/ConfigurationKeys$68.class",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "entry": "lombok/ConfigurationKeys$69.class",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "entry": "lombok/ConfigurationKeys$7.class",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "entry": "lombok/ConfigurationKeys$70.class",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "entry": "lombok/ConfigurationKeys$71.class",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "entry": "lombok/ConfigurationKeys$72.class",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "entry": "lombok/ConfigurationKeys$73.class",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "entry": "lombok/ConfigurationKeys$74.class",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "entry": "lombok/ConfigurationKeys$75.class",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "entry": "lombok/ConfigurationKeys$76.class",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "entry": "lombok/ConfigurationKeys$77.class",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "entry": "lombok/ConfigurationKeys$78.class",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "entry": "lombok/ConfigurationKeys$79.class",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "entry": "lombok/ConfigurationKeys$8.class",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "entry": "lombok/ConfigurationKeys$80.class",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "entry": "lombok/ConfigurationKeys$81.class",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "entry": "lombok/ConfigurationKeys$82.class",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "entry": "lombok/ConfigurationKeys$83.class",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "entry": "lombok/ConfigurationKeys$9.class",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "entry": "lombok/ConfigurationKeys.class",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "entry": "lombok/CustomLog.class",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "entry": "lombok/Data.class",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "entry": "lombok/Delegate.class",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "entry": "lombok/EqualsAndHashCode$AnyAnnotation.class",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "entry": "lombok/EqualsAndHashCode$CacheStrategy.class",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "entry": "lombok/EqualsAndHashCode$Exclude.class",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "entry": "lombok/EqualsAndHashCode$Include.class",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "entry": "lombok/EqualsAndHashCode.class",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "entry": "lombok/Generated.class",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "entry": "lombok/Getter$AnyAnnotation.class",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "entry": "lombok/Getter.class",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "entry": "lombok/Locked$Read.class",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "entry": "lombok/Locked$Write.class",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "entry": "lombok/Locked.class",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "entry": "lombok/Lombok.class",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "entry": "lombok/NoArgsConstructor$AnyAnnotation.class",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "entry": "lombok/NoArgsConstructor.class",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "entry": "lombok/NonNull.class",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "entry": "lombok/RequiredArgsConstructor$AnyAnnotation.class",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "entry": "lombok/RequiredArgsConstructor.class",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "entry": "lombok/Setter$AnyAnnotation.class",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "entry": "lombok/Setter.class",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "entry": "lombok/Singular.class",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "entry": "lombok/SneakyThrows.class",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "entry": "lombok/SuperBuilder.class",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "entry": "lombok/Synchronized.class",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "entry": "lombok/ToString$Exclude.class",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "entry": "lombok/ToString$Include.class",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "entry": "lombok/ToString.class",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "entry": "lombok/Value.class",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "entry": "lombok/With$AnyAnnotation.class",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "entry": "lombok/With.class",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "entry": "lombok/experimental/Accessors.class",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "entry": "lombok/experimental/Delegate.class",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "entry": "lombok/experimental/ExtensionMethod.class",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "entry": "lombok/experimental/FieldDefaults.class",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "entry": "lombok/experimental/FieldNameConstants$Exclude.class",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "entry": "lombok/experimental/FieldNameConstants$Include.class",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "entry": "lombok/experimental/FieldNameConstants.class",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "entry": "lombok/experimental/Helper.class",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "entry": "lombok/experimental/NonFinal.class",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "entry": "lombok/experimental/PackagePrivate.class",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "entry": "lombok/experimental/StandardException.class",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "entry": "lombok/experimental/SuperBuilder.class",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "entry": "lombok/experimental/Tolerate.class",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "entry": "lombok/experimental/UtilityClass.class",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "entry": "lombok/experimental/WithBy$AnyAnnotation.class",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "entry": "lombok/experimental/WithBy.class",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "entry": "lombok/experimental/Wither$AnyAnnotation.class",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "entry": "lombok/experimental/Wither.class",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "entry": "lombok/extern/apachecommons/CommonsLog.class",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "entry": "lombok/extern/flogger/Flogger.class",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "entry": "lombok/extern/jackson/Jacksonized.class",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "entry": "lombok/extern/java/Log.class",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "entry": "lombok/extern/jbosslog/JBossLog.class",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "entry": "lombok/extern/log4j/Log4j.class",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "entry": "lombok/extern/log4j/Log4j2.class",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "entry": "lombok/extern/slf4j/Slf4j.class",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "entry": "lombok/extern/slf4j/XSlf4j.class",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    }
+  ],
+  "configKeys": [
+    {
+      "key": "checkerframework",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "key": "config.stopBubbling",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "key": "lombok.accessors.capitalization",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "key": "lombok.accessors.chain",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "key": "lombok.accessors.flagUsage",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "key": "lombok.accessors.fluent",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "key": "lombok.accessors.makeFinal",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "key": "lombok.accessors.prefix",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "key": "lombok.addGeneratedAnnotation",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "key": "lombok.addJakartaGeneratedAnnotation",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "key": "lombok.addJavaxGeneratedAnnotation",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "key": "lombok.addLombokGeneratedAnnotation",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "key": "lombok.addNullAnnotations",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "key": "lombok.addSuppressWarnings",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "key": "lombok.allArgsConstructor.flagUsage",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "key": "lombok.anyConstructor.addConstructorProperties",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "key": "lombok.anyConstructor.flagUsage",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "key": "lombok.anyConstructor.suppressConstructorProperties",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "key": "lombok.builder.className",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "key": "lombok.builder.flagUsage",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "key": "lombok.checkReturnValueAnnotation",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "key": "lombok.cleanup.flagUsage",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "key": "lombok.copyJacksonAnnotationsToAccessors",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "key": "lombok.copyableAnnotations",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "key": "lombok.data.flagUsage",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "key": "lombok.delegate.flagUsage",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "key": "lombok.equalsAndHashCode.callSuper",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "key": "lombok.equalsAndHashCode.doNotUseGetters",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "key": "lombok.equalsAndHashCode.flagUsage",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "key": "lombok.experimental.flagUsage",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "key": "lombok.extensionMethod.flagUsage",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "key": "lombok.extern.findbugs.addSuppressFBWarnings",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "key": "lombok.fieldDefaults.defaultFinal",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "key": "lombok.fieldDefaults.defaultPrivate",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "key": "lombok.fieldDefaults.flagUsage",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "key": "lombok.fieldNameConstants.flagUsage",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "key": "lombok.fieldNameConstants.innerTypeName",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "key": "lombok.fieldNameConstants.uppercase",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "key": "lombok.getter.flagUsage",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "key": "lombok.getter.lazy.flagUsage",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "key": "lombok.getter.noIsPrefix",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "key": "lombok.helper.flagUsage",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "key": "lombok.jacksonized.flagUsage",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "key": "lombok.jacksonized.jacksonVersion",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "key": "lombok.locked.flagUsage",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "key": "lombok.log.apacheCommons.flagUsage",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "key": "lombok.log.custom.declaration",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "key": "lombok.log.custom.flagUsage",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "key": "lombok.log.fieldIsStatic",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "key": "lombok.log.fieldName",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "key": "lombok.log.flagUsage",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "key": "lombok.log.flogger.flagUsage",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "key": "lombok.log.javaUtilLogging.flagUsage",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "key": "lombok.log.jbosslog.flagUsage",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "key": "lombok.log.log4j.flagUsage",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "key": "lombok.log.log4j2.flagUsage",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "key": "lombok.log.slf4j.flagUsage",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "key": "lombok.log.xslf4j.flagUsage",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "key": "lombok.noArgsConstructor.extraPrivate",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "key": "lombok.noArgsConstructor.flagUsage",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "key": "lombok.nonNull.exceptionType",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "key": "lombok.nonNull.flagUsage",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "key": "lombok.onX.flagUsage",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "key": "lombok.requiredArgsConstructor.flagUsage",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "key": "lombok.setter.flagUsage",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "key": "lombok.singular.auto",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "key": "lombok.singular.useGuava",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "key": "lombok.sneakyThrows.flagUsage",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "key": "lombok.standardException.flagUsage",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "key": "lombok.superBuilder.flagUsage",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "key": "lombok.synchronized.flagUsage",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "key": "lombok.toString.callSuper",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "key": "lombok.toString.doNotUseGetters",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "key": "lombok.toString.flagUsage",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "key": "lombok.toString.includeFieldNames",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "key": "lombok.toString.onlyExplicitlyIncluded",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "key": "lombok.utilityClass.flagUsage",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "key": "lombok.val.flagUsage",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "key": "lombok.value.flagUsage",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "key": "lombok.var.flagUsage",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "key": "lombok.with.flagUsage",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    },
+    {
+      "key": "lombok.withBy.flagUsage",
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "compatibilityStatus": "NOT_VERIFIED"
+    }
+  ],
+  "productionProcessorAllowed": false,
+  "nextStage": "P20_SEMANTIC_REGISTRY_AND_IMPLEMENTATION"
+}

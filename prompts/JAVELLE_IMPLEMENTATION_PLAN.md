@@ -549,18 +549,18 @@ P03/P11 → P45 → P46 → P47 → P48
 **依賴：** P00  
 **產物：** docs/engineering/toolchain-matrix.md、gradle/libs.versions.toml、依賴/授權清冊
 
-- [ ] **P01-01** 查核 JDK 25／Java 21 profile 所需 API 與 javac 行為，記錄來源 URL、檢查日期、採用版本及 checksum。
-- [ ] **P01-02** 分別記錄 compiler runtime JDK、Gradle daemon JDK、Javelle target release、IDEA client bytecode level，禁止把四者混為一個版本。
-- [ ] **P01-03** 從 Gradle 官方相容性資料挑選確定可用的 wrapper 版本與測試下限，不以 dynamic latest 建置。
-- [ ] **P01-04** 挑選並驗證 IntelliJ Platform Gradle Plugin、最低／目前支援的 IDEA build、可用 LSP module；記錄不支援的發行物與原因。
-- [ ] **P01-05** 鎖定 Lombok 正式 baseline artifact 與 source tag，保存 SHA-256；實際匯出 API／config，不只抄索引頁。
-- [ ] **P01-06** 從 LSP 官方 method inventory 與選定 Java JSON-RPC library 確認協定支援；記錄需要自行補 DTO 的差異。
-- [ ] **P01-07** 盤點 parser／JSON／LSP／測試／網站依賴，選維護狀態可接受且授權相容的最小集合；不為個別 API 塞入龐大平台。
-- [ ] **P01-08** 檢查自有 GPLv2+Classpath、第三方原始碼、binary linking、打包、annotation definitions 與輸出 helper 邊界，建立待審查項。
-- [ ] **P01-09** 內部 package root 可使用 org.javelle；公開 Maven group／Plugin ID 必須記錄 namespace 所有權驗證狀態，不假稱已註冊。
-- [ ] **P01-10** 為官方資料建立精簡 SOURCES 記錄與必要版本 snapshot；尊重上游授權，不把整站內容無審查複製進庫。
-- [ ] **P01-11** 鎖定 Node／網站套件管理器與所有前端依賴，記錄可重現安裝命令與 OS 支援範圍。
-- [ ] **P01-12** 由獨立 reviewer 重跑最小 toolchain／API probe，確認不是「文件看起來支持」而實際無法編譯。
+- [x] **P01-01** 查核 JDK 25／Java 21 profile 所需 API 與 javac 行為，記錄來源 URL、檢查日期、採用版本及 checksum。
+- [x] **P01-02** 分別記錄 compiler runtime JDK、Gradle daemon JDK、Javelle target release、IDEA client bytecode level，禁止把四者混為一個版本。
+- [x] **P01-03** 從 Gradle 官方相容性資料挑選確定可用的 wrapper 版本與測試下限，不以 dynamic latest 建置。
+- [x] **P01-04** 挑選並驗證 IntelliJ Platform Gradle Plugin、最低／目前支援的 IDEA build、可用 LSP module；記錄不支援的發行物與原因。
+- [x] **P01-05** 鎖定 Lombok 正式 baseline artifact 與 source tag，保存 SHA-256；實際匯出 API／config，不只抄索引頁。
+- [x] **P01-06** 從 LSP 官方 method inventory 與選定 Java JSON-RPC library 確認協定支援；記錄需要自行補 DTO 的差異。
+- [x] **P01-07** 盤點 parser／JSON／LSP／測試／網站依賴，選維護狀態可接受且授權相容的最小集合；不為個別 API 塞入龐大平台。
+- [x] **P01-08** 檢查自有 GPLv2+Classpath、第三方原始碼、binary linking、打包、annotation definitions 與輸出 helper 邊界，建立待審查項。
+- [x] **P01-09** 內部 package root 可使用 org.javelle；公開 Maven group／Plugin ID 必須記錄 namespace 所有權驗證狀態，不假稱已註冊。
+- [x] **P01-10** 為官方資料建立精簡 SOURCES 記錄與必要版本 snapshot；尊重上游授權，不把整站內容無審查複製進庫。
+- [x] **P01-11** 鎖定 Node／網站套件管理器與所有前端依賴，記錄可重現安裝命令與 OS 支援範圍。
+- [x] **P01-12** 由獨立 reviewer 重跑最小 toolchain／API probe，確認不是「文件看起來支持」而實際無法編譯。
 
 **階段出口：** 工具鏈與依賴有可重現 probe、確定版本與授權記錄；不確定的外部發布條件另有 gate。 所有項目另須通過根 `AGENTS.md` 的共同 DoD。
 

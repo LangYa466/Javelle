@@ -1,0 +1,4072 @@
+{
+  "schemaVersion": 1,
+  "protocol": "3.18.2",
+  "binding": "LSP4J 1.0.0",
+  "metaModelSha256": "35ebcc0b607eeda105dd092c990182eb338852d82130053d3a27499ff34c89a2",
+  "methodCount": 95,
+  "typeCount": 450,
+  "summary": {
+    "SUPPORTED_LIBRARY": 309,
+    "PROTOCOL_DELTA_WITH_REASON": 16,
+    "CUSTOM_DTO_REQUIRED": 125
+  },
+  "types": [
+    {
+      "kind": "structure",
+      "name": "ImplementationParams",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.ImplementationParams",
+      "officialFieldCount": 0,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "Location",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.Location",
+      "officialFieldCount": 2,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "ImplementationRegistrationOptions",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.ImplementationRegistrationOptions",
+      "officialFieldCount": 0,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "TypeDefinitionParams",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.TypeDefinitionParams",
+      "officialFieldCount": 0,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "TypeDefinitionRegistrationOptions",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.TypeDefinitionRegistrationOptions",
+      "officialFieldCount": 0,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "WorkspaceFolder",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.WorkspaceFolder",
+      "officialFieldCount": 2,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "DidChangeWorkspaceFoldersParams",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.DidChangeWorkspaceFoldersParams",
+      "officialFieldCount": 1,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "ConfigurationParams",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.ConfigurationParams",
+      "officialFieldCount": 1,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "DocumentColorParams",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.DocumentColorParams",
+      "officialFieldCount": 1,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "ColorInformation",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.ColorInformation",
+      "officialFieldCount": 2,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "DocumentColorRegistrationOptions",
+      "status": "CUSTOM_DTO_REQUIRED",
+      "librarySymbol": null,
+      "officialFieldCount": 0,
+      "unmatchedDirectFields": [],
+      "reason": "No same-named LSP4J 1.0.0 source type; verify alternate symbol or provide custom DTO."
+    },
+    {
+      "kind": "structure",
+      "name": "ColorPresentationParams",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.ColorPresentationParams",
+      "officialFieldCount": 3,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "ColorPresentation",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.ColorPresentation",
+      "officialFieldCount": 3,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "WorkDoneProgressOptions",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.WorkDoneProgressOptions",
+      "officialFieldCount": 1,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "TextDocumentRegistrationOptions",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.TextDocumentRegistrationOptions",
+      "officialFieldCount": 1,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "FoldingRangeParams",
+      "status": "CUSTOM_DTO_REQUIRED",
+      "librarySymbol": null,
+      "officialFieldCount": 1,
+      "unmatchedDirectFields": [],
+      "reason": "No same-named LSP4J 1.0.0 source type; verify alternate symbol or provide custom DTO."
+    },
+    {
+      "kind": "structure",
+      "name": "FoldingRange",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.FoldingRange",
+      "officialFieldCount": 6,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "FoldingRangeRegistrationOptions",
+      "status": "CUSTOM_DTO_REQUIRED",
+      "librarySymbol": null,
+      "officialFieldCount": 0,
+      "unmatchedDirectFields": [],
+      "reason": "No same-named LSP4J 1.0.0 source type; verify alternate symbol or provide custom DTO."
+    },
+    {
+      "kind": "structure",
+      "name": "DeclarationParams",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.DeclarationParams",
+      "officialFieldCount": 0,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "DeclarationRegistrationOptions",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.DeclarationRegistrationOptions",
+      "officialFieldCount": 0,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "SelectionRangeParams",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.SelectionRangeParams",
+      "officialFieldCount": 2,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "SelectionRange",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.SelectionRange",
+      "officialFieldCount": 2,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "SelectionRangeRegistrationOptions",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.SelectionRangeRegistrationOptions",
+      "officialFieldCount": 0,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "WorkDoneProgressCreateParams",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.WorkDoneProgressCreateParams",
+      "officialFieldCount": 1,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "WorkDoneProgressCancelParams",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.WorkDoneProgressCancelParams",
+      "officialFieldCount": 1,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "CallHierarchyPrepareParams",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.CallHierarchyPrepareParams",
+      "officialFieldCount": 0,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "CallHierarchyItem",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.CallHierarchyItem",
+      "officialFieldCount": 8,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "CallHierarchyRegistrationOptions",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.CallHierarchyRegistrationOptions",
+      "officialFieldCount": 0,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "CallHierarchyIncomingCallsParams",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.CallHierarchyIncomingCallsParams",
+      "officialFieldCount": 1,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "CallHierarchyIncomingCall",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.CallHierarchyIncomingCall",
+      "officialFieldCount": 2,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "CallHierarchyOutgoingCallsParams",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.CallHierarchyOutgoingCallsParams",
+      "officialFieldCount": 1,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "CallHierarchyOutgoingCall",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.CallHierarchyOutgoingCall",
+      "officialFieldCount": 2,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "SemanticTokensParams",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.SemanticTokensParams",
+      "officialFieldCount": 1,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "SemanticTokens",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.SemanticTokens",
+      "officialFieldCount": 2,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "SemanticTokensPartialResult",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.SemanticTokensPartialResult",
+      "officialFieldCount": 1,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "SemanticTokensRegistrationOptions",
+      "status": "CUSTOM_DTO_REQUIRED",
+      "librarySymbol": null,
+      "officialFieldCount": 0,
+      "unmatchedDirectFields": [],
+      "reason": "No same-named LSP4J 1.0.0 source type; verify alternate symbol or provide custom DTO."
+    },
+    {
+      "kind": "structure",
+      "name": "SemanticTokensDeltaParams",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.SemanticTokensDeltaParams",
+      "officialFieldCount": 2,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "SemanticTokensDelta",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.SemanticTokensDelta",
+      "officialFieldCount": 2,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "SemanticTokensDeltaPartialResult",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.SemanticTokensDeltaPartialResult",
+      "officialFieldCount": 1,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "SemanticTokensRangeParams",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.SemanticTokensRangeParams",
+      "officialFieldCount": 2,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "ShowDocumentParams",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.ShowDocumentParams",
+      "officialFieldCount": 4,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "ShowDocumentResult",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.ShowDocumentResult",
+      "officialFieldCount": 1,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "LinkedEditingRangeParams",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.LinkedEditingRangeParams",
+      "officialFieldCount": 0,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "LinkedEditingRanges",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.LinkedEditingRanges",
+      "officialFieldCount": 2,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "LinkedEditingRangeRegistrationOptions",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.LinkedEditingRangeRegistrationOptions",
+      "officialFieldCount": 0,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "CreateFilesParams",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.CreateFilesParams",
+      "officialFieldCount": 1,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "WorkspaceEdit",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.WorkspaceEdit",
+      "officialFieldCount": 3,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "FileOperationRegistrationOptions",
+      "status": "CUSTOM_DTO_REQUIRED",
+      "librarySymbol": null,
+      "officialFieldCount": 1,
+      "unmatchedDirectFields": [],
+      "reason": "No same-named LSP4J 1.0.0 source type; verify alternate symbol or provide custom DTO."
+    },
+    {
+      "kind": "structure",
+      "name": "RenameFilesParams",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.RenameFilesParams",
+      "officialFieldCount": 1,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "DeleteFilesParams",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.DeleteFilesParams",
+      "officialFieldCount": 1,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "MonikerParams",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.MonikerParams",
+      "officialFieldCount": 0,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "Moniker",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.Moniker",
+      "officialFieldCount": 4,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "MonikerRegistrationOptions",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.MonikerRegistrationOptions",
+      "officialFieldCount": 0,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "TypeHierarchyPrepareParams",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.TypeHierarchyPrepareParams",
+      "officialFieldCount": 0,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "TypeHierarchyItem",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.TypeHierarchyItem",
+      "officialFieldCount": 8,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "TypeHierarchyRegistrationOptions",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.TypeHierarchyRegistrationOptions",
+      "officialFieldCount": 0,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "TypeHierarchySupertypesParams",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.TypeHierarchySupertypesParams",
+      "officialFieldCount": 1,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "TypeHierarchySubtypesParams",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.TypeHierarchySubtypesParams",
+      "officialFieldCount": 1,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "InlineValueParams",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.InlineValueParams",
+      "officialFieldCount": 3,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "InlineValueRegistrationOptions",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.InlineValueRegistrationOptions",
+      "officialFieldCount": 0,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "InlayHintParams",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.InlayHintParams",
+      "officialFieldCount": 2,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "InlayHint",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.InlayHint",
+      "officialFieldCount": 8,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "InlayHintRegistrationOptions",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.InlayHintRegistrationOptions",
+      "officialFieldCount": 0,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "DocumentDiagnosticParams",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.DocumentDiagnosticParams",
+      "officialFieldCount": 3,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "DiagnosticServerCancellationData",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.DiagnosticServerCancellationData",
+      "officialFieldCount": 1,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "DiagnosticRegistrationOptions",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.DiagnosticRegistrationOptions",
+      "officialFieldCount": 0,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "WorkspaceDiagnosticParams",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.WorkspaceDiagnosticParams",
+      "officialFieldCount": 2,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "WorkspaceDiagnosticReport",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.WorkspaceDiagnosticReport",
+      "officialFieldCount": 1,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "WorkspaceDiagnosticReportPartialResult",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.WorkspaceDiagnosticReportPartialResult",
+      "officialFieldCount": 1,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "DidOpenNotebookDocumentParams",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.DidOpenNotebookDocumentParams",
+      "officialFieldCount": 2,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "NotebookDocumentSyncRegistrationOptions",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.NotebookDocumentSyncRegistrationOptions",
+      "officialFieldCount": 0,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "DidChangeNotebookDocumentParams",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.DidChangeNotebookDocumentParams",
+      "officialFieldCount": 2,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "DidSaveNotebookDocumentParams",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.DidSaveNotebookDocumentParams",
+      "officialFieldCount": 1,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "DidCloseNotebookDocumentParams",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.DidCloseNotebookDocumentParams",
+      "officialFieldCount": 2,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "InlineCompletionParams",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.InlineCompletionParams",
+      "officialFieldCount": 1,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "InlineCompletionList",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.InlineCompletionList",
+      "officialFieldCount": 1,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "InlineCompletionItem",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.InlineCompletionItem",
+      "officialFieldCount": 4,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "InlineCompletionRegistrationOptions",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.InlineCompletionRegistrationOptions",
+      "officialFieldCount": 0,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "TextDocumentContentParams",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.TextDocumentContentParams",
+      "officialFieldCount": 1,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "TextDocumentContentResult",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.TextDocumentContentResult",
+      "officialFieldCount": 1,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "TextDocumentContentRegistrationOptions",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.TextDocumentContentRegistrationOptions",
+      "officialFieldCount": 0,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "TextDocumentContentRefreshParams",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.TextDocumentContentRefreshParams",
+      "officialFieldCount": 1,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "RegistrationParams",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.RegistrationParams",
+      "officialFieldCount": 1,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "UnregistrationParams",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.UnregistrationParams",
+      "officialFieldCount": 1,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "InitializeParams",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.InitializeParams",
+      "officialFieldCount": 0,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "InitializeResult",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.InitializeResult",
+      "officialFieldCount": 2,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "InitializeError",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.InitializeError",
+      "officialFieldCount": 1,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "InitializedParams",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.InitializedParams",
+      "officialFieldCount": 0,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "DidChangeConfigurationParams",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.DidChangeConfigurationParams",
+      "officialFieldCount": 1,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "DidChangeConfigurationRegistrationOptions",
+      "status": "CUSTOM_DTO_REQUIRED",
+      "librarySymbol": null,
+      "officialFieldCount": 1,
+      "unmatchedDirectFields": [],
+      "reason": "No same-named LSP4J 1.0.0 source type; verify alternate symbol or provide custom DTO."
+    },
+    {
+      "kind": "structure",
+      "name": "ShowMessageParams",
+      "status": "CUSTOM_DTO_REQUIRED",
+      "librarySymbol": null,
+      "officialFieldCount": 2,
+      "unmatchedDirectFields": [],
+      "reason": "No same-named LSP4J 1.0.0 source type; verify alternate symbol or provide custom DTO."
+    },
+    {
+      "kind": "structure",
+      "name": "ShowMessageRequestParams",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.ShowMessageRequestParams",
+      "officialFieldCount": 3,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "MessageActionItem",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.MessageActionItem",
+      "officialFieldCount": 1,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "LogMessageParams",
+      "status": "CUSTOM_DTO_REQUIRED",
+      "librarySymbol": null,
+      "officialFieldCount": 2,
+      "unmatchedDirectFields": [],
+      "reason": "No same-named LSP4J 1.0.0 source type; verify alternate symbol or provide custom DTO."
+    },
+    {
+      "kind": "structure",
+      "name": "DidOpenTextDocumentParams",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.DidOpenTextDocumentParams",
+      "officialFieldCount": 1,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "DidChangeTextDocumentParams",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.DidChangeTextDocumentParams",
+      "officialFieldCount": 2,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "TextDocumentChangeRegistrationOptions",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.TextDocumentChangeRegistrationOptions",
+      "officialFieldCount": 1,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "DidCloseTextDocumentParams",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.DidCloseTextDocumentParams",
+      "officialFieldCount": 1,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "DidSaveTextDocumentParams",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.DidSaveTextDocumentParams",
+      "officialFieldCount": 2,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "TextDocumentSaveRegistrationOptions",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.TextDocumentSaveRegistrationOptions",
+      "officialFieldCount": 0,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "WillSaveTextDocumentParams",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.WillSaveTextDocumentParams",
+      "officialFieldCount": 2,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "TextEdit",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.TextEdit",
+      "officialFieldCount": 2,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "DidChangeWatchedFilesParams",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.DidChangeWatchedFilesParams",
+      "officialFieldCount": 1,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "DidChangeWatchedFilesRegistrationOptions",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.DidChangeWatchedFilesRegistrationOptions",
+      "officialFieldCount": 1,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "PublishDiagnosticsParams",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.PublishDiagnosticsParams",
+      "officialFieldCount": 3,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "CompletionParams",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.CompletionParams",
+      "officialFieldCount": 1,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "CompletionItem",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.CompletionItem",
+      "officialFieldCount": 19,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "CompletionList",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.CompletionList",
+      "officialFieldCount": 4,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "CompletionRegistrationOptions",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.CompletionRegistrationOptions",
+      "officialFieldCount": 0,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "HoverParams",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.HoverParams",
+      "officialFieldCount": 0,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "Hover",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.Hover",
+      "officialFieldCount": 2,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "HoverRegistrationOptions",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.HoverRegistrationOptions",
+      "officialFieldCount": 0,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "SignatureHelpParams",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.SignatureHelpParams",
+      "officialFieldCount": 1,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "SignatureHelp",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.SignatureHelp",
+      "officialFieldCount": 3,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "SignatureHelpRegistrationOptions",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.SignatureHelpRegistrationOptions",
+      "officialFieldCount": 0,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "DefinitionParams",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.DefinitionParams",
+      "officialFieldCount": 0,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "DefinitionRegistrationOptions",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.DefinitionRegistrationOptions",
+      "officialFieldCount": 0,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "ReferenceParams",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.ReferenceParams",
+      "officialFieldCount": 1,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "ReferenceRegistrationOptions",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.ReferenceRegistrationOptions",
+      "officialFieldCount": 0,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "DocumentHighlightParams",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.DocumentHighlightParams",
+      "officialFieldCount": 0,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "DocumentHighlight",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.DocumentHighlight",
+      "officialFieldCount": 2,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "DocumentHighlightRegistrationOptions",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.DocumentHighlightRegistrationOptions",
+      "officialFieldCount": 0,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "DocumentSymbolParams",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.DocumentSymbolParams",
+      "officialFieldCount": 1,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "SymbolInformation",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.SymbolInformation",
+      "officialFieldCount": 2,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "DocumentSymbol",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.DocumentSymbol",
+      "officialFieldCount": 8,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "DocumentSymbolRegistrationOptions",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.DocumentSymbolRegistrationOptions",
+      "officialFieldCount": 0,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "CodeActionParams",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.CodeActionParams",
+      "officialFieldCount": 3,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "Command",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.Command",
+      "officialFieldCount": 4,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "CodeAction",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.CodeAction",
+      "officialFieldCount": 9,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "CodeActionRegistrationOptions",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.CodeActionRegistrationOptions",
+      "officialFieldCount": 0,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "WorkspaceSymbolParams",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.WorkspaceSymbolParams",
+      "officialFieldCount": 1,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "WorkspaceSymbol",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.WorkspaceSymbol",
+      "officialFieldCount": 2,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "WorkspaceSymbolRegistrationOptions",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.WorkspaceSymbolRegistrationOptions",
+      "officialFieldCount": 0,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "CodeLensParams",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.CodeLensParams",
+      "officialFieldCount": 1,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "CodeLens",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.CodeLens",
+      "officialFieldCount": 3,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "CodeLensRegistrationOptions",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.CodeLensRegistrationOptions",
+      "officialFieldCount": 0,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "DocumentLinkParams",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.DocumentLinkParams",
+      "officialFieldCount": 1,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "DocumentLink",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.DocumentLink",
+      "officialFieldCount": 4,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "DocumentLinkRegistrationOptions",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.DocumentLinkRegistrationOptions",
+      "officialFieldCount": 0,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "DocumentFormattingParams",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.DocumentFormattingParams",
+      "officialFieldCount": 2,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "DocumentFormattingRegistrationOptions",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.DocumentFormattingRegistrationOptions",
+      "officialFieldCount": 0,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "DocumentRangeFormattingParams",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.DocumentRangeFormattingParams",
+      "officialFieldCount": 3,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "DocumentRangeFormattingRegistrationOptions",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.DocumentRangeFormattingRegistrationOptions",
+      "officialFieldCount": 0,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "DocumentRangesFormattingParams",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.DocumentRangesFormattingParams",
+      "officialFieldCount": 3,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "DocumentOnTypeFormattingParams",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.DocumentOnTypeFormattingParams",
+      "officialFieldCount": 4,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "DocumentOnTypeFormattingRegistrationOptions",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.DocumentOnTypeFormattingRegistrationOptions",
+      "officialFieldCount": 0,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "RenameParams",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.RenameParams",
+      "officialFieldCount": 1,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "RenameRegistrationOptions",
+      "status": "CUSTOM_DTO_REQUIRED",
+      "librarySymbol": null,
+      "officialFieldCount": 0,
+      "unmatchedDirectFields": [],
+      "reason": "No same-named LSP4J 1.0.0 source type; verify alternate symbol or provide custom DTO."
+    },
+    {
+      "kind": "structure",
+      "name": "PrepareRenameParams",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.PrepareRenameParams",
+      "officialFieldCount": 0,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "ExecuteCommandParams",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.ExecuteCommandParams",
+      "officialFieldCount": 2,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "ExecuteCommandRegistrationOptions",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.ExecuteCommandRegistrationOptions",
+      "officialFieldCount": 0,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "ApplyWorkspaceEditParams",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.ApplyWorkspaceEditParams",
+      "officialFieldCount": 3,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "ApplyWorkspaceEditResult",
+      "status": "CUSTOM_DTO_REQUIRED",
+      "librarySymbol": null,
+      "officialFieldCount": 3,
+      "unmatchedDirectFields": [],
+      "reason": "No same-named LSP4J 1.0.0 source type; verify alternate symbol or provide custom DTO."
+    },
+    {
+      "kind": "structure",
+      "name": "WorkDoneProgressBegin",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.WorkDoneProgressBegin",
+      "officialFieldCount": 5,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "WorkDoneProgressReport",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.WorkDoneProgressReport",
+      "officialFieldCount": 4,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "WorkDoneProgressEnd",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.WorkDoneProgressEnd",
+      "officialFieldCount": 2,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "SetTraceParams",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.SetTraceParams",
+      "officialFieldCount": 1,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "LogTraceParams",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.LogTraceParams",
+      "officialFieldCount": 2,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "CancelParams",
+      "status": "CUSTOM_DTO_REQUIRED",
+      "librarySymbol": null,
+      "officialFieldCount": 1,
+      "unmatchedDirectFields": [],
+      "reason": "No same-named LSP4J 1.0.0 source type; verify alternate symbol or provide custom DTO."
+    },
+    {
+      "kind": "structure",
+      "name": "ProgressParams",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.ProgressParams",
+      "officialFieldCount": 2,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "TextDocumentPositionParams",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.TextDocumentPositionParams",
+      "officialFieldCount": 2,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "WorkDoneProgressParams",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.WorkDoneProgressParams",
+      "officialFieldCount": 1,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "PartialResultParams",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.PartialResultParams",
+      "officialFieldCount": 1,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "LocationLink",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.LocationLink",
+      "officialFieldCount": 4,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "Range",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.Range",
+      "officialFieldCount": 2,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "ImplementationOptions",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.ImplementationOptions",
+      "officialFieldCount": 0,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "StaticRegistrationOptions",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.StaticRegistrationOptions",
+      "officialFieldCount": 1,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "TypeDefinitionOptions",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.TypeDefinitionOptions",
+      "officialFieldCount": 0,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "WorkspaceFoldersChangeEvent",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.WorkspaceFoldersChangeEvent",
+      "officialFieldCount": 2,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "ConfigurationItem",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.ConfigurationItem",
+      "officialFieldCount": 2,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "TextDocumentIdentifier",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.TextDocumentIdentifier",
+      "officialFieldCount": 1,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "Color",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.Color",
+      "officialFieldCount": 4,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "DocumentColorOptions",
+      "status": "CUSTOM_DTO_REQUIRED",
+      "librarySymbol": null,
+      "officialFieldCount": 0,
+      "unmatchedDirectFields": [],
+      "reason": "No same-named LSP4J 1.0.0 source type; verify alternate symbol or provide custom DTO."
+    },
+    {
+      "kind": "structure",
+      "name": "FoldingRangeOptions",
+      "status": "CUSTOM_DTO_REQUIRED",
+      "librarySymbol": null,
+      "officialFieldCount": 0,
+      "unmatchedDirectFields": [],
+      "reason": "No same-named LSP4J 1.0.0 source type; verify alternate symbol or provide custom DTO."
+    },
+    {
+      "kind": "structure",
+      "name": "DeclarationOptions",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.DeclarationOptions",
+      "officialFieldCount": 0,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "Position",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.Position",
+      "officialFieldCount": 2,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "SelectionRangeOptions",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.SelectionRangeOptions",
+      "officialFieldCount": 0,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "CallHierarchyOptions",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.CallHierarchyOptions",
+      "officialFieldCount": 0,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "SemanticTokensOptions",
+      "status": "CUSTOM_DTO_REQUIRED",
+      "librarySymbol": null,
+      "officialFieldCount": 3,
+      "unmatchedDirectFields": [],
+      "reason": "No same-named LSP4J 1.0.0 source type; verify alternate symbol or provide custom DTO."
+    },
+    {
+      "kind": "structure",
+      "name": "SemanticTokensEdit",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.SemanticTokensEdit",
+      "officialFieldCount": 3,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "LinkedEditingRangeOptions",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.LinkedEditingRangeOptions",
+      "officialFieldCount": 0,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "FileCreate",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.FileCreate",
+      "officialFieldCount": 1,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "TextDocumentEdit",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.TextDocumentEdit",
+      "officialFieldCount": 2,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "CreateFile",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.CreateFile",
+      "officialFieldCount": 3,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "RenameFile",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.RenameFile",
+      "officialFieldCount": 4,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "DeleteFile",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.DeleteFile",
+      "officialFieldCount": 3,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "ChangeAnnotation",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.ChangeAnnotation",
+      "officialFieldCount": 3,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "FileOperationFilter",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.FileOperationFilter",
+      "officialFieldCount": 2,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "FileRename",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.FileRename",
+      "officialFieldCount": 2,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "FileDelete",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.FileDelete",
+      "officialFieldCount": 1,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "MonikerOptions",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.MonikerOptions",
+      "officialFieldCount": 0,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "TypeHierarchyOptions",
+      "status": "CUSTOM_DTO_REQUIRED",
+      "librarySymbol": null,
+      "officialFieldCount": 0,
+      "unmatchedDirectFields": [],
+      "reason": "No same-named LSP4J 1.0.0 source type; verify alternate symbol or provide custom DTO."
+    },
+    {
+      "kind": "structure",
+      "name": "InlineValueContext",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.InlineValueContext",
+      "officialFieldCount": 2,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "InlineValueText",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.InlineValueText",
+      "officialFieldCount": 2,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "InlineValueVariableLookup",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.InlineValueVariableLookup",
+      "officialFieldCount": 3,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "InlineValueEvaluatableExpression",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.InlineValueEvaluatableExpression",
+      "officialFieldCount": 2,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "InlineValueOptions",
+      "status": "CUSTOM_DTO_REQUIRED",
+      "librarySymbol": null,
+      "officialFieldCount": 0,
+      "unmatchedDirectFields": [],
+      "reason": "No same-named LSP4J 1.0.0 source type; verify alternate symbol or provide custom DTO."
+    },
+    {
+      "kind": "structure",
+      "name": "InlayHintLabelPart",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.InlayHintLabelPart",
+      "officialFieldCount": 4,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "MarkupContent",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.MarkupContent",
+      "officialFieldCount": 2,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "InlayHintOptions",
+      "status": "CUSTOM_DTO_REQUIRED",
+      "librarySymbol": null,
+      "officialFieldCount": 1,
+      "unmatchedDirectFields": [],
+      "reason": "No same-named LSP4J 1.0.0 source type; verify alternate symbol or provide custom DTO."
+    },
+    {
+      "kind": "structure",
+      "name": "RelatedFullDocumentDiagnosticReport",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.RelatedFullDocumentDiagnosticReport",
+      "officialFieldCount": 1,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "RelatedUnchangedDocumentDiagnosticReport",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.RelatedUnchangedDocumentDiagnosticReport",
+      "officialFieldCount": 1,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "DocumentDiagnosticReportPartialResult",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.DocumentDiagnosticReportPartialResult",
+      "officialFieldCount": 1,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "DiagnosticOptions",
+      "status": "CUSTOM_DTO_REQUIRED",
+      "librarySymbol": null,
+      "officialFieldCount": 3,
+      "unmatchedDirectFields": [],
+      "reason": "No same-named LSP4J 1.0.0 source type; verify alternate symbol or provide custom DTO."
+    },
+    {
+      "kind": "structure",
+      "name": "PreviousResultId",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.PreviousResultId",
+      "officialFieldCount": 2,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "NotebookDocument",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.NotebookDocument",
+      "officialFieldCount": 5,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "TextDocumentItem",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.TextDocumentItem",
+      "officialFieldCount": 4,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "NotebookDocumentSyncOptions",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.NotebookDocumentSyncOptions",
+      "officialFieldCount": 2,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "VersionedNotebookDocumentIdentifier",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.VersionedNotebookDocumentIdentifier",
+      "officialFieldCount": 2,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "NotebookDocumentChangeEvent",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.NotebookDocumentChangeEvent",
+      "officialFieldCount": 2,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "NotebookDocumentIdentifier",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.NotebookDocumentIdentifier",
+      "officialFieldCount": 1,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "InlineCompletionContext",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.InlineCompletionContext",
+      "officialFieldCount": 2,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "StringValue",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.StringValue",
+      "officialFieldCount": 2,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "InlineCompletionOptions",
+      "status": "CUSTOM_DTO_REQUIRED",
+      "librarySymbol": null,
+      "officialFieldCount": 0,
+      "unmatchedDirectFields": [],
+      "reason": "No same-named LSP4J 1.0.0 source type; verify alternate symbol or provide custom DTO."
+    },
+    {
+      "kind": "structure",
+      "name": "TextDocumentContentOptions",
+      "status": "CUSTOM_DTO_REQUIRED",
+      "librarySymbol": null,
+      "officialFieldCount": 1,
+      "unmatchedDirectFields": [],
+      "reason": "No same-named LSP4J 1.0.0 source type; verify alternate symbol or provide custom DTO."
+    },
+    {
+      "kind": "structure",
+      "name": "Registration",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.Registration",
+      "officialFieldCount": 3,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "Unregistration",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.Unregistration",
+      "officialFieldCount": 2,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "_InitializeParams",
+      "status": "CUSTOM_DTO_REQUIRED",
+      "librarySymbol": null,
+      "officialFieldCount": 8,
+      "unmatchedDirectFields": [],
+      "reason": "No same-named LSP4J 1.0.0 source type; verify alternate symbol or provide custom DTO."
+    },
+    {
+      "kind": "structure",
+      "name": "WorkspaceFoldersInitializeParams",
+      "status": "CUSTOM_DTO_REQUIRED",
+      "librarySymbol": null,
+      "officialFieldCount": 1,
+      "unmatchedDirectFields": [],
+      "reason": "No same-named LSP4J 1.0.0 source type; verify alternate symbol or provide custom DTO."
+    },
+    {
+      "kind": "structure",
+      "name": "ServerCapabilities",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.ServerCapabilities",
+      "officialFieldCount": 36,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "ServerInfo",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.ServerInfo",
+      "officialFieldCount": 2,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "VersionedTextDocumentIdentifier",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.VersionedTextDocumentIdentifier",
+      "officialFieldCount": 1,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "SaveOptions",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.SaveOptions",
+      "officialFieldCount": 1,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "FileEvent",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.FileEvent",
+      "officialFieldCount": 2,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "FileSystemWatcher",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.FileSystemWatcher",
+      "officialFieldCount": 2,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "Diagnostic",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.Diagnostic",
+      "officialFieldCount": 9,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "CompletionContext",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.CompletionContext",
+      "officialFieldCount": 2,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "CompletionItemLabelDetails",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.CompletionItemLabelDetails",
+      "officialFieldCount": 2,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "InsertReplaceEdit",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.InsertReplaceEdit",
+      "officialFieldCount": 3,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "CompletionItemDefaults",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.CompletionItemDefaults",
+      "officialFieldCount": 5,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "CompletionItemApplyKinds",
+      "status": "CUSTOM_DTO_REQUIRED",
+      "librarySymbol": null,
+      "officialFieldCount": 2,
+      "unmatchedDirectFields": [],
+      "reason": "No same-named LSP4J 1.0.0 source type; verify alternate symbol or provide custom DTO."
+    },
+    {
+      "kind": "structure",
+      "name": "CompletionOptions",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.CompletionOptions",
+      "officialFieldCount": 4,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "HoverOptions",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.HoverOptions",
+      "officialFieldCount": 0,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "SignatureHelpContext",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.SignatureHelpContext",
+      "officialFieldCount": 4,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "SignatureInformation",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.SignatureInformation",
+      "officialFieldCount": 4,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "SignatureHelpOptions",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.SignatureHelpOptions",
+      "officialFieldCount": 2,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "DefinitionOptions",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.DefinitionOptions",
+      "officialFieldCount": 0,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "ReferenceContext",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.ReferenceContext",
+      "officialFieldCount": 1,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "ReferenceOptions",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.ReferenceOptions",
+      "officialFieldCount": 0,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "DocumentHighlightOptions",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.DocumentHighlightOptions",
+      "officialFieldCount": 0,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "BaseSymbolInformation",
+      "status": "CUSTOM_DTO_REQUIRED",
+      "librarySymbol": null,
+      "officialFieldCount": 4,
+      "unmatchedDirectFields": [],
+      "reason": "No same-named LSP4J 1.0.0 source type; verify alternate symbol or provide custom DTO."
+    },
+    {
+      "kind": "structure",
+      "name": "DocumentSymbolOptions",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.DocumentSymbolOptions",
+      "officialFieldCount": 1,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "CodeActionContext",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.CodeActionContext",
+      "officialFieldCount": 3,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "CodeActionDisabled",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.CodeActionDisabled",
+      "officialFieldCount": 1,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "CodeActionOptions",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.CodeActionOptions",
+      "officialFieldCount": 3,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "LocationUriOnly",
+      "status": "CUSTOM_DTO_REQUIRED",
+      "librarySymbol": null,
+      "officialFieldCount": 1,
+      "unmatchedDirectFields": [],
+      "reason": "No same-named LSP4J 1.0.0 source type; verify alternate symbol or provide custom DTO."
+    },
+    {
+      "kind": "structure",
+      "name": "WorkspaceSymbolOptions",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.WorkspaceSymbolOptions",
+      "officialFieldCount": 1,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "CodeLensOptions",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.CodeLensOptions",
+      "officialFieldCount": 1,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "DocumentLinkOptions",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.DocumentLinkOptions",
+      "officialFieldCount": 1,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "FormattingOptions",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.FormattingOptions",
+      "officialFieldCount": 5,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "DocumentFormattingOptions",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.DocumentFormattingOptions",
+      "officialFieldCount": 0,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "DocumentRangeFormattingOptions",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.DocumentRangeFormattingOptions",
+      "officialFieldCount": 1,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "DocumentOnTypeFormattingOptions",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.DocumentOnTypeFormattingOptions",
+      "officialFieldCount": 2,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "RenameOptions",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.RenameOptions",
+      "officialFieldCount": 1,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "PrepareRenamePlaceholder",
+      "status": "CUSTOM_DTO_REQUIRED",
+      "librarySymbol": null,
+      "officialFieldCount": 2,
+      "unmatchedDirectFields": [],
+      "reason": "No same-named LSP4J 1.0.0 source type; verify alternate symbol or provide custom DTO."
+    },
+    {
+      "kind": "structure",
+      "name": "PrepareRenameDefaultBehavior",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.PrepareRenameDefaultBehavior",
+      "officialFieldCount": 1,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "ExecuteCommandOptions",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.ExecuteCommandOptions",
+      "officialFieldCount": 1,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "WorkspaceEditMetadata",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.WorkspaceEditMetadata",
+      "officialFieldCount": 1,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "SemanticTokensLegend",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.SemanticTokensLegend",
+      "officialFieldCount": 2,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "SemanticTokensFullDelta",
+      "status": "CUSTOM_DTO_REQUIRED",
+      "librarySymbol": null,
+      "officialFieldCount": 1,
+      "unmatchedDirectFields": [],
+      "reason": "No same-named LSP4J 1.0.0 source type; verify alternate symbol or provide custom DTO."
+    },
+    {
+      "kind": "structure",
+      "name": "OptionalVersionedTextDocumentIdentifier",
+      "status": "CUSTOM_DTO_REQUIRED",
+      "librarySymbol": null,
+      "officialFieldCount": 1,
+      "unmatchedDirectFields": [],
+      "reason": "No same-named LSP4J 1.0.0 source type; verify alternate symbol or provide custom DTO."
+    },
+    {
+      "kind": "structure",
+      "name": "AnnotatedTextEdit",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.AnnotatedTextEdit",
+      "officialFieldCount": 1,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "SnippetTextEdit",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.SnippetTextEdit",
+      "officialFieldCount": 3,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "ResourceOperation",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.ResourceOperation",
+      "officialFieldCount": 2,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "CreateFileOptions",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.CreateFileOptions",
+      "officialFieldCount": 2,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "RenameFileOptions",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.RenameFileOptions",
+      "officialFieldCount": 2,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "DeleteFileOptions",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.DeleteFileOptions",
+      "officialFieldCount": 2,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "FileOperationPattern",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.FileOperationPattern",
+      "officialFieldCount": 3,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "FullDocumentDiagnosticReport",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.FullDocumentDiagnosticReport",
+      "officialFieldCount": 3,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "UnchangedDocumentDiagnosticReport",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.UnchangedDocumentDiagnosticReport",
+      "officialFieldCount": 2,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "WorkspaceFullDocumentDiagnosticReport",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.WorkspaceFullDocumentDiagnosticReport",
+      "officialFieldCount": 2,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "WorkspaceUnchangedDocumentDiagnosticReport",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.WorkspaceUnchangedDocumentDiagnosticReport",
+      "officialFieldCount": 2,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "NotebookCell",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.NotebookCell",
+      "officialFieldCount": 4,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "NotebookDocumentFilterWithNotebook",
+      "status": "CUSTOM_DTO_REQUIRED",
+      "librarySymbol": null,
+      "officialFieldCount": 2,
+      "unmatchedDirectFields": [],
+      "reason": "No same-named LSP4J 1.0.0 source type; verify alternate symbol or provide custom DTO."
+    },
+    {
+      "kind": "structure",
+      "name": "NotebookDocumentFilterWithCells",
+      "status": "CUSTOM_DTO_REQUIRED",
+      "librarySymbol": null,
+      "officialFieldCount": 2,
+      "unmatchedDirectFields": [],
+      "reason": "No same-named LSP4J 1.0.0 source type; verify alternate symbol or provide custom DTO."
+    },
+    {
+      "kind": "structure",
+      "name": "NotebookDocumentCellChanges",
+      "status": "CUSTOM_DTO_REQUIRED",
+      "librarySymbol": null,
+      "officialFieldCount": 3,
+      "unmatchedDirectFields": [],
+      "reason": "No same-named LSP4J 1.0.0 source type; verify alternate symbol or provide custom DTO."
+    },
+    {
+      "kind": "structure",
+      "name": "SelectedCompletionInfo",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.SelectedCompletionInfo",
+      "officialFieldCount": 2,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "ClientInfo",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.ClientInfo",
+      "officialFieldCount": 2,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "ClientCapabilities",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.ClientCapabilities",
+      "officialFieldCount": 6,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "TextDocumentSyncOptions",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.TextDocumentSyncOptions",
+      "officialFieldCount": 5,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "WorkspaceOptions",
+      "status": "CUSTOM_DTO_REQUIRED",
+      "librarySymbol": null,
+      "officialFieldCount": 3,
+      "unmatchedDirectFields": [],
+      "reason": "No same-named LSP4J 1.0.0 source type; verify alternate symbol or provide custom DTO."
+    },
+    {
+      "kind": "structure",
+      "name": "TextDocumentContentChangePartial",
+      "status": "CUSTOM_DTO_REQUIRED",
+      "librarySymbol": null,
+      "officialFieldCount": 3,
+      "unmatchedDirectFields": [],
+      "reason": "No same-named LSP4J 1.0.0 source type; verify alternate symbol or provide custom DTO."
+    },
+    {
+      "kind": "structure",
+      "name": "TextDocumentContentChangeWholeDocument",
+      "status": "CUSTOM_DTO_REQUIRED",
+      "librarySymbol": null,
+      "officialFieldCount": 1,
+      "unmatchedDirectFields": [],
+      "reason": "No same-named LSP4J 1.0.0 source type; verify alternate symbol or provide custom DTO."
+    },
+    {
+      "kind": "structure",
+      "name": "CodeDescription",
+      "status": "CUSTOM_DTO_REQUIRED",
+      "librarySymbol": null,
+      "officialFieldCount": 1,
+      "unmatchedDirectFields": [],
+      "reason": "No same-named LSP4J 1.0.0 source type; verify alternate symbol or provide custom DTO."
+    },
+    {
+      "kind": "structure",
+      "name": "DiagnosticRelatedInformation",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.DiagnosticRelatedInformation",
+      "officialFieldCount": 2,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "EditRangeWithInsertReplace",
+      "status": "CUSTOM_DTO_REQUIRED",
+      "librarySymbol": null,
+      "officialFieldCount": 2,
+      "unmatchedDirectFields": [],
+      "reason": "No same-named LSP4J 1.0.0 source type; verify alternate symbol or provide custom DTO."
+    },
+    {
+      "kind": "structure",
+      "name": "ServerCompletionItemOptions",
+      "status": "CUSTOM_DTO_REQUIRED",
+      "librarySymbol": null,
+      "officialFieldCount": 1,
+      "unmatchedDirectFields": [],
+      "reason": "No same-named LSP4J 1.0.0 source type; verify alternate symbol or provide custom DTO."
+    },
+    {
+      "kind": "structure",
+      "name": "MarkedStringWithLanguage",
+      "status": "CUSTOM_DTO_REQUIRED",
+      "librarySymbol": null,
+      "officialFieldCount": 2,
+      "unmatchedDirectFields": [],
+      "reason": "No same-named LSP4J 1.0.0 source type; verify alternate symbol or provide custom DTO."
+    },
+    {
+      "kind": "structure",
+      "name": "ParameterInformation",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.ParameterInformation",
+      "officialFieldCount": 2,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "CodeActionKindDocumentation",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.CodeActionKindDocumentation",
+      "officialFieldCount": 2,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "NotebookCellTextDocumentFilter",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.NotebookCellTextDocumentFilter",
+      "officialFieldCount": 2,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "FileOperationPatternOptions",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.FileOperationPatternOptions",
+      "officialFieldCount": 1,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "ExecutionSummary",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.ExecutionSummary",
+      "officialFieldCount": 2,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "NotebookCellLanguage",
+      "status": "CUSTOM_DTO_REQUIRED",
+      "librarySymbol": null,
+      "officialFieldCount": 1,
+      "unmatchedDirectFields": [],
+      "reason": "No same-named LSP4J 1.0.0 source type; verify alternate symbol or provide custom DTO."
+    },
+    {
+      "kind": "structure",
+      "name": "NotebookDocumentCellChangeStructure",
+      "status": "CUSTOM_DTO_REQUIRED",
+      "librarySymbol": null,
+      "officialFieldCount": 3,
+      "unmatchedDirectFields": [],
+      "reason": "No same-named LSP4J 1.0.0 source type; verify alternate symbol or provide custom DTO."
+    },
+    {
+      "kind": "structure",
+      "name": "NotebookDocumentCellContentChanges",
+      "status": "CUSTOM_DTO_REQUIRED",
+      "librarySymbol": null,
+      "officialFieldCount": 2,
+      "unmatchedDirectFields": [],
+      "reason": "No same-named LSP4J 1.0.0 source type; verify alternate symbol or provide custom DTO."
+    },
+    {
+      "kind": "structure",
+      "name": "WorkspaceClientCapabilities",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.WorkspaceClientCapabilities",
+      "officialFieldCount": 16,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "TextDocumentClientCapabilities",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.TextDocumentClientCapabilities",
+      "officialFieldCount": 32,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "NotebookDocumentClientCapabilities",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.NotebookDocumentClientCapabilities",
+      "officialFieldCount": 1,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "WindowClientCapabilities",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.WindowClientCapabilities",
+      "officialFieldCount": 3,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "GeneralClientCapabilities",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.GeneralClientCapabilities",
+      "officialFieldCount": 4,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "WorkspaceFoldersServerCapabilities",
+      "status": "CUSTOM_DTO_REQUIRED",
+      "librarySymbol": null,
+      "officialFieldCount": 2,
+      "unmatchedDirectFields": [],
+      "reason": "No same-named LSP4J 1.0.0 source type; verify alternate symbol or provide custom DTO."
+    },
+    {
+      "kind": "structure",
+      "name": "FileOperationOptions",
+      "status": "PROTOCOL_DELTA_WITH_REASON",
+      "librarySymbol": "org.eclipse.lsp4j.FileOperationOptions",
+      "officialFieldCount": 6,
+      "unmatchedDirectFields": [
+        "didCreate",
+        "willCreate",
+        "didRename",
+        "willRename",
+        "didDelete",
+        "willDelete"
+      ],
+      "reason": "Fields not directly declared in matching source; inherited/mixin/renamed mapping requires focused DTO test."
+    },
+    {
+      "kind": "structure",
+      "name": "RelativePattern",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.RelativePattern",
+      "officialFieldCount": 2,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "TextDocumentFilterLanguage",
+      "status": "CUSTOM_DTO_REQUIRED",
+      "librarySymbol": null,
+      "officialFieldCount": 3,
+      "unmatchedDirectFields": [],
+      "reason": "No same-named LSP4J 1.0.0 source type; verify alternate symbol or provide custom DTO."
+    },
+    {
+      "kind": "structure",
+      "name": "TextDocumentFilterScheme",
+      "status": "CUSTOM_DTO_REQUIRED",
+      "librarySymbol": null,
+      "officialFieldCount": 3,
+      "unmatchedDirectFields": [],
+      "reason": "No same-named LSP4J 1.0.0 source type; verify alternate symbol or provide custom DTO."
+    },
+    {
+      "kind": "structure",
+      "name": "TextDocumentFilterPattern",
+      "status": "CUSTOM_DTO_REQUIRED",
+      "librarySymbol": null,
+      "officialFieldCount": 3,
+      "unmatchedDirectFields": [],
+      "reason": "No same-named LSP4J 1.0.0 source type; verify alternate symbol or provide custom DTO."
+    },
+    {
+      "kind": "structure",
+      "name": "NotebookDocumentFilterNotebookType",
+      "status": "CUSTOM_DTO_REQUIRED",
+      "librarySymbol": null,
+      "officialFieldCount": 3,
+      "unmatchedDirectFields": [],
+      "reason": "No same-named LSP4J 1.0.0 source type; verify alternate symbol or provide custom DTO."
+    },
+    {
+      "kind": "structure",
+      "name": "NotebookDocumentFilterScheme",
+      "status": "CUSTOM_DTO_REQUIRED",
+      "librarySymbol": null,
+      "officialFieldCount": 3,
+      "unmatchedDirectFields": [],
+      "reason": "No same-named LSP4J 1.0.0 source type; verify alternate symbol or provide custom DTO."
+    },
+    {
+      "kind": "structure",
+      "name": "NotebookDocumentFilterPattern",
+      "status": "CUSTOM_DTO_REQUIRED",
+      "librarySymbol": null,
+      "officialFieldCount": 3,
+      "unmatchedDirectFields": [],
+      "reason": "No same-named LSP4J 1.0.0 source type; verify alternate symbol or provide custom DTO."
+    },
+    {
+      "kind": "structure",
+      "name": "NotebookCellArrayChange",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.NotebookCellArrayChange",
+      "officialFieldCount": 3,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "WorkspaceEditClientCapabilities",
+      "status": "CUSTOM_DTO_REQUIRED",
+      "librarySymbol": null,
+      "officialFieldCount": 7,
+      "unmatchedDirectFields": [],
+      "reason": "No same-named LSP4J 1.0.0 source type; verify alternate symbol or provide custom DTO."
+    },
+    {
+      "kind": "structure",
+      "name": "DidChangeConfigurationClientCapabilities",
+      "status": "CUSTOM_DTO_REQUIRED",
+      "librarySymbol": null,
+      "officialFieldCount": 1,
+      "unmatchedDirectFields": [],
+      "reason": "No same-named LSP4J 1.0.0 source type; verify alternate symbol or provide custom DTO."
+    },
+    {
+      "kind": "structure",
+      "name": "DidChangeWatchedFilesClientCapabilities",
+      "status": "CUSTOM_DTO_REQUIRED",
+      "librarySymbol": null,
+      "officialFieldCount": 2,
+      "unmatchedDirectFields": [],
+      "reason": "No same-named LSP4J 1.0.0 source type; verify alternate symbol or provide custom DTO."
+    },
+    {
+      "kind": "structure",
+      "name": "WorkspaceSymbolClientCapabilities",
+      "status": "CUSTOM_DTO_REQUIRED",
+      "librarySymbol": null,
+      "officialFieldCount": 4,
+      "unmatchedDirectFields": [],
+      "reason": "No same-named LSP4J 1.0.0 source type; verify alternate symbol or provide custom DTO."
+    },
+    {
+      "kind": "structure",
+      "name": "ExecuteCommandClientCapabilities",
+      "status": "CUSTOM_DTO_REQUIRED",
+      "librarySymbol": null,
+      "officialFieldCount": 1,
+      "unmatchedDirectFields": [],
+      "reason": "No same-named LSP4J 1.0.0 source type; verify alternate symbol or provide custom DTO."
+    },
+    {
+      "kind": "structure",
+      "name": "SemanticTokensWorkspaceClientCapabilities",
+      "status": "CUSTOM_DTO_REQUIRED",
+      "librarySymbol": null,
+      "officialFieldCount": 1,
+      "unmatchedDirectFields": [],
+      "reason": "No same-named LSP4J 1.0.0 source type; verify alternate symbol or provide custom DTO."
+    },
+    {
+      "kind": "structure",
+      "name": "CodeLensWorkspaceClientCapabilities",
+      "status": "CUSTOM_DTO_REQUIRED",
+      "librarySymbol": null,
+      "officialFieldCount": 1,
+      "unmatchedDirectFields": [],
+      "reason": "No same-named LSP4J 1.0.0 source type; verify alternate symbol or provide custom DTO."
+    },
+    {
+      "kind": "structure",
+      "name": "FileOperationClientCapabilities",
+      "status": "CUSTOM_DTO_REQUIRED",
+      "librarySymbol": null,
+      "officialFieldCount": 7,
+      "unmatchedDirectFields": [],
+      "reason": "No same-named LSP4J 1.0.0 source type; verify alternate symbol or provide custom DTO."
+    },
+    {
+      "kind": "structure",
+      "name": "InlineValueWorkspaceClientCapabilities",
+      "status": "CUSTOM_DTO_REQUIRED",
+      "librarySymbol": null,
+      "officialFieldCount": 1,
+      "unmatchedDirectFields": [],
+      "reason": "No same-named LSP4J 1.0.0 source type; verify alternate symbol or provide custom DTO."
+    },
+    {
+      "kind": "structure",
+      "name": "InlayHintWorkspaceClientCapabilities",
+      "status": "CUSTOM_DTO_REQUIRED",
+      "librarySymbol": null,
+      "officialFieldCount": 1,
+      "unmatchedDirectFields": [],
+      "reason": "No same-named LSP4J 1.0.0 source type; verify alternate symbol or provide custom DTO."
+    },
+    {
+      "kind": "structure",
+      "name": "DiagnosticWorkspaceClientCapabilities",
+      "status": "CUSTOM_DTO_REQUIRED",
+      "librarySymbol": null,
+      "officialFieldCount": 1,
+      "unmatchedDirectFields": [],
+      "reason": "No same-named LSP4J 1.0.0 source type; verify alternate symbol or provide custom DTO."
+    },
+    {
+      "kind": "structure",
+      "name": "FoldingRangeWorkspaceClientCapabilities",
+      "status": "CUSTOM_DTO_REQUIRED",
+      "librarySymbol": null,
+      "officialFieldCount": 1,
+      "unmatchedDirectFields": [],
+      "reason": "No same-named LSP4J 1.0.0 source type; verify alternate symbol or provide custom DTO."
+    },
+    {
+      "kind": "structure",
+      "name": "TextDocumentContentClientCapabilities",
+      "status": "CUSTOM_DTO_REQUIRED",
+      "librarySymbol": null,
+      "officialFieldCount": 1,
+      "unmatchedDirectFields": [],
+      "reason": "No same-named LSP4J 1.0.0 source type; verify alternate symbol or provide custom DTO."
+    },
+    {
+      "kind": "structure",
+      "name": "TextDocumentSyncClientCapabilities",
+      "status": "CUSTOM_DTO_REQUIRED",
+      "librarySymbol": null,
+      "officialFieldCount": 4,
+      "unmatchedDirectFields": [],
+      "reason": "No same-named LSP4J 1.0.0 source type; verify alternate symbol or provide custom DTO."
+    },
+    {
+      "kind": "structure",
+      "name": "TextDocumentFilterClientCapabilities",
+      "status": "CUSTOM_DTO_REQUIRED",
+      "librarySymbol": null,
+      "officialFieldCount": 1,
+      "unmatchedDirectFields": [],
+      "reason": "No same-named LSP4J 1.0.0 source type; verify alternate symbol or provide custom DTO."
+    },
+    {
+      "kind": "structure",
+      "name": "CompletionClientCapabilities",
+      "status": "CUSTOM_DTO_REQUIRED",
+      "librarySymbol": null,
+      "officialFieldCount": 6,
+      "unmatchedDirectFields": [],
+      "reason": "No same-named LSP4J 1.0.0 source type; verify alternate symbol or provide custom DTO."
+    },
+    {
+      "kind": "structure",
+      "name": "HoverClientCapabilities",
+      "status": "CUSTOM_DTO_REQUIRED",
+      "librarySymbol": null,
+      "officialFieldCount": 2,
+      "unmatchedDirectFields": [],
+      "reason": "No same-named LSP4J 1.0.0 source type; verify alternate symbol or provide custom DTO."
+    },
+    {
+      "kind": "structure",
+      "name": "SignatureHelpClientCapabilities",
+      "status": "CUSTOM_DTO_REQUIRED",
+      "librarySymbol": null,
+      "officialFieldCount": 3,
+      "unmatchedDirectFields": [],
+      "reason": "No same-named LSP4J 1.0.0 source type; verify alternate symbol or provide custom DTO."
+    },
+    {
+      "kind": "structure",
+      "name": "DeclarationClientCapabilities",
+      "status": "CUSTOM_DTO_REQUIRED",
+      "librarySymbol": null,
+      "officialFieldCount": 2,
+      "unmatchedDirectFields": [],
+      "reason": "No same-named LSP4J 1.0.0 source type; verify alternate symbol or provide custom DTO."
+    },
+    {
+      "kind": "structure",
+      "name": "DefinitionClientCapabilities",
+      "status": "CUSTOM_DTO_REQUIRED",
+      "librarySymbol": null,
+      "officialFieldCount": 2,
+      "unmatchedDirectFields": [],
+      "reason": "No same-named LSP4J 1.0.0 source type; verify alternate symbol or provide custom DTO."
+    },
+    {
+      "kind": "structure",
+      "name": "TypeDefinitionClientCapabilities",
+      "status": "CUSTOM_DTO_REQUIRED",
+      "librarySymbol": null,
+      "officialFieldCount": 2,
+      "unmatchedDirectFields": [],
+      "reason": "No same-named LSP4J 1.0.0 source type; verify alternate symbol or provide custom DTO."
+    },
+    {
+      "kind": "structure",
+      "name": "ImplementationClientCapabilities",
+      "status": "CUSTOM_DTO_REQUIRED",
+      "librarySymbol": null,
+      "officialFieldCount": 2,
+      "unmatchedDirectFields": [],
+      "reason": "No same-named LSP4J 1.0.0 source type; verify alternate symbol or provide custom DTO."
+    },
+    {
+      "kind": "structure",
+      "name": "ReferenceClientCapabilities",
+      "status": "CUSTOM_DTO_REQUIRED",
+      "librarySymbol": null,
+      "officialFieldCount": 1,
+      "unmatchedDirectFields": [],
+      "reason": "No same-named LSP4J 1.0.0 source type; verify alternate symbol or provide custom DTO."
+    },
+    {
+      "kind": "structure",
+      "name": "DocumentHighlightClientCapabilities",
+      "status": "CUSTOM_DTO_REQUIRED",
+      "librarySymbol": null,
+      "officialFieldCount": 1,
+      "unmatchedDirectFields": [],
+      "reason": "No same-named LSP4J 1.0.0 source type; verify alternate symbol or provide custom DTO."
+    },
+    {
+      "kind": "structure",
+      "name": "DocumentSymbolClientCapabilities",
+      "status": "CUSTOM_DTO_REQUIRED",
+      "librarySymbol": null,
+      "officialFieldCount": 5,
+      "unmatchedDirectFields": [],
+      "reason": "No same-named LSP4J 1.0.0 source type; verify alternate symbol or provide custom DTO."
+    },
+    {
+      "kind": "structure",
+      "name": "CodeActionClientCapabilities",
+      "status": "CUSTOM_DTO_REQUIRED",
+      "librarySymbol": null,
+      "officialFieldCount": 9,
+      "unmatchedDirectFields": [],
+      "reason": "No same-named LSP4J 1.0.0 source type; verify alternate symbol or provide custom DTO."
+    },
+    {
+      "kind": "structure",
+      "name": "CodeLensClientCapabilities",
+      "status": "CUSTOM_DTO_REQUIRED",
+      "librarySymbol": null,
+      "officialFieldCount": 2,
+      "unmatchedDirectFields": [],
+      "reason": "No same-named LSP4J 1.0.0 source type; verify alternate symbol or provide custom DTO."
+    },
+    {
+      "kind": "structure",
+      "name": "DocumentLinkClientCapabilities",
+      "status": "CUSTOM_DTO_REQUIRED",
+      "librarySymbol": null,
+      "officialFieldCount": 2,
+      "unmatchedDirectFields": [],
+      "reason": "No same-named LSP4J 1.0.0 source type; verify alternate symbol or provide custom DTO."
+    },
+    {
+      "kind": "structure",
+      "name": "DocumentColorClientCapabilities",
+      "status": "CUSTOM_DTO_REQUIRED",
+      "librarySymbol": null,
+      "officialFieldCount": 1,
+      "unmatchedDirectFields": [],
+      "reason": "No same-named LSP4J 1.0.0 source type; verify alternate symbol or provide custom DTO."
+    },
+    {
+      "kind": "structure",
+      "name": "DocumentFormattingClientCapabilities",
+      "status": "CUSTOM_DTO_REQUIRED",
+      "librarySymbol": null,
+      "officialFieldCount": 1,
+      "unmatchedDirectFields": [],
+      "reason": "No same-named LSP4J 1.0.0 source type; verify alternate symbol or provide custom DTO."
+    },
+    {
+      "kind": "structure",
+      "name": "DocumentRangeFormattingClientCapabilities",
+      "status": "CUSTOM_DTO_REQUIRED",
+      "librarySymbol": null,
+      "officialFieldCount": 2,
+      "unmatchedDirectFields": [],
+      "reason": "No same-named LSP4J 1.0.0 source type; verify alternate symbol or provide custom DTO."
+    },
+    {
+      "kind": "structure",
+      "name": "DocumentOnTypeFormattingClientCapabilities",
+      "status": "CUSTOM_DTO_REQUIRED",
+      "librarySymbol": null,
+      "officialFieldCount": 1,
+      "unmatchedDirectFields": [],
+      "reason": "No same-named LSP4J 1.0.0 source type; verify alternate symbol or provide custom DTO."
+    },
+    {
+      "kind": "structure",
+      "name": "RenameClientCapabilities",
+      "status": "CUSTOM_DTO_REQUIRED",
+      "librarySymbol": null,
+      "officialFieldCount": 4,
+      "unmatchedDirectFields": [],
+      "reason": "No same-named LSP4J 1.0.0 source type; verify alternate symbol or provide custom DTO."
+    },
+    {
+      "kind": "structure",
+      "name": "FoldingRangeClientCapabilities",
+      "status": "CUSTOM_DTO_REQUIRED",
+      "librarySymbol": null,
+      "officialFieldCount": 5,
+      "unmatchedDirectFields": [],
+      "reason": "No same-named LSP4J 1.0.0 source type; verify alternate symbol or provide custom DTO."
+    },
+    {
+      "kind": "structure",
+      "name": "SelectionRangeClientCapabilities",
+      "status": "CUSTOM_DTO_REQUIRED",
+      "librarySymbol": null,
+      "officialFieldCount": 1,
+      "unmatchedDirectFields": [],
+      "reason": "No same-named LSP4J 1.0.0 source type; verify alternate symbol or provide custom DTO."
+    },
+    {
+      "kind": "structure",
+      "name": "PublishDiagnosticsClientCapabilities",
+      "status": "CUSTOM_DTO_REQUIRED",
+      "librarySymbol": null,
+      "officialFieldCount": 1,
+      "unmatchedDirectFields": [],
+      "reason": "No same-named LSP4J 1.0.0 source type; verify alternate symbol or provide custom DTO."
+    },
+    {
+      "kind": "structure",
+      "name": "CallHierarchyClientCapabilities",
+      "status": "CUSTOM_DTO_REQUIRED",
+      "librarySymbol": null,
+      "officialFieldCount": 1,
+      "unmatchedDirectFields": [],
+      "reason": "No same-named LSP4J 1.0.0 source type; verify alternate symbol or provide custom DTO."
+    },
+    {
+      "kind": "structure",
+      "name": "SemanticTokensClientCapabilities",
+      "status": "CUSTOM_DTO_REQUIRED",
+      "librarySymbol": null,
+      "officialFieldCount": 9,
+      "unmatchedDirectFields": [],
+      "reason": "No same-named LSP4J 1.0.0 source type; verify alternate symbol or provide custom DTO."
+    },
+    {
+      "kind": "structure",
+      "name": "LinkedEditingRangeClientCapabilities",
+      "status": "CUSTOM_DTO_REQUIRED",
+      "librarySymbol": null,
+      "officialFieldCount": 1,
+      "unmatchedDirectFields": [],
+      "reason": "No same-named LSP4J 1.0.0 source type; verify alternate symbol or provide custom DTO."
+    },
+    {
+      "kind": "structure",
+      "name": "MonikerClientCapabilities",
+      "status": "CUSTOM_DTO_REQUIRED",
+      "librarySymbol": null,
+      "officialFieldCount": 1,
+      "unmatchedDirectFields": [],
+      "reason": "No same-named LSP4J 1.0.0 source type; verify alternate symbol or provide custom DTO."
+    },
+    {
+      "kind": "structure",
+      "name": "TypeHierarchyClientCapabilities",
+      "status": "CUSTOM_DTO_REQUIRED",
+      "librarySymbol": null,
+      "officialFieldCount": 1,
+      "unmatchedDirectFields": [],
+      "reason": "No same-named LSP4J 1.0.0 source type; verify alternate symbol or provide custom DTO."
+    },
+    {
+      "kind": "structure",
+      "name": "InlineValueClientCapabilities",
+      "status": "CUSTOM_DTO_REQUIRED",
+      "librarySymbol": null,
+      "officialFieldCount": 1,
+      "unmatchedDirectFields": [],
+      "reason": "No same-named LSP4J 1.0.0 source type; verify alternate symbol or provide custom DTO."
+    },
+    {
+      "kind": "structure",
+      "name": "InlayHintClientCapabilities",
+      "status": "CUSTOM_DTO_REQUIRED",
+      "librarySymbol": null,
+      "officialFieldCount": 2,
+      "unmatchedDirectFields": [],
+      "reason": "No same-named LSP4J 1.0.0 source type; verify alternate symbol or provide custom DTO."
+    },
+    {
+      "kind": "structure",
+      "name": "DiagnosticClientCapabilities",
+      "status": "CUSTOM_DTO_REQUIRED",
+      "librarySymbol": null,
+      "officialFieldCount": 3,
+      "unmatchedDirectFields": [],
+      "reason": "No same-named LSP4J 1.0.0 source type; verify alternate symbol or provide custom DTO."
+    },
+    {
+      "kind": "structure",
+      "name": "InlineCompletionClientCapabilities",
+      "status": "CUSTOM_DTO_REQUIRED",
+      "librarySymbol": null,
+      "officialFieldCount": 1,
+      "unmatchedDirectFields": [],
+      "reason": "No same-named LSP4J 1.0.0 source type; verify alternate symbol or provide custom DTO."
+    },
+    {
+      "kind": "structure",
+      "name": "NotebookDocumentSyncClientCapabilities",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.NotebookDocumentSyncClientCapabilities",
+      "officialFieldCount": 2,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "ShowMessageRequestClientCapabilities",
+      "status": "CUSTOM_DTO_REQUIRED",
+      "librarySymbol": null,
+      "officialFieldCount": 1,
+      "unmatchedDirectFields": [],
+      "reason": "No same-named LSP4J 1.0.0 source type; verify alternate symbol or provide custom DTO."
+    },
+    {
+      "kind": "structure",
+      "name": "ShowDocumentClientCapabilities",
+      "status": "CUSTOM_DTO_REQUIRED",
+      "librarySymbol": null,
+      "officialFieldCount": 1,
+      "unmatchedDirectFields": [],
+      "reason": "No same-named LSP4J 1.0.0 source type; verify alternate symbol or provide custom DTO."
+    },
+    {
+      "kind": "structure",
+      "name": "StaleRequestSupportOptions",
+      "status": "CUSTOM_DTO_REQUIRED",
+      "librarySymbol": null,
+      "officialFieldCount": 2,
+      "unmatchedDirectFields": [],
+      "reason": "No same-named LSP4J 1.0.0 source type; verify alternate symbol or provide custom DTO."
+    },
+    {
+      "kind": "structure",
+      "name": "RegularExpressionsClientCapabilities",
+      "status": "CUSTOM_DTO_REQUIRED",
+      "librarySymbol": null,
+      "officialFieldCount": 2,
+      "unmatchedDirectFields": [],
+      "reason": "No same-named LSP4J 1.0.0 source type; verify alternate symbol or provide custom DTO."
+    },
+    {
+      "kind": "structure",
+      "name": "MarkdownClientCapabilities",
+      "status": "CUSTOM_DTO_REQUIRED",
+      "librarySymbol": null,
+      "officialFieldCount": 3,
+      "unmatchedDirectFields": [],
+      "reason": "No same-named LSP4J 1.0.0 source type; verify alternate symbol or provide custom DTO."
+    },
+    {
+      "kind": "structure",
+      "name": "ChangeAnnotationsSupportOptions",
+      "status": "CUSTOM_DTO_REQUIRED",
+      "librarySymbol": null,
+      "officialFieldCount": 1,
+      "unmatchedDirectFields": [],
+      "reason": "No same-named LSP4J 1.0.0 source type; verify alternate symbol or provide custom DTO."
+    },
+    {
+      "kind": "structure",
+      "name": "ClientSymbolKindOptions",
+      "status": "CUSTOM_DTO_REQUIRED",
+      "librarySymbol": null,
+      "officialFieldCount": 1,
+      "unmatchedDirectFields": [],
+      "reason": "No same-named LSP4J 1.0.0 source type; verify alternate symbol or provide custom DTO."
+    },
+    {
+      "kind": "structure",
+      "name": "ClientSymbolTagOptions",
+      "status": "CUSTOM_DTO_REQUIRED",
+      "librarySymbol": null,
+      "officialFieldCount": 1,
+      "unmatchedDirectFields": [],
+      "reason": "No same-named LSP4J 1.0.0 source type; verify alternate symbol or provide custom DTO."
+    },
+    {
+      "kind": "structure",
+      "name": "ClientSymbolResolveOptions",
+      "status": "CUSTOM_DTO_REQUIRED",
+      "librarySymbol": null,
+      "officialFieldCount": 1,
+      "unmatchedDirectFields": [],
+      "reason": "No same-named LSP4J 1.0.0 source type; verify alternate symbol or provide custom DTO."
+    },
+    {
+      "kind": "structure",
+      "name": "ClientCompletionItemOptions",
+      "status": "CUSTOM_DTO_REQUIRED",
+      "librarySymbol": null,
+      "officialFieldCount": 10,
+      "unmatchedDirectFields": [],
+      "reason": "No same-named LSP4J 1.0.0 source type; verify alternate symbol or provide custom DTO."
+    },
+    {
+      "kind": "structure",
+      "name": "ClientCompletionItemOptionsKind",
+      "status": "CUSTOM_DTO_REQUIRED",
+      "librarySymbol": null,
+      "officialFieldCount": 1,
+      "unmatchedDirectFields": [],
+      "reason": "No same-named LSP4J 1.0.0 source type; verify alternate symbol or provide custom DTO."
+    },
+    {
+      "kind": "structure",
+      "name": "CompletionListCapabilities",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.CompletionListCapabilities",
+      "officialFieldCount": 2,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "structure",
+      "name": "ClientSignatureInformationOptions",
+      "status": "CUSTOM_DTO_REQUIRED",
+      "librarySymbol": null,
+      "officialFieldCount": 4,
+      "unmatchedDirectFields": [],
+      "reason": "No same-named LSP4J 1.0.0 source type; verify alternate symbol or provide custom DTO."
+    },
+    {
+      "kind": "structure",
+      "name": "ClientCodeActionLiteralOptions",
+      "status": "CUSTOM_DTO_REQUIRED",
+      "librarySymbol": null,
+      "officialFieldCount": 1,
+      "unmatchedDirectFields": [],
+      "reason": "No same-named LSP4J 1.0.0 source type; verify alternate symbol or provide custom DTO."
+    },
+    {
+      "kind": "structure",
+      "name": "ClientCodeActionResolveOptions",
+      "status": "CUSTOM_DTO_REQUIRED",
+      "librarySymbol": null,
+      "officialFieldCount": 1,
+      "unmatchedDirectFields": [],
+      "reason": "No same-named LSP4J 1.0.0 source type; verify alternate symbol or provide custom DTO."
+    },
+    {
+      "kind": "structure",
+      "name": "CodeActionTagOptions",
+      "status": "CUSTOM_DTO_REQUIRED",
+      "librarySymbol": null,
+      "officialFieldCount": 1,
+      "unmatchedDirectFields": [],
+      "reason": "No same-named LSP4J 1.0.0 source type; verify alternate symbol or provide custom DTO."
+    },
+    {
+      "kind": "structure",
+      "name": "ClientCodeLensResolveOptions",
+      "status": "CUSTOM_DTO_REQUIRED",
+      "librarySymbol": null,
+      "officialFieldCount": 1,
+      "unmatchedDirectFields": [],
+      "reason": "No same-named LSP4J 1.0.0 source type; verify alternate symbol or provide custom DTO."
+    },
+    {
+      "kind": "structure",
+      "name": "ClientFoldingRangeKindOptions",
+      "status": "CUSTOM_DTO_REQUIRED",
+      "librarySymbol": null,
+      "officialFieldCount": 1,
+      "unmatchedDirectFields": [],
+      "reason": "No same-named LSP4J 1.0.0 source type; verify alternate symbol or provide custom DTO."
+    },
+    {
+      "kind": "structure",
+      "name": "ClientFoldingRangeOptions",
+      "status": "CUSTOM_DTO_REQUIRED",
+      "librarySymbol": null,
+      "officialFieldCount": 1,
+      "unmatchedDirectFields": [],
+      "reason": "No same-named LSP4J 1.0.0 source type; verify alternate symbol or provide custom DTO."
+    },
+    {
+      "kind": "structure",
+      "name": "DiagnosticsCapabilities",
+      "status": "CUSTOM_DTO_REQUIRED",
+      "librarySymbol": null,
+      "officialFieldCount": 4,
+      "unmatchedDirectFields": [],
+      "reason": "No same-named LSP4J 1.0.0 source type; verify alternate symbol or provide custom DTO."
+    },
+    {
+      "kind": "structure",
+      "name": "ClientSemanticTokensRequestOptions",
+      "status": "CUSTOM_DTO_REQUIRED",
+      "librarySymbol": null,
+      "officialFieldCount": 2,
+      "unmatchedDirectFields": [],
+      "reason": "No same-named LSP4J 1.0.0 source type; verify alternate symbol or provide custom DTO."
+    },
+    {
+      "kind": "structure",
+      "name": "ClientInlayHintResolveOptions",
+      "status": "CUSTOM_DTO_REQUIRED",
+      "librarySymbol": null,
+      "officialFieldCount": 1,
+      "unmatchedDirectFields": [],
+      "reason": "No same-named LSP4J 1.0.0 source type; verify alternate symbol or provide custom DTO."
+    },
+    {
+      "kind": "structure",
+      "name": "ClientShowMessageActionItemOptions",
+      "status": "CUSTOM_DTO_REQUIRED",
+      "librarySymbol": null,
+      "officialFieldCount": 1,
+      "unmatchedDirectFields": [],
+      "reason": "No same-named LSP4J 1.0.0 source type; verify alternate symbol or provide custom DTO."
+    },
+    {
+      "kind": "structure",
+      "name": "CompletionItemTagOptions",
+      "status": "CUSTOM_DTO_REQUIRED",
+      "librarySymbol": null,
+      "officialFieldCount": 1,
+      "unmatchedDirectFields": [],
+      "reason": "No same-named LSP4J 1.0.0 source type; verify alternate symbol or provide custom DTO."
+    },
+    {
+      "kind": "structure",
+      "name": "ClientCompletionItemResolveOptions",
+      "status": "CUSTOM_DTO_REQUIRED",
+      "librarySymbol": null,
+      "officialFieldCount": 1,
+      "unmatchedDirectFields": [],
+      "reason": "No same-named LSP4J 1.0.0 source type; verify alternate symbol or provide custom DTO."
+    },
+    {
+      "kind": "structure",
+      "name": "ClientCompletionItemInsertTextModeOptions",
+      "status": "CUSTOM_DTO_REQUIRED",
+      "librarySymbol": null,
+      "officialFieldCount": 1,
+      "unmatchedDirectFields": [],
+      "reason": "No same-named LSP4J 1.0.0 source type; verify alternate symbol or provide custom DTO."
+    },
+    {
+      "kind": "structure",
+      "name": "ClientSignatureParameterInformationOptions",
+      "status": "CUSTOM_DTO_REQUIRED",
+      "librarySymbol": null,
+      "officialFieldCount": 1,
+      "unmatchedDirectFields": [],
+      "reason": "No same-named LSP4J 1.0.0 source type; verify alternate symbol or provide custom DTO."
+    },
+    {
+      "kind": "structure",
+      "name": "ClientCodeActionKindOptions",
+      "status": "CUSTOM_DTO_REQUIRED",
+      "librarySymbol": null,
+      "officialFieldCount": 1,
+      "unmatchedDirectFields": [],
+      "reason": "No same-named LSP4J 1.0.0 source type; verify alternate symbol or provide custom DTO."
+    },
+    {
+      "kind": "structure",
+      "name": "ClientDiagnosticsTagOptions",
+      "status": "CUSTOM_DTO_REQUIRED",
+      "librarySymbol": null,
+      "officialFieldCount": 1,
+      "unmatchedDirectFields": [],
+      "reason": "No same-named LSP4J 1.0.0 source type; verify alternate symbol or provide custom DTO."
+    },
+    {
+      "kind": "structure",
+      "name": "ClientSemanticTokensRequestFullDelta",
+      "status": "CUSTOM_DTO_REQUIRED",
+      "librarySymbol": null,
+      "officialFieldCount": 1,
+      "unmatchedDirectFields": [],
+      "reason": "No same-named LSP4J 1.0.0 source type; verify alternate symbol or provide custom DTO."
+    },
+    {
+      "kind": "enumeration",
+      "name": "SemanticTokenTypes",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.SemanticTokenTypes",
+      "officialFieldCount": 0,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "enumeration",
+      "name": "SemanticTokenModifiers",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.SemanticTokenModifiers",
+      "officialFieldCount": 0,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "enumeration",
+      "name": "DocumentDiagnosticReportKind",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.DocumentDiagnosticReportKind",
+      "officialFieldCount": 0,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "enumeration",
+      "name": "ErrorCodes",
+      "status": "CUSTOM_DTO_REQUIRED",
+      "librarySymbol": null,
+      "officialFieldCount": 0,
+      "unmatchedDirectFields": [],
+      "reason": "No same-named LSP4J 1.0.0 source type; verify alternate symbol or provide custom DTO."
+    },
+    {
+      "kind": "enumeration",
+      "name": "LSPErrorCodes",
+      "status": "CUSTOM_DTO_REQUIRED",
+      "librarySymbol": null,
+      "officialFieldCount": 0,
+      "unmatchedDirectFields": [],
+      "reason": "No same-named LSP4J 1.0.0 source type; verify alternate symbol or provide custom DTO."
+    },
+    {
+      "kind": "enumeration",
+      "name": "FoldingRangeKind",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.FoldingRangeKind",
+      "officialFieldCount": 0,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "enumeration",
+      "name": "SymbolKind",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.SymbolKind",
+      "officialFieldCount": 0,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "enumeration",
+      "name": "SymbolTag",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.SymbolTag",
+      "officialFieldCount": 0,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "enumeration",
+      "name": "UniquenessLevel",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.UniquenessLevel",
+      "officialFieldCount": 0,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "enumeration",
+      "name": "MonikerKind",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.MonikerKind",
+      "officialFieldCount": 0,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "enumeration",
+      "name": "InlayHintKind",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.InlayHintKind",
+      "officialFieldCount": 0,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "enumeration",
+      "name": "MessageType",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.MessageType",
+      "officialFieldCount": 0,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "enumeration",
+      "name": "TextDocumentSyncKind",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.TextDocumentSyncKind",
+      "officialFieldCount": 0,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "enumeration",
+      "name": "TextDocumentSaveReason",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.TextDocumentSaveReason",
+      "officialFieldCount": 0,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "enumeration",
+      "name": "CompletionItemKind",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.CompletionItemKind",
+      "officialFieldCount": 0,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "enumeration",
+      "name": "CompletionItemTag",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.CompletionItemTag",
+      "officialFieldCount": 0,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "enumeration",
+      "name": "InsertTextFormat",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.InsertTextFormat",
+      "officialFieldCount": 0,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "enumeration",
+      "name": "InsertTextMode",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.InsertTextMode",
+      "officialFieldCount": 0,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "enumeration",
+      "name": "DocumentHighlightKind",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.DocumentHighlightKind",
+      "officialFieldCount": 0,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "enumeration",
+      "name": "CodeActionKind",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.CodeActionKind",
+      "officialFieldCount": 0,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "enumeration",
+      "name": "CodeActionTag",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.CodeActionTag",
+      "officialFieldCount": 0,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "enumeration",
+      "name": "TraceValue",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.TraceValue",
+      "officialFieldCount": 0,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "enumeration",
+      "name": "MarkupKind",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.MarkupKind",
+      "officialFieldCount": 0,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "enumeration",
+      "name": "LanguageKind",
+      "status": "CUSTOM_DTO_REQUIRED",
+      "librarySymbol": null,
+      "officialFieldCount": 0,
+      "unmatchedDirectFields": [],
+      "reason": "No same-named LSP4J 1.0.0 source type; verify alternate symbol or provide custom DTO."
+    },
+    {
+      "kind": "enumeration",
+      "name": "InlineCompletionTriggerKind",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.InlineCompletionTriggerKind",
+      "officialFieldCount": 0,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "enumeration",
+      "name": "PositionEncodingKind",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.PositionEncodingKind",
+      "officialFieldCount": 0,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "enumeration",
+      "name": "FileChangeType",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.FileChangeType",
+      "officialFieldCount": 0,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "enumeration",
+      "name": "WatchKind",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.WatchKind",
+      "officialFieldCount": 0,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "enumeration",
+      "name": "DiagnosticSeverity",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.DiagnosticSeverity",
+      "officialFieldCount": 0,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "enumeration",
+      "name": "DiagnosticTag",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.DiagnosticTag",
+      "officialFieldCount": 0,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "enumeration",
+      "name": "CompletionTriggerKind",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.CompletionTriggerKind",
+      "officialFieldCount": 0,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "enumeration",
+      "name": "ApplyKind",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.ApplyKind",
+      "officialFieldCount": 0,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "enumeration",
+      "name": "SignatureHelpTriggerKind",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.SignatureHelpTriggerKind",
+      "officialFieldCount": 0,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "enumeration",
+      "name": "CodeActionTriggerKind",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.CodeActionTriggerKind",
+      "officialFieldCount": 0,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "enumeration",
+      "name": "FileOperationPatternKind",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.FileOperationPatternKind",
+      "officialFieldCount": 0,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "enumeration",
+      "name": "NotebookCellKind",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.NotebookCellKind",
+      "officialFieldCount": 0,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "enumeration",
+      "name": "ResourceOperationKind",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.ResourceOperationKind",
+      "officialFieldCount": 0,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "enumeration",
+      "name": "FailureHandlingKind",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.FailureHandlingKind",
+      "officialFieldCount": 0,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "enumeration",
+      "name": "PrepareSupportDefaultBehavior",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.PrepareSupportDefaultBehavior",
+      "officialFieldCount": 0,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "enumeration",
+      "name": "TokenFormat",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.TokenFormat",
+      "officialFieldCount": 0,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "typeAliase",
+      "name": "Definition",
+      "status": "PROTOCOL_DELTA_WITH_REASON",
+      "librarySymbol": null,
+      "officialFieldCount": 0,
+      "unmatchedDirectFields": [],
+      "reason": "LSP4J maps aliases to primitives, collections, Either, or target DTOs instead of one class per alias."
+    },
+    {
+      "kind": "typeAliase",
+      "name": "DefinitionLink",
+      "status": "PROTOCOL_DELTA_WITH_REASON",
+      "librarySymbol": null,
+      "officialFieldCount": 0,
+      "unmatchedDirectFields": [],
+      "reason": "LSP4J maps aliases to primitives, collections, Either, or target DTOs instead of one class per alias."
+    },
+    {
+      "kind": "typeAliase",
+      "name": "LSPArray",
+      "status": "PROTOCOL_DELTA_WITH_REASON",
+      "librarySymbol": null,
+      "officialFieldCount": 0,
+      "unmatchedDirectFields": [],
+      "reason": "LSP4J maps aliases to primitives, collections, Either, or target DTOs instead of one class per alias."
+    },
+    {
+      "kind": "typeAliase",
+      "name": "LSPAny",
+      "status": "PROTOCOL_DELTA_WITH_REASON",
+      "librarySymbol": null,
+      "officialFieldCount": 0,
+      "unmatchedDirectFields": [],
+      "reason": "LSP4J maps aliases to primitives, collections, Either, or target DTOs instead of one class per alias."
+    },
+    {
+      "kind": "typeAliase",
+      "name": "Declaration",
+      "status": "PROTOCOL_DELTA_WITH_REASON",
+      "librarySymbol": null,
+      "officialFieldCount": 0,
+      "unmatchedDirectFields": [],
+      "reason": "LSP4J maps aliases to primitives, collections, Either, or target DTOs instead of one class per alias."
+    },
+    {
+      "kind": "typeAliase",
+      "name": "DeclarationLink",
+      "status": "PROTOCOL_DELTA_WITH_REASON",
+      "librarySymbol": null,
+      "officialFieldCount": 0,
+      "unmatchedDirectFields": [],
+      "reason": "LSP4J maps aliases to primitives, collections, Either, or target DTOs instead of one class per alias."
+    },
+    {
+      "kind": "typeAliase",
+      "name": "InlineValue",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.InlineValue",
+      "officialFieldCount": 0,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "typeAliase",
+      "name": "DocumentDiagnosticReport",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.DocumentDiagnosticReport",
+      "officialFieldCount": 0,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "typeAliase",
+      "name": "DocumentDiagnosticReportProgress",
+      "status": "PROTOCOL_DELTA_WITH_REASON",
+      "librarySymbol": null,
+      "officialFieldCount": 0,
+      "unmatchedDirectFields": [],
+      "reason": "LSP4J maps aliases to primitives, collections, Either, or target DTOs instead of one class per alias."
+    },
+    {
+      "kind": "typeAliase",
+      "name": "PrepareRenameResult",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.PrepareRenameResult",
+      "officialFieldCount": 0,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "typeAliase",
+      "name": "DocumentSelector",
+      "status": "PROTOCOL_DELTA_WITH_REASON",
+      "librarySymbol": null,
+      "officialFieldCount": 0,
+      "unmatchedDirectFields": [],
+      "reason": "LSP4J maps aliases to primitives, collections, Either, or target DTOs instead of one class per alias."
+    },
+    {
+      "kind": "typeAliase",
+      "name": "ProgressToken",
+      "status": "PROTOCOL_DELTA_WITH_REASON",
+      "librarySymbol": null,
+      "officialFieldCount": 0,
+      "unmatchedDirectFields": [],
+      "reason": "LSP4J maps aliases to primitives, collections, Either, or target DTOs instead of one class per alias."
+    },
+    {
+      "kind": "typeAliase",
+      "name": "ChangeAnnotationIdentifier",
+      "status": "PROTOCOL_DELTA_WITH_REASON",
+      "librarySymbol": null,
+      "officialFieldCount": 0,
+      "unmatchedDirectFields": [],
+      "reason": "LSP4J maps aliases to primitives, collections, Either, or target DTOs instead of one class per alias."
+    },
+    {
+      "kind": "typeAliase",
+      "name": "WorkspaceDocumentDiagnosticReport",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.WorkspaceDocumentDiagnosticReport",
+      "officialFieldCount": 0,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "typeAliase",
+      "name": "TextDocumentContentChangeEvent",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.TextDocumentContentChangeEvent",
+      "officialFieldCount": 0,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "typeAliase",
+      "name": "MarkedString",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.MarkedString",
+      "officialFieldCount": 0,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "typeAliase",
+      "name": "DocumentFilter",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.DocumentFilter",
+      "officialFieldCount": 0,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "typeAliase",
+      "name": "LSPObject",
+      "status": "PROTOCOL_DELTA_WITH_REASON",
+      "librarySymbol": null,
+      "officialFieldCount": 0,
+      "unmatchedDirectFields": [],
+      "reason": "LSP4J maps aliases to primitives, collections, Either, or target DTOs instead of one class per alias."
+    },
+    {
+      "kind": "typeAliase",
+      "name": "GlobPattern",
+      "status": "PROTOCOL_DELTA_WITH_REASON",
+      "librarySymbol": null,
+      "officialFieldCount": 0,
+      "unmatchedDirectFields": [],
+      "reason": "LSP4J maps aliases to primitives, collections, Either, or target DTOs instead of one class per alias."
+    },
+    {
+      "kind": "typeAliase",
+      "name": "TextDocumentFilter",
+      "status": "PROTOCOL_DELTA_WITH_REASON",
+      "librarySymbol": null,
+      "officialFieldCount": 0,
+      "unmatchedDirectFields": [],
+      "reason": "LSP4J maps aliases to primitives, collections, Either, or target DTOs instead of one class per alias."
+    },
+    {
+      "kind": "typeAliase",
+      "name": "NotebookDocumentFilter",
+      "status": "SUPPORTED_LIBRARY",
+      "librarySymbol": "org.eclipse.lsp4j.NotebookDocumentFilter",
+      "officialFieldCount": 0,
+      "unmatchedDirectFields": [],
+      "reason": null
+    },
+    {
+      "kind": "typeAliase",
+      "name": "Pattern",
+      "status": "PROTOCOL_DELTA_WITH_REASON",
+      "librarySymbol": null,
+      "officialFieldCount": 0,
+      "unmatchedDirectFields": [],
+      "reason": "LSP4J maps aliases to primitives, collections, Either, or target DTOs instead of one class per alias."
+    },
+    {
+      "kind": "typeAliase",
+      "name": "RegularExpressionEngineKind",
+      "status": "PROTOCOL_DELTA_WITH_REASON",
+      "librarySymbol": null,
+      "officialFieldCount": 0,
+      "unmatchedDirectFields": [],
+      "reason": "LSP4J maps aliases to primitives, collections, Either, or target DTOs instead of one class per alias."
+    }
+  ]
+}

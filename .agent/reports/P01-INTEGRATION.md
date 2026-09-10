@@ -42,3 +42,24 @@ RISKS_OR_BLOCKERS: P01 cannot be accepted while the seven failed IDs in the inde
 NEXT_DEPENDENCIES: complete the three READY repair packages recorded in `.agent/TASKS.json`, then rerun independent P01 review. P02 remains locked.
 
 REPORT_PATH: `.agent/reports/P01-INTEGRATION.md`
+
+---
+
+## P01-W08 repair integration
+
+STATUS: **VERIFIED — accepted by independent P01 stage review**
+
+Integrated the verified W05/W06/W07 pins without creating P02 modules or a website:
+
+- machine-readable JDK 21/JDK 25/Gradle/IU/JBR/Node locks in `config/toolchains.json`;
+- machine-readable frontend reproducibility and license-review boundary in `config/frontend-baseline.json`;
+- all 151 Lombok public-surface class entries and 82 config keys in `compatibility/lombok-baseline.json`, each explicitly `NOT_IMPLEMENTED` and `NOT_VERIFIED` for Javelle compatibility;
+- all 95 LSP 3.18 methods in `compatibility/lsp-methods.json`, each non-advertised with per-method DTO/support review still required;
+- corrected toolchain matrix: IU 2026.1.4 bundles executed `JBR-25.0.3+9-329.124-jcef`, not Java 21;
+- fixed Temurin 21.0.12.1+1, IU/JBR/LSP, Node/npm, Astro/Starlight, Spotless, google-java-format, and CycloneDX pins recorded in catalogs/manifests.
+
+Plugin Verifier is `DEFERRED_P11_REAL_PLUGIN_ZIP`: P01 has no real plugin ZIP, so an empty fabricated plugin would not prove compatibility. No verifier success is claimed.
+
+TESTS: JSON/TOML/XML and inventory-count validation, strict current Gradle graph verification, fixed hash consistency, and dynamic-version scan; bounded output belongs under ignored `.agent/logs/P01-INTEGRATION/`.
+
+REVIEW: `/root/p00_review` regenerated the 95-method and 450-type inventories byte-identically, resolved all 95 binding symbols, verified zero unreviewed DTO statuses, regenerated the 373-component frontend inventory byte-identically, and accepted P01. See the final focused review in `.agent/reports/P01-REVIEW.md`.
