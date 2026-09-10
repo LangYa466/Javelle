@@ -63,3 +63,40 @@ RISKS_OR_BLOCKERS: Git initialization/publication has no remaining blocker. Non-
 NEXT_DEPENDENCIES: repair `P00-03`, `P00-04`, `P00-06`, `P00-07`, `P00-09`, `P00-10`, `P00-11`; rerun independent P00 review; only then unlock P01.
 
 REPORT_PATH: `.agent/reports/P00-REVIEW.md`
+
+---
+
+## P00 repair re-review — authoritative current decision
+
+TASK / AGENT_ID / BASE_REVISION: `P00-REVIEW-REPAIR` / `/root/p00_review` / `f4e67788ea0bff07c2ccbfcc9164372974324bc6`
+
+STATUS: **FAILED — REJECT P00**
+
+| Requirement | Decision | Independently reproduced basis |
+|---|---|---|
+| `P00-01` | PASS | CWD/Git root are `/home/langya/IdeaProjects/Javelle`; branch/status, existing root AGENTS, absence of overrides, and current untracked repair artifacts were observed without modifying user files outside this review scope |
+| `P00-02` | PASS | `P00-SPEC-COVERAGE.md` records complete A–I, P00–P55, and UAT ownership/index coverage from canonical agent `/root/p00_spec` |
+| `P00-03` | PASS | `/usr/lib/chatgpt/resources/codex --version` exit 0 reports `codex-cli 0.147.0-alpha.6.6`; `rpm -q chatgpt` exit 0 reports `26.803.81509`; current collaboration registry exposes canonical agents and spawn/list/message/follow-up/wait/interrupt behavior. UI-internal UUID is not required by this ID |
+| `P00-04` | **FAIL** | `/root/p00_probe` is genuinely read-only but its returned scope was lifecycle probing, not the required environment recon; the environment/read-scope artifact is authored by `/root/p00_repair`, which had write ownership. The original `/root/p00_recon` still has no attributable report. No single read-only recon return satisfies unique ID + read scope + environment short summary as written |
+| `P00-05` | N/A | Genuine subagent capability exists; `BLOCKED_SUBAGENT_CAPABILITY` is not applicable |
+| `P00-06` | PASS | Official rule sources are cited; global/root instruction files total 21,162 bytes, below documented 32 KiB default; override absence checks exit 0; config override search exit 1; no global setting was changed |
+| `P00-07` | PASS | `P00-RECON.md` and ignored raw evidence cover CPU, RAM, disk, JDK, Gradle, Node/package managers, GUI/headless, DNS/HTTPS, root/sudo, filesystem sandbox, approval policy, and shell limits |
+| `P00-08` | PASS | Registry limits remain 3 subagents, 2 writers, and 1 heavy build, within the required maxima |
+| `P00-09` | PASS | Template exists and is nonempty (exit 0); raw logs are ignored (exit 0); reports are concise and path scopes do not overlap product implementation |
+| `P00-10` | **FAIL** | This reviewer independently observed `list_agents` and `wait_agent(10000)` timeout; the preceding lifecycle turn was interrupted and follow-up reactivated it. However, the checklist explicitly requires both interrupt/stop and close verification. No dedicated close/delete operation is exposed or verified. Semantic cancellation and UI UUID are not required, but the missing close capability cannot be waived |
+| `P00-11` | PASS | External Maven, Gradle Portal, JetBrains, signing, website/domain, GitHub Release authority and credentials are individually separated from feasible local work; no secrets persisted |
+| `P00-12` | PASS | STATE/TASKS/OWNERSHIP/NEXT_SESSION exist and both JSON ledgers parse with exit 0; they contain concrete next work, though coordinator state must not mark acceptance after this rejection |
+
+### Git recheck
+
+- GitHub visibility query: exit 0, `PUBLIC`.
+- Local-only identity remains configured; global identity remains unset; values were not displayed.
+- Local/remote `main` match at `91ee504a5bc6f11e7ee7c8810f2ebe7f2f97c819`.
+- Local/remote `dev` match at `f4e67788ea0bff07c2ccbfcc9164372974324bc6`.
+- Current worktree is not clean because repair reports/template are untracked. This is expected pending review integration, but a current clean-tree claim would be false. The earlier clean pre-review observation remains historical only.
+
+TESTS: client executable exit 0; RPM query exit 0; override absence 0/0; config override search 1 (no override); TASKS/OWNERSHIP JSON 0/0; template nonempty 0; ignored-log check 0; GitHub visibility 0; branch ref inspection 0; wait timeout returned `timed_out: true`; registry call returned canonical agent states.
+
+REVIEW: `/root/p00_review`; **REJECT**. Dedicated close/delete absence is a real local capability blocker for `P00-10`. `P00-04` is an evidence/role-contract defect that is locally repairable by a genuine read-only recon return. Do not weaken either requirement and do not mark P00 accepted.
+
+NEXT_DEPENDENCIES: obtain and persist a compliant read-only recon return for `P00-04`; expose and test a genuine close operation for `P00-10`, or obtain an explicit user/spec change. Then rerun independent P00 review.

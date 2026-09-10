@@ -4,10 +4,13 @@
   "tasks": [
     {
       "id": "P00-RECON",
-      "owner": "/root/p00_recon",
-      "status": "VERIFIED",
+      "owner": "/root/p00_repair",
+      "status": "FAILED",
       "dependsOn": [],
-      "evidence": ["agent completion summary; report file pending integration"]
+      "evidence": [
+        ".agent/reports/P00-RECON.md",
+        ".agent/reports/P00-REVIEW.md: P00-04 lacks a single attributable read-only environment recon return"
+      ]
     },
     {
       "id": "P00-SPEC-COVERAGE",
@@ -24,17 +27,27 @@
       "evidence": [".agent/reports/P00-GIT.md"]
     },
     {
+      "id": "P00-LIFECYCLE",
+      "owner": "/root/p00_probe",
+      "status": "BLOCKED",
+      "dependsOn": [],
+      "evidence": [
+        ".agent/reports/P00-CAPABILITY.md",
+        ".agent/reports/P00-REVIEW.md: P00-10 requires close verification, but no close/delete tool is exposed"
+      ]
+    },
+    {
       "id": "P00-REVIEW",
-      "owner": null,
-      "status": "READY",
-      "dependsOn": ["P00-RECON", "P00-SPEC-COVERAGE", "P00-GIT"],
-      "evidence": []
+      "owner": "/root/p00_review",
+      "status": "FAILED",
+      "dependsOn": ["P00-RECON", "P00-SPEC-COVERAGE", "P00-GIT", "P00-LIFECYCLE"],
+      "evidence": [".agent/reports/P00-REVIEW.md"]
     },
     {
       "id": "P01",
       "owner": null,
       "status": "TODO",
-      "dependsOn": ["P00-REVIEW"],
+      "dependsOn": ["P00-REVIEW (must be ACCEPTED)"],
       "evidence": []
     }
   ]
