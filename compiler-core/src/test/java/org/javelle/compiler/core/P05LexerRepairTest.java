@@ -139,8 +139,8 @@ class P05LexerRepairTest {
     assertEquals(
         1, ordinary.tokens().stream().filter(token -> token.kind() == TokenKind.SEMICOLON).count());
     var block = lex("\"\"\"\n;a\n\"\"\"");
-    assertEquals(TokenKind.ERROR, block.tokens().getFirst().kind());
-    assertEquals("JV-DEV-0001", block.diagnostics().getFirst().code().value());
+    assertEquals(TokenKind.LITERAL, block.tokens().getFirst().kind());
+    assertTrue(block.diagnostics().isEmpty(), block.diagnostics().toString());
     assertEquals(
         0, block.tokens().stream().filter(token -> token.kind() == TokenKind.SEMICOLON).count());
   }
