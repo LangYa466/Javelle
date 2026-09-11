@@ -36,6 +36,13 @@ val bundledLsp = tasks.register<Sync>("syncBundledLsp") {
     filesMatching("**/bin/*") { permissions { unix("0755") } }
 }
 
+tasks.withType<org.jetbrains.intellij.platform.gradle.tasks.PrepareSandboxTask>().configureEach {
+    // Unrelated bundled plugins (e.g. Vue.js) register their own LspServerSupportProvider and
+    // can fail to initialize in constrained CI environments, breaking tests that touch the LSP
+    // extension point even though they are unrelated to this plugin.
+    disabledPlugins.add("org.jetbrains.plugins.vue")
+}
+
 val buildPlugin = tasks.named<Zip>("buildPlugin") {
     dependsOn(bundledLsp)
     from(bundledLsp) {
