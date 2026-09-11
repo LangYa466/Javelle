@@ -31,10 +31,13 @@ public final class RecursiveJavelleParser implements JavelleParser {
       skipLines();
       if (at(TokenKind.EOF)) break;
       int before = p;
-      if (word("@interface") || word("module") || word("open")) {
-        children.add(
-            unsupported(
-                word("module") || word("open") ? "module-declaration" : "interface-declaration"));
+      if (word("module") || word("open")) {
+        children.add(unsupported("module-declaration"));
+      } else if (word("@") && lookWord(1, "interface")) {
+        take();
+        Token start = take();
+        String name = identifier();
+        children.add(parseAnnotationType(start, name));
       } else if (word("record")) {
         Token start = take();
         String name = identifier();
@@ -241,6 +244,72 @@ public final class RecursiveJavelleParser implements JavelleParser {
     Token end = current();
     if (!accept("}")) error(end, "JV-SYN-0002", "unterminated interface");
     return node("InterfaceDeclaration", name, span(start, end), members);
+  }
+
+  /**
+   * An annotation type element is spelled {@code Type name()} (never any parameters), optionally
+   * followed by {@code default <value>}; a member spelled {@code Type NAME = value} is a constant,
+   * same as in a plain interface. Nested annotation types and array-literal default values are not
+   * yet supported.
+   */
+  private FrontendNode parseAnnotationType(Token start, String name) {
+    var members = new ArrayList<FrontendNode>();
+    if (!accept("{")) {
+      error(current(), "JV-SYN-0002", "missing annotation type body");
+      return node("AnnotationTypeDeclaration", name, start.rawRange(), members);
+    }
+    while (!at(TokenKind.EOF) && !word("}")) {
+      skipLines();
+      if (word("}")) break;
+      int before = p;
+      for (; isModifier(); take()) {}
+      if (isIdentifierLike()) {
+        Token type = take();
+        if (!isIdentifierLike()) {
+          error(current(), "JV-SYN-0002", "missing member name");
+          sync();
+          continue;
+        }
+        Token member = take();
+        if (accept("(")) {
+          var parameterTokens = takeUntilCloseParen();
+          if (!parameterTokens.isEmpty())
+            error(member, "JV-SYN-0002", "annotation elements cannot have parameters");
+          var kids = new ArrayList<FrontendNode>();
+          if (accept("default")) {
+            var defaultTokens = new ArrayList<Token>();
+            while (!at(TokenKind.EOF) && !at(TokenKind.NEWLINE)) {
+              if (at(TokenKind.SEMICOLON)) semicolon(take());
+              else defaultTokens.add(take());
+            }
+            if (!defaultTokens.isEmpty()) kids.add(buildExpression(defaultTokens));
+          }
+          members.add(
+              node("AnnotationElementDeclaration", member.value(), span(type, previous()), kids));
+        } else if (accept("=")) {
+          var initializerTokens = new ArrayList<Token>();
+          while (!at(TokenKind.EOF) && !at(TokenKind.NEWLINE)) {
+            if (at(TokenKind.SEMICOLON)) semicolon(take());
+            else initializerTokens.add(take());
+          }
+          if (initializerTokens.isEmpty()) {
+            error(member, "JV-SYN-0002", "annotation constant requires an initializer");
+            members.add(node("ErrorNode", "", span(type, member), List.of()));
+          } else
+            members.add(parseField(type, member, Optional.of(buildExpression(initializerTokens))));
+        } else {
+          error(current(), "JV-SYN-0002", "expected annotation element or constant");
+          sync();
+        }
+      } else {
+        error(current(), "JV-SYN-0002", "unsupported member");
+        sync();
+      }
+      if (before == p) take();
+    }
+    Token end = current();
+    if (!accept("}")) error(end, "JV-SYN-0002", "unterminated annotation type");
+    return node("AnnotationTypeDeclaration", name, span(start, end), members);
   }
 
   /** A constructor is spelled {@code Name(...)} with no return type; it always requires a body. */
@@ -886,6 +955,10 @@ public final class RecursiveJavelleParser implements JavelleParser {
 
   private boolean lookIsOpenParen(int n) {
     return p + n < tokens.size() && tokens.get(p + n).value().equals("(");
+  }
+
+  private boolean lookWord(int n, String v) {
+    return p + n < tokens.size() && tokens.get(p + n).value().equals(v);
   }
 
   private boolean isModifier() {
