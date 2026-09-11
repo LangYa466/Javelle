@@ -526,6 +526,32 @@ public final class RecursiveJavelleParser implements JavelleParser {
     while (!at(TokenKind.EOF) && !word("}")) {
       skipLines();
       if (word("}")) break;
+      if (looksLikeLocalTypeDeclaration()) {
+        while (isModifier()) take();
+        if (word("class")) {
+          Token s = take();
+          String n = identifier();
+          out.add(parseClass(s, n, List.of()));
+        } else if (word("interface")) {
+          Token s = take();
+          String n = identifier();
+          out.add(parseInterface(s, n, List.of()));
+        } else if (word("enum")) {
+          Token s = take();
+          String n = identifier();
+          out.add(parseEnum(s, n, List.of()));
+        } else if (word("record")) {
+          Token s = take();
+          String n = identifier();
+          out.add(parseRecord(s, n, List.of()));
+        } else {
+          take();
+          Token s = take();
+          String n = identifier();
+          out.add(parseAnnotationType(s, n, List.of()));
+        }
+        continue;
+      }
       if (word("for")) {
         out.add(unsupported("basic-for"));
         continue;
@@ -1067,6 +1093,26 @@ public final class RecursiveJavelleParser implements JavelleParser {
 
   private boolean lookWord(int n, String v) {
     return p + n < tokens.size() && tokens.get(p + n).value().equals(v);
+  }
+
+  /**
+   * Peeks past any leading modifiers (without consuming) to decide whether a statement position
+   * actually starts a local class/interface/enum/record/{@code @interface} declaration, so a
+   * modifier like {@code final} ahead of an unrelated statement is never mistaken for one.
+   */
+  private boolean looksLikeLocalTypeDeclaration() {
+    int i = p;
+    while (i < tokens.size()
+        && Set.of("public", "protected", "private", "static", "final", "abstract")
+            .contains(tokens.get(i).value())) i++;
+    if (i >= tokens.size()) return false;
+    String v = tokens.get(i).value();
+    if (v.equals("class") || v.equals("interface") || v.equals("enum")) return true;
+    if (v.equals("record")
+        && i + 2 < tokens.size()
+        && isIdentifierLike(tokens.get(i + 1))
+        && tokens.get(i + 2).value().equals("(")) return true;
+    return v.equals("@") && i + 1 < tokens.size() && tokens.get(i + 1).value().equals("interface");
   }
 
   private boolean isModifier() {
