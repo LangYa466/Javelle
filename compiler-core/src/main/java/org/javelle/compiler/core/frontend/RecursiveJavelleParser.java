@@ -86,6 +86,8 @@ public final class RecursiveJavelleParser implements JavelleParser {
 
   private FrontendNode parseClass(Token start, String name, List<FrontendNode> modifiers) {
     var members = new ArrayList<FrontendNode>(modifiers);
+    members.addAll(parseSuperclassClause());
+    members.addAll(parseTypeReferenceClause("implements", "SuperinterfaceDeclaration"));
     members.addAll(parsePermitsClause());
     if (!accept("{")) {
       error(current(), "JV-SYN-0002", "missing class body");
@@ -123,17 +125,61 @@ public final class RecursiveJavelleParser implements JavelleParser {
 
   /** {@code permits Name1, Name2, ...} — only meaningful after a sealed class/interface header. */
   private List<FrontendNode> parsePermitsClause() {
-    var permitted = new ArrayList<FrontendNode>();
-    if (!accept("permits")) return permitted;
+    return parseTypeReferenceClause("permits", "PermittedSubtypeDeclaration");
+  }
+
+  /** {@code extends Superclass} — a class has at most one superclass. */
+  private List<FrontendNode> parseSuperclassClause() {
+    var result = new ArrayList<FrontendNode>();
+    if (!accept("extends")) return result;
+    result.add(parseTypeReference("SuperclassDeclaration"));
+    return result;
+  }
+
+  /**
+   * A comma-separated list of type references introduced by {@code keyword}: {@code extends}
+   * (interface superinterfaces, one or more), {@code implements} (class/record/enum
+   * superinterfaces), or {@code permits} (sealed-type permitted subtypes).
+   */
+  private List<FrontendNode> parseTypeReferenceClause(String keyword, String nodeKind) {
+    var result = new ArrayList<FrontendNode>();
+    if (!accept(keyword)) return result;
     do {
-      if (!isIdentifierLike()) {
-        error(current(), "JV-SYN-0002", "expected permitted type name");
-        break;
-      }
-      Token name = take();
-      permitted.add(node("PermittedSubtypeDeclaration", name.value(), name.rawRange(), List.of()));
+      result.add(parseTypeReference(nodeKind));
     } while (accept(","));
-    return permitted;
+    return result;
+  }
+
+  /**
+   * A (possibly dotted) type name, e.g. {@code pkg.Type}. Generic type arguments after it are
+   * scanned and dropped with an unsupported-feature diagnostic — full generics are P13-03.
+   */
+  private FrontendNode parseTypeReference(String nodeKind) {
+    if (!isIdentifierLike()) {
+      error(current(), "JV-SYN-0002", "expected type name");
+      return node(nodeKind, "<missing>", current().rawRange(), List.of());
+    }
+    Token first = take();
+    Token last = first;
+    var name = new StringBuilder(first.value());
+    while (word(".") && lookIdentifier(1)) {
+      take();
+      Token part = take();
+      name.append('.').append(part.value());
+      last = part;
+    }
+    if (word("<")) {
+      Token angle = take();
+      error(angle, "JV-DEV-0001", "unsupported generic type arguments");
+      int depth = 1;
+      while (depth > 0 && !at(TokenKind.EOF)) {
+        Token t = take();
+        if (t.value().equals("<")) depth++;
+        else if (t.value().equals(">")) depth--;
+        last = t;
+      }
+    }
+    return node(nodeKind, name.toString(), span(first, last), List.of());
   }
 
   /** Parses class/enum-member-section members up to (not including) the closing {@code }}. */
@@ -208,6 +254,7 @@ public final class RecursiveJavelleParser implements JavelleParser {
    */
   private FrontendNode parseEnum(Token start, String name, List<FrontendNode> modifiers) {
     var members = new ArrayList<FrontendNode>(modifiers);
+    members.addAll(parseTypeReferenceClause("implements", "SuperinterfaceDeclaration"));
     if (!accept("{")) {
       error(current(), "JV-SYN-0002", "missing enum body");
       return node("EnumDeclaration", name, start.rawRange(), members);
@@ -240,6 +287,7 @@ public final class RecursiveJavelleParser implements JavelleParser {
    */
   private FrontendNode parseInterface(Token start, String name, List<FrontendNode> modifiers) {
     var members = new ArrayList<FrontendNode>(modifiers);
+    members.addAll(parseTypeReferenceClause("extends", "SuperinterfaceDeclaration"));
     members.addAll(parsePermitsClause());
     if (!accept("{")) {
       error(current(), "JV-SYN-0002", "missing interface body");
@@ -398,6 +446,7 @@ public final class RecursiveJavelleParser implements JavelleParser {
     var componentTokens = takeUntilCloseParen();
     var members = new ArrayList<FrontendNode>(modifiers);
     members.addAll(parseCallableParameters(componentTokens, "RecordComponentDeclaration"));
+    members.addAll(parseTypeReferenceClause("implements", "SuperinterfaceDeclaration"));
     if (!accept("{")) {
       error(current(), "JV-SYN-0002", "missing record body");
       return node("RecordDeclaration", name, span(start, previous()), members);
