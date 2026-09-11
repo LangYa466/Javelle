@@ -2,7 +2,7 @@
 
 TASK / AGENT_ID / BASE_REVISION: `P13-W01` / `/root` / `dev` at `2f6bb43`
 
-STATUS: **CONTRACT_FROZEN — P13 implementation IN_PROGRESS (round 9 of N)**
+STATUS: **CONTRACT_FROZEN — P13 implementation IN_PROGRESS (round 10 of N)**
 
 Source: `prompts/JAVELLE_IMPLEMENTATION_PLAN.md` section E, `## P13 — 完整宣告與型別 grammar` (lines 798-817). This contract restates that section's 12 requirements (P13-01..P13-12) as a concrete acceptance matrix; it does not change the plan's scope. Depends on P12 (ACCEPTED pending its own independent review, in progress concurrently with this round).
 
@@ -82,6 +82,12 @@ Implemented (P13-04 remainder): `class`/`interface`/`enum`/`record`/`@interface`
 This closes out P13-04's "nested/local/anonymous classes" line except for anonymous classes (`new Type() { ... }`), which remain unsupported — `buildExpression`'s `new` handling has no brace-body support yet, and is a separate, harder slice (it interacts with expression parsing, not statement/member parsing).
 
 Explicitly NOT done yet: anonymous classes, generics as a real feature, receiver parameters, type-use annotations (P13-03), compact constructors, `this()`/`super()` placement rules and compact/instance `main` (P13-05), `module`/`open`/package-info/module-info (P13-07), the property-initializer-vs-accessor-block disambiguation audit (P13-08), full modifier-combination validation (P13-02/P13-10), and the Java-fixture ABI-equivalence migration suite (P13-11).
+
+## 3j. Round 10 progress (modifier-combination validation)
+
+Implemented (P13-10 partial): a new `JV-MOD-0001` diagnostic code and `validateModifierCombinations(modifiers, kind)`, called from `parseClass`/`parseInterface`/`parseEnum`/`parseRecord`/`parseAnnotationType`, enforcing the syntax-only (no whole-program information needed) JLS modifier rules: a class cannot be both `final` and `abstract`, both `final` and `sealed`, both `final` and `non-sealed`, or both `sealed` and `non-sealed`; an interface or annotation type cannot be `final`; an enum or record cannot be explicitly `abstract` or `final` (both are implicitly final and can never be abstract). Added an `error(TextRange, String, String)` overload alongside the existing `error(Token, ...)` so a diagnostic can anchor to a modifier node's range instead of a token. Eleven new tests in `P13ModifierValidationTest.java` cover each rejected combination plus several accepted plain cases (as a regression guard against false positives).
+
+Explicitly NOT done yet: the semantic (whole-program) rule that a sealed type must either declare `permits` or have all its direct subtypes in the same compilation unit (not implemented — would false-positive on valid same-file-inference cases without deeper analysis), duplicate-constructor detection, unclosed-generics diagnostics beyond the existing best-effort angle-bracket scan, class/record context-confusion diagnostics, generics as a real feature, receiver parameters, type-use annotations (P13-03), anonymous classes, compact constructors, `this()`/`super()` placement rules and compact/instance `main` (P13-05), `module`/`open`/package-info/module-info (P13-07), the property-initializer-vs-accessor-block disambiguation audit (P13-08), and the Java-fixture ABI-equivalence migration suite (P13-11).
 
 ## 4. Test requirements
 
