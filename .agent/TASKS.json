@@ -357,7 +357,7 @@
     {
       "id": "P13",
       "owner": "/root",
-      "status": "IN_PROGRESS",
+      "status": "RUNNING",
       "dependsOn": ["P12"],
       "evidence": [".agent/reports/P13-CONTRACT.md"]
     }

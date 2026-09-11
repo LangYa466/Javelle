@@ -85,7 +85,7 @@ public final class RecursiveJavelleParser implements JavelleParser {
       error(current(), "JV-SYN-0002", "missing class body");
       return node("ClassDeclaration", name, start.rawRange(), members);
     }
-    members.addAll(parseClassBodyMembers());
+    members.addAll(parseClassBodyMembers(Optional.of(name)));
     Token end = current();
     if (!accept("}")) error(end, "JV-SYN-0002", "unterminated class");
     return node("ClassDeclaration", name, span(start, end), members);
@@ -93,6 +93,15 @@ public final class RecursiveJavelleParser implements JavelleParser {
 
   /** Parses class/enum-member-section members up to (not including) the closing {@code }}. */
   private List<FrontendNode> parseClassBodyMembers() {
+    return parseClassBodyMembers(Optional.empty());
+  }
+
+  /**
+   * @param enclosingName when present, a member spelled {@code Name(...)} (no return type,
+   *     identical to the enclosing type name) is parsed as a constructor rather than requiring —
+   *     and failing to find — a separate member name after it.
+   */
+  private List<FrontendNode> parseClassBodyMembers(Optional<String> enclosingName) {
     var members = new ArrayList<FrontendNode>();
     while (!at(TokenKind.EOF) && !word("}")) {
       skipLines();
@@ -104,6 +113,10 @@ public final class RecursiveJavelleParser implements JavelleParser {
         error(bad, "JV-TYP-0003", "inferred field type is illegal");
         sync();
         members.add(node("ErrorNode", "", bad.rawRange(), List.of()));
+      } else if (enclosingName.isPresent() && word(enclosingName.get()) && lookIsOpenParen(1)) {
+        Token ctor = take();
+        accept("(");
+        members.add(parseConstructor(ctor));
       } else if (isIdentifierLike()) {
         Token type = take();
         if (!isIdentifierLike()) {
@@ -230,13 +243,38 @@ public final class RecursiveJavelleParser implements JavelleParser {
     return node("InterfaceDeclaration", name, span(start, end), members);
   }
 
+  /** A constructor is spelled {@code Name(...)} with no return type; it always requires a body. */
+  private FrontendNode parseConstructor(Token name) {
+    var parameterTokens = takeUntilCloseParen();
+    var methodChildren = parseCallableParameters(parameterTokens);
+    if (!accept("{")) {
+      error(current(), "JV-SYN-0002", "missing constructor body");
+      return node("ConstructorDeclaration", name.value(), name.rawRange(), methodChildren);
+    }
+    methodChildren.addAll(parseStatements());
+    return node("ConstructorDeclaration", name.value(), span(name, previous()), methodChildren);
+  }
+
   private FrontendNode parseMethod(Token type, Token name) {
     return parseMethod(type, name, true);
   }
 
   private FrontendNode parseMethod(Token type, Token name, boolean bodyRequired) {
     var parameterTokens = takeUntilCloseParen();
-    var methodChildren = new ArrayList<FrontendNode>();
+    var methodChildren = parseCallableParameters(parameterTokens);
+    if (!accept("{")) {
+      if (!bodyRequired && (at(TokenKind.NEWLINE) || at(TokenKind.EOF) || word("}")))
+        return node("MethodDeclaration", name.value(), span(type, name), methodChildren);
+      error(current(), "JV-SYN-0002", "missing method body");
+      return node("MethodDeclaration", name.value(), span(type, name), methodChildren);
+    }
+    methodChildren.addAll(parseStatements());
+    return node("MethodDeclaration", name.value(), span(type, previous()), methodChildren);
+  }
+
+  /** Shared varargs-rejection + parameter-list parsing for methods and constructors alike. */
+  private ArrayList<FrontendNode> parseCallableParameters(List<Token> parameterTokens) {
+    var children = new ArrayList<FrontendNode>();
     Optional<Token> varargs =
         parameterTokens.stream().filter(token -> token.value().equals("...")).findFirst();
     if (varargs.isPresent()) {
@@ -246,7 +284,7 @@ public final class RecursiveJavelleParser implements JavelleParser {
           parameterTokens.isEmpty()
               ? introducing.rawRange()
               : span(parameterTokens.getFirst(), parameterTokens.getLast());
-      methodChildren.add(
+      children.add(
           new UnsupportedSyntaxNode(
               node("UnsupportedSyntaxNode", unsupportedRange),
               Optional.empty(),
@@ -261,7 +299,7 @@ public final class RecursiveJavelleParser implements JavelleParser {
         error(parameterType, "JV-SYN-0002", "invalid parameter");
         break;
       }
-      methodChildren.add(
+      children.add(
           node(
               "ParameterDeclaration",
               parameterName.value(),
@@ -273,14 +311,7 @@ public final class RecursiveJavelleParser implements JavelleParser {
         break;
       }
     }
-    if (!accept("{")) {
-      if (!bodyRequired && (at(TokenKind.NEWLINE) || at(TokenKind.EOF) || word("}")))
-        return node("MethodDeclaration", name.value(), span(type, name), methodChildren);
-      error(current(), "JV-SYN-0002", "missing method body");
-      return node("MethodDeclaration", name.value(), span(type, name), methodChildren);
-    }
-    methodChildren.addAll(parseStatements());
-    return node("MethodDeclaration", name.value(), span(type, previous()), methodChildren);
+    return children;
   }
 
   private List<FrontendNode> parseStatements() {
@@ -827,6 +858,10 @@ public final class RecursiveJavelleParser implements JavelleParser {
 
   private boolean lookIdentifier(int n) {
     return p + n < tokens.size() && isIdentifierLike(tokens.get(p + n));
+  }
+
+  private boolean lookIsOpenParen(int n) {
+    return p + n < tokens.size() && tokens.get(p + n).value().equals("(");
   }
 
   private boolean isModifier() {
