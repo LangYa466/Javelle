@@ -2,7 +2,7 @@
 
 TASK / AGENT_ID / BASE_REVISION: `P13-W01` / `/root` / `dev` at `2f6bb43`
 
-STATUS: **CONTRACT_FROZEN — P13 implementation IN_PROGRESS (round 1 of N)**
+STATUS: **CONTRACT_FROZEN — P13 implementation IN_PROGRESS (round 3 of N)**
 
 Source: `prompts/JAVELLE_IMPLEMENTATION_PLAN.md` section E, `## P13 — 完整宣告與型別 grammar` (lines 798-817). This contract restates that section's 12 requirements (P13-01..P13-12) as a concrete acceptance matrix; it does not change the plan's scope. Depends on P12 (ACCEPTED pending its own independent review, in progress concurrently with this round).
 
@@ -32,6 +32,18 @@ Source: `prompts/JAVELLE_IMPLEMENTATION_PLAN.md` section E, `## P13 — 完整�
 Implemented: real `interface` declarations (P13-02 partial, P13-09) — modifiers, abstract method signatures with no body (bodiless, terminated by newline/`}`/EOF per P13-09), `default`/`static` methods requiring a real body (reusing the class body-parsing infrastructure via a new `parseMethod(type, name, bodyRequired)` overload), and constant fields requiring an initializer (diagnosed if missing). Five new tests in `P13InterfaceDeclarationTest.java` cover: abstract-method-no-body, default/static-method-with-body, missing-body-is-an-error, constant-field-initializer-required, and unterminated-interface recovery.
 
 Explicitly NOT done yet (next rounds): `enum`, `record`, `@interface`, `module`/`open`/package-info/module-info (P13-06, P13-07), sealed/permits/non-sealed modifiers (P13-02), generics/bounds/wildcards/varargs/receiver parameters/type-use annotations (P13-03), constructors and nested/local/anonymous classes (P13-04, P13-05), the property-initializer-vs-accessor-block disambiguation for array/anonymous-class/lambda initializers (P13-08 — the current class-body parser already handles SOME of this per P05/P18 groundwork; needs a dedicated audit), full modifier-combination validation (P13-02/P13-10), and the Java-fixture ABI-equivalence migration suite (P13-11).
+
+## 3b. Round 2 progress (enum declarations)
+
+Implemented: real `enum` declarations (P13-06) — comma-separated constants (trailing comma allowed), the `:` member-section delimiter reusing `parseClassBodyMembers()`, and empty enums (no constants, no members). Five new tests in `P13EnumDeclarationTest.java` cover: constants-only, trailing-comma, colon-introduces-members, empty-enum, unterminated-enum recovery. Constant arguments and constant-specific class bodies remain out of scope for this round (noted in the enum-parsing method's own doc comment).
+
+## 3c. Round 3 progress (constructor declarations)
+
+Implemented: real constructor declarations (P13-04 partial) — a class-body member spelled `Name(...)` (no return type, identical to the enclosing class name, immediately followed by `(`) is now parsed as a `ConstructorDeclaration` rather than falling through to the generic method/field dispatch. Parameter-list parsing (including the existing varargs-unsupported diagnostic) was extracted out of `parseMethod` into a shared `parseCallableParameters(List<Token>)` helper reused by both methods and constructors, removing the previous duplication risk. A missing constructor body is diagnosed as `JV-SYN-0002` (constructors always require a body, unlike interface abstract methods). Five new tests in `P13ConstructorDeclarationTest.java` cover: no-arg constructor, constructor with parameters, constructor with varargs (still diagnoses `JV-DEV-0001`), missing body, and a same-named method with an explicit return type correctly NOT being mistaken for a constructor.
+
+Found and fixed during this round: the constructor-detection branch consumed the class-name token but never consumed the following `(` before calling `takeUntilCloseParen()` (unlike the method path, which calls `accept("(")` first) — this caused `(` itself to be treated as a bogus parameter token. Fixed by adding `accept("(")` right after the constructor name is taken.
+
+Explicitly NOT done yet (next rounds): `record`, `@interface`, `module`/`open`/package-info/module-info (P13-06 remainder, P13-07), sealed/permits/non-sealed modifiers (P13-02), generics/bounds/wildcards/varargs-as-a-real-feature/receiver parameters/type-use annotations (P13-03), nested/local/anonymous classes (P13-04 remainder), `this()`/`super()` constructor-call placement rules and compact/instance `main` (P13-05), the property-initializer-vs-accessor-block disambiguation audit (P13-08), full modifier-combination validation (P13-02/P13-10), and the Java-fixture ABI-equivalence migration suite (P13-11).
 
 ## 4. Test requirements
 
