@@ -204,6 +204,27 @@ public final class RecursiveJavelleParser implements JavelleParser {
         error(bad, "JV-TYP-0003", "inferred field type is illegal");
         sync();
         members.add(node("ErrorNode", "", bad.rawRange(), List.of()));
+      } else if (word("class")) {
+        Token nestedStart = take();
+        String nestedName = identifier();
+        members.add(parseClass(nestedStart, nestedName, List.of()));
+      } else if (word("interface")) {
+        Token nestedStart = take();
+        String nestedName = identifier();
+        members.add(parseInterface(nestedStart, nestedName, List.of()));
+      } else if (word("enum")) {
+        Token nestedStart = take();
+        String nestedName = identifier();
+        members.add(parseEnum(nestedStart, nestedName, List.of()));
+      } else if (word("record") && lookIdentifier(1) && lookIsOpenParen(2)) {
+        Token nestedStart = take();
+        String nestedName = identifier();
+        members.add(parseRecord(nestedStart, nestedName, List.of()));
+      } else if (word("@") && lookWord(1, "interface")) {
+        take();
+        Token nestedStart = take();
+        String nestedName = identifier();
+        members.add(parseAnnotationType(nestedStart, nestedName, List.of()));
       } else if (enclosingName.isPresent() && word(enclosingName.get()) && lookIsOpenParen(1)) {
         Token ctor = take();
         accept("(");

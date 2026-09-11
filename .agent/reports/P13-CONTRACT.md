@@ -2,7 +2,7 @@
 
 TASK / AGENT_ID / BASE_REVISION: `P13-W01` / `/root` / `dev` at `2f6bb43`
 
-STATUS: **CONTRACT_FROZEN — P13 implementation IN_PROGRESS (round 7 of N)**
+STATUS: **CONTRACT_FROZEN — P13 implementation IN_PROGRESS (round 8 of N)**
 
 Source: `prompts/JAVELLE_IMPLEMENTATION_PLAN.md` section E, `## P13 — 完整宣告與型別 grammar` (lines 798-817). This contract restates that section's 12 requirements (P13-01..P13-12) as a concrete acceptance matrix; it does not change the plan's scope. Depends on P12 (ACCEPTED pending its own independent review, in progress concurrently with this round).
 
@@ -68,6 +68,12 @@ Explicitly NOT done yet: `extends`/`implements`/superinterfaces clauses (not sup
 Implemented (P13-02 partial): `extends Superclass` (class, one superclass) and `extends Interface1, Interface2, ...` (interface, one or more superinterfaces) as `SuperclassDeclaration`/`SuperinterfaceDeclaration` nodes; `implements Interface1, ...` on class/enum/record as `SuperinterfaceDeclaration` nodes. A shared `parseTypeReference(nodeKind)` parses a (possibly dotted) type name and now also `parsePermitsClause()` is reimplemented on top of the same shared `parseTypeReferenceClause` helper. Generic type arguments after a type reference (e.g. `extends Container<String>`) are scanned and dropped with a `JV-DEV-0001` unsupported-feature diagnostic rather than breaking the parse — full generics remain P13-03. Seven new tests in `P13ExtendsImplementsTest.java` cover: class extends+implements, interface with multiple superinterfaces, enum implements, record implements, dotted qualified type names, generic-type-arguments-diagnosed-but-recovered, and a combined sealed+extends+implements+permits case.
 
 Explicitly NOT done yet: generics themselves as a real feature (bounds, wildcards, type parameters on the declaration itself, e.g. `class Box<T>`), varargs as a real feature (still `JV-DEV-0001`-diagnosed), receiver parameters, type-use annotations (P13-03), nested/local/anonymous classes (P13-04 remainder), compact constructors, `this()`/`super()` placement rules and compact/instance `main` (P13-05), `module`/`open`/package-info/module-info (P13-07), the property-initializer-vs-accessor-block disambiguation audit (P13-08), full modifier-combination validation such as rejecting `abstract` on an enum or a superclass on a record (P13-02/P13-10), and the Java-fixture ABI-equivalence migration suite (P13-11).
+
+## 3h. Round 8 progress (nested member type declarations)
+
+Implemented (P13-04 partial): `class`/`interface`/`enum`/`record`/`@interface` declarations nested inside a class body now parse as real member type declarations (reusing `parseClass`/`parseInterface`/`parseEnum`/`parseRecord`/`parseAnnotationType` recursively) instead of falling through to "unsupported member". Since `record` is a contextual keyword (lexes as a plain identifier, unlike the other four which are real reserved words), the nested-record branch requires a `record Name(` lookahead (`lookIdentifier(1) && lookIsOpenParen(2)`) before committing to it as a declaration, so a field or local legitimately named `record` is not misparsed. Six new tests in `P13NestedTypeDeclarationTest.java` cover nested class/interface/enum/record/@interface, plus a regression guard for a field literally named `record`.
+
+Explicitly NOT done yet: local classes (declared inside a method body — a separate, harder case since it interacts with `parseStatements()`, not `parseClassBodyMembers()`), anonymous classes (`new Type() { ... }`), modifiers on nested types are parsed as a flat discard-loop same as any other class member (not captured into `ModifierDeclaration` nodes — this matches existing member-modifier handling generally, which is a separate future gap, not specific to nested types), generics as a real feature, receiver parameters, type-use annotations (P13-03), compact constructors, `this()`/`super()` placement rules and compact/instance `main` (P13-05), `module`/`open`/package-info/module-info (P13-07), the property-initializer-vs-accessor-block disambiguation audit (P13-08), full modifier-combination validation (P13-02/P13-10), and the Java-fixture ABI-equivalence migration suite (P13-11).
 
 ## 4. Test requirements
 
