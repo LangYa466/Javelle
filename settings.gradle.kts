@@ -1,3 +1,5 @@
+import org.jetbrains.intellij.platform.gradle.extensions.intellijPlatform
+
 pluginManagement {
     includeBuild("build-logic")
     repositories {
@@ -6,9 +8,16 @@ pluginManagement {
     }
 }
 
+plugins {
+    id("org.jetbrains.intellij.platform.settings") version "2.18.1"
+}
+
 dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
-    repositories { mavenCentral() }
+    repositories {
+        mavenCentral()
+        intellijPlatform { defaultRepositories() }
+    }
 }
 
 rootProject.name = "Javelle"
