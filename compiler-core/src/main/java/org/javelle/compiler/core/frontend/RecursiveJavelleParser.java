@@ -31,12 +31,7 @@ public final class RecursiveJavelleParser implements JavelleParser {
       skipLines();
       if (at(TokenKind.EOF)) break;
       int before = p;
-      if (word("enum")
-          || word("record")
-          || word("interface")
-          || word("@interface")
-          || word("module")
-          || word("open")) {
+      if (word("enum") || word("record") || word("@interface") || word("module") || word("open")) {
         children.add(
             unsupported(
                 word("enum")
@@ -46,6 +41,10 @@ public final class RecursiveJavelleParser implements JavelleParser {
                         : word("module") || word("open")
                             ? "module-declaration"
                             : "interface-declaration"));
+      } else if (word("interface")) {
+        Token start = take();
+        String name = identifier();
+        children.add(parseInterface(start, name));
       } else if (word("package")) {
         children.add(scanLine("PackageDeclaration"));
       } else if (word("import")) {
@@ -135,7 +134,67 @@ public final class RecursiveJavelleParser implements JavelleParser {
     return node("ClassDeclaration", name, span(start, end), members);
   }
 
+  /**
+   * Interface members are implicitly public; abstract methods have no body (bodiless, terminated by
+   * newline per JLS interface-method-declaration grammar); {@code default}/{@code static} methods
+   * require a real body; fields are implicitly public/static/final constants and require an
+   * initializer.
+   */
+  private FrontendNode parseInterface(Token start, String name) {
+    var members = new ArrayList<FrontendNode>();
+    if (!accept("{")) {
+      error(current(), "JV-SYN-0002", "missing interface body");
+      return node("InterfaceDeclaration", name, start.rawRange(), members);
+    }
+    while (!at(TokenKind.EOF) && !word("}")) {
+      skipLines();
+      if (word("}")) break;
+      int before = p;
+      boolean hasBody = false;
+      for (; isModifier() || word("default") || word("static"); ) {
+        hasBody |= word("default") || word("static");
+        take();
+      }
+      if (isIdentifierLike()) {
+        Token type = take();
+        if (!isIdentifierLike()) {
+          error(current(), "JV-SYN-0002", "missing member name");
+          sync();
+          continue;
+        }
+        Token member = take();
+        if (accept("(")) members.add(parseMethod(type, member, hasBody));
+        else if (accept("=")) {
+          var initializerTokens = new ArrayList<Token>();
+          while (!at(TokenKind.EOF) && !at(TokenKind.NEWLINE)) {
+            if (at(TokenKind.SEMICOLON)) semicolon(take());
+            else initializerTokens.add(take());
+          }
+          if (initializerTokens.isEmpty()) {
+            error(member, "JV-SYN-0002", "interface constant requires an initializer");
+            members.add(node("ErrorNode", "", span(type, member), List.of()));
+          } else
+            members.add(parseField(type, member, Optional.of(buildExpression(initializerTokens))));
+        } else {
+          error(current(), "JV-SYN-0002", "interface constant requires an initializer");
+          sync();
+        }
+      } else {
+        error(current(), "JV-SYN-0002", "unsupported member");
+        sync();
+      }
+      if (before == p) take();
+    }
+    Token end = current();
+    if (!accept("}")) error(end, "JV-SYN-0002", "unterminated interface");
+    return node("InterfaceDeclaration", name, span(start, end), members);
+  }
+
   private FrontendNode parseMethod(Token type, Token name) {
+    return parseMethod(type, name, true);
+  }
+
+  private FrontendNode parseMethod(Token type, Token name, boolean bodyRequired) {
     var parameterTokens = takeUntilCloseParen();
     var methodChildren = new ArrayList<FrontendNode>();
     Optional<Token> varargs =
@@ -175,6 +234,8 @@ public final class RecursiveJavelleParser implements JavelleParser {
       }
     }
     if (!accept("{")) {
+      if (!bodyRequired && (at(TokenKind.NEWLINE) || at(TokenKind.EOF) || word("}")))
+        return node("MethodDeclaration", name.value(), span(type, name), methodChildren);
       error(current(), "JV-SYN-0002", "missing method body");
       return node("MethodDeclaration", name.value(), span(type, name), methodChildren);
     }
