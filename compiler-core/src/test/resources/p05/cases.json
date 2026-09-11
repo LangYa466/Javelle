@@ -84,11 +84,11 @@
       "expectedAst": ["CompilationUnit", "ClassDeclaration:C", "MethodDeclaration:m", "UnsupportedSyntaxNode:basic-for"]
     },
     {
-      "id": "P05-UNSUPPORTED-ENUM",
-      "kind": "development-negative",
+      "id": "P13-ENUM-DECLARATION",
+      "kind": "positive",
       "source": "enum E { A, B : int value() { return 1 } }\n",
-      "expectedDiagnostics": [{"code":"JV-DEV-0001","feature":"enum-declaration","anchor":"enum","length":4}],
-      "expectedAst": ["CompilationUnit", "UnsupportedSyntaxNode:enum-declaration"]
+      "expectedDiagnostics": [],
+      "expectedAst": ["CompilationUnit", "EnumDeclaration:E", "EnumConstantDeclaration:A", "EnumConstantDeclaration:B", "MethodDeclaration:value", "ReturnStatement"]
     }
   ]
 }
