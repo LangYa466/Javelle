@@ -151,7 +151,7 @@ public final class JavelleCli {
 
   private static int compile(String command, Arguments a, PrintStream out, PrintStream error)
       throws IOException {
-    if (a.sources.isEmpty() && a.project == null)
+    if (a.sources.isEmpty() && a.project == null && !command.equals("emit-java"))
       return usage(error, "at least one .javelle file or --project is required");
     if (!a.sources.isEmpty() && a.project != null)
       return usage(error, "explicit sources and --project are mutually exclusive");
@@ -160,6 +160,8 @@ public final class JavelleCli {
       return 6;
     }
     var inputs = new ArrayList<SourceInput>();
+    var javaInputs = new ArrayList<Path>();
+    var classpath = new ArrayList<Path>();
     if (a.project != null) {
       try {
         inputs.addAll(new CliCompilerFacade().loadProject(Path.of(a.project)));
@@ -176,10 +178,30 @@ public final class JavelleCli {
       }
       inputs.add(new SourceInput(path.getFileName().toString(), Files.readAllBytes(path)));
     }
+    for (String value : a.javaSources) {
+      Path path = Path.of(value).toAbsolutePath().normalize();
+      if (!value.endsWith(".java") || !Files.isRegularFile(path) || Files.isSymbolicLink(path)) {
+        err(error, "JV-CLI-INPUT: invalid Java analysis source");
+        return 4;
+      }
+      javaInputs.add(path);
+    }
+    for (String value : a.classpath) {
+      Path path = Path.of(value).toAbsolutePath().normalize();
+      if (!Files.exists(path) || Files.isSymbolicLink(path)) {
+        err(error, "JV-CLI-INPUT: invalid classpath entry");
+        return 4;
+      }
+      classpath.add(path);
+    }
     Path output =
         (a.output == null ? Path.of("javelle-out") : Path.of(a.output))
             .toAbsolutePath()
             .normalize();
+    if (inputs.isEmpty() && command.equals("emit-java")) {
+      publishJava(output, List.of(), sha(new byte[0]));
+      return 0;
+    }
     for (String value : a.sources)
       if (output.startsWith(Path.of(value).toAbsolutePath().normalize())) {
         err(error, "JV-CLI-OUTPUT: output aliases source");
@@ -211,7 +233,9 @@ public final class JavelleCli {
         long duration = Math.multiplyExact(a.timeoutMillis, 1_000_000L);
         deadline = Math.addExact(System.nanoTime(), duration);
       }
-      var result = new CliCompilerFacade().compile(inputs, generated, classes, a.release, deadline);
+      var result =
+          new CliCompilerFacade()
+              .compile(inputs, javaInputs, classpath, generated, classes, a.release, deadline);
       if (CANCELLED.get()) return 130;
       if (!result.success()) {
         diagnostics(command, result, a.json, out, error);
@@ -410,7 +434,8 @@ public final class JavelleCli {
         throw new IOException("corrupt manifest");
       cursor = hashEnd;
     }
-    if (result.isEmpty()) throw new IOException("corrupt manifest");
+    if (result.isEmpty() && !json.contains("\"files\":[]"))
+      throw new IOException("corrupt manifest");
     return result;
   }
 
@@ -516,6 +541,8 @@ public final class JavelleCli {
 
   private static final class Arguments {
     final List<String> sources = new ArrayList<>();
+    final List<String> javaSources = new ArrayList<>();
+    final List<String> classpath = new ArrayList<>();
     String output, project, jdk, error;
     int release = 21;
     long timeoutMillis = -1;
@@ -553,6 +580,20 @@ public final class JavelleCli {
                 return a;
               }
               a.output = xs[i];
+            }
+            case "--java-source" -> {
+              if (++i >= xs.length) {
+                a.error = "missing --java-source";
+                return a;
+              }
+              a.javaSources.add(xs[i]);
+            }
+            case "--classpath" -> {
+              if (++i >= xs.length) {
+                a.error = "missing --classpath";
+                return a;
+              }
+              a.classpath.add(xs[i]);
             }
             case "--jdk" -> {
               if (a.jdk != null || ++i >= xs.length) {

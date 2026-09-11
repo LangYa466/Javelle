@@ -1,0 +1,26 @@
+{
+  "schemaVersion": 1,
+  "pluginId": "org.javelle",
+  "contractVersion": 1,
+  "localImplementationVersion": "0.1.0-SNAPSHOT",
+  "publicationStatus": "NOT_AUTHORIZED",
+  "extension": "javelle",
+  "defaultSourceDirectories": {
+    "main": "src/main/javelle",
+    "test": "src/test/javelle"
+  },
+  "generatedSourceDirectoryPattern": "build/generated/sources/javelle/<sourceSet>",
+  "workspaceModelPattern": "build/javelle/workspace/<sourceSet>.json",
+  "sourceMapPattern": "build/javelle/source-maps/<sourceSet>/<relative-source>.json",
+  "taskPattern": {
+    "mainGenerate": "generateJavelleJava",
+    "testGenerate": "generateTestJavelleJava",
+    "customGenerate": "generate<SourceSet>JavelleJava",
+    "mainModel": "exportJavelleWorkspaceModel",
+    "testModel": "exportTestJavelleWorkspaceModel",
+    "customModel": "export<SourceSet>JavelleWorkspaceModel"
+  },
+  "supportedTargetReleases": [21, 25],
+  "compilerIsolation": "PROCESS_OR_CLASSLOADER_ISOLATED_WORKER",
+  "configurationTimeCompilerExecution": false
+}

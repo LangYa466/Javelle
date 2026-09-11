@@ -1,3 +1,5 @@
+import org.gradle.jvm.toolchain.JavaLanguageVersion
+
 plugins { id("org.javelle.java-conventions") }
 
 dependencies {
@@ -27,7 +29,7 @@ tasks.register<Test>("p06Release21") {
     description = "Runs the P06 Java --release 21 mixed-compilation profile."
     group = "verification"
     useJUnitPlatform()
-    executable = "/opt/jdk21/jdk-21.0.11+10/bin/java"
+    javaLauncher.set(javaToolchains.launcherFor { languageVersion.set(JavaLanguageVersion.of(21)) })
     testClassesDirs = sourceSets["test"].output.classesDirs
     classpath = sourceSets["test"].runtimeClasspath
     dependsOn(tasks.testClasses)

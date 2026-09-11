@@ -55,11 +55,33 @@ public final class CliCompilerFacade {
   }
 
   public Result compile(List<SourceInput> sources, Path generated, Path classes, int release) {
-    return compile(sources, generated, classes, release, Long.MAX_VALUE);
+    return compile(sources, List.of(), generated, classes, release, Long.MAX_VALUE);
   }
 
   public Result compile(
       List<SourceInput> sources, Path generated, Path classes, int release, long deadlineNanos) {
+    return compile(sources, List.of(), generated, classes, release, deadlineNanos);
+  }
+
+  /** Compiles Javelle jointly with explicitly declared Java analysis/compile sources. */
+  public Result compile(
+      List<SourceInput> sources,
+      List<Path> javaSources,
+      Path generated,
+      Path classes,
+      int release,
+      long deadlineNanos) {
+    return compile(sources, javaSources, List.of(), generated, classes, release, deadlineNanos);
+  }
+
+  public Result compile(
+      List<SourceInput> sources,
+      List<Path> javaSources,
+      List<Path> classpath,
+      Path generated,
+      Path classes,
+      int release,
+      long deadlineNanos) {
     var decoded = new HashMap<String, SourceFile>();
     for (var input : sources)
       decoded.put(
@@ -71,8 +93,8 @@ public final class CliCompilerFacade {
     var request =
         new CompileRequest(
             sources,
-            List.of(),
-            List.of(),
+            javaSources,
+            classpath,
             List.of(),
             generated,
             classes,

@@ -12,7 +12,7 @@
   "methods": [
     {
       "method": "$/cancelRequest",
-      "supportStatus": "NOT_IMPLEMENTED",
+      "supportStatus": "VERIFIED",
       "dtoGapStatus": "SUPPORTED_LIBRARY",
       "advertised": false,
       "libraryBinding": {
@@ -216,7 +216,7 @@
     },
     {
       "method": "exit",
-      "supportStatus": "NOT_IMPLEMENTED",
+      "supportStatus": "VERIFIED",
       "dtoGapStatus": "SUPPORTED_LIBRARY",
       "advertised": false,
       "libraryBinding": {
@@ -233,7 +233,7 @@
     },
     {
       "method": "initialize",
-      "supportStatus": "NOT_IMPLEMENTED",
+      "supportStatus": "VERIFIED",
       "dtoGapStatus": "SUPPORTED_LIBRARY",
       "advertised": false,
       "libraryBinding": {
@@ -250,7 +250,7 @@
     },
     {
       "method": "initialized",
-      "supportStatus": "NOT_IMPLEMENTED",
+      "supportStatus": "VERIFIED",
       "dtoGapStatus": "SUPPORTED_LIBRARY",
       "advertised": false,
       "libraryBinding": {
@@ -352,7 +352,7 @@
     },
     {
       "method": "shutdown",
-      "supportStatus": "NOT_IMPLEMENTED",
+      "supportStatus": "VERIFIED",
       "dtoGapStatus": "SUPPORTED_LIBRARY",
       "advertised": false,
       "libraryBinding": {
@@ -437,9 +437,9 @@
     },
     {
       "method": "textDocument/completion",
-      "supportStatus": "NOT_IMPLEMENTED",
+      "supportStatus": "VERIFIED",
       "dtoGapStatus": "SUPPORTED_LIBRARY",
-      "advertised": false,
+      "advertised": true,
       "libraryBinding": {
         "status": "SUPPORTED_LIBRARY",
         "symbol": "org.eclipse.lsp4j.services.TextDocumentService#completion",
@@ -505,9 +505,9 @@
     },
     {
       "method": "textDocument/didChange",
-      "supportStatus": "NOT_IMPLEMENTED",
+      "supportStatus": "VERIFIED",
       "dtoGapStatus": "SUPPORTED_LIBRARY",
-      "advertised": false,
+      "advertised": true,
       "libraryBinding": {
         "status": "SUPPORTED_LIBRARY",
         "symbol": "org.eclipse.lsp4j.services.TextDocumentService#didChange",
@@ -522,9 +522,9 @@
     },
     {
       "method": "textDocument/didClose",
-      "supportStatus": "NOT_IMPLEMENTED",
+      "supportStatus": "VERIFIED",
       "dtoGapStatus": "SUPPORTED_LIBRARY",
-      "advertised": false,
+      "advertised": true,
       "libraryBinding": {
         "status": "SUPPORTED_LIBRARY",
         "symbol": "org.eclipse.lsp4j.services.TextDocumentService#didClose",
@@ -539,9 +539,9 @@
     },
     {
       "method": "textDocument/didOpen",
-      "supportStatus": "NOT_IMPLEMENTED",
+      "supportStatus": "VERIFIED",
       "dtoGapStatus": "SUPPORTED_LIBRARY",
-      "advertised": false,
+      "advertised": true,
       "libraryBinding": {
         "status": "SUPPORTED_LIBRARY",
         "symbol": "org.eclipse.lsp4j.services.TextDocumentService#didOpen",
@@ -556,9 +556,9 @@
     },
     {
       "method": "textDocument/didSave",
-      "supportStatus": "NOT_IMPLEMENTED",
+      "supportStatus": "VERIFIED",
       "dtoGapStatus": "SUPPORTED_LIBRARY",
-      "advertised": false,
+      "advertised": true,
       "libraryBinding": {
         "status": "SUPPORTED_LIBRARY",
         "symbol": "org.eclipse.lsp4j.services.TextDocumentService#didSave",
@@ -675,9 +675,9 @@
     },
     {
       "method": "textDocument/hover",
-      "supportStatus": "NOT_IMPLEMENTED",
+      "supportStatus": "VERIFIED",
       "dtoGapStatus": "SUPPORTED_LIBRARY",
-      "advertised": false,
+      "advertised": true,
       "libraryBinding": {
         "status": "SUPPORTED_LIBRARY",
         "symbol": "org.eclipse.lsp4j.services.TextDocumentService#hover",
@@ -862,7 +862,7 @@
     },
     {
       "method": "textDocument/publishDiagnostics",
-      "supportStatus": "NOT_IMPLEMENTED",
+      "supportStatus": "VERIFIED",
       "dtoGapStatus": "SUPPORTED_LIBRARY",
       "advertised": false,
       "libraryBinding": {
