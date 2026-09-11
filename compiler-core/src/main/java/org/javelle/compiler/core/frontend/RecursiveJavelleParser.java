@@ -737,10 +737,14 @@ public final class RecursiveJavelleParser implements JavelleParser {
     return isIdentifierLike(current());
   }
 
+  private static final Set<String> PRIMITIVE_TYPE_KEYWORDS =
+      Set.of("boolean", "byte", "char", "double", "float", "int", "long", "short", "void");
+
   private boolean isIdentifierLike(Token t) {
     return t.kind() == TokenKind.IDENTIFIER
         || t.kind() == TokenKind.KEYWORD
-            && Set.of("void", "var", "val", "get", "set", "field", "value").contains(t.value());
+            && (PRIMITIVE_TYPE_KEYWORDS.contains(t.value())
+                || Set.of("var", "val", "get", "set", "field", "value").contains(t.value()));
   }
 
   private String identifier() {
