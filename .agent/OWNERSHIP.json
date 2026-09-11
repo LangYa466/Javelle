@@ -7,8 +7,11 @@
   },
   "agents": [
     {"id": "/root/p00_recon", "role": "recon", "status": "completed", "ownedPaths": []},
-    {"id": "/root/p00_spec", "role": "spec", "status": "completed", "ownedPaths": [".agent/reports/P00-SPEC-COVERAGE.md"]},
+    {"id": "/root/p00_spec", "role": "spec", "status": "completed", "ownedPaths": []},
     {"id": "/root/p00_git_integration", "role": "integration", "status": "completed", "ownedPaths": []},
-    {"id": "/root/p00_git_publish", "role": "integration", "status": "completed", "ownedPaths": []}
+    {"id": "/root/p00_git_publish", "role": "integration", "status": "completed", "ownedPaths": []},
+    {"id": "/root/p00_probe", "role": "recon", "status": "completed", "ownedPaths": []},
+    {"id": "/root/p00_repair", "role": "recon", "status": "completed", "ownedPaths": []},
+    {"id": "/root/p00_review", "role": "qa-review", "status": "completed", "ownedPaths": []}
   ]
 }

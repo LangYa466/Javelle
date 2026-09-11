@@ -1,0 +1,1630 @@
+{
+  "schemaVersion": 1,
+  "protocol": "3.18.2",
+  "metaModelSha256": "35ebcc0b607eeda105dd092c990182eb338852d82130053d3a27499ff34c89a2",
+  "binding": {
+    "lsp4j": "1.0.0",
+    "jsonrpc": "1.0.0",
+    "mappingStatus": "PER_METHOD_SOURCE_ANNOTATION_REVIEW_COMPLETE",
+    "lsp4jJarSha256": "ccd78893facc6bfcc359d56cba05d3d5b85eb41e4c40d4b4215ca45db5f416d9",
+    "jsonrpcJarSha256": "9647feb0524bf763c878e12ab878a684102b81cccb3f77feecbec709d54f9bbb"
+  },
+  "methods": [
+    {
+      "method": "$/cancelRequest",
+      "supportStatus": "VERIFIED",
+      "dtoGapStatus": "SUPPORTED_LIBRARY",
+      "advertised": false,
+      "libraryBinding": {
+        "status": "SUPPORTED_LIBRARY",
+        "symbol": "org.eclipse.lsp4j.jsonrpc.RemoteEndpoint#cancel",
+        "registration": "JSONRPC_BUILTIN",
+        "sourceFile": "RemoteEndpoint.java"
+      },
+      "applicability": {
+        "status": "APPLICABLE",
+        "reason": "Protocol method remains subject to Javelle implementation and capability negotiation."
+      },
+      "source": "LSP-3.18.2-metaModel+LSP4J-1.0.0-sources"
+    },
+    {
+      "method": "$/logTrace",
+      "supportStatus": "NOT_IMPLEMENTED",
+      "dtoGapStatus": "SUPPORTED_LIBRARY",
+      "advertised": false,
+      "libraryBinding": {
+        "status": "SUPPORTED_LIBRARY",
+        "symbol": "org.eclipse.lsp4j.services.LanguageClient#logTrace",
+        "registration": "JsonNotification",
+        "sourceFile": "LanguageClient.java"
+      },
+      "applicability": {
+        "status": "APPLICABLE",
+        "reason": "Protocol method remains subject to Javelle implementation and capability negotiation."
+      },
+      "source": "LSP-3.18.2-metaModel+LSP4J-1.0.0-sources"
+    },
+    {
+      "method": "$/progress",
+      "supportStatus": "NOT_IMPLEMENTED",
+      "dtoGapStatus": "SUPPORTED_LIBRARY",
+      "advertised": false,
+      "libraryBinding": {
+        "status": "SUPPORTED_LIBRARY",
+        "symbol": "org.eclipse.lsp4j.services.LanguageClient#notifyProgress",
+        "registration": "JsonNotification",
+        "sourceFile": "LanguageClient.java"
+      },
+      "applicability": {
+        "status": "APPLICABLE",
+        "reason": "Protocol method remains subject to Javelle implementation and capability negotiation."
+      },
+      "source": "LSP-3.18.2-metaModel+LSP4J-1.0.0-sources"
+    },
+    {
+      "method": "$/setTrace",
+      "supportStatus": "NOT_IMPLEMENTED",
+      "dtoGapStatus": "SUPPORTED_LIBRARY",
+      "advertised": false,
+      "libraryBinding": {
+        "status": "SUPPORTED_LIBRARY",
+        "symbol": "org.eclipse.lsp4j.services.LanguageServer#setTrace",
+        "registration": "JsonNotification",
+        "sourceFile": "LanguageServer.java"
+      },
+      "applicability": {
+        "status": "APPLICABLE",
+        "reason": "Protocol method remains subject to Javelle implementation and capability negotiation."
+      },
+      "source": "LSP-3.18.2-metaModel+LSP4J-1.0.0-sources"
+    },
+    {
+      "method": "callHierarchy/incomingCalls",
+      "supportStatus": "NOT_IMPLEMENTED",
+      "dtoGapStatus": "SUPPORTED_LIBRARY",
+      "advertised": false,
+      "libraryBinding": {
+        "status": "SUPPORTED_LIBRARY",
+        "symbol": "org.eclipse.lsp4j.services.TextDocumentService#callHierarchyIncomingCalls",
+        "registration": "JsonRequest",
+        "sourceFile": "TextDocumentService.java"
+      },
+      "applicability": {
+        "status": "APPLICABLE",
+        "reason": "Protocol method remains subject to Javelle implementation and capability negotiation."
+      },
+      "source": "LSP-3.18.2-metaModel+LSP4J-1.0.0-sources"
+    },
+    {
+      "method": "callHierarchy/outgoingCalls",
+      "supportStatus": "NOT_IMPLEMENTED",
+      "dtoGapStatus": "SUPPORTED_LIBRARY",
+      "advertised": false,
+      "libraryBinding": {
+        "status": "SUPPORTED_LIBRARY",
+        "symbol": "org.eclipse.lsp4j.services.TextDocumentService#callHierarchyOutgoingCalls",
+        "registration": "JsonRequest",
+        "sourceFile": "TextDocumentService.java"
+      },
+      "applicability": {
+        "status": "APPLICABLE",
+        "reason": "Protocol method remains subject to Javelle implementation and capability negotiation."
+      },
+      "source": "LSP-3.18.2-metaModel+LSP4J-1.0.0-sources"
+    },
+    {
+      "method": "client/registerCapability",
+      "supportStatus": "NOT_IMPLEMENTED",
+      "dtoGapStatus": "SUPPORTED_LIBRARY",
+      "advertised": false,
+      "libraryBinding": {
+        "status": "SUPPORTED_LIBRARY",
+        "symbol": "org.eclipse.lsp4j.services.LanguageClient#registerCapability",
+        "registration": "JsonRequest",
+        "sourceFile": "LanguageClient.java"
+      },
+      "applicability": {
+        "status": "APPLICABLE",
+        "reason": "Protocol method remains subject to Javelle implementation and capability negotiation."
+      },
+      "source": "LSP-3.18.2-metaModel+LSP4J-1.0.0-sources"
+    },
+    {
+      "method": "client/unregisterCapability",
+      "supportStatus": "NOT_IMPLEMENTED",
+      "dtoGapStatus": "SUPPORTED_LIBRARY",
+      "advertised": false,
+      "libraryBinding": {
+        "status": "SUPPORTED_LIBRARY",
+        "symbol": "org.eclipse.lsp4j.services.LanguageClient#unregisterCapability",
+        "registration": "JsonRequest",
+        "sourceFile": "LanguageClient.java"
+      },
+      "applicability": {
+        "status": "APPLICABLE",
+        "reason": "Protocol method remains subject to Javelle implementation and capability negotiation."
+      },
+      "source": "LSP-3.18.2-metaModel+LSP4J-1.0.0-sources"
+    },
+    {
+      "method": "codeAction/resolve",
+      "supportStatus": "NOT_IMPLEMENTED",
+      "dtoGapStatus": "SUPPORTED_LIBRARY",
+      "advertised": false,
+      "libraryBinding": {
+        "status": "SUPPORTED_LIBRARY",
+        "symbol": "org.eclipse.lsp4j.services.TextDocumentService#resolveCodeAction",
+        "registration": "JsonRequest",
+        "sourceFile": "TextDocumentService.java"
+      },
+      "applicability": {
+        "status": "APPLICABLE",
+        "reason": "Protocol method remains subject to Javelle implementation and capability negotiation."
+      },
+      "source": "LSP-3.18.2-metaModel+LSP4J-1.0.0-sources"
+    },
+    {
+      "method": "codeLens/resolve",
+      "supportStatus": "NOT_IMPLEMENTED",
+      "dtoGapStatus": "SUPPORTED_LIBRARY",
+      "advertised": false,
+      "libraryBinding": {
+        "status": "SUPPORTED_LIBRARY",
+        "symbol": "org.eclipse.lsp4j.services.TextDocumentService#resolveCodeLens",
+        "registration": "JsonRequest",
+        "sourceFile": "TextDocumentService.java"
+      },
+      "applicability": {
+        "status": "APPLICABLE",
+        "reason": "Protocol method remains subject to Javelle implementation and capability negotiation."
+      },
+      "source": "LSP-3.18.2-metaModel+LSP4J-1.0.0-sources"
+    },
+    {
+      "method": "completionItem/resolve",
+      "supportStatus": "NOT_IMPLEMENTED",
+      "dtoGapStatus": "SUPPORTED_LIBRARY",
+      "advertised": false,
+      "libraryBinding": {
+        "status": "SUPPORTED_LIBRARY",
+        "symbol": "org.eclipse.lsp4j.services.TextDocumentService#resolveCompletionItem",
+        "registration": "JsonRequest",
+        "sourceFile": "TextDocumentService.java"
+      },
+      "applicability": {
+        "status": "APPLICABLE",
+        "reason": "Protocol method remains subject to Javelle implementation and capability negotiation."
+      },
+      "source": "LSP-3.18.2-metaModel+LSP4J-1.0.0-sources"
+    },
+    {
+      "method": "documentLink/resolve",
+      "supportStatus": "NOT_IMPLEMENTED",
+      "dtoGapStatus": "SUPPORTED_LIBRARY",
+      "advertised": false,
+      "libraryBinding": {
+        "status": "SUPPORTED_LIBRARY",
+        "symbol": "org.eclipse.lsp4j.services.TextDocumentService#documentLinkResolve",
+        "registration": "JsonRequest",
+        "sourceFile": "TextDocumentService.java"
+      },
+      "applicability": {
+        "status": "APPLICABLE",
+        "reason": "Protocol method remains subject to Javelle implementation and capability negotiation."
+      },
+      "source": "LSP-3.18.2-metaModel+LSP4J-1.0.0-sources"
+    },
+    {
+      "method": "exit",
+      "supportStatus": "VERIFIED",
+      "dtoGapStatus": "SUPPORTED_LIBRARY",
+      "advertised": false,
+      "libraryBinding": {
+        "status": "SUPPORTED_LIBRARY",
+        "symbol": "org.eclipse.lsp4j.services.LanguageServer#exit",
+        "registration": "JsonNotification",
+        "sourceFile": "LanguageServer.java"
+      },
+      "applicability": {
+        "status": "APPLICABLE",
+        "reason": "Protocol method remains subject to Javelle implementation and capability negotiation."
+      },
+      "source": "LSP-3.18.2-metaModel+LSP4J-1.0.0-sources"
+    },
+    {
+      "method": "initialize",
+      "supportStatus": "VERIFIED",
+      "dtoGapStatus": "SUPPORTED_LIBRARY",
+      "advertised": false,
+      "libraryBinding": {
+        "status": "SUPPORTED_LIBRARY",
+        "symbol": "org.eclipse.lsp4j.services.LanguageServer#initialize",
+        "registration": "JsonRequest",
+        "sourceFile": "LanguageServer.java"
+      },
+      "applicability": {
+        "status": "APPLICABLE",
+        "reason": "Protocol method remains subject to Javelle implementation and capability negotiation."
+      },
+      "source": "LSP-3.18.2-metaModel+LSP4J-1.0.0-sources"
+    },
+    {
+      "method": "initialized",
+      "supportStatus": "VERIFIED",
+      "dtoGapStatus": "SUPPORTED_LIBRARY",
+      "advertised": false,
+      "libraryBinding": {
+        "status": "SUPPORTED_LIBRARY",
+        "symbol": "org.eclipse.lsp4j.services.LanguageServer#initialized",
+        "registration": "JsonNotification",
+        "sourceFile": "LanguageServer.java"
+      },
+      "applicability": {
+        "status": "APPLICABLE",
+        "reason": "Protocol method remains subject to Javelle implementation and capability negotiation."
+      },
+      "source": "LSP-3.18.2-metaModel+LSP4J-1.0.0-sources"
+    },
+    {
+      "method": "inlayHint/resolve",
+      "supportStatus": "NOT_IMPLEMENTED",
+      "dtoGapStatus": "SUPPORTED_LIBRARY",
+      "advertised": false,
+      "libraryBinding": {
+        "status": "SUPPORTED_LIBRARY",
+        "symbol": "org.eclipse.lsp4j.services.TextDocumentService#resolveInlayHint",
+        "registration": "JsonRequest",
+        "sourceFile": "TextDocumentService.java"
+      },
+      "applicability": {
+        "status": "APPLICABLE",
+        "reason": "Protocol method remains subject to Javelle implementation and capability negotiation."
+      },
+      "source": "LSP-3.18.2-metaModel+LSP4J-1.0.0-sources"
+    },
+    {
+      "method": "notebookDocument/didChange",
+      "supportStatus": "NOT_IMPLEMENTED",
+      "dtoGapStatus": "SUPPORTED_LIBRARY",
+      "advertised": false,
+      "libraryBinding": {
+        "status": "SUPPORTED_LIBRARY",
+        "symbol": "org.eclipse.lsp4j.services.NotebookDocumentService#didChange",
+        "registration": "JsonNotification",
+        "sourceFile": "NotebookDocumentService.java"
+      },
+      "applicability": {
+        "status": "N/A_WITH_REASON",
+        "reason": "Javelle has no notebook document host; do not register notebook sync."
+      },
+      "source": "LSP-3.18.2-metaModel+LSP4J-1.0.0-sources"
+    },
+    {
+      "method": "notebookDocument/didClose",
+      "supportStatus": "NOT_IMPLEMENTED",
+      "dtoGapStatus": "SUPPORTED_LIBRARY",
+      "advertised": false,
+      "libraryBinding": {
+        "status": "SUPPORTED_LIBRARY",
+        "symbol": "org.eclipse.lsp4j.services.NotebookDocumentService#didClose",
+        "registration": "JsonNotification",
+        "sourceFile": "NotebookDocumentService.java"
+      },
+      "applicability": {
+        "status": "N/A_WITH_REASON",
+        "reason": "Javelle has no notebook document host; do not register notebook sync."
+      },
+      "source": "LSP-3.18.2-metaModel+LSP4J-1.0.0-sources"
+    },
+    {
+      "method": "notebookDocument/didOpen",
+      "supportStatus": "NOT_IMPLEMENTED",
+      "dtoGapStatus": "SUPPORTED_LIBRARY",
+      "advertised": false,
+      "libraryBinding": {
+        "status": "SUPPORTED_LIBRARY",
+        "symbol": "org.eclipse.lsp4j.services.NotebookDocumentService#didOpen",
+        "registration": "JsonNotification",
+        "sourceFile": "NotebookDocumentService.java"
+      },
+      "applicability": {
+        "status": "N/A_WITH_REASON",
+        "reason": "Javelle has no notebook document host; do not register notebook sync."
+      },
+      "source": "LSP-3.18.2-metaModel+LSP4J-1.0.0-sources"
+    },
+    {
+      "method": "notebookDocument/didSave",
+      "supportStatus": "NOT_IMPLEMENTED",
+      "dtoGapStatus": "SUPPORTED_LIBRARY",
+      "advertised": false,
+      "libraryBinding": {
+        "status": "SUPPORTED_LIBRARY",
+        "symbol": "org.eclipse.lsp4j.services.NotebookDocumentService#didSave",
+        "registration": "JsonNotification",
+        "sourceFile": "NotebookDocumentService.java"
+      },
+      "applicability": {
+        "status": "N/A_WITH_REASON",
+        "reason": "Javelle has no notebook document host; do not register notebook sync."
+      },
+      "source": "LSP-3.18.2-metaModel+LSP4J-1.0.0-sources"
+    },
+    {
+      "method": "shutdown",
+      "supportStatus": "VERIFIED",
+      "dtoGapStatus": "SUPPORTED_LIBRARY",
+      "advertised": false,
+      "libraryBinding": {
+        "status": "SUPPORTED_LIBRARY",
+        "symbol": "org.eclipse.lsp4j.services.LanguageServer#shutdown",
+        "registration": "JsonRequest",
+        "sourceFile": "LanguageServer.java"
+      },
+      "applicability": {
+        "status": "APPLICABLE",
+        "reason": "Protocol method remains subject to Javelle implementation and capability negotiation."
+      },
+      "source": "LSP-3.18.2-metaModel+LSP4J-1.0.0-sources"
+    },
+    {
+      "method": "telemetry/event",
+      "supportStatus": "NOT_IMPLEMENTED",
+      "dtoGapStatus": "SUPPORTED_LIBRARY",
+      "advertised": false,
+      "libraryBinding": {
+        "status": "SUPPORTED_LIBRARY",
+        "symbol": "org.eclipse.lsp4j.services.LanguageClient#telemetryEvent",
+        "registration": "JsonNotification",
+        "sourceFile": "LanguageClient.java"
+      },
+      "applicability": {
+        "status": "APPLICABLE",
+        "reason": "Protocol method remains subject to Javelle implementation and capability negotiation."
+      },
+      "source": "LSP-3.18.2-metaModel+LSP4J-1.0.0-sources"
+    },
+    {
+      "method": "textDocument/codeAction",
+      "supportStatus": "NOT_IMPLEMENTED",
+      "dtoGapStatus": "SUPPORTED_LIBRARY",
+      "advertised": false,
+      "libraryBinding": {
+        "status": "SUPPORTED_LIBRARY",
+        "symbol": "org.eclipse.lsp4j.services.TextDocumentService#codeAction",
+        "registration": "JsonRequest",
+        "sourceFile": "TextDocumentService.java"
+      },
+      "applicability": {
+        "status": "APPLICABLE",
+        "reason": "Protocol method remains subject to Javelle implementation and capability negotiation."
+      },
+      "source": "LSP-3.18.2-metaModel+LSP4J-1.0.0-sources"
+    },
+    {
+      "method": "textDocument/codeLens",
+      "supportStatus": "NOT_IMPLEMENTED",
+      "dtoGapStatus": "SUPPORTED_LIBRARY",
+      "advertised": false,
+      "libraryBinding": {
+        "status": "SUPPORTED_LIBRARY",
+        "symbol": "org.eclipse.lsp4j.services.TextDocumentService#codeLens",
+        "registration": "JsonRequest",
+        "sourceFile": "TextDocumentService.java"
+      },
+      "applicability": {
+        "status": "APPLICABLE",
+        "reason": "Protocol method remains subject to Javelle implementation and capability negotiation."
+      },
+      "source": "LSP-3.18.2-metaModel+LSP4J-1.0.0-sources"
+    },
+    {
+      "method": "textDocument/colorPresentation",
+      "supportStatus": "NOT_IMPLEMENTED",
+      "dtoGapStatus": "SUPPORTED_LIBRARY",
+      "advertised": false,
+      "libraryBinding": {
+        "status": "SUPPORTED_LIBRARY",
+        "symbol": "org.eclipse.lsp4j.services.TextDocumentService#colorPresentation",
+        "registration": "JsonRequest",
+        "sourceFile": "TextDocumentService.java"
+      },
+      "applicability": {
+        "status": "N/A_WITH_REASON",
+        "reason": "Javelle defines no color literal/editor color provider semantics; do not advertise documentColorProvider."
+      },
+      "source": "LSP-3.18.2-metaModel+LSP4J-1.0.0-sources"
+    },
+    {
+      "method": "textDocument/completion",
+      "supportStatus": "VERIFIED",
+      "dtoGapStatus": "SUPPORTED_LIBRARY",
+      "advertised": true,
+      "libraryBinding": {
+        "status": "SUPPORTED_LIBRARY",
+        "symbol": "org.eclipse.lsp4j.services.TextDocumentService#completion",
+        "registration": "JsonRequest",
+        "sourceFile": "TextDocumentService.java"
+      },
+      "applicability": {
+        "status": "APPLICABLE",
+        "reason": "Protocol method remains subject to Javelle implementation and capability negotiation."
+      },
+      "source": "LSP-3.18.2-metaModel+LSP4J-1.0.0-sources"
+    },
+    {
+      "method": "textDocument/declaration",
+      "supportStatus": "NOT_IMPLEMENTED",
+      "dtoGapStatus": "SUPPORTED_LIBRARY",
+      "advertised": false,
+      "libraryBinding": {
+        "status": "SUPPORTED_LIBRARY",
+        "symbol": "org.eclipse.lsp4j.services.TextDocumentService#declaration",
+        "registration": "JsonRequest",
+        "sourceFile": "TextDocumentService.java"
+      },
+      "applicability": {
+        "status": "APPLICABLE",
+        "reason": "Protocol method remains subject to Javelle implementation and capability negotiation."
+      },
+      "source": "LSP-3.18.2-metaModel+LSP4J-1.0.0-sources"
+    },
+    {
+      "method": "textDocument/definition",
+      "supportStatus": "NOT_IMPLEMENTED",
+      "dtoGapStatus": "SUPPORTED_LIBRARY",
+      "advertised": false,
+      "libraryBinding": {
+        "status": "SUPPORTED_LIBRARY",
+        "symbol": "org.eclipse.lsp4j.services.TextDocumentService#definition",
+        "registration": "JsonRequest",
+        "sourceFile": "TextDocumentService.java"
+      },
+      "applicability": {
+        "status": "APPLICABLE",
+        "reason": "Protocol method remains subject to Javelle implementation and capability negotiation."
+      },
+      "source": "LSP-3.18.2-metaModel+LSP4J-1.0.0-sources"
+    },
+    {
+      "method": "textDocument/diagnostic",
+      "supportStatus": "NOT_IMPLEMENTED",
+      "dtoGapStatus": "SUPPORTED_LIBRARY",
+      "advertised": false,
+      "libraryBinding": {
+        "status": "SUPPORTED_LIBRARY",
+        "symbol": "org.eclipse.lsp4j.services.TextDocumentService#diagnostic",
+        "registration": "JsonRequest",
+        "sourceFile": "TextDocumentService.java"
+      },
+      "applicability": {
+        "status": "APPLICABLE",
+        "reason": "Protocol method remains subject to Javelle implementation and capability negotiation."
+      },
+      "source": "LSP-3.18.2-metaModel+LSP4J-1.0.0-sources"
+    },
+    {
+      "method": "textDocument/didChange",
+      "supportStatus": "VERIFIED",
+      "dtoGapStatus": "SUPPORTED_LIBRARY",
+      "advertised": true,
+      "libraryBinding": {
+        "status": "SUPPORTED_LIBRARY",
+        "symbol": "org.eclipse.lsp4j.services.TextDocumentService#didChange",
+        "registration": "JsonNotification",
+        "sourceFile": "TextDocumentService.java"
+      },
+      "applicability": {
+        "status": "APPLICABLE",
+        "reason": "Protocol method remains subject to Javelle implementation and capability negotiation."
+      },
+      "source": "LSP-3.18.2-metaModel+LSP4J-1.0.0-sources"
+    },
+    {
+      "method": "textDocument/didClose",
+      "supportStatus": "VERIFIED",
+      "dtoGapStatus": "SUPPORTED_LIBRARY",
+      "advertised": true,
+      "libraryBinding": {
+        "status": "SUPPORTED_LIBRARY",
+        "symbol": "org.eclipse.lsp4j.services.TextDocumentService#didClose",
+        "registration": "JsonNotification",
+        "sourceFile": "TextDocumentService.java"
+      },
+      "applicability": {
+        "status": "APPLICABLE",
+        "reason": "Protocol method remains subject to Javelle implementation and capability negotiation."
+      },
+      "source": "LSP-3.18.2-metaModel+LSP4J-1.0.0-sources"
+    },
+    {
+      "method": "textDocument/didOpen",
+      "supportStatus": "VERIFIED",
+      "dtoGapStatus": "SUPPORTED_LIBRARY",
+      "advertised": true,
+      "libraryBinding": {
+        "status": "SUPPORTED_LIBRARY",
+        "symbol": "org.eclipse.lsp4j.services.TextDocumentService#didOpen",
+        "registration": "JsonNotification",
+        "sourceFile": "TextDocumentService.java"
+      },
+      "applicability": {
+        "status": "APPLICABLE",
+        "reason": "Protocol method remains subject to Javelle implementation and capability negotiation."
+      },
+      "source": "LSP-3.18.2-metaModel+LSP4J-1.0.0-sources"
+    },
+    {
+      "method": "textDocument/didSave",
+      "supportStatus": "VERIFIED",
+      "dtoGapStatus": "SUPPORTED_LIBRARY",
+      "advertised": true,
+      "libraryBinding": {
+        "status": "SUPPORTED_LIBRARY",
+        "symbol": "org.eclipse.lsp4j.services.TextDocumentService#didSave",
+        "registration": "JsonNotification",
+        "sourceFile": "TextDocumentService.java"
+      },
+      "applicability": {
+        "status": "APPLICABLE",
+        "reason": "Protocol method remains subject to Javelle implementation and capability negotiation."
+      },
+      "source": "LSP-3.18.2-metaModel+LSP4J-1.0.0-sources"
+    },
+    {
+      "method": "textDocument/documentColor",
+      "supportStatus": "NOT_IMPLEMENTED",
+      "dtoGapStatus": "SUPPORTED_LIBRARY",
+      "advertised": false,
+      "libraryBinding": {
+        "status": "SUPPORTED_LIBRARY",
+        "symbol": "org.eclipse.lsp4j.services.TextDocumentService#documentColor",
+        "registration": "JsonRequest",
+        "sourceFile": "TextDocumentService.java"
+      },
+      "applicability": {
+        "status": "N/A_WITH_REASON",
+        "reason": "Javelle defines no color literal/editor color provider semantics; do not advertise documentColorProvider."
+      },
+      "source": "LSP-3.18.2-metaModel+LSP4J-1.0.0-sources"
+    },
+    {
+      "method": "textDocument/documentHighlight",
+      "supportStatus": "NOT_IMPLEMENTED",
+      "dtoGapStatus": "SUPPORTED_LIBRARY",
+      "advertised": false,
+      "libraryBinding": {
+        "status": "SUPPORTED_LIBRARY",
+        "symbol": "org.eclipse.lsp4j.services.TextDocumentService#documentHighlight",
+        "registration": "JsonRequest",
+        "sourceFile": "TextDocumentService.java"
+      },
+      "applicability": {
+        "status": "APPLICABLE",
+        "reason": "Protocol method remains subject to Javelle implementation and capability negotiation."
+      },
+      "source": "LSP-3.18.2-metaModel+LSP4J-1.0.0-sources"
+    },
+    {
+      "method": "textDocument/documentLink",
+      "supportStatus": "NOT_IMPLEMENTED",
+      "dtoGapStatus": "SUPPORTED_LIBRARY",
+      "advertised": false,
+      "libraryBinding": {
+        "status": "SUPPORTED_LIBRARY",
+        "symbol": "org.eclipse.lsp4j.services.TextDocumentService#documentLink",
+        "registration": "JsonRequest",
+        "sourceFile": "TextDocumentService.java"
+      },
+      "applicability": {
+        "status": "APPLICABLE",
+        "reason": "Protocol method remains subject to Javelle implementation and capability negotiation."
+      },
+      "source": "LSP-3.18.2-metaModel+LSP4J-1.0.0-sources"
+    },
+    {
+      "method": "textDocument/documentSymbol",
+      "supportStatus": "NOT_IMPLEMENTED",
+      "dtoGapStatus": "SUPPORTED_LIBRARY",
+      "advertised": false,
+      "libraryBinding": {
+        "status": "SUPPORTED_LIBRARY",
+        "symbol": "org.eclipse.lsp4j.services.TextDocumentService#documentSymbol",
+        "registration": "JsonRequest",
+        "sourceFile": "TextDocumentService.java"
+      },
+      "applicability": {
+        "status": "APPLICABLE",
+        "reason": "Protocol method remains subject to Javelle implementation and capability negotiation."
+      },
+      "source": "LSP-3.18.2-metaModel+LSP4J-1.0.0-sources"
+    },
+    {
+      "method": "textDocument/foldingRange",
+      "supportStatus": "NOT_IMPLEMENTED",
+      "dtoGapStatus": "SUPPORTED_LIBRARY",
+      "advertised": false,
+      "libraryBinding": {
+        "status": "SUPPORTED_LIBRARY",
+        "symbol": "org.eclipse.lsp4j.services.TextDocumentService#foldingRange",
+        "registration": "JsonRequest",
+        "sourceFile": "TextDocumentService.java"
+      },
+      "applicability": {
+        "status": "APPLICABLE",
+        "reason": "Protocol method remains subject to Javelle implementation and capability negotiation."
+      },
+      "source": "LSP-3.18.2-metaModel+LSP4J-1.0.0-sources"
+    },
+    {
+      "method": "textDocument/formatting",
+      "supportStatus": "NOT_IMPLEMENTED",
+      "dtoGapStatus": "SUPPORTED_LIBRARY",
+      "advertised": false,
+      "libraryBinding": {
+        "status": "SUPPORTED_LIBRARY",
+        "symbol": "org.eclipse.lsp4j.services.TextDocumentService#formatting",
+        "registration": "JsonRequest",
+        "sourceFile": "TextDocumentService.java"
+      },
+      "applicability": {
+        "status": "APPLICABLE",
+        "reason": "Protocol method remains subject to Javelle implementation and capability negotiation."
+      },
+      "source": "LSP-3.18.2-metaModel+LSP4J-1.0.0-sources"
+    },
+    {
+      "method": "textDocument/hover",
+      "supportStatus": "VERIFIED",
+      "dtoGapStatus": "SUPPORTED_LIBRARY",
+      "advertised": true,
+      "libraryBinding": {
+        "status": "SUPPORTED_LIBRARY",
+        "symbol": "org.eclipse.lsp4j.services.TextDocumentService#hover",
+        "registration": "JsonRequest",
+        "sourceFile": "TextDocumentService.java"
+      },
+      "applicability": {
+        "status": "APPLICABLE",
+        "reason": "Protocol method remains subject to Javelle implementation and capability negotiation."
+      },
+      "source": "LSP-3.18.2-metaModel+LSP4J-1.0.0-sources"
+    },
+    {
+      "method": "textDocument/implementation",
+      "supportStatus": "NOT_IMPLEMENTED",
+      "dtoGapStatus": "SUPPORTED_LIBRARY",
+      "advertised": false,
+      "libraryBinding": {
+        "status": "SUPPORTED_LIBRARY",
+        "symbol": "org.eclipse.lsp4j.services.TextDocumentService#implementation",
+        "registration": "JsonRequest",
+        "sourceFile": "TextDocumentService.java"
+      },
+      "applicability": {
+        "status": "APPLICABLE",
+        "reason": "Protocol method remains subject to Javelle implementation and capability negotiation."
+      },
+      "source": "LSP-3.18.2-metaModel+LSP4J-1.0.0-sources"
+    },
+    {
+      "method": "textDocument/inlayHint",
+      "supportStatus": "NOT_IMPLEMENTED",
+      "dtoGapStatus": "SUPPORTED_LIBRARY",
+      "advertised": false,
+      "libraryBinding": {
+        "status": "SUPPORTED_LIBRARY",
+        "symbol": "org.eclipse.lsp4j.services.TextDocumentService#inlayHint",
+        "registration": "JsonRequest",
+        "sourceFile": "TextDocumentService.java"
+      },
+      "applicability": {
+        "status": "APPLICABLE",
+        "reason": "Protocol method remains subject to Javelle implementation and capability negotiation."
+      },
+      "source": "LSP-3.18.2-metaModel+LSP4J-1.0.0-sources"
+    },
+    {
+      "method": "textDocument/inlineCompletion",
+      "supportStatus": "NOT_IMPLEMENTED",
+      "dtoGapStatus": "SUPPORTED_LIBRARY",
+      "advertised": false,
+      "libraryBinding": {
+        "status": "SUPPORTED_LIBRARY",
+        "symbol": "org.eclipse.lsp4j.services.TextDocumentService#inlineCompletion",
+        "registration": "JsonRequest",
+        "sourceFile": "TextDocumentService.java"
+      },
+      "applicability": {
+        "status": "APPLICABLE",
+        "reason": "Protocol method remains subject to Javelle implementation and capability negotiation."
+      },
+      "source": "LSP-3.18.2-metaModel+LSP4J-1.0.0-sources"
+    },
+    {
+      "method": "textDocument/inlineValue",
+      "supportStatus": "NOT_IMPLEMENTED",
+      "dtoGapStatus": "SUPPORTED_LIBRARY",
+      "advertised": false,
+      "libraryBinding": {
+        "status": "SUPPORTED_LIBRARY",
+        "symbol": "org.eclipse.lsp4j.services.TextDocumentService#inlineValue",
+        "registration": "JsonRequest",
+        "sourceFile": "TextDocumentService.java"
+      },
+      "applicability": {
+        "status": "N/A_WITH_REASON",
+        "reason": "Inline values require debugger/runtime frame context; LSP support is not substituted for P42 debug integration."
+      },
+      "source": "LSP-3.18.2-metaModel+LSP4J-1.0.0-sources"
+    },
+    {
+      "method": "textDocument/linkedEditingRange",
+      "supportStatus": "NOT_IMPLEMENTED",
+      "dtoGapStatus": "SUPPORTED_LIBRARY",
+      "advertised": false,
+      "libraryBinding": {
+        "status": "SUPPORTED_LIBRARY",
+        "symbol": "org.eclipse.lsp4j.services.TextDocumentService#linkedEditingRange",
+        "registration": "JsonRequest",
+        "sourceFile": "TextDocumentService.java"
+      },
+      "applicability": {
+        "status": "APPLICABLE",
+        "reason": "Protocol method remains subject to Javelle implementation and capability negotiation."
+      },
+      "source": "LSP-3.18.2-metaModel+LSP4J-1.0.0-sources"
+    },
+    {
+      "method": "textDocument/moniker",
+      "supportStatus": "NOT_IMPLEMENTED",
+      "dtoGapStatus": "SUPPORTED_LIBRARY",
+      "advertised": false,
+      "libraryBinding": {
+        "status": "SUPPORTED_LIBRARY",
+        "symbol": "org.eclipse.lsp4j.services.TextDocumentService#moniker",
+        "registration": "JsonRequest",
+        "sourceFile": "TextDocumentService.java"
+      },
+      "applicability": {
+        "status": "APPLICABLE",
+        "reason": "Protocol method remains subject to Javelle implementation and capability negotiation."
+      },
+      "source": "LSP-3.18.2-metaModel+LSP4J-1.0.0-sources"
+    },
+    {
+      "method": "textDocument/onTypeFormatting",
+      "supportStatus": "NOT_IMPLEMENTED",
+      "dtoGapStatus": "SUPPORTED_LIBRARY",
+      "advertised": false,
+      "libraryBinding": {
+        "status": "SUPPORTED_LIBRARY",
+        "symbol": "org.eclipse.lsp4j.services.TextDocumentService#onTypeFormatting",
+        "registration": "JsonRequest",
+        "sourceFile": "TextDocumentService.java"
+      },
+      "applicability": {
+        "status": "APPLICABLE",
+        "reason": "Protocol method remains subject to Javelle implementation and capability negotiation."
+      },
+      "source": "LSP-3.18.2-metaModel+LSP4J-1.0.0-sources"
+    },
+    {
+      "method": "textDocument/prepareCallHierarchy",
+      "supportStatus": "NOT_IMPLEMENTED",
+      "dtoGapStatus": "SUPPORTED_LIBRARY",
+      "advertised": false,
+      "libraryBinding": {
+        "status": "SUPPORTED_LIBRARY",
+        "symbol": "org.eclipse.lsp4j.services.TextDocumentService#prepareCallHierarchy",
+        "registration": "JsonRequest",
+        "sourceFile": "TextDocumentService.java"
+      },
+      "applicability": {
+        "status": "APPLICABLE",
+        "reason": "Protocol method remains subject to Javelle implementation and capability negotiation."
+      },
+      "source": "LSP-3.18.2-metaModel+LSP4J-1.0.0-sources"
+    },
+    {
+      "method": "textDocument/prepareRename",
+      "supportStatus": "NOT_IMPLEMENTED",
+      "dtoGapStatus": "SUPPORTED_LIBRARY",
+      "advertised": false,
+      "libraryBinding": {
+        "status": "SUPPORTED_LIBRARY",
+        "symbol": "org.eclipse.lsp4j.services.TextDocumentService#prepareRename",
+        "registration": "JsonRequest",
+        "sourceFile": "TextDocumentService.java"
+      },
+      "applicability": {
+        "status": "APPLICABLE",
+        "reason": "Protocol method remains subject to Javelle implementation and capability negotiation."
+      },
+      "source": "LSP-3.18.2-metaModel+LSP4J-1.0.0-sources"
+    },
+    {
+      "method": "textDocument/prepareTypeHierarchy",
+      "supportStatus": "NOT_IMPLEMENTED",
+      "dtoGapStatus": "SUPPORTED_LIBRARY",
+      "advertised": false,
+      "libraryBinding": {
+        "status": "SUPPORTED_LIBRARY",
+        "symbol": "org.eclipse.lsp4j.services.TextDocumentService#prepareTypeHierarchy",
+        "registration": "JsonRequest",
+        "sourceFile": "TextDocumentService.java"
+      },
+      "applicability": {
+        "status": "APPLICABLE",
+        "reason": "Protocol method remains subject to Javelle implementation and capability negotiation."
+      },
+      "source": "LSP-3.18.2-metaModel+LSP4J-1.0.0-sources"
+    },
+    {
+      "method": "textDocument/publishDiagnostics",
+      "supportStatus": "VERIFIED",
+      "dtoGapStatus": "SUPPORTED_LIBRARY",
+      "advertised": false,
+      "libraryBinding": {
+        "status": "SUPPORTED_LIBRARY",
+        "symbol": "org.eclipse.lsp4j.services.LanguageClient#publishDiagnostics",
+        "registration": "JsonNotification",
+        "sourceFile": "LanguageClient.java"
+      },
+      "applicability": {
+        "status": "APPLICABLE",
+        "reason": "Protocol method remains subject to Javelle implementation and capability negotiation."
+      },
+      "source": "LSP-3.18.2-metaModel+LSP4J-1.0.0-sources"
+    },
+    {
+      "method": "textDocument/rangeFormatting",
+      "supportStatus": "NOT_IMPLEMENTED",
+      "dtoGapStatus": "SUPPORTED_LIBRARY",
+      "advertised": false,
+      "libraryBinding": {
+        "status": "SUPPORTED_LIBRARY",
+        "symbol": "org.eclipse.lsp4j.services.TextDocumentService#rangeFormatting",
+        "registration": "JsonRequest",
+        "sourceFile": "TextDocumentService.java"
+      },
+      "applicability": {
+        "status": "APPLICABLE",
+        "reason": "Protocol method remains subject to Javelle implementation and capability negotiation."
+      },
+      "source": "LSP-3.18.2-metaModel+LSP4J-1.0.0-sources"
+    },
+    {
+      "method": "textDocument/rangesFormatting",
+      "supportStatus": "NOT_IMPLEMENTED",
+      "dtoGapStatus": "SUPPORTED_LIBRARY",
+      "advertised": false,
+      "libraryBinding": {
+        "status": "SUPPORTED_LIBRARY",
+        "symbol": "org.eclipse.lsp4j.services.TextDocumentService#rangesFormatting",
+        "registration": "JsonRequest",
+        "sourceFile": "TextDocumentService.java"
+      },
+      "applicability": {
+        "status": "APPLICABLE",
+        "reason": "Protocol method remains subject to Javelle implementation and capability negotiation."
+      },
+      "source": "LSP-3.18.2-metaModel+LSP4J-1.0.0-sources"
+    },
+    {
+      "method": "textDocument/references",
+      "supportStatus": "NOT_IMPLEMENTED",
+      "dtoGapStatus": "SUPPORTED_LIBRARY",
+      "advertised": false,
+      "libraryBinding": {
+        "status": "SUPPORTED_LIBRARY",
+        "symbol": "org.eclipse.lsp4j.services.TextDocumentService#references",
+        "registration": "JsonRequest",
+        "sourceFile": "TextDocumentService.java"
+      },
+      "applicability": {
+        "status": "APPLICABLE",
+        "reason": "Protocol method remains subject to Javelle implementation and capability negotiation."
+      },
+      "source": "LSP-3.18.2-metaModel+LSP4J-1.0.0-sources"
+    },
+    {
+      "method": "textDocument/rename",
+      "supportStatus": "NOT_IMPLEMENTED",
+      "dtoGapStatus": "SUPPORTED_LIBRARY",
+      "advertised": false,
+      "libraryBinding": {
+        "status": "SUPPORTED_LIBRARY",
+        "symbol": "org.eclipse.lsp4j.services.TextDocumentService#rename",
+        "registration": "JsonRequest",
+        "sourceFile": "TextDocumentService.java"
+      },
+      "applicability": {
+        "status": "APPLICABLE",
+        "reason": "Protocol method remains subject to Javelle implementation and capability negotiation."
+      },
+      "source": "LSP-3.18.2-metaModel+LSP4J-1.0.0-sources"
+    },
+    {
+      "method": "textDocument/selectionRange",
+      "supportStatus": "NOT_IMPLEMENTED",
+      "dtoGapStatus": "SUPPORTED_LIBRARY",
+      "advertised": false,
+      "libraryBinding": {
+        "status": "SUPPORTED_LIBRARY",
+        "symbol": "org.eclipse.lsp4j.services.TextDocumentService#selectionRange",
+        "registration": "JsonRequest",
+        "sourceFile": "TextDocumentService.java"
+      },
+      "applicability": {
+        "status": "APPLICABLE",
+        "reason": "Protocol method remains subject to Javelle implementation and capability negotiation."
+      },
+      "source": "LSP-3.18.2-metaModel+LSP4J-1.0.0-sources"
+    },
+    {
+      "method": "textDocument/semanticTokens/full",
+      "supportStatus": "NOT_IMPLEMENTED",
+      "dtoGapStatus": "SUPPORTED_LIBRARY",
+      "advertised": false,
+      "libraryBinding": {
+        "status": "SUPPORTED_LIBRARY",
+        "symbol": "org.eclipse.lsp4j.services.TextDocumentService#semanticTokensFull",
+        "registration": "JsonRequest",
+        "sourceFile": "TextDocumentService.java"
+      },
+      "applicability": {
+        "status": "APPLICABLE",
+        "reason": "Protocol method remains subject to Javelle implementation and capability negotiation."
+      },
+      "source": "LSP-3.18.2-metaModel+LSP4J-1.0.0-sources"
+    },
+    {
+      "method": "textDocument/semanticTokens/full/delta",
+      "supportStatus": "NOT_IMPLEMENTED",
+      "dtoGapStatus": "SUPPORTED_LIBRARY",
+      "advertised": false,
+      "libraryBinding": {
+        "status": "SUPPORTED_LIBRARY",
+        "symbol": "org.eclipse.lsp4j.services.TextDocumentService#semanticTokensFullDelta",
+        "registration": "JsonRequest",
+        "sourceFile": "TextDocumentService.java"
+      },
+      "applicability": {
+        "status": "APPLICABLE",
+        "reason": "Protocol method remains subject to Javelle implementation and capability negotiation."
+      },
+      "source": "LSP-3.18.2-metaModel+LSP4J-1.0.0-sources"
+    },
+    {
+      "method": "textDocument/semanticTokens/range",
+      "supportStatus": "NOT_IMPLEMENTED",
+      "dtoGapStatus": "SUPPORTED_LIBRARY",
+      "advertised": false,
+      "libraryBinding": {
+        "status": "SUPPORTED_LIBRARY",
+        "symbol": "org.eclipse.lsp4j.services.TextDocumentService#semanticTokensRange",
+        "registration": "JsonRequest",
+        "sourceFile": "TextDocumentService.java"
+      },
+      "applicability": {
+        "status": "APPLICABLE",
+        "reason": "Protocol method remains subject to Javelle implementation and capability negotiation."
+      },
+      "source": "LSP-3.18.2-metaModel+LSP4J-1.0.0-sources"
+    },
+    {
+      "method": "textDocument/signatureHelp",
+      "supportStatus": "NOT_IMPLEMENTED",
+      "dtoGapStatus": "SUPPORTED_LIBRARY",
+      "advertised": false,
+      "libraryBinding": {
+        "status": "SUPPORTED_LIBRARY",
+        "symbol": "org.eclipse.lsp4j.services.TextDocumentService#signatureHelp",
+        "registration": "JsonRequest",
+        "sourceFile": "TextDocumentService.java"
+      },
+      "applicability": {
+        "status": "APPLICABLE",
+        "reason": "Protocol method remains subject to Javelle implementation and capability negotiation."
+      },
+      "source": "LSP-3.18.2-metaModel+LSP4J-1.0.0-sources"
+    },
+    {
+      "method": "textDocument/typeDefinition",
+      "supportStatus": "NOT_IMPLEMENTED",
+      "dtoGapStatus": "SUPPORTED_LIBRARY",
+      "advertised": false,
+      "libraryBinding": {
+        "status": "SUPPORTED_LIBRARY",
+        "symbol": "org.eclipse.lsp4j.services.TextDocumentService#typeDefinition",
+        "registration": "JsonRequest",
+        "sourceFile": "TextDocumentService.java"
+      },
+      "applicability": {
+        "status": "APPLICABLE",
+        "reason": "Protocol method remains subject to Javelle implementation and capability negotiation."
+      },
+      "source": "LSP-3.18.2-metaModel+LSP4J-1.0.0-sources"
+    },
+    {
+      "method": "textDocument/willSave",
+      "supportStatus": "NOT_IMPLEMENTED",
+      "dtoGapStatus": "SUPPORTED_LIBRARY",
+      "advertised": false,
+      "libraryBinding": {
+        "status": "SUPPORTED_LIBRARY",
+        "symbol": "org.eclipse.lsp4j.services.TextDocumentService#willSave",
+        "registration": "JsonNotification",
+        "sourceFile": "TextDocumentService.java"
+      },
+      "applicability": {
+        "status": "APPLICABLE",
+        "reason": "Protocol method remains subject to Javelle implementation and capability negotiation."
+      },
+      "source": "LSP-3.18.2-metaModel+LSP4J-1.0.0-sources"
+    },
+    {
+      "method": "textDocument/willSaveWaitUntil",
+      "supportStatus": "NOT_IMPLEMENTED",
+      "dtoGapStatus": "SUPPORTED_LIBRARY",
+      "advertised": false,
+      "libraryBinding": {
+        "status": "SUPPORTED_LIBRARY",
+        "symbol": "org.eclipse.lsp4j.services.TextDocumentService#willSaveWaitUntil",
+        "registration": "JsonRequest",
+        "sourceFile": "TextDocumentService.java"
+      },
+      "applicability": {
+        "status": "APPLICABLE",
+        "reason": "Protocol method remains subject to Javelle implementation and capability negotiation."
+      },
+      "source": "LSP-3.18.2-metaModel+LSP4J-1.0.0-sources"
+    },
+    {
+      "method": "typeHierarchy/subtypes",
+      "supportStatus": "NOT_IMPLEMENTED",
+      "dtoGapStatus": "SUPPORTED_LIBRARY",
+      "advertised": false,
+      "libraryBinding": {
+        "status": "SUPPORTED_LIBRARY",
+        "symbol": "org.eclipse.lsp4j.services.TextDocumentService#typeHierarchySubtypes",
+        "registration": "JsonRequest",
+        "sourceFile": "TextDocumentService.java"
+      },
+      "applicability": {
+        "status": "APPLICABLE",
+        "reason": "Protocol method remains subject to Javelle implementation and capability negotiation."
+      },
+      "source": "LSP-3.18.2-metaModel+LSP4J-1.0.0-sources"
+    },
+    {
+      "method": "typeHierarchy/supertypes",
+      "supportStatus": "NOT_IMPLEMENTED",
+      "dtoGapStatus": "SUPPORTED_LIBRARY",
+      "advertised": false,
+      "libraryBinding": {
+        "status": "SUPPORTED_LIBRARY",
+        "symbol": "org.eclipse.lsp4j.services.TextDocumentService#typeHierarchySupertypes",
+        "registration": "JsonRequest",
+        "sourceFile": "TextDocumentService.java"
+      },
+      "applicability": {
+        "status": "APPLICABLE",
+        "reason": "Protocol method remains subject to Javelle implementation and capability negotiation."
+      },
+      "source": "LSP-3.18.2-metaModel+LSP4J-1.0.0-sources"
+    },
+    {
+      "method": "window/logMessage",
+      "supportStatus": "NOT_IMPLEMENTED",
+      "dtoGapStatus": "SUPPORTED_LIBRARY",
+      "advertised": false,
+      "libraryBinding": {
+        "status": "SUPPORTED_LIBRARY",
+        "symbol": "org.eclipse.lsp4j.services.LanguageClient#logMessage",
+        "registration": "JsonNotification",
+        "sourceFile": "LanguageClient.java"
+      },
+      "applicability": {
+        "status": "APPLICABLE",
+        "reason": "Protocol method remains subject to Javelle implementation and capability negotiation."
+      },
+      "source": "LSP-3.18.2-metaModel+LSP4J-1.0.0-sources"
+    },
+    {
+      "method": "window/showDocument",
+      "supportStatus": "NOT_IMPLEMENTED",
+      "dtoGapStatus": "SUPPORTED_LIBRARY",
+      "advertised": false,
+      "libraryBinding": {
+        "status": "SUPPORTED_LIBRARY",
+        "symbol": "org.eclipse.lsp4j.services.LanguageClient#showDocument",
+        "registration": "JsonRequest",
+        "sourceFile": "LanguageClient.java"
+      },
+      "applicability": {
+        "status": "APPLICABLE",
+        "reason": "Protocol method remains subject to Javelle implementation and capability negotiation."
+      },
+      "source": "LSP-3.18.2-metaModel+LSP4J-1.0.0-sources"
+    },
+    {
+      "method": "window/showMessage",
+      "supportStatus": "NOT_IMPLEMENTED",
+      "dtoGapStatus": "SUPPORTED_LIBRARY",
+      "advertised": false,
+      "libraryBinding": {
+        "status": "SUPPORTED_LIBRARY",
+        "symbol": "org.eclipse.lsp4j.services.LanguageClient#showMessage",
+        "registration": "JsonNotification",
+        "sourceFile": "LanguageClient.java"
+      },
+      "applicability": {
+        "status": "APPLICABLE",
+        "reason": "Protocol method remains subject to Javelle implementation and capability negotiation."
+      },
+      "source": "LSP-3.18.2-metaModel+LSP4J-1.0.0-sources"
+    },
+    {
+      "method": "window/showMessageRequest",
+      "supportStatus": "NOT_IMPLEMENTED",
+      "dtoGapStatus": "SUPPORTED_LIBRARY",
+      "advertised": false,
+      "libraryBinding": {
+        "status": "SUPPORTED_LIBRARY",
+        "symbol": "org.eclipse.lsp4j.services.LanguageClient#showMessageRequest",
+        "registration": "JsonRequest",
+        "sourceFile": "LanguageClient.java"
+      },
+      "applicability": {
+        "status": "APPLICABLE",
+        "reason": "Protocol method remains subject to Javelle implementation and capability negotiation."
+      },
+      "source": "LSP-3.18.2-metaModel+LSP4J-1.0.0-sources"
+    },
+    {
+      "method": "window/workDoneProgress/cancel",
+      "supportStatus": "NOT_IMPLEMENTED",
+      "dtoGapStatus": "SUPPORTED_LIBRARY",
+      "advertised": false,
+      "libraryBinding": {
+        "status": "SUPPORTED_LIBRARY",
+        "symbol": "org.eclipse.lsp4j.services.LanguageServer#cancelProgress",
+        "registration": "JsonNotification",
+        "sourceFile": "LanguageServer.java"
+      },
+      "applicability": {
+        "status": "APPLICABLE",
+        "reason": "Protocol method remains subject to Javelle implementation and capability negotiation."
+      },
+      "source": "LSP-3.18.2-metaModel+LSP4J-1.0.0-sources"
+    },
+    {
+      "method": "window/workDoneProgress/create",
+      "supportStatus": "NOT_IMPLEMENTED",
+      "dtoGapStatus": "SUPPORTED_LIBRARY",
+      "advertised": false,
+      "libraryBinding": {
+        "status": "SUPPORTED_LIBRARY",
+        "symbol": "org.eclipse.lsp4j.services.LanguageClient#createProgress",
+        "registration": "JsonRequest",
+        "sourceFile": "LanguageClient.java"
+      },
+      "applicability": {
+        "status": "APPLICABLE",
+        "reason": "Protocol method remains subject to Javelle implementation and capability negotiation."
+      },
+      "source": "LSP-3.18.2-metaModel+LSP4J-1.0.0-sources"
+    },
+    {
+      "method": "workspace/applyEdit",
+      "supportStatus": "NOT_IMPLEMENTED",
+      "dtoGapStatus": "SUPPORTED_LIBRARY",
+      "advertised": false,
+      "libraryBinding": {
+        "status": "SUPPORTED_LIBRARY",
+        "symbol": "org.eclipse.lsp4j.services.LanguageClient#applyEdit",
+        "registration": "JsonRequest",
+        "sourceFile": "LanguageClient.java"
+      },
+      "applicability": {
+        "status": "APPLICABLE",
+        "reason": "Protocol method remains subject to Javelle implementation and capability negotiation."
+      },
+      "source": "LSP-3.18.2-metaModel+LSP4J-1.0.0-sources"
+    },
+    {
+      "method": "workspace/codeLens/refresh",
+      "supportStatus": "NOT_IMPLEMENTED",
+      "dtoGapStatus": "SUPPORTED_LIBRARY",
+      "advertised": false,
+      "libraryBinding": {
+        "status": "SUPPORTED_LIBRARY",
+        "symbol": "org.eclipse.lsp4j.services.LanguageClient#refreshCodeLenses",
+        "registration": "JsonRequest",
+        "sourceFile": "LanguageClient.java"
+      },
+      "applicability": {
+        "status": "APPLICABLE",
+        "reason": "Protocol method remains subject to Javelle implementation and capability negotiation."
+      },
+      "source": "LSP-3.18.2-metaModel+LSP4J-1.0.0-sources"
+    },
+    {
+      "method": "workspace/configuration",
+      "supportStatus": "NOT_IMPLEMENTED",
+      "dtoGapStatus": "SUPPORTED_LIBRARY",
+      "advertised": false,
+      "libraryBinding": {
+        "status": "SUPPORTED_LIBRARY",
+        "symbol": "org.eclipse.lsp4j.services.LanguageClient#configuration",
+        "registration": "JsonRequest",
+        "sourceFile": "LanguageClient.java"
+      },
+      "applicability": {
+        "status": "APPLICABLE",
+        "reason": "Protocol method remains subject to Javelle implementation and capability negotiation."
+      },
+      "source": "LSP-3.18.2-metaModel+LSP4J-1.0.0-sources"
+    },
+    {
+      "method": "workspace/diagnostic",
+      "supportStatus": "NOT_IMPLEMENTED",
+      "dtoGapStatus": "SUPPORTED_LIBRARY",
+      "advertised": false,
+      "libraryBinding": {
+        "status": "SUPPORTED_LIBRARY",
+        "symbol": "org.eclipse.lsp4j.services.WorkspaceService#diagnostic",
+        "registration": "JsonRequest",
+        "sourceFile": "WorkspaceService.java"
+      },
+      "applicability": {
+        "status": "APPLICABLE",
+        "reason": "Protocol method remains subject to Javelle implementation and capability negotiation."
+      },
+      "source": "LSP-3.18.2-metaModel+LSP4J-1.0.0-sources"
+    },
+    {
+      "method": "workspace/diagnostic/refresh",
+      "supportStatus": "NOT_IMPLEMENTED",
+      "dtoGapStatus": "SUPPORTED_LIBRARY",
+      "advertised": false,
+      "libraryBinding": {
+        "status": "SUPPORTED_LIBRARY",
+        "symbol": "org.eclipse.lsp4j.services.LanguageClient#refreshDiagnostics",
+        "registration": "JsonRequest",
+        "sourceFile": "LanguageClient.java"
+      },
+      "applicability": {
+        "status": "APPLICABLE",
+        "reason": "Protocol method remains subject to Javelle implementation and capability negotiation."
+      },
+      "source": "LSP-3.18.2-metaModel+LSP4J-1.0.0-sources"
+    },
+    {
+      "method": "workspace/didChangeConfiguration",
+      "supportStatus": "NOT_IMPLEMENTED",
+      "dtoGapStatus": "SUPPORTED_LIBRARY",
+      "advertised": false,
+      "libraryBinding": {
+        "status": "SUPPORTED_LIBRARY",
+        "symbol": "org.eclipse.lsp4j.services.WorkspaceService#didChangeConfiguration",
+        "registration": "JsonNotification",
+        "sourceFile": "WorkspaceService.java"
+      },
+      "applicability": {
+        "status": "APPLICABLE",
+        "reason": "Protocol method remains subject to Javelle implementation and capability negotiation."
+      },
+      "source": "LSP-3.18.2-metaModel+LSP4J-1.0.0-sources"
+    },
+    {
+      "method": "workspace/didChangeWatchedFiles",
+      "supportStatus": "NOT_IMPLEMENTED",
+      "dtoGapStatus": "SUPPORTED_LIBRARY",
+      "advertised": false,
+      "libraryBinding": {
+        "status": "SUPPORTED_LIBRARY",
+        "symbol": "org.eclipse.lsp4j.services.WorkspaceService#didChangeWatchedFiles",
+        "registration": "JsonNotification",
+        "sourceFile": "WorkspaceService.java"
+      },
+      "applicability": {
+        "status": "APPLICABLE",
+        "reason": "Protocol method remains subject to Javelle implementation and capability negotiation."
+      },
+      "source": "LSP-3.18.2-metaModel+LSP4J-1.0.0-sources"
+    },
+    {
+      "method": "workspace/didChangeWorkspaceFolders",
+      "supportStatus": "NOT_IMPLEMENTED",
+      "dtoGapStatus": "SUPPORTED_LIBRARY",
+      "advertised": false,
+      "libraryBinding": {
+        "status": "SUPPORTED_LIBRARY",
+        "symbol": "org.eclipse.lsp4j.services.WorkspaceService#didChangeWorkspaceFolders",
+        "registration": "JsonNotification",
+        "sourceFile": "WorkspaceService.java"
+      },
+      "applicability": {
+        "status": "APPLICABLE",
+        "reason": "Protocol method remains subject to Javelle implementation and capability negotiation."
+      },
+      "source": "LSP-3.18.2-metaModel+LSP4J-1.0.0-sources"
+    },
+    {
+      "method": "workspace/didCreateFiles",
+      "supportStatus": "NOT_IMPLEMENTED",
+      "dtoGapStatus": "SUPPORTED_LIBRARY",
+      "advertised": false,
+      "libraryBinding": {
+        "status": "SUPPORTED_LIBRARY",
+        "symbol": "org.eclipse.lsp4j.services.WorkspaceService#didCreateFiles",
+        "registration": "JsonNotification",
+        "sourceFile": "WorkspaceService.java"
+      },
+      "applicability": {
+        "status": "APPLICABLE",
+        "reason": "Protocol method remains subject to Javelle implementation and capability negotiation."
+      },
+      "source": "LSP-3.18.2-metaModel+LSP4J-1.0.0-sources"
+    },
+    {
+      "method": "workspace/didDeleteFiles",
+      "supportStatus": "NOT_IMPLEMENTED",
+      "dtoGapStatus": "SUPPORTED_LIBRARY",
+      "advertised": false,
+      "libraryBinding": {
+        "status": "SUPPORTED_LIBRARY",
+        "symbol": "org.eclipse.lsp4j.services.WorkspaceService#didDeleteFiles",
+        "registration": "JsonNotification",
+        "sourceFile": "WorkspaceService.java"
+      },
+      "applicability": {
+        "status": "APPLICABLE",
+        "reason": "Protocol method remains subject to Javelle implementation and capability negotiation."
+      },
+      "source": "LSP-3.18.2-metaModel+LSP4J-1.0.0-sources"
+    },
+    {
+      "method": "workspace/didRenameFiles",
+      "supportStatus": "NOT_IMPLEMENTED",
+      "dtoGapStatus": "SUPPORTED_LIBRARY",
+      "advertised": false,
+      "libraryBinding": {
+        "status": "SUPPORTED_LIBRARY",
+        "symbol": "org.eclipse.lsp4j.services.WorkspaceService#didRenameFiles",
+        "registration": "JsonNotification",
+        "sourceFile": "WorkspaceService.java"
+      },
+      "applicability": {
+        "status": "APPLICABLE",
+        "reason": "Protocol method remains subject to Javelle implementation and capability negotiation."
+      },
+      "source": "LSP-3.18.2-metaModel+LSP4J-1.0.0-sources"
+    },
+    {
+      "method": "workspace/executeCommand",
+      "supportStatus": "NOT_IMPLEMENTED",
+      "dtoGapStatus": "SUPPORTED_LIBRARY",
+      "advertised": false,
+      "libraryBinding": {
+        "status": "SUPPORTED_LIBRARY",
+        "symbol": "org.eclipse.lsp4j.services.WorkspaceService#executeCommand",
+        "registration": "JsonRequest",
+        "sourceFile": "WorkspaceService.java"
+      },
+      "applicability": {
+        "status": "APPLICABLE",
+        "reason": "Protocol method remains subject to Javelle implementation and capability negotiation."
+      },
+      "source": "LSP-3.18.2-metaModel+LSP4J-1.0.0-sources"
+    },
+    {
+      "method": "workspace/foldingRange/refresh",
+      "supportStatus": "NOT_IMPLEMENTED",
+      "dtoGapStatus": "SUPPORTED_LIBRARY",
+      "advertised": false,
+      "libraryBinding": {
+        "status": "SUPPORTED_LIBRARY",
+        "symbol": "org.eclipse.lsp4j.services.LanguageClient#refreshFoldingRanges",
+        "registration": "JsonRequest",
+        "sourceFile": "LanguageClient.java"
+      },
+      "applicability": {
+        "status": "APPLICABLE",
+        "reason": "Protocol method remains subject to Javelle implementation and capability negotiation."
+      },
+      "source": "LSP-3.18.2-metaModel+LSP4J-1.0.0-sources"
+    },
+    {
+      "method": "workspace/inlayHint/refresh",
+      "supportStatus": "NOT_IMPLEMENTED",
+      "dtoGapStatus": "SUPPORTED_LIBRARY",
+      "advertised": false,
+      "libraryBinding": {
+        "status": "SUPPORTED_LIBRARY",
+        "symbol": "org.eclipse.lsp4j.services.LanguageClient#refreshInlayHints",
+        "registration": "JsonRequest",
+        "sourceFile": "LanguageClient.java"
+      },
+      "applicability": {
+        "status": "APPLICABLE",
+        "reason": "Protocol method remains subject to Javelle implementation and capability negotiation."
+      },
+      "source": "LSP-3.18.2-metaModel+LSP4J-1.0.0-sources"
+    },
+    {
+      "method": "workspace/inlineValue/refresh",
+      "supportStatus": "NOT_IMPLEMENTED",
+      "dtoGapStatus": "SUPPORTED_LIBRARY",
+      "advertised": false,
+      "libraryBinding": {
+        "status": "SUPPORTED_LIBRARY",
+        "symbol": "org.eclipse.lsp4j.services.LanguageClient#refreshInlineValues",
+        "registration": "JsonRequest",
+        "sourceFile": "LanguageClient.java"
+      },
+      "applicability": {
+        "status": "APPLICABLE",
+        "reason": "Protocol method remains subject to Javelle implementation and capability negotiation."
+      },
+      "source": "LSP-3.18.2-metaModel+LSP4J-1.0.0-sources"
+    },
+    {
+      "method": "workspace/semanticTokens/refresh",
+      "supportStatus": "NOT_IMPLEMENTED",
+      "dtoGapStatus": "SUPPORTED_LIBRARY",
+      "advertised": false,
+      "libraryBinding": {
+        "status": "SUPPORTED_LIBRARY",
+        "symbol": "org.eclipse.lsp4j.services.LanguageClient#refreshSemanticTokens",
+        "registration": "JsonRequest",
+        "sourceFile": "LanguageClient.java"
+      },
+      "applicability": {
+        "status": "APPLICABLE",
+        "reason": "Protocol method remains subject to Javelle implementation and capability negotiation."
+      },
+      "source": "LSP-3.18.2-metaModel+LSP4J-1.0.0-sources"
+    },
+    {
+      "method": "workspace/symbol",
+      "supportStatus": "NOT_IMPLEMENTED",
+      "dtoGapStatus": "SUPPORTED_LIBRARY",
+      "advertised": false,
+      "libraryBinding": {
+        "status": "SUPPORTED_LIBRARY",
+        "symbol": "org.eclipse.lsp4j.services.WorkspaceService#symbol",
+        "registration": "JsonRequest",
+        "sourceFile": "WorkspaceService.java"
+      },
+      "applicability": {
+        "status": "APPLICABLE",
+        "reason": "Protocol method remains subject to Javelle implementation and capability negotiation."
+      },
+      "source": "LSP-3.18.2-metaModel+LSP4J-1.0.0-sources"
+    },
+    {
+      "method": "workspace/textDocumentContent",
+      "supportStatus": "NOT_IMPLEMENTED",
+      "dtoGapStatus": "SUPPORTED_LIBRARY",
+      "advertised": false,
+      "libraryBinding": {
+        "status": "SUPPORTED_LIBRARY",
+        "symbol": "org.eclipse.lsp4j.services.WorkspaceService#textDocumentContent",
+        "registration": "JsonRequest",
+        "sourceFile": "WorkspaceService.java"
+      },
+      "applicability": {
+        "status": "APPLICABLE",
+        "reason": "Protocol method remains subject to Javelle implementation and capability negotiation."
+      },
+      "source": "LSP-3.18.2-metaModel+LSP4J-1.0.0-sources"
+    },
+    {
+      "method": "workspace/textDocumentContent/refresh",
+      "supportStatus": "NOT_IMPLEMENTED",
+      "dtoGapStatus": "SUPPORTED_LIBRARY",
+      "advertised": false,
+      "libraryBinding": {
+        "status": "SUPPORTED_LIBRARY",
+        "symbol": "org.eclipse.lsp4j.services.LanguageClient#refreshTextDocumentContent",
+        "registration": "JsonRequest",
+        "sourceFile": "LanguageClient.java"
+      },
+      "applicability": {
+        "status": "APPLICABLE",
+        "reason": "Protocol method remains subject to Javelle implementation and capability negotiation."
+      },
+      "source": "LSP-3.18.2-metaModel+LSP4J-1.0.0-sources"
+    },
+    {
+      "method": "workspace/willCreateFiles",
+      "supportStatus": "NOT_IMPLEMENTED",
+      "dtoGapStatus": "SUPPORTED_LIBRARY",
+      "advertised": false,
+      "libraryBinding": {
+        "status": "SUPPORTED_LIBRARY",
+        "symbol": "org.eclipse.lsp4j.services.WorkspaceService#willCreateFiles",
+        "registration": "JsonRequest",
+        "sourceFile": "WorkspaceService.java"
+      },
+      "applicability": {
+        "status": "APPLICABLE",
+        "reason": "Protocol method remains subject to Javelle implementation and capability negotiation."
+      },
+      "source": "LSP-3.18.2-metaModel+LSP4J-1.0.0-sources"
+    },
+    {
+      "method": "workspace/willDeleteFiles",
+      "supportStatus": "NOT_IMPLEMENTED",
+      "dtoGapStatus": "SUPPORTED_LIBRARY",
+      "advertised": false,
+      "libraryBinding": {
+        "status": "SUPPORTED_LIBRARY",
+        "symbol": "org.eclipse.lsp4j.services.WorkspaceService#willDeleteFiles",
+        "registration": "JsonRequest",
+        "sourceFile": "WorkspaceService.java"
+      },
+      "applicability": {
+        "status": "APPLICABLE",
+        "reason": "Protocol method remains subject to Javelle implementation and capability negotiation."
+      },
+      "source": "LSP-3.18.2-metaModel+LSP4J-1.0.0-sources"
+    },
+    {
+      "method": "workspace/willRenameFiles",
+      "supportStatus": "NOT_IMPLEMENTED",
+      "dtoGapStatus": "SUPPORTED_LIBRARY",
+      "advertised": false,
+      "libraryBinding": {
+        "status": "SUPPORTED_LIBRARY",
+        "symbol": "org.eclipse.lsp4j.services.WorkspaceService#willRenameFiles",
+        "registration": "JsonRequest",
+        "sourceFile": "WorkspaceService.java"
+      },
+      "applicability": {
+        "status": "APPLICABLE",
+        "reason": "Protocol method remains subject to Javelle implementation and capability negotiation."
+      },
+      "source": "LSP-3.18.2-metaModel+LSP4J-1.0.0-sources"
+    },
+    {
+      "method": "workspace/workspaceFolders",
+      "supportStatus": "NOT_IMPLEMENTED",
+      "dtoGapStatus": "SUPPORTED_LIBRARY",
+      "advertised": false,
+      "libraryBinding": {
+        "status": "SUPPORTED_LIBRARY",
+        "symbol": "org.eclipse.lsp4j.services.LanguageClient#workspaceFolders",
+        "registration": "JsonRequest",
+        "sourceFile": "LanguageClient.java"
+      },
+      "applicability": {
+        "status": "APPLICABLE",
+        "reason": "Protocol method remains subject to Javelle implementation and capability negotiation."
+      },
+      "source": "LSP-3.18.2-metaModel+LSP4J-1.0.0-sources"
+    },
+    {
+      "method": "workspaceSymbol/resolve",
+      "supportStatus": "NOT_IMPLEMENTED",
+      "dtoGapStatus": "SUPPORTED_LIBRARY",
+      "advertised": false,
+      "libraryBinding": {
+        "status": "SUPPORTED_LIBRARY",
+        "symbol": "org.eclipse.lsp4j.services.WorkspaceService#resolveWorkspaceSymbol",
+        "registration": "JsonRequest",
+        "sourceFile": "WorkspaceService.java"
+      },
+      "applicability": {
+        "status": "APPLICABLE",
+        "reason": "Protocol method remains subject to Javelle implementation and capability negotiation."
+      },
+      "source": "LSP-3.18.2-metaModel+LSP4J-1.0.0-sources"
+    }
+  ],
+  "methodCount": 95
+}

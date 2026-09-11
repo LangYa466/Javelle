@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 1,
+  "checked": "2026-09-11",
+  "licenseExpression": "GPL-2.0-only WITH Classpath-exception-2.0",
+  "components": [
+    {"name":"Gradle Wrapper","version":"9.6.0","scope":"build-tool","license":"Apache-2.0","bundled":true,"sha256":"497c8c2a7e5031f6aa847f88104aa80a93532ec32ee17bdb8d1d2f67a194a9c7"},
+    {"name":"Eclipse Temurin JDK","version":"21.0.12.1+1","scope":"test-toolchain","license":"GPL-2.0-only WITH Classpath-exception-2.0","bundled":false,"sha256":"ce79869e1307ed8ee1e2baa86a412b1eb5b75d10a01006d788a6f968bcfaee94"},
+    {"name":"IntelliJ IDEA Ultimate","version":"2026.1.4","scope":"ide-test-platform","license":"JetBrains proprietary distribution with bundled notices","bundled":false,"sha256":"3104d85d9507ff882065e3f8eb9506402b4a8129092d2682662bb6e9c4f063fc","verification":"artifact/JBR/LSP probed; Plugin Verifier deferred to P11 real plugin ZIP"},
+    {"name":"JUnit","version":"6.0.0","scope":"test","license":"EPL-2.0","bundled":false},
+    {"name":"Project Lombok","version":"1.18.48","scope":"test-oracle","license":"MIT","bundled":false,"sha256":"85477a4655ebb2c074a9099cfb749be454449fee564d4282610df1b85f7c508b"},
+    {"name":"Eclipse LSP4J","version":"1.0.0","scope":"planned-runtime","license":"EPL-2.0","bundled":false,"sha256":"ccd78893facc6bfcc359d56cba05d3d5b85eb41e4c40d4b4215ca45db5f416d9"},
+    {"name":"Eclipse LSP4J JSON-RPC","version":"1.0.0","scope":"planned-runtime","license":"EPL-2.0","bundled":false,"sha256":"9647feb0524bf763c878e12ab878a684102b81cccb3f77feecbec709d54f9bbb"},
+    {"name":"Node.js","version":"22.22.2","scope":"website-build-tool","license":"MIT with bundled third-party notices","bundled":false,"sha256":"88fd1ce767091fd8d4a99fdb2356e98c819f93f3b1f8663853a2dee9b438068a"},
+    {"name":"npm","version":"10.9.7","scope":"website-package-manager","license":"Artistic-2.0","bundled":false},
+    {"name":"Astro","version":"7.3.2","scope":"planned-website","license":"MIT","bundled":false,"integrity":"sha512-ysTcdpGP61XZpHoMRYC/CK19DQ94qkBvzXMtXEo0gEqPNkmOU/Tv++CtWmzaI4nF2Ck8RXFdiWvdlTWa2oOr9w=="},
+    {"name":"Starlight","version":"0.42.0","scope":"planned-website","license":"MIT","bundled":false,"integrity":"sha512-EVsGnyGJ6rRNwGRZFYmGABo0qTQ55F7OSmfSL0VK+5lsqD+u6GWcB8tFqXETcUvP8kyn90W+QBLSL2aer9jNJQ=="}
+  ],
+  "releaseReviewRequired": ["real plugin ZIP Plugin Verifier at P11", "full IDE/JBR third-party notices", "frontend LGPL/MPL/compound-license disposition", "resolved module graphs and lockfiles", "archive-content SBOM", "Apache-2.0 and GPL distribution review"]
+}

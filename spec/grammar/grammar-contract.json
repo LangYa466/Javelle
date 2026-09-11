@@ -1,0 +1,41 @@
+{
+  "schemaVersion": 1,
+  "languageVersion": "0.1-draft",
+  "baseGrammar": "Java SE 25 non-preview",
+  "jlsChapterCoverage": [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19],
+  "formalGrammar": "spec/grammar/javelle.ebnf",
+  "lexicalOrder": ["UTF8_DECODE", "UNICODE_ESCAPE_TRANSLATION", "TOKENIZE_WITH_TRIVIA", "PARSE"],
+  "forbiddenTokens": ["SEMICOLON"],
+  "contextualNames": ["var", "val", "get", "set", "field", "value"],
+  "javaImports": {
+    "source": "Java SE 25 JLS chapters 3, 14, 15, 18, 19 non-preview grammar",
+    "productions": [
+      "JAVA_packageDeclaration", "JAVA_importDeclaration", "JAVA_typeDeclaration",
+      "JAVA_block", "JAVA_ifStatement", "JAVA_whileStatement", "JAVA_doStatement",
+      "JAVA_switchStatement", "JAVA_synchronizedStatement", "JAVA_breakStatement",
+      "JAVA_continueStatement", "JAVA_assertStatement", "JAVA_statementExpression",
+      "JAVA_labeledStatement", "JAVA_expression", "JAVA_forInit",
+      "JAVA_statementExpressionList", "JAVA_variableModifier", "JAVA_type",
+      "JAVA_localVariableResource", "JAVA_variableAccess", "JAVA_catchClause",
+      "JAVA_finallyClause", "JAVA_classBodyDeclaration", "JAVA_enumConstant",
+      "JAVA_fieldModifier", "JAVA_annotation", "JAVA_visibility", "JAVA_dims",
+      "JAVA_variableInitializer", "JAVA_leadingContinuationOperator",
+      "JAVA_whitespaceExceptLineTerminator", "JAVA_comment", "JAVA_identifier"
+    ]
+  },
+  "semanticConstraints": [
+    "var and val declarators require an initializer",
+    "explicitly typed Java locals and fields may omit an initializer where Java definite-assignment permits",
+    "a property initializer is optional; storage is inferred from initializer/default accessor/setter/contextual field",
+    "a custom getter without initializer or contextual field is computed and has no storage"
+  ],
+  "structuralSeparators": {
+    "basicFor": ["COLON", "COLON"],
+    "enhancedFor": ["COLON"],
+    "tryResources": ["NEWLINE"],
+    "enumMembers": ["COLON"]
+  },
+  "recoveryMustProgress": true,
+  "implementationStatus": "NOT_IMPLEMENTED",
+  "verificationStatus": "NOT_VERIFIED"
+}

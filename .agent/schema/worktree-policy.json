@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "sharedWorktree": {
+    "allowedGitMutators": ["integration"],
+    "forbiddenForSubagents": ["branch", "checkout", "commit", "reset", "stash", "cherry-pick"],
+    "requiresActiveOwnership": true,
+    "overlappingWriteLocks": "REJECT",
+    "staleLockPolicy": "REJECT_AND_COORDINATOR_AUDIT"
+  },
+  "isolatedWorktree": {
+    "commitRequiresCoordinatorAuthorization": true,
+    "integrationOwnerMerges": true
+  }
+}

@@ -1,40 +1,299 @@
 {
   "schemaVersion": 1,
-  "phase": "P00",
+  "phase": "P09/P10",
   "tasks": [
+    {
+      "id": "P00",
+      "owner": "/root",
+      "status": "ACCEPTED",
+      "dependsOn": [],
+      "evidence": [".agent/reports/P00-REVIEW.md: Final P00 stage-exit review — ACCEPT P00"]
+    },
     {
       "id": "P00-RECON",
       "owner": "/root/p00_recon",
-      "status": "VERIFIED",
+      "status": "ACCEPTED",
       "dependsOn": [],
-      "evidence": ["agent completion summary; report file pending integration"]
+      "evidence": [
+        ".agent/reports/P00-RECON.md",
+        ".agent/reports/P00-REVIEW.md: P00-04 zero-write follow-up PASS"
+      ]
     },
     {
       "id": "P00-SPEC-COVERAGE",
       "owner": "/root/p00_spec",
-      "status": "IMPLEMENTED",
+      "status": "ACCEPTED",
       "dependsOn": [],
       "evidence": [".agent/reports/P00-SPEC-COVERAGE.md"]
     },
     {
       "id": "P00-GIT",
       "owner": "/root/p00_git_publish",
-      "status": "VERIFIED",
+      "status": "ACCEPTED",
       "dependsOn": [],
       "evidence": [".agent/reports/P00-GIT.md"]
     },
     {
+      "id": "P00-LIFECYCLE",
+      "owner": "/root/p00_probe",
+      "status": "ACCEPTED",
+      "dependsOn": [],
+      "evidence": [
+        ".agent/reports/P00-CAPABILITY.md",
+        ".agent/reports/P00-DECISION.md: user authorized verified interrupt_agent as the environment's termination/close semantic"
+      ]
+    },
+    {
       "id": "P00-REVIEW",
-      "owner": null,
-      "status": "READY",
-      "dependsOn": ["P00-RECON", "P00-SPEC-COVERAGE", "P00-GIT"],
-      "evidence": []
+      "owner": "/root/p00_review",
+      "status": "ACCEPTED",
+      "dependsOn": ["P00-RECON", "P00-SPEC-COVERAGE", "P00-GIT", "P00-LIFECYCLE"],
+      "evidence": [".agent/reports/P00-REVIEW.md"]
     },
     {
       "id": "P01",
+      "owner": "/root/p00_git_publish",
+      "status": "ACCEPTED",
+      "dependsOn": ["P00"],
+      "evidence": [
+        ".agent/reports/P01-VERSIONS.md",
+        ".agent/reports/P01-LICENSE.md",
+        ".agent/reports/P01-LOCK-PROPOSAL.md",
+        ".agent/reports/P01-INTEGRATION.md",
+        ".agent/reports/P01-REVIEW.md: Final focused P01 review — ACCEPT P01"
+      ]
+    },
+    {
+      "id": "P01-W01",
+      "owner": "/root/p00_recon",
+      "status": "ACCEPTED",
+      "dependsOn": ["P00"],
+      "evidence": [".agent/reports/P01-VERSIONS.md"]
+    },
+    {
+      "id": "P01-W02",
+      "owner": "/root/p00_spec",
+      "status": "ACCEPTED",
+      "dependsOn": ["P00"],
+      "evidence": [".agent/reports/P01-LICENSE.md"]
+    },
+    {
+      "id": "P01-W03",
+      "owner": "/root/p00_repair",
+      "status": "ACCEPTED",
+      "dependsOn": ["P01-W01", "P01-W02"],
+      "evidence": [".agent/reports/P01-LOCK-PROPOSAL.md"]
+    },
+    {
+      "id": "P01-W04",
+      "owner": "/root/p00_git_publish",
+      "status": "ACCEPTED",
+      "dependsOn": ["P01-W01", "P01-W02", "P01-W03"],
+      "evidence": [".agent/reports/P01-INTEGRATION.md"]
+    },
+    {
+      "id": "P01-REVIEW",
+      "owner": "/root/p00_review",
+      "status": "ACCEPTED",
+      "dependsOn": ["P01-W08"],
+      "evidence": [".agent/reports/P01-REVIEW.md"]
+    },
+    {
+      "id": "P01-R01-TOOLCHAINS",
+      "owner": "/root/p00_recon",
+      "status": "ACCEPTED",
+      "dependsOn": ["P01-W04"],
+      "evidence": [".agent/reports/P01-JDK-IDE.md: native JDK 21 and fixed IU/JBR/LSP artifact probes; Plugin Verifier deferred to P11 real plugin ZIP"]
+    },
+    {
+      "id": "P01-R02-LANGUAGE-DEPS",
+      "owner": "/root/p00_spec",
+      "status": "ACCEPTED",
+      "dependsOn": ["P01-W04"],
+      "evidence": [".agent/reports/P01-LOMBOK-LSP.md", "compatibility/lombok-baseline.json", "compatibility/lsp-methods.json"]
+    },
+    {
+      "id": "P01-R03-WEBSITE-DEPS",
+      "owner": "/root/p00_repair",
+      "status": "ACCEPTED",
+      "dependsOn": ["P01-W04"],
+      "evidence": [".agent/reports/P01-DEPS-FRONTEND.md", "config/frontend-baseline.json", "config/toolchains.json"]
+    },
+    {
+      "id": "P01-W08",
+      "owner": "/root/p00_git_publish",
+      "status": "ACCEPTED",
+      "dependsOn": ["P01-R01-TOOLCHAINS", "P01-R02-LANGUAGE-DEPS", "P01-R03-WEBSITE-DEPS"],
+      "evidence": [".agent/reports/P01-INTEGRATION.md", "config/toolchains.json", "compatibility/lombok-baseline.json", "compatibility/lsp-methods.json", "compatibility/lsp-dto-gaps.json", "config/frontend/package-lock.json", "third-party/frontend-components.json"]
+    },
+    {
+      "id": "P02",
+      "owner": "/root/p00_git_publish",
+      "status": "ACCEPTED",
+      "dependsOn": ["P01"],
+      "evidence": [".agent/reports/P02-CONTRACT.md", ".agent/reports/P02-BUILD.md", ".agent/reports/P02-GOVERNANCE.md", ".agent/reports/P02-ARCHITECTURE.md", ".agent/reports/P02-TESTKIT.md", ".agent/reports/P02-INTEGRATION.md", ".agent/reports/P02-REVIEW.md: R06 focused final review — ACCEPT P02"]
+    },
+    {
+      "id": "P02-R01-GOVERNANCE",
+      "owner": "/root/p00_spec",
+      "status": "ACCEPTED",
+      "dependsOn": ["P01"],
+      "evidence": [".agent/reports/P02-GOVERNANCE.md"]
+    },
+    {
+      "id": "P02-R02-ARCHITECTURE",
+      "owner": "/root/p00_recon",
+      "status": "ACCEPTED",
+      "dependsOn": ["P01"],
+      "evidence": [".agent/reports/P02-ARCHITECTURE.md"]
+    },
+    {
+      "id": "P02-R03-TESTKIT",
+      "owner": "/root/p00_repair",
+      "status": "ACCEPTED",
+      "dependsOn": ["P01"],
+      "evidence": [".agent/reports/P02-TESTKIT.md"]
+    },
+    {
+      "id": "P02-R04-INTEGRATION",
+      "owner": "/root/p00_git_publish",
+      "status": "ACCEPTED",
+      "dependsOn": ["P02-R01-GOVERNANCE", "P02-R02-ARCHITECTURE", "P02-R03-TESTKIT"],
+      "evidence": [".agent/reports/P02-INTEGRATION.md"]
+    },
+    {
+      "id": "P02-REVIEW",
+      "owner": "/root/p00_review",
+      "status": "ACCEPTED",
+      "dependsOn": ["P02-R04-INTEGRATION"],
+      "evidence": [".agent/reports/P02-REVIEW.md"]
+    },
+    {
+      "id": "P03",
+      "owner": "/root/p00_git_publish",
+      "status": "ACCEPTED",
+      "dependsOn": ["P02"],
+      "evidence": [".agent/reports/P03-LANGUAGE-SPEC.md", ".agent/reports/P03-JAVA-INVENTORY.md", ".agent/reports/P03-ABI-ADR.md", ".agent/reports/P03-REVIEW.md: Focused R1/R2 re-review — ACCEPT P03"]
+    },
+    {
+      "id": "P03-W01-JAVA-INVENTORY",
+      "owner": "/root/p00_recon",
+      "status": "ACCEPTED",
+      "dependsOn": ["P02"],
+      "evidence": [".agent/reports/P03-JAVA-INVENTORY.md", "spec/java-se-25-inventory.json"]
+    },
+    {
+      "id": "P03-W02-LANGUAGE-SPEC",
+      "owner": "/root/p00_spec",
+      "status": "ACCEPTED",
+      "dependsOn": ["P03-W01-JAVA-INVENTORY"],
+      "evidence": [".agent/reports/P03-LANGUAGE-SPEC.md", "spec/diagnostics/validate.py"]
+    },
+    {
+      "id": "P03-W03-ABI-ADR",
+      "owner": "/root/p00_repair",
+      "status": "ACCEPTED",
+      "dependsOn": ["P03-W02-LANGUAGE-SPEC"],
+      "evidence": [".agent/reports/P03-ABI-ADR.md", "spec/abi/index.json", "spec/adr/index.json"]
+    },
+    {
+      "id": "P03-REVIEW",
+      "owner": "/root/p00_review",
+      "status": "ACCEPTED",
+      "dependsOn": ["P03-W01-JAVA-INVENTORY", "P03-W02-LANGUAGE-SPEC", "P03-W03-ABI-ADR"],
+      "evidence": [".agent/reports/P03-REVIEW.md"]
+    },
+    {
+      "id": "P04",
+      "owner": "/root/p00_git_publish",
+      "status": "ACCEPTED",
+      "dependsOn": ["P03"],
+      "evidence": [".agent/reports/P04-CONTRACT.md", ".agent/reports/P04-CORE.md", ".agent/reports/P04-DIAG-GEN-REPAIR.md", ".agent/reports/P04-MAP-API-REPAIR.md", ".agent/reports/P04-MODELS-REPAIR.md", ".agent/reports/P04-FINAL-REPAIR.md", ".agent/reports/P04-REVIEW.md: Final focused R04 review — ACCEPT P04"]
+    },
+    {
+      "id": "P04-REVIEW",
+      "owner": "/root/p00_review",
+      "status": "ACCEPTED",
+      "dependsOn": ["P04"],
+      "evidence": [".agent/reports/P04-REVIEW.md"]
+    },
+    {
+      "id": "P05",
+      "owner": "/root/p00_repair",
+      "status": "ACCEPTED",
+      "dependsOn": ["P04"],
+      "evidence": [
+        ".agent/reports/P05-CONTRACT.md",
+        ".agent/reports/P05-FRONTEND.md",
+        ".agent/reports/P05-LEXER-REPAIR.md",
+        ".agent/reports/P05-PARSER-REPAIR.md",
+        ".agent/reports/P05-NUMERIC-REPAIR.md",
+        ".agent/reports/P05-UNSUPPORTED-GOLDEN.md",
+        ".agent/reports/P05-VARARGS-REPAIR.md",
+        ".agent/reports/P05-REVIEW.md: Final focused varargs review — ACCEPT P05"
+      ]
+    },
+    {
+      "id": "P05-REVIEW",
+      "owner": "/root/p00_review",
+      "status": "ACCEPTED",
+      "dependsOn": ["P05"],
+      "evidence": [".agent/reports/P05-REVIEW.md: Final focused varargs review — ACCEPT P05"]
+    },
+    {
+      "id": "P06",
+      "owner": "/root/p00_git_publish",
+      "status": "ACCEPTED",
+      "dependsOn": ["P05"],
+      "evidence": [".agent/reports/P06-CONTRACT.md", ".agent/reports/P06-CORE-EMITTER.md", ".agent/reports/P06-CORE-REPAIR.md", ".agent/reports/P06-DRIVER.md", ".agent/reports/P06-DRIVER-REPAIR.md", ".agent/reports/P06-DRIVER-MAPPING.md", ".agent/reports/P06-DRIVER-FINAL.md", ".agent/reports/P06-REVIEW.md: Final focused review R05 — ACCEPT P06"]
+    },
+    {
+      "id": "P06-REVIEW",
+      "owner": "/root/p00_review",
+      "status": "ACCEPTED",
+      "dependsOn": ["P06"],
+      "evidence": [".agent/reports/P06-REVIEW.md: Final focused review R05 — ACCEPT P06"]
+    },
+    {
+      "id": "P07",
+      "owner": "/root/p00_repair",
+      "status": "ACCEPTED",
+      "dependsOn": ["P06"],
+      "evidence": [".agent/reports/P07-CONTRACT.md", ".agent/reports/P07-CLI.md", ".agent/reports/P07-REVIEW.md: ACCEPT P07"]
+    },
+    {
+      "id": "P07-REVIEW",
+      "owner": "/root/p00_review",
+      "status": "ACCEPTED",
+      "dependsOn": ["P07"],
+      "evidence": [".agent/reports/P07-REVIEW.md"]
+    },
+    {
+      "id": "P08",
+      "owner": "/root/p00_repair",
+      "status": "ACCEPTED",
+      "dependsOn": ["P04", "P07"],
+      "evidence": [".agent/reports/P08-CONTRACT.md", ".agent/reports/P08-MODEL.md", ".agent/reports/P08-MODEL-REPAIR.md", ".agent/reports/P08-INTEGRATION.md", ".agent/reports/P08-API-GOLDEN.md", ".agent/reports/P08-REVIEW.md: ACCEPT P08"]
+    },
+    {
+      "id": "P08-REVIEW",
+      "owner": "/root/p00_review",
+      "status": "ACCEPTED",
+      "dependsOn": ["P05", "P07", "P08"],
+      "evidence": [".agent/reports/P08-REVIEW.md"]
+    },
+    {
+      "id": "P09",
       "owner": null,
-      "status": "TODO",
-      "dependsOn": ["P00-REVIEW"],
+      "status": "READY",
+      "dependsOn": ["P06", "P08"],
+      "evidence": []
+    },
+    {
+      "id": "P10",
+      "owner": null,
+      "status": "READY",
+      "dependsOn": ["P08"],
       "evidence": []
     }
   ]

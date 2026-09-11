@@ -528,18 +528,18 @@ P03/P11 → P45 → P46 → P47 → P48
 **依賴：** 無  
 **產物：** .agent 初始狀態、environment-report、真實 agent registry
 
-- [ ] **P00-01** 確認目前所在目錄就是使用者指定專案，記錄 Git root、工作目錄、dirty files 與既有 AGENTS／override；不修改使用者既有變更。
-- [ ] **P00-02** 讀取本檔 A～D；將 B/C/附錄的需求歸屬交給子代理建立覆蓋索引，禁止漏讀後直接實作。
-- [ ] **P00-03** 確認實際 Codex／客戶端版本與目前暴露的 subagent 工具，不能從名字或舊文章推定可用。
-- [ ] **P00-04** 真正建立一個 read-only recon 子代理，要求返回唯一 thread/agent ID、讀取範圍與環境短摘要；把證據寫入 registry。
-- [ ] **P00-05** 若無法建立子代理，標記 BLOCKED_SUBAGENT_CAPABILITY、提供最小已驗證修正方式，禁止主 thread 繼續單人實作。
-- [ ] **P00-06** 讀取官方 AGENTS 載入規則，檢查有效指示是否被 override／大小限制截斷；不擅自修改全域 project_doc_max_bytes。[S01]
-- [ ] **P00-07** 盤點 CPU、RAM、磁碟、JDK、Gradle、Node、套件管理器、GUI／headless、網路與 sandbox 限制，不假設可 sudo。
-- [ ] **P00-08** 設定預設最多 4 個活躍 agent、2 個寫入者、1 個重型 build；實際環境較小則下調並記錄。
-- [ ] **P00-09** 建立狀態／ownership／report 模板；安排不重疊的短 read-only 子包，確認回報不把原始 log 灌入主 session。
-- [ ] **P00-10** 驗證中止／關閉子代理、超時及等待能力；不要以 shell 背景程序或多個聊天角色冒充獨立 agent。
-- [ ] **P00-11** 列出外部發布憑證未提供、域名未定、Git remote 未授權等外部條件，與本地開發是否可行分開。
-- [ ] **P00-12** 完成可恢復起點：STATE、TASKS、OWNERSHIP、NEXT_SESSION 包含下一個可執行工作包，而非一句「環境正常」。
+- [x] **P00-01** 確認目前所在目錄就是使用者指定專案，記錄 Git root、工作目錄、dirty files 與既有 AGENTS／override；不修改使用者既有變更。
+- [x] **P00-02** 讀取本檔 A～D；將 B/C/附錄的需求歸屬交給子代理建立覆蓋索引，禁止漏讀後直接實作。
+- [x] **P00-03** 確認實際 Codex／客戶端版本與目前暴露的 subagent 工具，不能從名字或舊文章推定可用。
+- [x] **P00-04** 真正建立一個 read-only recon 子代理，要求返回唯一 thread/agent ID、讀取範圍與環境短摘要；把證據寫入 registry。
+- [x] **P00-05** 若無法建立子代理，標記 BLOCKED_SUBAGENT_CAPABILITY、提供最小已驗證修正方式，禁止主 thread 繼續單人實作。
+- [x] **P00-06** 讀取官方 AGENTS 載入規則，檢查有效指示是否被 override／大小限制截斷；不擅自修改全域 project_doc_max_bytes。[S01]
+- [x] **P00-07** 盤點 CPU、RAM、磁碟、JDK、Gradle、Node、套件管理器、GUI／headless、網路與 sandbox 限制，不假設可 sudo。
+- [x] **P00-08** 設定預設最多 4 個活躍 agent、2 個寫入者、1 個重型 build；實際環境較小則下調並記錄。
+- [x] **P00-09** 建立狀態／ownership／report 模板；安排不重疊的短 read-only 子包，確認回報不把原始 log 灌入主 session。
+- [x] **P00-10** 驗證中止／關閉子代理、超時及等待能力；不要以 shell 背景程序或多個聊天角色冒充獨立 agent。
+- [x] **P00-11** 列出外部發布憑證未提供、域名未定、Git remote 未授權等外部條件，與本地開發是否可行分開。
+- [x] **P00-12** 完成可恢復起點：STATE、TASKS、OWNERSHIP、NEXT_SESSION 包含下一個可執行工作包，而非一句「環境正常」。
 
 **階段出口：** 已有可追蹤真實子代理回報；若沒有，只能交付環境阻塞，不得把 P00 勾為完成。 所有項目另須通過根 `AGENTS.md` 的共同 DoD。
 
@@ -549,18 +549,18 @@ P03/P11 → P45 → P46 → P47 → P48
 **依賴：** P00  
 **產物：** docs/engineering/toolchain-matrix.md、gradle/libs.versions.toml、依賴/授權清冊
 
-- [ ] **P01-01** 查核 JDK 25／Java 21 profile 所需 API 與 javac 行為，記錄來源 URL、檢查日期、採用版本及 checksum。
-- [ ] **P01-02** 分別記錄 compiler runtime JDK、Gradle daemon JDK、Javelle target release、IDEA client bytecode level，禁止把四者混為一個版本。
-- [ ] **P01-03** 從 Gradle 官方相容性資料挑選確定可用的 wrapper 版本與測試下限，不以 dynamic latest 建置。
-- [ ] **P01-04** 挑選並驗證 IntelliJ Platform Gradle Plugin、最低／目前支援的 IDEA build、可用 LSP module；記錄不支援的發行物與原因。
-- [ ] **P01-05** 鎖定 Lombok 正式 baseline artifact 與 source tag，保存 SHA-256；實際匯出 API／config，不只抄索引頁。
-- [ ] **P01-06** 從 LSP 官方 method inventory 與選定 Java JSON-RPC library 確認協定支援；記錄需要自行補 DTO 的差異。
-- [ ] **P01-07** 盤點 parser／JSON／LSP／測試／網站依賴，選維護狀態可接受且授權相容的最小集合；不為個別 API 塞入龐大平台。
-- [ ] **P01-08** 檢查自有 GPLv2+Classpath、第三方原始碼、binary linking、打包、annotation definitions 與輸出 helper 邊界，建立待審查項。
-- [ ] **P01-09** 內部 package root 可使用 org.javelle；公開 Maven group／Plugin ID 必須記錄 namespace 所有權驗證狀態，不假稱已註冊。
-- [ ] **P01-10** 為官方資料建立精簡 SOURCES 記錄與必要版本 snapshot；尊重上游授權，不把整站內容無審查複製進庫。
-- [ ] **P01-11** 鎖定 Node／網站套件管理器與所有前端依賴，記錄可重現安裝命令與 OS 支援範圍。
-- [ ] **P01-12** 由獨立 reviewer 重跑最小 toolchain／API probe，確認不是「文件看起來支持」而實際無法編譯。
+- [x] **P01-01** 查核 JDK 25／Java 21 profile 所需 API 與 javac 行為，記錄來源 URL、檢查日期、採用版本及 checksum。
+- [x] **P01-02** 分別記錄 compiler runtime JDK、Gradle daemon JDK、Javelle target release、IDEA client bytecode level，禁止把四者混為一個版本。
+- [x] **P01-03** 從 Gradle 官方相容性資料挑選確定可用的 wrapper 版本與測試下限，不以 dynamic latest 建置。
+- [x] **P01-04** 挑選並驗證 IntelliJ Platform Gradle Plugin、最低／目前支援的 IDEA build、可用 LSP module；記錄不支援的發行物與原因。
+- [x] **P01-05** 鎖定 Lombok 正式 baseline artifact 與 source tag，保存 SHA-256；實際匯出 API／config，不只抄索引頁。
+- [x] **P01-06** 從 LSP 官方 method inventory 與選定 Java JSON-RPC library 確認協定支援；記錄需要自行補 DTO 的差異。
+- [x] **P01-07** 盤點 parser／JSON／LSP／測試／網站依賴，選維護狀態可接受且授權相容的最小集合；不為個別 API 塞入龐大平台。
+- [x] **P01-08** 檢查自有 GPLv2+Classpath、第三方原始碼、binary linking、打包、annotation definitions 與輸出 helper 邊界，建立待審查項。
+- [x] **P01-09** 內部 package root 可使用 org.javelle；公開 Maven group／Plugin ID 必須記錄 namespace 所有權驗證狀態，不假稱已註冊。
+- [x] **P01-10** 為官方資料建立精簡 SOURCES 記錄與必要版本 snapshot；尊重上游授權，不把整站內容無審查複製進庫。
+- [x] **P01-11** 鎖定 Node／網站套件管理器與所有前端依賴，記錄可重現安裝命令與 OS 支援範圍。
+- [x] **P01-12** 由獨立 reviewer 重跑最小 toolchain／API probe，確認不是「文件看起來支持」而實際無法編譯。
 
 **階段出口：** 工具鏈與依賴有可重現 probe、確定版本與授權記錄；不確定的外部發布條件另有 gate。 所有項目另須通過根 `AGENTS.md` 的共同 DoD。
 
@@ -570,18 +570,18 @@ P03/P11 → P45 → P46 → P47 → P48
 **依賴：** P01  
 **產物：** Gradle multi-project、協作模板、架構檢查、baseline CI
 
-- [ ] **P02-01** 建立 C1 模組與最小可編譯依賴圖；檢查現有程式碼可復用部分，不產生沒功能的相容聲明。
-- [ ] **P02-02** 建立 Gradle Wrapper、version catalog、build-logic、統一 Java formatter/lint 與 reproducible archive 設定。
-- [ ] **P02-03** 新增 .editorconfig、.gitattributes、.gitignore，統一 UTF-8／LF；保留 Windows launcher 與 CRLF 測試。
-- [ ] **P02-04** 建立 AGENTS 指定的 STATE／TASKS／OWNERSHIP／reports／logs 目錄，日誌和暫存不進 Git。
-- [ ] **P02-05** 建立 schema 驗證工作，確保 task ID 唯一、依賴可拓撲排序、每個工作包有 owner 與驗收 evidence 欄位。
-- [ ] **P02-06** 建立 module dependency architecture test，阻擋 core→Gradle/IDE/LSP、server→IDE 與循環依賴。
-- [ ] **P02-07** 建立 testkit 的 source fixture、expected diagnostics、Java consumer、JAR 檢查與 process harness。
-- [ ] **P02-08** 建立 verifyQuick／verifyAll／releaseCheck 契約；尚未有的必要測試要顯示 incomplete，不能用空聚合任務回傳「全部通過」。
-- [ ] **P02-09** 建立本地角色配置範本；按實際版本驗證 schema 後才啟用，不硬編模型名、不提高費率或移除 approval。[S02]
-- [ ] **P02-10** 將本文件需求 ID 匯入 requirements manifest；checkbox 狀態必須由實際驗收記錄推進，不能批量預勾。
-- [ ] **P02-11** 建立清潔 worktree／共享 worktree 的 ownership與整合流程；測試兩個 agent 不會同時寫根建置檔。
-- [ ] **P02-12** 建立最小 CI：編譯、lint、architecture、manifest 檢查；CI 尚未執行與本地成功清楚區分。
+- [x] **P02-01** 建立 C1 模組與最小可編譯依賴圖；檢查現有程式碼可復用部分，不產生沒功能的相容聲明。
+- [x] **P02-02** 建立 Gradle Wrapper、version catalog、build-logic、統一 Java formatter/lint 與 reproducible archive 設定。
+- [x] **P02-03** 新增 .editorconfig、.gitattributes、.gitignore，統一 UTF-8／LF；保留 Windows launcher 與 CRLF 測試。
+- [x] **P02-04** 建立 AGENTS 指定的 STATE／TASKS／OWNERSHIP／reports／logs 目錄，日誌和暫存不進 Git。
+- [x] **P02-05** 建立 schema 驗證工作，確保 task ID 唯一、依賴可拓撲排序、每個工作包有 owner 與驗收 evidence 欄位。
+- [x] **P02-06** 建立 module dependency architecture test，阻擋 core→Gradle/IDE/LSP、server→IDE 與循環依賴。
+- [x] **P02-07** 建立 testkit 的 source fixture、expected diagnostics、Java consumer、JAR 檢查與 process harness。
+- [x] **P02-08** 建立 verifyQuick／verifyAll／releaseCheck 契約；尚未有的必要測試要顯示 incomplete，不能用空聚合任務回傳「全部通過」。
+- [x] **P02-09** 建立本地角色配置範本；按實際版本驗證 schema 後才啟用，不硬編模型名、不提高費率或移除 approval。[S02]
+- [x] **P02-10** 將本文件需求 ID 匯入 requirements manifest；checkbox 狀態必須由實際驗收記錄推進，不能批量預勾。
+- [x] **P02-11** 建立清潔 worktree／共享 worktree 的 ownership與整合流程；測試兩個 agent 不會同時寫根建置檔。
+- [x] **P02-12** 建立最小 CI：編譯、lint、architecture、manifest 檢查；CI 尚未執行與本地成功清楚區分。
 
 **階段出口：** 從乾淨 checkout 可跑真實初期測試；狀態與依賴圖能驗證，不能把未來 verifyAll 項目當成已完成。 所有項目另須通過根 `AGENTS.md` 的共同 DoD。
 
@@ -591,18 +591,18 @@ P03/P11 → P45 → P46 → P47 → P48
 **依賴：** P02  
 **產物：** spec/ 完整骨架與正式規則、ADR、需求追蹤表
 
-- [ ] **P03-01** 將 B1～B5 的語言規則轉成版本化 spec，明確標記 normative／informative／examples，不由 README 決定語義。
-- [ ] **P03-02** 完成 lexical grammar 與可驗證 EBNF；記錄換行、Unicode escape、contextual names 與 source span 契約。
-- [ ] **P03-03** 凍結無分號 for／try／enum、空語句、abstract method／annotation element／module directive 的替代與遷移規則。
-- [ ] **P03-04** 凍結 property visibility、backing field、default accessor、field context、constructor initialization、final／computed 規則。
-- [ ] **P03-05** 凍結 JavaBeans accessor 命名、boolean／縮寫、synthetic name collision、跨 jar metadata schema 與版號政策。
-- [ ] **P03-06** 凍結 var／val 的允許上下文、target typing、匿名／不可表達型別與 null 診斷；保留 Java var lambda parameter 的既有能力。
-- [ ] **P03-07** 逐章盤點 Java SE25 非 preview 特性，建立 Java21 profile 差異及 feature-to-test mapping；不得只列幾個常見語法。
-- [ ] **P03-08** 規定 Lombok FQN resolution、native versus strict-metadata profile、annotation collision 與 unsupported-feature 開發期診斷。
-- [ ] **P03-09** 定義 Java/Javelle 混合編譯與 processor rounds 契約、型別解析 phase 順序與不可終止時的診斷。
-- [ ] **P03-10** 定義 diagnostics code namespace、位置 encoding、相關資訊、source map many-to-one／synthetic mapping 與 schema evolution。
-- [ ] **P03-11** 將未在前期對話明定的決策建立 ADR，附至少兩個反例與測試；不得把可自主決策事項全部推回詢問使用者。
-- [ ] **P03-12** 由 reviewer 用 Java 反例攻擊文法／語義，修正文法歧義；spec draft 未解決的問題不得以「實作時再看」通過。
+- [x] **P03-01** 將 B1～B5 的語言規則轉成版本化 spec，明確標記 normative／informative／examples，不由 README 決定語義。
+- [x] **P03-02** 完成 lexical grammar 與可驗證 EBNF；記錄換行、Unicode escape、contextual names 與 source span 契約。
+- [x] **P03-03** 凍結無分號 for／try／enum、空語句、abstract method／annotation element／module directive 的替代與遷移規則。
+- [x] **P03-04** 凍結 property visibility、backing field、default accessor、field context、constructor initialization、final／computed 規則。
+- [x] **P03-05** 凍結 JavaBeans accessor 命名、boolean／縮寫、synthetic name collision、跨 jar metadata schema 與版號政策。
+- [x] **P03-06** 凍結 var／val 的允許上下文、target typing、匿名／不可表達型別與 null 診斷；保留 Java var lambda parameter 的既有能力。
+- [x] **P03-07** 逐章盤點 Java SE25 非 preview 特性，建立 Java21 profile 差異及 feature-to-test mapping；不得只列幾個常見語法。
+- [x] **P03-08** 規定 Lombok FQN resolution、native versus strict-metadata profile、annotation collision 與 unsupported-feature 開發期診斷。
+- [x] **P03-09** 定義 Java/Javelle 混合編譯與 processor rounds 契約、型別解析 phase 順序與不可終止時的診斷。
+- [x] **P03-10** 定義 diagnostics code namespace、位置 encoding、相關資訊、source map many-to-one／synthetic mapping 與 schema evolution。
+- [x] **P03-11** 將未在前期對話明定的決策建立 ADR，附至少兩個反例與測試；不得把可自主決策事項全部推回詢問使用者。
+- [x] **P03-12** 由 reviewer 用 Java 反例攻擊文法／語義，修正文法歧義；spec draft 未解決的問題不得以「實作時再看」通過。
 
 **階段出口：** B/C 中的硬性需求都有正式章節與需求 ID；三段 for、enum 邊界與 property visibility 等不再含糊。 所有項目另須通過根 `AGENTS.md` 的共同 DoD。
 
@@ -612,18 +612,18 @@ P03/P11 → P45 → P46 → P47 → P48
 **依賴：** P03  
 **產物：** compiler-core primitives、workspace-neutral 契約、source-map API
 
-- [ ] **P04-01** 實作不可變 SourceFile／SourceId／TextRange／LineMap，支持 UTF-8 檔案與 UTF-16 editor 座標換算。
-- [ ] **P04-02** 實作 Unicode 預處理到原始文字的 offset mapping，覆蓋 escape 改變換行與 surrogate pair 的案例。
-- [ ] **P04-03** 定義 token／trivia、CST／AST node ID、parent/child traversal 與錯誤節點，不依賴 IDE 類別。
-- [ ] **P04-04** 實作 Diagnostic code／severity／range／relatedInformation／fix metadata 與穩定 JSON serialization。
-- [ ] **P04-05** 定義 SymbolId、TypeRef、PropertyDescriptor、GeneratedMemberOrigin 與 ABI projection；ID 不用物件記憶體位址。
-- [ ] **P04-06** 定義 typed lowering IR／Java generation interfaces，記錄每個生成節點對應的來源或 synthetic 原因。
-- [ ] **P04-07** 實作 cancellation token、resource budget、輸入 fingerprint 與 thread-safe immutable snapshot 契約。
-- [ ] **P04-08** 實作 SourceMapSegment 的 direct／expanded／synthetic／related mapping，支援區間查詢而不是只存行號。
-- [ ] **P04-09** 為中文、emoji、CRLF、空檔、BOM、text block、Unicode newline 建立座標 roundtrip 測試。
-- [ ] **P04-10** 驗證 schema unknown fields／新版本拒絕策略與決定性 serialization，避免無序 Map 導致 snapshot 飄動。
-- [ ] **P04-11** 建立 internal implementation／public API 邊界與 API drift 檢查；禁止核心暴露 Gradle Project／PSI／LSP library types。
-- [ ] **P04-12** 由 interop reviewer 驗證一個來源節點展開多個 getter/setter 節點的定位，不容許只返回整個檔案位置。
+- [x] **P04-01** 實作不可變 SourceFile／SourceId／TextRange／LineMap，支持 UTF-8 檔案與 UTF-16 editor 座標換算。
+- [x] **P04-02** 實作 Unicode 預處理到原始文字的 offset mapping，覆蓋 escape 改變換行與 surrogate pair 的案例。
+- [x] **P04-03** 定義 token／trivia、CST／AST node ID、parent/child traversal 與錯誤節點，不依賴 IDE 類別。
+- [x] **P04-04** 實作 Diagnostic code／severity／range／relatedInformation／fix metadata 與穩定 JSON serialization。
+- [x] **P04-05** 定義 SymbolId、TypeRef、PropertyDescriptor、GeneratedMemberOrigin 與 ABI projection；ID 不用物件記憶體位址。
+- [x] **P04-06** 定義 typed lowering IR／Java generation interfaces，記錄每個生成節點對應的來源或 synthetic 原因。
+- [x] **P04-07** 實作 cancellation token、resource budget、輸入 fingerprint 與 thread-safe immutable snapshot 契約。
+- [x] **P04-08** 實作 SourceMapSegment 的 direct／expanded／synthetic／related mapping，支援區間查詢而不是只存行號。
+- [x] **P04-09** 為中文、emoji、CRLF、空檔、BOM、text block、Unicode newline 建立座標 roundtrip 測試。
+- [x] **P04-10** 驗證 schema unknown fields／新版本拒絕策略與決定性 serialization，避免無序 Map 導致 snapshot 飄動。
+- [x] **P04-11** 建立 internal implementation／public API 邊界與 API drift 檢查；禁止核心暴露 Gradle Project／PSI／LSP library types。
+- [x] **P04-12** 由 interop reviewer 驗證一個來源節點展開多個 getter/setter 節點的定位，不容許只返回整個檔案位置。
 
 **階段出口：** 核心模型可單獨測試、來源位置可 roundtrip，後端與 IDE 不用自行重新發明位置系統。 所有項目另須通過根 `AGENTS.md` 的共同 DoD。
 
@@ -633,18 +633,18 @@ P03/P11 → P45 → P46 → P47 → P48
 **依賴：** P04  
 **產物：** 可解析 class/method/field/property 的 vertical slice
 
-- [ ] **P05-01** 實作真實 lexer 的識別符、關鍵字、字面量、註解、標點、newline 與 trivia，禁止 regex 全文替換。
-- [ ] **P05-02** 實作 package／import、class、method、顯式型別 field、局部宣告與基礎 expression grammar。
-- [ ] **P05-03** 解析 property block 的 get/set、自訂 body 與 access modifier，輸出帶 span 的 AST。
-- [ ] **P05-04** 實作 expression precedence、method call、member access、new、assignment 與基本 return/if/block。
-- [ ] **P05-05** 遵守無分號語句終止；對 `String x = "a;b"` 保留字串內分號，對真正語法分號產生具體 fix。
-- [ ] **P05-06** 新增未閉合 block、未完成 accessor、缺 expression 的 recovery node，不能遇到半行程式就 crash。
-- [ ] **P05-07** 建立 AST snapshot 但同時檢查 span／node kinds，不以單純 pretty-print 回顯源碼當 parser。
-- [ ] **P05-08** 建立 true-positive／true-negative fixture，確認非法 private var field／var null 不會被當成成功。
-- [ ] **P05-09** 只對已實作語法 advertise 能力；其他已知語法產生標記清晰的開發期 diagnostic，不忽略輸入。
-- [ ] **P05-10** 連接一個純 Java field 與一個 property 的 AST 差異測試，防止全域 auto-property 化。
-- [ ] **P05-11** 驗證同名普通識別符 get/set/field 在非 accessor 作用域的行為符合 spec。
-- [ ] **P05-12** 由 reviewer 用不完整編輯 buffer 重跑 parser，驗證穩定回復而非大量連鎖假錯。
+- [x] **P05-01** 實作真實 lexer 的識別符、關鍵字、字面量、註解、標點、newline 與 trivia，禁止 regex 全文替換。
+- [x] **P05-02** 實作 package／import、class、method、顯式型別 field、局部宣告與基礎 expression grammar。
+- [x] **P05-03** 解析 property block 的 get/set、自訂 body 與 access modifier，輸出帶 span 的 AST。
+- [x] **P05-04** 實作 expression precedence、method call、member access、new、assignment 與基本 return/if/block。
+- [x] **P05-05** 遵守無分號語句終止；對 `String x = "a;b"` 保留字串內分號，對真正語法分號產生具體 fix。
+- [x] **P05-06** 新增未閉合 block、未完成 accessor、缺 expression 的 recovery node，不能遇到半行程式就 crash。
+- [x] **P05-07** 建立 AST snapshot 但同時檢查 span／node kinds，不以單純 pretty-print 回顯源碼當 parser。
+- [x] **P05-08** 建立 true-positive／true-negative fixture，確認非法 private var field／var null 不會被當成成功。
+- [x] **P05-09** 只對已實作語法 advertise 能力；其他已知語法產生標記清晰的開發期 diagnostic，不忽略輸入。
+- [x] **P05-10** 連接一個純 Java field 與一個 property 的 AST 差異測試，防止全域 auto-property 化。
+- [x] **P05-11** 驗證同名普通識別符 get/set/field 在非 accessor 作用域的行為符合 spec。
+- [x] **P05-12** 由 reviewer 用不完整編輯 buffer 重跑 parser，驗證穩定回復而非大量連鎖假錯。
 
 **階段出口：** 有帶位置的真 parser，既能處理核心 property 範例，也會對錯誤輸入失敗；不算完整語言完成。 所有項目另須通過根 `AGENTS.md` 的共同 DoD。
 
@@ -654,18 +654,18 @@ P03/P11 → P45 → P46 → P47 → P48
 **依賴：** P05  
 **產物：** core property → Java → javac 的可執行垂直切片
 
-- [ ] **P06-01** 實作 Java emission 的縮排、imports、class/method/field、必要分號與穩定 member ordering。
-- [ ] **P06-02** 將原生 property 的 default/custom accessor 轉成正常 Java methods，backing field 名稱與可見性符合 B3。
-- [ ] **P06-03** 實作最小 symbol-bound property reads/writes；普通 field 保持直接存取，不能按字串名字全域改寫。
-- [ ] **P06-04** 生成每個節點的 source map，建立 generated Java header 的來源／版本資訊但不含不穩定 timestamp。
-- [ ] **P06-05** 透過 javax.tools.JavaCompiler／對應公開介面實際編譯，保存 javac exit 與 diagnostics。[S04]
-- [ ] **P06-06** 執行 Java consumer，驗證 setName trim 行為、getter 值與私有 accessor 的存取限制。
-- [ ] **P06-07** 將 javac 型別不相容與缺符號錯誤映射回 .javelle 的精確 range，而非只回 build/generated 路徑。
-- [ ] **P06-08** 驗證兩次 emit 內容一致；反覆執行不產生重複 methods 或累積 imports。
-- [ ] **P06-09** 驗證生成 Java 本身可打開、閱讀、用正常 javac 編譯，不需要 Lombok processor。
-- [ ] **P06-10** 建立 generated-files ownership manifest，避免後續 cleanup 刪除非 Javelle 產生內容。
-- [ ] **P06-11** 用 reflection 驗證 field/modifier、method return/parameter types，不能只比 Java 字串。
-- [ ] **P06-12** 由 reviewer 破壞 setter 實作確認 consumer 測試會失敗，證明不是無效成功測試。
+- [x] **P06-01** 實作 Java emission 的縮排、imports、class/method/field、必要分號與穩定 member ordering。
+- [x] **P06-02** 將原生 property 的 default/custom accessor 轉成正常 Java methods，backing field 名稱與可見性符合 B3。
+- [x] **P06-03** 實作最小 symbol-bound property reads/writes；普通 field 保持直接存取，不能按字串名字全域改寫。
+- [x] **P06-04** 生成每個節點的 source map，建立 generated Java header 的來源／版本資訊但不含不穩定 timestamp。
+- [x] **P06-05** 透過 javax.tools.JavaCompiler／對應公開介面實際編譯，保存 javac exit 與 diagnostics。[S04]
+- [x] **P06-06** 執行 Java consumer，驗證 setName trim 行為、getter 值與私有 accessor 的存取限制。
+- [x] **P06-07** 將 javac 型別不相容與缺符號錯誤映射回 .javelle 的精確 range，而非只回 build/generated 路徑。
+- [x] **P06-08** 驗證兩次 emit 內容一致；反覆執行不產生重複 methods 或累積 imports。
+- [x] **P06-09** 驗證生成 Java 本身可打開、閱讀、用正常 javac 編譯，不需要 Lombok processor。
+- [x] **P06-10** 建立 generated-files ownership manifest，避免後續 cleanup 刪除非 Javelle 產生內容。
+- [x] **P06-11** 用 reflection 驗證 field/modifier、method return/parameter types，不能只比 Java 字串。
+- [x] **P06-12** 由 reviewer 破壞 setter 實作確認 consumer 測試會失敗，證明不是無效成功測試。
 
 **階段出口：** 真正產生、編譯並執行 class；可讀 Java 與來源錯誤定位有獨立證據。 所有項目另須通過根 `AGENTS.md` 的共同 DoD。
 
@@ -675,18 +675,18 @@ P03/P11 → P45 → P46 → P47 → P48
 **依賴：** P06  
 **產物：** javelle launcher、核心命令與 diagnostics schema
 
-- [ ] **P07-01** 建立跨平台 launcher 與 --version／--help，不要求使用者手拼 internal classpath。
-- [ ] **P07-02** 實作 check／compile／emit-java 的 vertical slice，共用 compiler-driver，不複製編譯管線。
-- [ ] **P07-03** 凍結 exit code：成功、使用錯誤、編譯錯誤、工具鏈／I/O、內部錯誤需有獨立可測約定。
-- [ ] **P07-04** 提供 --diagnostics json、固定 schemaVersion、stable code、range、related info、建議，不用 ANSI 字串冒充 JSON。
-- [ ] **P07-05** 正確分開 stdout 與 stderr；quiet／no-color、路徑含空格、非 ASCII 路徑、Windows quoting 都需處理。
-- [ ] **P07-06** 建立 explain 命令的錯誤碼索引，未知 code 回合理錯誤，不編造解釋。
-- [ ] **P07-07** 建立 doctor 的 JDK／classpath／版本檢查，明確區分 missing javac 與 source compile error。
-- [ ] **P07-08** 檔案輸出使用 atomic replace；編譯失敗不留下可誤認成功的新產物。
-- [ ] **P07-09** 執行 Ctrl-C／cancel／timeout 測試，退出時關閉 file manager/process，不能留下 daemon 洩漏。
-- [ ] **P07-10** 更新 docs 中已可用命令與 fixture，未完成命令在開發狀態標明，不能 --help 宣稱它已可用。
-- [ ] **P07-11** 產生真 CLI integration test，從外部 process 讀 JSON、驗證 exit code 與輸出檔案。
-- [ ] **P07-12** 由獨立 reviewer 在新的工作目錄執行基本範例，不依賴 developer IDE 的 classpath。
+- [x] **P07-01** 建立跨平台 launcher 與 --version／--help，不要求使用者手拼 internal classpath。
+- [x] **P07-02** 實作 check／compile／emit-java 的 vertical slice，共用 compiler-driver，不複製編譯管線。
+- [x] **P07-03** 凍結 exit code：成功、使用錯誤、編譯錯誤、工具鏈／I/O、內部錯誤需有獨立可測約定。
+- [x] **P07-04** 提供 --diagnostics json、固定 schemaVersion、stable code、range、related info、建議，不用 ANSI 字串冒充 JSON。
+- [x] **P07-05** 正確分開 stdout 與 stderr；quiet／no-color、路徑含空格、非 ASCII 路徑、Windows quoting 都需處理。
+- [x] **P07-06** 建立 explain 命令的錯誤碼索引，未知 code 回合理錯誤，不編造解釋。
+- [x] **P07-07** 建立 doctor 的 JDK／classpath／版本檢查，明確區分 missing javac 與 source compile error。
+- [x] **P07-08** 檔案輸出使用 atomic replace；編譯失敗不留下可誤認成功的新產物。
+- [x] **P07-09** 執行 Ctrl-C／cancel／timeout 測試，退出時關閉 file manager/process，不能留下 daemon 洩漏。
+- [x] **P07-10** 更新 docs 中已可用命令與 fixture，未完成命令在開發狀態標明，不能 --help 宣稱它已可用。
+- [x] **P07-11** 產生真 CLI integration test，從外部 process 讀 JSON、驗證 exit code 與輸出檔案。
+- [x] **P07-12** 由獨立 reviewer 在新的工作目錄執行基本範例，不依賴 developer IDE 的 classpath。
 
 **階段出口：** CLI 可由 shell／agent 真實呼叫，機器資料與人類日誌分離；後續 P39 補齊完整命令。 所有項目另須通過根 `AGENTS.md` 的共同 DoD。
 
@@ -696,18 +696,18 @@ P03/P11 → P45 → P46 → P47 → P48
 **依賴：** P04、P07  
 **產物：** workspace-model schema、讀寫／驗證器、實際單 module model
 
-- [ ] **P08-01** 實作 C2 schema 與版本化 JSON serializer/validator，沒有 Gradle 或 IntelliJ runtime 依賴。
-- [ ] **P08-02** 讀取單 module 的 main/test Java/Javelle roots、JDK、classpath 與 generated directories。
-- [ ] **P08-03** 區分 project logical path、file URI、resolved absolute path 與可重定位 cache key。
-- [ ] **P08-04** 加入 compile/runtime/processor classpath、module path、source JAR、target release 與 trust policy。
-- [ ] **P08-05** 處理空 source set、不存在目錄、重複 roots、符號連結、大小寫敏感差異並提供定位清楚的診斷。
-- [ ] **P08-06** 建立 model fingerprint，classpath/JDK/options/config 改變可使分析 cache 失效。
-- [ ] **P08-07** CLI 可 consume model 並編譯相同範例，不要求 server 自行 eval build.gradle。
-- [ ] **P08-08** 建立主／測試 module 間依賴與循環 model 診斷；分清 source code 循環參照與 build module 循環。
-- [ ] **P08-09** 增添 dirty buffer overlay 契約，source map 與 on-disk model 能跟 editor snapshot 分離。
-- [ ] **P08-10** 保證 checked-in examples 不含開發機的絕對 user home/JDK 路徑。
-- [ ] **P08-11** 建立 schema backward/forward compatibility 與 stale model refresh 測試。
-- [ ] **P08-12** 由另一個不依賴 Gradle 的 test client 讀 model，證明格式真正 editor/build-neutral。
+- [x] **P08-01** 實作 C2 schema 與版本化 JSON serializer/validator，沒有 Gradle 或 IntelliJ runtime 依賴。
+- [x] **P08-02** 讀取單 module 的 main/test Java/Javelle roots、JDK、classpath 與 generated directories。
+- [x] **P08-03** 區分 project logical path、file URI、resolved absolute path 與可重定位 cache key。
+- [x] **P08-04** 加入 compile/runtime/processor classpath、module path、source JAR、target release 與 trust policy。
+- [x] **P08-05** 處理空 source set、不存在目錄、重複 roots、符號連結、大小寫敏感差異並提供定位清楚的診斷。
+- [x] **P08-06** 建立 model fingerprint，classpath/JDK/options/config 改變可使分析 cache 失效。
+- [x] **P08-07** CLI 可 consume model 並編譯相同範例，不要求 server 自行 eval build.gradle。
+- [x] **P08-08** 建立主／測試 module 間依賴與循環 model 診斷；分清 source code 循環參照與 build module 循環。
+- [x] **P08-09** 增添 dirty buffer overlay 契約，source map 與 on-disk model 能跟 editor snapshot 分離。
+- [x] **P08-10** 保證 checked-in examples 不含開發機的絕對 user home/JDK 路徑。
+- [x] **P08-11** 建立 schema backward/forward compatibility 與 stale model refresh 測試。
+- [x] **P08-12** 由另一個不依賴 Gradle 的 test client 讀 model，證明格式真正 editor/build-neutral。
 
 **階段出口：** 同一 workspace model 可供 CLI、server 與 Gradle adapter 使用，模型不能硬耦合任何 IDE。 所有項目另須通過根 `AGENTS.md` 的共同 DoD。
 
