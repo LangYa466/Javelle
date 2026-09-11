@@ -2,7 +2,7 @@
 
 TASK / AGENT_ID / BASE_REVISION: `P13-W01` / `/root` / `dev` at `2f6bb43`
 
-STATUS: **CONTRACT_FROZEN — P13 implementation IN_PROGRESS (round 11 of N)**
+STATUS: **CONTRACT_FROZEN — P13 implementation IN_PROGRESS (round 12 of N)**
 
 Source: `prompts/JAVELLE_IMPLEMENTATION_PLAN.md` section E, `## P13 — 完整宣告與型別 grammar` (lines 798-817). This contract restates that section's 12 requirements (P13-01..P13-12) as a concrete acceptance matrix; it does not change the plan's scope. Depends on P12 (ACCEPTED pending its own independent review, in progress concurrently with this round).
 
@@ -94,6 +94,12 @@ Explicitly NOT done yet: the semantic (whole-program) rule that a sealed type mu
 Implemented (P13-01): `package pkg.name` and all four import forms — single-type (`import pkg.Type`), on-demand (`import pkg.*`), static single (`import static pkg.Type.member`), static on-demand (`import static pkg.Type.*`) — now parse into structured `PackageDeclaration`/`ImportDeclaration` nodes with a real dotted-name value (and a `StaticModifier` child for the two static forms), replacing the old `scanLine(kind)` helper that just consumed raw tokens to the line boundary into an anonymous, nameless node (silently swallowing arbitrary trailing content). A malformed name (not a clean dotted-identifier chain, optionally ending in a bare `*`) is now diagnosed as `JV-SYN-0002` instead of silently accepted. `scanLine` itself is deleted as dead code. Seven new tests in `P13PackageImportTest.java` cover: package declaration, single-type import, on-demand import, static single import, static on-demand import, a malformed import, and package+multiple-imports together.
 
 Explicitly NOT done yet: generics as a real feature, receiver parameters, type-use annotations (P13-03), annotation-element array-literal default values, initializer blocks (P13-04 remainder), anonymous classes, compact constructors, `this()`/`super()` placement rules and compact/instance `main` (P13-05), `module`/`open`/package-info/module-info compilation units (P13-07 — package/import parsing itself is now real, but a source file consisting only of `package-info`/`module-info` content with no public type is still unhandled), the property-initializer-vs-accessor-block disambiguation audit (P13-08), duplicate-constructor/unclosed-generics/class-record-confusion diagnostics (P13-10 remainder), and the Java-fixture ABI-equivalence migration suite (P13-11).
+
+## 3l. Round 12 progress (initializer blocks)
+
+Implemented (P13-04 remainder): a class-body member that is a bare `{ ... }` (optionally preceded by `static`) now parses as a real `InitializerBlockDeclaration` (with a `StaticModifier` child when static), instead of falling through to "unsupported member". The class-body modifier-consumption loop now tracks whether `static` was seen before deciding what kind of member follows, rather than discarding modifiers unconditionally before any branch runs. Since `parseEnum`/`parseRecord` both delegate their member sections to `parseClassBodyMembers`, initializer blocks work there too for free. Five new tests in `P13InitializerBlockTest.java` cover: instance block, static block, empty block, unterminated block, and blocks nested inside a record and an enum member section.
+
+Explicitly NOT done yet: generics as a real feature, receiver parameters, type-use annotations (P13-03), annotation-element array-literal default values, anonymous classes, compact constructors, `this()`/`super()` placement rules and compact/instance `main` (P13-05), `module`/`open`/package-info/module-info compilation units with no public type (P13-07), the property-initializer-vs-accessor-block disambiguation audit (P13-08), duplicate-constructor/unclosed-generics/class-record-confusion diagnostics (P13-10 remainder), and the Java-fixture ABI-equivalence migration suite (P13-11).
 
 ## 4. Test requirements
 

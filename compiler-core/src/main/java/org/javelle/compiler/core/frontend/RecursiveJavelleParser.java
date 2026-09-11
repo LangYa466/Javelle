@@ -199,12 +199,18 @@ public final class RecursiveJavelleParser implements JavelleParser {
       skipLines();
       if (word("}")) break;
       int before = p;
-      for (; isModifier(); take()) {}
+      boolean sawStatic = false;
+      for (; isModifier(); ) {
+        if (word("static")) sawStatic = true;
+        take();
+      }
       if (word("var") || word("val")) {
         Token bad = take();
         error(bad, "JV-TYP-0003", "inferred field type is illegal");
         sync();
         members.add(node("ErrorNode", "", bad.rawRange(), List.of()));
+      } else if (word("{")) {
+        members.add(parseInitializerBlock(sawStatic));
       } else if (word("class")) {
         Token nestedStart = take();
         String nestedName = identifier();
@@ -426,6 +432,15 @@ public final class RecursiveJavelleParser implements JavelleParser {
     Token end = current();
     if (!accept("}")) error(end, "JV-SYN-0002", "unterminated annotation type");
     return node("AnnotationTypeDeclaration", name, span(start, end), members);
+  }
+
+  /** {@code static { ... }} or {@code { ... }} — a class initializer block with no name. */
+  private FrontendNode parseInitializerBlock(boolean isStatic) {
+    Token brace = take();
+    var children = new ArrayList<FrontendNode>();
+    if (isStatic) children.add(node("StaticModifier", "static", brace.rawRange(), List.of()));
+    children.addAll(parseStatements());
+    return node("InitializerBlockDeclaration", "", span(brace, previous()), children);
   }
 
   /** A constructor is spelled {@code Name(...)} with no return type; it always requires a body. */
