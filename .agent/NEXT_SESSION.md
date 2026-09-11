@@ -1,7 +1,8 @@
 # Resume Javelle
 
 1. Run `sudo su` before every operation, then verify `git status --short --branch` and read `.agent/STATE.md`.
-2. Read the final ACCEPT sections of `.agent/reports/P07-REVIEW.md` and `.agent/reports/P08-REVIEW.md`.
-3. Preserve the accepted boundaries: P07 is the initial real CLI; P08 is workspace model/export/CLI consumption neutrality, not the later full CLI, Gradle compilation plugin, LSP or IDEA feature set.
-4. Preserve unowned `.idea/vcs.xml`. P09 and P10 are READY; assign non-overlapping packages within writer limits.
-5. Keep strict `verifyQuick` and fixed API/schema goldens green; independently review each stage before unlocking dependants.
+2. Read the final ACCEPT sections of `.agent/reports/P07-REVIEW.md` through `.agent/reports/P10-REVIEW.md` (P09 accepted at its R3 section, P10 at its R4 section).
+3. Preserve the accepted boundaries: P07 is the initial real CLI; P08 is workspace model/export/CLI consumption neutrality; P09 is the local-only `org.javelle` Gradle plugin (no Plugin Portal publication); P10 is the standalone stdio LSP (no IDEA integration).
+4. Preserve unowned `.idea/vcs.xml`. P00 through P10 are ACCEPTED. No P11 contract exists yet — before starting new implementation work, write a frozen `P11-CONTRACT.md` scoping the next package(s). Good candidates, matching the still-`NOT_IMPLEMENTED` gates in `build.gradle.kts`'s `verifyAllReadiness`: the IntelliJ plugin (`idea-ui-debug`, currently an empty `intellij-plugin` module), differential testing against javac/Lombok (`compiler-java-differential`, `lombok-differential`), website docs (`website-doc-examples`), and license/SBOM tooling (`security-license-sbom`).
+5. Keep strict `verifyQuick` and fixed API/schema goldens green; independently review each stage before unlocking dependants. Note: `verifyAllReadiness` now really executes the P09/P10 test suites (via `verifyImplementedGates`) instead of listing them as not-implemented — do not revert that to a hardcoded list.
+6. When adding a GradleRunner-based TestKit fixture, remember the P09 R2/R3 lesson: point `.withTestKitDir(...)` at the real ambient `<user.home>/.gradle`, not a dedicated `.../testkit` subdirectory — otherwise `--offline` fixtures fail on any account whose ambient cache was never manually warmed (verify with a genuinely fresh OS account, not just a different `HOME` env var — on this machine `user.home` resolves via the OS passwd entry and ignores `HOME`).
