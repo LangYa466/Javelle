@@ -45,3 +45,6 @@ bin/
 # Agent-local evidence and disposable workspace
 .agent/logs/
 .agent/tmp/
+
+### IntelliJ Platform Gradle Plugin ###
+.intellijPlatform/

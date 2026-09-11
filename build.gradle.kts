@@ -172,8 +172,14 @@ val verifyQuick = tasks.register("verifyQuick") {
 
 val verifyImplementedGates = tasks.register("verifyImplementedGates") {
     group = "verification"
-    description = "Runs the P09/P10 gates that are now implemented: the Gradle plugin TestKit consumer suite and the LSP black-box suite."
-    dependsOn(":gradle-plugin:p09TestKit", ":language-server:test", ":language-tooling:test")
+    description = "Runs the P09/P10/P11 gates that are now implemented: the Gradle plugin TestKit consumer suite, the LSP black-box suite, and the headless IntelliJ plugin integration suite."
+    dependsOn(
+        ":gradle-plugin:p09TestKit",
+        ":language-server:test",
+        ":language-tooling:test",
+        ":intellij-plugin:test",
+        ":intellij-plugin:verifyPluginStructure",
+    )
 }
 
 val verifyAllReadiness = tasks.register("verifyAllReadiness") {

@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "phase": "P11-PENDING-CONTRACT",
+  "phase": "P11",
   "tasks": [
     {
       "id": "P00",
@@ -319,6 +319,23 @@
       "status": "ACCEPTED",
       "dependsOn": ["P10"],
       "evidence": [".agent/reports/P10-REVIEW.md: R4 independent post-implementation review — ACCEPT P10"]
+    },
+    {
+      "id": "P11",
+      "owner": "/root",
+      "status": "ACCEPTED",
+      "dependsOn": ["P09", "P10"],
+      "evidence": [
+        ".agent/reports/P11-CONTRACT.md",
+        ".agent/reports/P11-CONTRACT.md: P11 review R2 (fix verification, independent) — ACCEPT P11"
+      ]
+    },
+    {
+      "id": "P11-REVIEW",
+      "owner": "/root",
+      "status": "ACCEPTED",
+      "dependsOn": ["P11"],
+      "evidence": [".agent/reports/P11-CONTRACT.md: P11 review R2 (fix verification, independent) — ACCEPT P11"]
     }
   ]
 }
