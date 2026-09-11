@@ -31,37 +31,39 @@ public final class RecursiveJavelleParser implements JavelleParser {
       skipLines();
       if (at(TokenKind.EOF)) break;
       int before = p;
-      if (word("module") || word("open")) {
-        children.add(unsupported("module-declaration"));
-      } else if (word("@") && lookWord(1, "interface")) {
-        take();
-        Token start = take();
-        String name = identifier();
-        children.add(parseAnnotationType(start, name));
-      } else if (word("record")) {
-        Token start = take();
-        String name = identifier();
-        children.add(parseRecord(start, name));
-      } else if (word("interface")) {
-        Token start = take();
-        String name = identifier();
-        children.add(parseInterface(start, name));
-      } else if (word("enum")) {
-        Token start = take();
-        String name = identifier();
-        children.add(parseEnum(start, name));
-      } else if (word("package")) {
+      if (word("package")) {
         children.add(scanLine("PackageDeclaration"));
       } else if (word("import")) {
         children.add(scanLine("ImportDeclaration"));
-      } else if (findWordAhead("class", 6)) {
-        while (!word("class") && !at(TokenKind.EOF)) take();
-        Token start = take();
-        String name = identifier();
-        children.add(parseClass(start, name));
       } else {
-        error(current(), "JV-SYN-0002", "expected declaration");
-        take();
+        var modifiers = parseTopLevelModifiers();
+        if (word("module") || word("open")) {
+          children.add(unsupported("module-declaration"));
+        } else if (word("@") && lookWord(1, "interface")) {
+          take();
+          Token start = take();
+          String name = identifier();
+          children.add(parseAnnotationType(start, name, modifiers));
+        } else if (word("record")) {
+          Token start = take();
+          String name = identifier();
+          children.add(parseRecord(start, name, modifiers));
+        } else if (word("interface")) {
+          Token start = take();
+          String name = identifier();
+          children.add(parseInterface(start, name, modifiers));
+        } else if (word("enum")) {
+          Token start = take();
+          String name = identifier();
+          children.add(parseEnum(start, name, modifiers));
+        } else if (word("class")) {
+          Token start = take();
+          String name = identifier();
+          children.add(parseClass(start, name, modifiers));
+        } else {
+          error(current(), "JV-SYN-0002", "expected declaration");
+          take();
+        }
       }
       if (p == before) take();
     }
@@ -82,8 +84,9 @@ public final class RecursiveJavelleParser implements JavelleParser {
         recovered || !diagnostics.isEmpty());
   }
 
-  private FrontendNode parseClass(Token start, String name) {
-    var members = new ArrayList<FrontendNode>();
+  private FrontendNode parseClass(Token start, String name, List<FrontendNode> modifiers) {
+    var members = new ArrayList<FrontendNode>(modifiers);
+    members.addAll(parsePermitsClause());
     if (!accept("{")) {
       error(current(), "JV-SYN-0002", "missing class body");
       return node("ClassDeclaration", name, start.rawRange(), members);
@@ -92,6 +95,45 @@ public final class RecursiveJavelleParser implements JavelleParser {
     Token end = current();
     if (!accept("}")) error(end, "JV-SYN-0002", "unterminated class");
     return node("ClassDeclaration", name, span(start, end), members);
+  }
+
+  private static final Set<String> TOP_LEVEL_MODIFIERS =
+      Set.of("public", "protected", "private", "static", "final", "abstract", "sealed");
+
+  /**
+   * Captures {@code public}/{@code private}/.../{@code sealed} and the two-word {@code non-sealed}
+   * modifier (lexed as three tokens: {@code non}, {@code -}, {@code sealed}, since the lexer has no
+   * single-token support for it yet) as {@code ModifierDeclaration} nodes.
+   */
+  private List<FrontendNode> parseTopLevelModifiers() {
+    var modifiers = new ArrayList<FrontendNode>();
+    while (true) {
+      if (word("non") && lookWord(1, "-") && lookWord(2, "sealed")) {
+        Token start = take();
+        take();
+        Token end = take();
+        modifiers.add(node("ModifierDeclaration", "non-sealed", span(start, end), List.of()));
+      } else if (TOP_LEVEL_MODIFIERS.contains(current().value())) {
+        Token m = take();
+        modifiers.add(node("ModifierDeclaration", m.value(), m.rawRange(), List.of()));
+      } else break;
+    }
+    return modifiers;
+  }
+
+  /** {@code permits Name1, Name2, ...} — only meaningful after a sealed class/interface header. */
+  private List<FrontendNode> parsePermitsClause() {
+    var permitted = new ArrayList<FrontendNode>();
+    if (!accept("permits")) return permitted;
+    do {
+      if (!isIdentifierLike()) {
+        error(current(), "JV-SYN-0002", "expected permitted type name");
+        break;
+      }
+      Token name = take();
+      permitted.add(node("PermittedSubtypeDeclaration", name.value(), name.rawRange(), List.of()));
+    } while (accept(","));
+    return permitted;
   }
 
   /** Parses class/enum-member-section members up to (not including) the closing {@code }}. */
@@ -164,8 +206,8 @@ public final class RecursiveJavelleParser implements JavelleParser {
    * trailing comma before either. Constant arguments and constant-specific class bodies are not yet
    * supported (P13 round 2).
    */
-  private FrontendNode parseEnum(Token start, String name) {
-    var members = new ArrayList<FrontendNode>();
+  private FrontendNode parseEnum(Token start, String name, List<FrontendNode> modifiers) {
+    var members = new ArrayList<FrontendNode>(modifiers);
     if (!accept("{")) {
       error(current(), "JV-SYN-0002", "missing enum body");
       return node("EnumDeclaration", name, start.rawRange(), members);
@@ -196,8 +238,9 @@ public final class RecursiveJavelleParser implements JavelleParser {
    * require a real body; fields are implicitly public/static/final constants and require an
    * initializer.
    */
-  private FrontendNode parseInterface(Token start, String name) {
-    var members = new ArrayList<FrontendNode>();
+  private FrontendNode parseInterface(Token start, String name, List<FrontendNode> modifiers) {
+    var members = new ArrayList<FrontendNode>(modifiers);
+    members.addAll(parsePermitsClause());
     if (!accept("{")) {
       error(current(), "JV-SYN-0002", "missing interface body");
       return node("InterfaceDeclaration", name, start.rawRange(), members);
@@ -252,8 +295,8 @@ public final class RecursiveJavelleParser implements JavelleParser {
    * same as in a plain interface. Nested annotation types and array-literal default values are not
    * yet supported.
    */
-  private FrontendNode parseAnnotationType(Token start, String name) {
-    var members = new ArrayList<FrontendNode>();
+  private FrontendNode parseAnnotationType(Token start, String name, List<FrontendNode> modifiers) {
+    var members = new ArrayList<FrontendNode>(modifiers);
     if (!accept("{")) {
       error(current(), "JV-SYN-0002", "missing annotation type body");
       return node("AnnotationTypeDeclaration", name, start.rawRange(), members);
@@ -347,13 +390,14 @@ public final class RecursiveJavelleParser implements JavelleParser {
    * detection in {@link #parseClassBodyMembers(Optional)}. Compact constructors ({@code Name { ...
    * }}, no parentheses) are not yet supported.
    */
-  private FrontendNode parseRecord(Token start, String name) {
+  private FrontendNode parseRecord(Token start, String name, List<FrontendNode> modifiers) {
     if (!accept("(")) {
       error(current(), "JV-SYN-0002", "missing record header");
-      return node("RecordDeclaration", name, start.rawRange(), List.of());
+      return node("RecordDeclaration", name, start.rawRange(), modifiers);
     }
     var componentTokens = takeUntilCloseParen();
-    var members = parseCallableParameters(componentTokens, "RecordComponentDeclaration");
+    var members = new ArrayList<FrontendNode>(modifiers);
+    members.addAll(parseCallableParameters(componentTokens, "RecordComponentDeclaration"));
     if (!accept("{")) {
       error(current(), "JV-SYN-0002", "missing record body");
       return node("RecordDeclaration", name, span(start, previous()), members);
@@ -941,12 +985,6 @@ public final class RecursiveJavelleParser implements JavelleParser {
       result.add(token);
     }
     return result;
-  }
-
-  private boolean findWordAhead(String w, int n) {
-    for (int i = p; i < tokens.size() && i < p + n; i++)
-      if (tokens.get(i).value().equals(w)) return true;
-    return false;
   }
 
   private boolean lookIdentifier(int n) {
