@@ -7,7 +7,9 @@ import com.intellij.openapi.extensions.PluginId;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.platform.lsp.api.LspServerDescriptor;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Map;
 
 /** Launches the bundled P10 `javelle-lsp` stdio server for `.javelle` files. */
 @SuppressWarnings("deprecation")
@@ -26,6 +28,15 @@ final class JavelleLspServerDescriptor extends LspServerDescriptor {
   @Override
   public GeneralCommandLine createCommandLine() {
     return new GeneralCommandLine(launcherPath().toString(), "--stdio");
+  }
+
+  @Override
+  public Object createInitializationOptions() {
+    String basePath = getProject().getBasePath();
+    if (basePath == null) return null;
+    Path model = Path.of(basePath, "build", "javelle", "workspace", "main.json");
+    if (!Files.isRegularFile(model)) return null;
+    return Map.of("javelle", Map.of("workspaceModelUri", model.toUri().toString()));
   }
 
   static Path launcherPath() {
