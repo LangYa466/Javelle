@@ -2,7 +2,16 @@
 
 TASK / AGENT_ID / BASE_REVISION: `P12-W01` / `/root` / `main` at `80cb32e8d7c155ad8f4c2d8e9b59f953948a31ac`
 
-STATUS: **CONTRACT_FROZEN — P12 implementation IN_PROGRESS (round 1 of N)**
+STATUS: **IMPLEMENTED, INDEPENDENT REVIEW REQUIRED**
+
+## Round 2 (closing) progress (self-reported, not yet independently reviewed)
+
+- P12-06: documented decision recorded above (row P12-06) — `>>`/`>>>` etc. correctly remain single lexer tokens per Java's own lexical grammar; splitting for nested generic closes is explicitly P13/P14 parser work, not a P12 lexer change. No lexer code change needed; this row closes on the documented decision alone, matching its own acceptance text.
+- P12-09: added `newlineTokensCarryPositionMetadataAndNoSyntheticSemicolonIsEverInserted` — asserts every NEWLINE token has a non-empty raw/translated range and that no `SEMICOLON`-kind token is ever synthesized by the lexer.
+- P12-11: no IDE-facing syntax-highlighting facade exists yet anywhere in this repo (confirmed by search) to cross-check the lexer's token/keyword table against. This row is genuinely N/A until such a facade exists (P30+); recorded here rather than silently dropped so a future stage doesn't invent a second token table without checking this note first.
+- P12-12: still no fuzz-found failure to reduce into a fixture — the 500-trial seeded mutation corpus (P12-10) has not found a crash/hang. This is a legitimate "nothing to report" rather than an unfinished requirement: the row's own acceptance text is conditional on a failure occurring. If the corpus grows (more trials, more piece types) and finds something, add the fixture then.
+
+P12 is now considered feature-complete against its acceptance matrix and ready for independent review, following the same process as P09/P10/P11.
 
 ## Round 1 progress (self-reported, not yet independently reviewed)
 

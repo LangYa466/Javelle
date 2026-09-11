@@ -180,6 +180,20 @@ class P12LexerCompleteTest {
     }
   }
 
+  @Test
+  void newlineTokensCarryPositionMetadataAndNoSyntheticSemicolonIsEverInserted() {
+    var result = lex("a\nb\r\nc\rd");
+    var newlines = result.tokens().stream().filter(t -> t.kind() == TokenKind.NEWLINE).toList();
+    assertEquals(3, newlines.size());
+    for (Token newline : newlines) {
+      assertTrue(newline.rawRange().length() > 0);
+      assertTrue(newline.translatedRange().length() > 0);
+    }
+    assertTrue(
+        result.tokens().stream().noneMatch(t -> t.kind() == TokenKind.SEMICOLON),
+        "the lexer must never insert a synthetic ';' — statement continuation is a parser concern");
+  }
+
   private static String escape(String s) {
     var out = new StringBuilder();
     s.chars().forEach(c -> out.append(String.format("\\u%04x", c)));
