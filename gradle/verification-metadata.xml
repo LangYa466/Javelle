@@ -3,6 +3,9 @@
    <configuration>
       <verify-metadata>true</verify-metadata>
       <verify-signatures>false</verify-signatures>
+      <trusted-artifacts>
+         <trust file=".*-sources\.jar" regex="true" reason="IDE-only sources jars carry no build/runtime behavior; real jar/pom/module artifacts remain checksum-verified"/>
+      </trusted-artifacts>
    </configuration>
    <components>
       <component group="bundledModule" name="intellij-platform-test-runtime" version="IU-261.26222.65">
