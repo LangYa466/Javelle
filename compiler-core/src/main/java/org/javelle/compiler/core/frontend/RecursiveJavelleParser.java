@@ -85,6 +85,7 @@ public final class RecursiveJavelleParser implements JavelleParser {
   }
 
   private FrontendNode parseClass(Token start, String name, List<FrontendNode> modifiers) {
+    validateModifierCombinations(modifiers, "class");
     var members = new ArrayList<FrontendNode>(modifiers);
     members.addAll(parseSuperclassClause());
     members.addAll(parseTypeReferenceClause("implements", "SuperinterfaceDeclaration"));
@@ -274,6 +275,7 @@ public final class RecursiveJavelleParser implements JavelleParser {
    * supported (P13 round 2).
    */
   private FrontendNode parseEnum(Token start, String name, List<FrontendNode> modifiers) {
+    validateModifierCombinations(modifiers, "enum");
     var members = new ArrayList<FrontendNode>(modifiers);
     members.addAll(parseTypeReferenceClause("implements", "SuperinterfaceDeclaration"));
     if (!accept("{")) {
@@ -307,6 +309,7 @@ public final class RecursiveJavelleParser implements JavelleParser {
    * initializer.
    */
   private FrontendNode parseInterface(Token start, String name, List<FrontendNode> modifiers) {
+    validateModifierCombinations(modifiers, "interface");
     var members = new ArrayList<FrontendNode>(modifiers);
     members.addAll(parseTypeReferenceClause("extends", "SuperinterfaceDeclaration"));
     members.addAll(parsePermitsClause());
@@ -365,6 +368,7 @@ public final class RecursiveJavelleParser implements JavelleParser {
    * yet supported.
    */
   private FrontendNode parseAnnotationType(Token start, String name, List<FrontendNode> modifiers) {
+    validateModifierCombinations(modifiers, "annotation");
     var members = new ArrayList<FrontendNode>(modifiers);
     if (!accept("{")) {
       error(current(), "JV-SYN-0002", "missing annotation type body");
@@ -460,6 +464,7 @@ public final class RecursiveJavelleParser implements JavelleParser {
    * }}, no parentheses) are not yet supported.
    */
   private FrontendNode parseRecord(Token start, String name, List<FrontendNode> modifiers) {
+    validateModifierCombinations(modifiers, "record");
     if (!accept("(")) {
       error(current(), "JV-SYN-0002", "missing record header");
       return node("RecordDeclaration", name, start.rawRange(), modifiers);
@@ -971,20 +976,72 @@ public final class RecursiveJavelleParser implements JavelleParser {
   }
 
   private void error(Token t, String code, String message) {
+    error(t.rawRange(), code, message);
+  }
+
+  private void error(TextRange range, String code, String message) {
     if (diagnostics.size() < options.maxDiagnostics()
         && diagnostics.stream()
-            .noneMatch(d -> d.code().value().equals(code) && d.range().equals(t.rawRange())))
+            .noneMatch(d -> d.code().value().equals(code) && d.range().equals(range)))
       diagnostics.add(
           new Diagnostic(
               1,
               new DiagnosticCode(code),
               Severity.ERROR,
               source.id(),
-              t.rawRange(),
+              range,
               message,
               List.of(),
               Map.of()));
     recovered = true;
+  }
+
+  /**
+   * JLS 8.1.1/8.9.1/8.10 modifier-combination rules that don't need any semantic (whole-program)
+   * information: {@code final}+{@code abstract} on a class, {@code final} on an interface or
+   * annotation type, and {@code abstract}/{@code final} on an enum or record (both implicitly
+   * final, and neither can be abstract).
+   */
+  private void validateModifierCombinations(List<FrontendNode> modifiers, String declarationKind) {
+    boolean hasFinal = hasModifier(modifiers, "final");
+    boolean hasAbstract = hasModifier(modifiers, "abstract");
+    boolean hasSealed = hasModifier(modifiers, "sealed");
+    boolean hasNonSealed = hasModifier(modifiers, "non-sealed");
+    switch (declarationKind) {
+      case "class" -> {
+        if (hasFinal && hasAbstract)
+          errorOnModifier(modifiers, "abstract", "a class cannot be both final and abstract");
+        if (hasFinal && hasSealed)
+          errorOnModifier(modifiers, "sealed", "a class cannot be both final and sealed");
+        if (hasFinal && hasNonSealed)
+          errorOnModifier(modifiers, "non-sealed", "a class cannot be both final and non-sealed");
+        if (hasSealed && hasNonSealed)
+          errorOnModifier(modifiers, "non-sealed", "a class cannot be both sealed and non-sealed");
+      }
+      case "interface", "annotation" -> {
+        if (hasFinal) errorOnModifier(modifiers, "final", "an interface cannot be final");
+      }
+      case "enum" -> {
+        if (hasAbstract) errorOnModifier(modifiers, "abstract", "an enum cannot be abstract");
+        if (hasFinal) errorOnModifier(modifiers, "final", "an enum cannot be final");
+      }
+      case "record" -> {
+        if (hasAbstract) errorOnModifier(modifiers, "abstract", "a record cannot be abstract");
+        if (hasFinal) errorOnModifier(modifiers, "final", "a record cannot be final");
+      }
+      default -> {}
+    }
+  }
+
+  private boolean hasModifier(List<FrontendNode> modifiers, String name) {
+    return modifiers.stream().anyMatch(m -> m.name().equals(name));
+  }
+
+  private void errorOnModifier(List<FrontendNode> modifiers, String name, String message) {
+    modifiers.stream()
+        .filter(m -> m.name().equals(name))
+        .findFirst()
+        .ifPresent(m -> error(m.range(), "JV-MOD-0001", message));
   }
 
   private SyntaxNode scanLine(String kind) {
