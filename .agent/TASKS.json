@@ -323,9 +323,19 @@
     {
       "id": "P11",
       "owner": "/root",
-      "status": "IMPLEMENTED",
+      "status": "ACCEPTED",
       "dependsOn": ["P09", "P10"],
-      "evidence": [".agent/reports/P11-CONTRACT.md"]
+      "evidence": [
+        ".agent/reports/P11-CONTRACT.md",
+        ".agent/reports/P11-CONTRACT.md: P11 review R2 (fix verification, independent) — ACCEPT P11"
+      ]
+    },
+    {
+      "id": "P11-REVIEW",
+      "owner": "/root",
+      "status": "ACCEPTED",
+      "dependsOn": ["P11"],
+      "evidence": [".agent/reports/P11-CONTRACT.md: P11 review R2 (fix verification, independent) — ACCEPT P11"]
     }
   ]
 }
