@@ -32,9 +32,9 @@ public final class RecursiveJavelleParser implements JavelleParser {
       if (at(TokenKind.EOF)) break;
       int before = p;
       if (word("package")) {
-        children.add(scanLine("PackageDeclaration"));
+        children.add(parsePackageDeclaration());
       } else if (word("import")) {
-        children.add(scanLine("ImportDeclaration"));
+        children.add(parseImportDeclaration());
       } else {
         var modifiers = parseTopLevelModifiers();
         if (word("module") || word("open")) {
@@ -1044,10 +1044,67 @@ public final class RecursiveJavelleParser implements JavelleParser {
         .ifPresent(m -> error(m.range(), "JV-MOD-0001", message));
   }
 
-  private SyntaxNode scanLine(String kind) {
+  private FrontendNode parsePackageDeclaration() {
     Token start = take();
-    while (!atLineBoundary()) take();
-    return node(kind, "", span(start, previous()), List.of());
+    var nameTokens = new ArrayList<Token>();
+    while (!atLineBoundary()) {
+      if (at(TokenKind.SEMICOLON)) semicolon(take());
+      else nameTokens.add(take());
+    }
+    String name = buildQualifiedName(nameTokens, false);
+    if (name == null) {
+      error(start, "JV-SYN-0002", "invalid package name");
+      return node("PackageDeclaration", "<missing>", span(start, previous()), List.of());
+    }
+    return node("PackageDeclaration", name, span(start, previous()), List.of());
+  }
+
+  private FrontendNode parseImportDeclaration() {
+    Token start = take();
+    boolean isStatic = accept("static");
+    var nameTokens = new ArrayList<Token>();
+    while (!atLineBoundary()) {
+      if (at(TokenKind.SEMICOLON)) semicolon(take());
+      else nameTokens.add(take());
+    }
+    String name = buildQualifiedName(nameTokens, true);
+    if (name == null) {
+      error(start, "JV-SYN-0002", "invalid import name");
+      return node("ImportDeclaration", "<missing>", span(start, previous()), List.of());
+    }
+    var children =
+        isStatic
+            ? List.<FrontendNode>of(node("StaticModifier", "static", start.rawRange(), List.of()))
+            : List.<FrontendNode>of();
+    return node("ImportDeclaration", name, span(start, previous()), children);
+  }
+
+  /**
+   * Dotted identifiers, optionally ending in a bare {@code *} (on-demand import), e.g. {@code
+   * pkg.Type} or {@code pkg.*}. Returns {@code null} (a malformed name, diagnosed by the caller)
+   * for anything else rather than silently swallowing arbitrary trailing tokens.
+   */
+  private String buildQualifiedName(List<Token> tokens, boolean allowWildcard) {
+    if (tokens.isEmpty()) return null;
+    var name = new StringBuilder();
+    int i = 0;
+    while (true) {
+      if (i >= tokens.size()) return null;
+      Token t = tokens.get(i);
+      if (allowWildcard && t.value().equals("*") && i == tokens.size() - 1) {
+        name.append('*');
+        i++;
+        break;
+      }
+      if (!isIdentifierLike(t)) return null;
+      name.append(t.value());
+      i++;
+      if (i < tokens.size() && tokens.get(i).value().equals(".")) {
+        name.append('.');
+        i++;
+      } else break;
+    }
+    return i == tokens.size() ? name.toString() : null;
   }
 
   private SyntaxNode node(String kind, String name, TextRange range, List<FrontendNode> children) {
