@@ -31,14 +31,14 @@ public final class RecursiveJavelleParser implements JavelleParser {
       skipLines();
       if (at(TokenKind.EOF)) break;
       int before = p;
-      if (word("record") || word("@interface") || word("module") || word("open")) {
+      if (word("@interface") || word("module") || word("open")) {
         children.add(
             unsupported(
-                word("record")
-                    ? "record-declaration"
-                    : word("module") || word("open")
-                        ? "module-declaration"
-                        : "interface-declaration"));
+                word("module") || word("open") ? "module-declaration" : "interface-declaration"));
+      } else if (word("record")) {
+        Token start = take();
+        String name = identifier();
+        children.add(parseRecord(start, name));
       } else if (word("interface")) {
         Token start = take();
         String name = identifier();
@@ -272,8 +272,36 @@ public final class RecursiveJavelleParser implements JavelleParser {
     return node("MethodDeclaration", name.value(), span(type, previous()), methodChildren);
   }
 
+  /**
+   * A record's header {@code (components)} is structurally identical to a parameter list; its
+   * canonical constructor is parsed like any other constructor via the existing {@code Name(...)}
+   * detection in {@link #parseClassBodyMembers(Optional)}. Compact constructors ({@code Name { ...
+   * }}, no parentheses) are not yet supported.
+   */
+  private FrontendNode parseRecord(Token start, String name) {
+    if (!accept("(")) {
+      error(current(), "JV-SYN-0002", "missing record header");
+      return node("RecordDeclaration", name, start.rawRange(), List.of());
+    }
+    var componentTokens = takeUntilCloseParen();
+    var members = parseCallableParameters(componentTokens, "RecordComponentDeclaration");
+    if (!accept("{")) {
+      error(current(), "JV-SYN-0002", "missing record body");
+      return node("RecordDeclaration", name, span(start, previous()), members);
+    }
+    members.addAll(parseClassBodyMembers(Optional.of(name)));
+    Token end = current();
+    if (!accept("}")) error(end, "JV-SYN-0002", "unterminated record");
+    return node("RecordDeclaration", name, span(start, end), members);
+  }
+
   /** Shared varargs-rejection + parameter-list parsing for methods and constructors alike. */
   private ArrayList<FrontendNode> parseCallableParameters(List<Token> parameterTokens) {
+    return parseCallableParameters(parameterTokens, "ParameterDeclaration");
+  }
+
+  private ArrayList<FrontendNode> parseCallableParameters(
+      List<Token> parameterTokens, String nodeKind) {
     var children = new ArrayList<FrontendNode>();
     Optional<Token> varargs =
         parameterTokens.stream().filter(token -> token.value().equals("...")).findFirst();
@@ -300,11 +328,7 @@ public final class RecursiveJavelleParser implements JavelleParser {
         break;
       }
       children.add(
-          node(
-              "ParameterDeclaration",
-              parameterName.value(),
-              span(parameterType, parameterName),
-              List.of()));
+          node(nodeKind, parameterName.value(), span(parameterType, parameterName), List.of()));
       if (i < parameterTokens.size() && parameterTokens.get(i).value().equals(",")) i++;
       else if (i < parameterTokens.size()) {
         error(parameterTokens.get(i), "JV-SYN-0002", "expected parameter comma");

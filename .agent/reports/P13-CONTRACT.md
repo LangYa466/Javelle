@@ -2,7 +2,7 @@
 
 TASK / AGENT_ID / BASE_REVISION: `P13-W01` / `/root` / `dev` at `2f6bb43`
 
-STATUS: **CONTRACT_FROZEN — P13 implementation IN_PROGRESS (round 3 of N)**
+STATUS: **CONTRACT_FROZEN — P13 implementation IN_PROGRESS (round 4 of N)**
 
 Source: `prompts/JAVELLE_IMPLEMENTATION_PLAN.md` section E, `## P13 — 完整宣告與型別 grammar` (lines 798-817). This contract restates that section's 12 requirements (P13-01..P13-12) as a concrete acceptance matrix; it does not change the plan's scope. Depends on P12 (ACCEPTED pending its own independent review, in progress concurrently with this round).
 
@@ -44,6 +44,12 @@ Implemented: real constructor declarations (P13-04 partial) — a class-body mem
 Found and fixed during this round: the constructor-detection branch consumed the class-name token but never consumed the following `(` before calling `takeUntilCloseParen()` (unlike the method path, which calls `accept("(")` first) — this caused `(` itself to be treated as a bogus parameter token. Fixed by adding `accept("(")` right after the constructor name is taken.
 
 Explicitly NOT done yet (next rounds): `record`, `@interface`, `module`/`open`/package-info/module-info (P13-06 remainder, P13-07), sealed/permits/non-sealed modifiers (P13-02), generics/bounds/wildcards/varargs-as-a-real-feature/receiver parameters/type-use annotations (P13-03), nested/local/anonymous classes (P13-04 remainder), `this()`/`super()` constructor-call placement rules and compact/instance `main` (P13-05), the property-initializer-vs-accessor-block disambiguation audit (P13-08), full modifier-combination validation (P13-02/P13-10), and the Java-fixture ABI-equivalence migration suite (P13-11).
+
+## 3d. Round 4 progress (record declarations)
+
+Implemented: real `record` declarations (P13-04 partial) — the component list `(int x, int y)` is parsed with the same shared `parseCallableParameters` helper used for methods/constructors (generalized to accept a node kind, so components come out as `RecordComponentDeclaration` rather than `ParameterDeclaration`), the canonical constructor `Name(...) { ... }` reuses the existing constructor-detection path in `parseClassBodyMembers`, and additional methods/fields in the body reuse the same infrastructure. Six new tests in `P13RecordDeclarationTest.java` cover: components + empty body, zero-component record, canonical constructor + extra method, missing header, missing body, unterminated record. Updated `P05FrontendTest.ifParametersVisibilityComputedFieldAndRecoveryAreConcrete()`, which previously asserted `record R(int x) {}` produced a single `JV-DEV-0001` unsupported-declaration diagnostic — it now asserts the record parses cleanly with a real `RecordDeclaration` node.
+
+Explicitly NOT done yet: compact constructors (`Name { ... }`, no parentheses — a record-specific JLS feature, currently unsupported), implicit accessor generation/validation, `record` component-name/accessor-consistency diagnostics, `@interface`, `module`/`open`/package-info/module-info (P13-06 remainder, P13-07), sealed/permits/non-sealed modifiers (P13-02), generics/bounds/wildcards/varargs-as-a-real-feature/receiver parameters/type-use annotations (P13-03), nested/local/anonymous classes (P13-04 remainder), `this()`/`super()` constructor-call placement rules and compact/instance `main` (P13-05), the property-initializer-vs-accessor-block disambiguation audit (P13-08), full modifier-combination validation (P13-02/P13-10), and the Java-fixture ABI-equivalence migration suite (P13-11).
 
 ## 4. Test requirements
 

@@ -184,8 +184,8 @@ class P05FrontendTest {
     assertTrue(preorder(rhs.ast()).contains("ErrorNode"));
     assertTrue(parse("class C { void m() {\n return\n }}").diagnostics().isEmpty());
     var record = parse("record R(int x) {}");
-    assertEquals(1, record.diagnostics().size());
-    assertEquals("JV-DEV-0001", record.diagnostics().getFirst().code().value());
+    assertTrue(record.diagnostics().isEmpty(), record.diagnostics().toString());
+    assertTrue(preorder(record.ast()).contains("RecordDeclaration:R"));
   }
 
   @Test
