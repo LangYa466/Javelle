@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "phase": "P09/P10",
+  "phase": "P11-PENDING-CONTRACT",
   "tasks": [
     {
       "id": "P00",
@@ -284,17 +284,41 @@
     },
     {
       "id": "P09",
-      "owner": null,
-      "status": "READY",
+      "owner": "/root/p00_repair",
+      "status": "ACCEPTED",
       "dependsOn": ["P06", "P08"],
-      "evidence": []
+      "evidence": [
+        ".agent/reports/P09-CONTRACT.md",
+        ".agent/reports/P09-BUILD.md",
+        ".agent/reports/P09-REVIEW.md: R3 fix verification — ACCEPT P09"
+      ]
+    },
+    {
+      "id": "P09-REVIEW",
+      "owner": "/root/p00_review",
+      "status": "ACCEPTED",
+      "dependsOn": ["P09"],
+      "evidence": [".agent/reports/P09-REVIEW.md: R3 fix verification — ACCEPT P09"]
     },
     {
       "id": "P10",
-      "owner": null,
-      "status": "READY",
+      "owner": "/root/p00_repair",
+      "status": "ACCEPTED",
       "dependsOn": ["P08"],
-      "evidence": []
+      "evidence": [
+        ".agent/reports/P10-CONTRACT.md",
+        ".agent/reports/P10-MINIMAL-SERVER.md",
+        ".agent/reports/P10-REPAIR.md",
+        ".agent/reports/P10-R02.md",
+        ".agent/reports/P10-REVIEW.md: R4 independent post-implementation review — ACCEPT P10"
+      ]
+    },
+    {
+      "id": "P10-REVIEW",
+      "owner": "/root/p00_review",
+      "status": "ACCEPTED",
+      "dependsOn": ["P10"],
+      "evidence": [".agent/reports/P10-REVIEW.md: R4 independent post-implementation review — ACCEPT P10"]
     }
   ]
 }

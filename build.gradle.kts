@@ -170,14 +170,19 @@ val verifyQuick = tasks.register("verifyQuick") {
     doLast { logger.lifecycle("VERIFY_QUICK_PASS scope=P02 later_suites=NOT_VERIFIED") }
 }
 
+val verifyImplementedGates = tasks.register("verifyImplementedGates") {
+    group = "verification"
+    description = "Runs the P09/P10 gates that are now implemented: the Gradle plugin TestKit consumer suite and the LSP black-box suite."
+    dependsOn(":gradle-plugin:p09TestKit", ":language-server:test", ":language-tooling:test")
+}
+
 val verifyAllReadiness = tasks.register("verifyAllReadiness") {
     group = "verification"
+    dependsOn(verifyImplementedGates)
     doLast {
         val missing = listOf(
             "compiler-java-differential",
             "lombok-differential",
-            "gradle-testkit-consumer",
-            "lsp-black-box",
             "idea-ui-debug",
             "website-doc-examples",
             "security-license-sbom",

@@ -260,7 +260,7 @@ class P09GradlePluginTest {
     return GradleRunner.create()
         .withProjectDir(project.toFile())
         .withArguments(args)
-        .withTestKitDir(Path.of(System.getProperty("user.home"), ".gradle", "testkit").toFile())
+        .withTestKitDir(Path.of(System.getProperty("user.home"), ".gradle").toFile())
         .forwardOutput();
   }
 
