@@ -31,20 +31,22 @@ public final class RecursiveJavelleParser implements JavelleParser {
       skipLines();
       if (at(TokenKind.EOF)) break;
       int before = p;
-      if (word("enum") || word("record") || word("@interface") || word("module") || word("open")) {
+      if (word("record") || word("@interface") || word("module") || word("open")) {
         children.add(
             unsupported(
-                word("enum")
-                    ? "enum-declaration"
-                    : word("record")
-                        ? "record-declaration"
-                        : word("module") || word("open")
-                            ? "module-declaration"
-                            : "interface-declaration"));
+                word("record")
+                    ? "record-declaration"
+                    : word("module") || word("open")
+                        ? "module-declaration"
+                        : "interface-declaration"));
       } else if (word("interface")) {
         Token start = take();
         String name = identifier();
         children.add(parseInterface(start, name));
+      } else if (word("enum")) {
+        Token start = take();
+        String name = identifier();
+        children.add(parseEnum(start, name));
       } else if (word("package")) {
         children.add(scanLine("PackageDeclaration"));
       } else if (word("import")) {
@@ -83,6 +85,15 @@ public final class RecursiveJavelleParser implements JavelleParser {
       error(current(), "JV-SYN-0002", "missing class body");
       return node("ClassDeclaration", name, start.rawRange(), members);
     }
+    members.addAll(parseClassBodyMembers());
+    Token end = current();
+    if (!accept("}")) error(end, "JV-SYN-0002", "unterminated class");
+    return node("ClassDeclaration", name, span(start, end), members);
+  }
+
+  /** Parses class/enum-member-section members up to (not including) the closing {@code }}. */
+  private List<FrontendNode> parseClassBodyMembers() {
+    var members = new ArrayList<FrontendNode>();
     while (!at(TokenKind.EOF) && !word("}")) {
       skipLines();
       if (word("}")) break;
@@ -129,9 +140,38 @@ public final class RecursiveJavelleParser implements JavelleParser {
       }
       if (before == p) take();
     }
+    return members;
+  }
+
+  /**
+   * Enum constants end at {@code :} (member section boundary), {@code }} (no member section), or a
+   * trailing comma before either. Constant arguments and constant-specific class bodies are not yet
+   * supported (P13 round 2).
+   */
+  private FrontendNode parseEnum(Token start, String name) {
+    var members = new ArrayList<FrontendNode>();
+    if (!accept("{")) {
+      error(current(), "JV-SYN-0002", "missing enum body");
+      return node("EnumDeclaration", name, start.rawRange(), members);
+    }
+    skipLines();
+    while (isIdentifierLike() && !word("}") && !word(":")) {
+      Token constant = take();
+      members.add(
+          node("EnumConstantDeclaration", constant.value(), constant.rawRange(), List.of()));
+      skipLines();
+      if (word(",")) {
+        take();
+        skipLines();
+      } else break;
+    }
+    if (word(":")) {
+      take();
+      members.addAll(parseClassBodyMembers());
+    }
     Token end = current();
-    if (!accept("}")) error(end, "JV-SYN-0002", "unterminated class");
-    return node("ClassDeclaration", name, span(start, end), members);
+    if (!accept("}")) error(end, "JV-SYN-0002", "unterminated enum");
+    return node("EnumDeclaration", name, span(start, end), members);
   }
 
   /**

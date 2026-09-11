@@ -91,8 +91,8 @@ class P05FrontendTest {
     assertEquals("JV-DEV-0001", loop.diagnostics().getFirst().code().value());
     has(loop, "UnsupportedSyntaxNode:basic-for");
     var en = parse("enum E { A, B : int value() { return 1 } }");
-    assertEquals("JV-DEV-0001", en.diagnostics().getFirst().code().value());
-    has(en, "UnsupportedSyntaxNode:enum-declaration");
+    assertTrue(en.diagnostics().isEmpty(), en.diagnostics().toString());
+    has(en, "EnumDeclaration:E", "EnumConstantDeclaration:A", "EnumConstantDeclaration:B");
   }
 
   @Test
