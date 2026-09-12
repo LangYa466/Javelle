@@ -669,13 +669,12 @@ public final class RecursiveJavelleParser implements JavelleParser {
                 List.of()));
         continue;
       }
-      if (Set.of("switch", "try", "synchronized", "assert").contains(current().value())) {
+      if (Set.of("switch", "try", "synchronized").contains(current().value())) {
         String feature =
             switch (current().value()) {
               case "switch" -> "switch";
               case "try" -> "try";
-              case "synchronized" -> "synchronized";
-              default -> "assert";
+              default -> "synchronized";
             };
         out.add(unsupported(feature));
         continue;
@@ -693,6 +692,41 @@ public final class RecursiveJavelleParser implements JavelleParser {
                   "",
                   expr == null ? start.rawRange() : span(start, previous()),
                   expr == null ? List.of() : List.of(expr)));
+        continue;
+      }
+      if (word("throw")) {
+        Token start = take();
+        var expr = parseExpressionUntilBoundary();
+        if (expr == null) {
+          error(start, "JV-SYN-0002", "missing throw expression");
+          out.add(node("ErrorNode", "", start.rawRange(), List.of()));
+        } else out.add(node("ThrowStatement", "", span(start, previous()), List.of(expr)));
+        continue;
+      }
+      if (word("yield") && looksLikeYieldStatement()) {
+        Token start = take();
+        var expr = parseExpressionUntilBoundary();
+        if (expr == null) {
+          error(start, "JV-SYN-0002", "missing yield expression");
+          out.add(node("ErrorNode", "", start.rawRange(), List.of()));
+        } else out.add(node("YieldStatement", "", span(start, previous()), List.of(expr)));
+        continue;
+      }
+      if (word("assert")) {
+        Token start = take();
+        var conditionTokens = new ArrayList<Token>();
+        while (!at(TokenKind.EOF) && !atLineBoundary() && !word(":")) {
+          if (at(TokenKind.SEMICOLON)) semicolon(take());
+          else conditionTokens.add(take());
+        }
+        var kids = new ArrayList<FrontendNode>();
+        if (conditionTokens.isEmpty()) error(start, "JV-SYN-0002", "missing assert condition");
+        else kids.add(buildExpression(conditionTokens));
+        if (accept(":")) {
+          var message = parseExpressionUntilBoundary();
+          if (message != null) kids.add(message);
+        }
+        out.add(node("AssertStatement", "", span(start, previous()), kids));
         continue;
       }
       if (word("if")) {
@@ -1562,6 +1596,22 @@ public final class RecursiveJavelleParser implements JavelleParser {
         && isIdentifierLike(tokens.get(i + 1))
         && tokens.get(i + 2).value().equals("(")) return true;
     return v.equals("@") && i + 1 < tokens.size() && tokens.get(i + 1).value().equals("interface");
+  }
+
+  private static final Set<String> YIELD_EXPRESSION_CONTINUATIONS =
+      Set.of(
+          ".", "=", "(", "++", "--", "+=", "-=", "*=", "/=", "%=", "&=", "|=", "^=", "<<=", ">>=",
+          ">>>=");
+
+  /**
+   * {@code yield} is a contextual keyword (lexes as a plain identifier), so a lone {@code yield}
+   * token could just as well be a variable named {@code yield} being used in an expression
+   * (assigned to, called, dereferenced, incremented, ...). Only treat it as a yield statement when
+   * the next token doesn't look like one of those continuations.
+   */
+  private boolean looksLikeYieldStatement() {
+    return p + 1 < tokens.size()
+        && !YIELD_EXPRESSION_CONTINUATIONS.contains(tokens.get(p + 1).value());
   }
 
   private boolean isModifier() {
