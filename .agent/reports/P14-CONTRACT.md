@@ -2,7 +2,7 @@
 
 TASK / AGENT_ID / BASE_REVISION: `P14-W01` / `/root` / `dev` at `563fb98` (P13 ACCEPTED)
 
-STATUS: **CONTRACT_FROZEN — P14 implementation IN_PROGRESS (round 3 of N)**
+STATUS: **CONTRACT_FROZEN — P14 implementation IN_PROGRESS (round 4 of N)**
 
 Source: `prompts/JAVELLE_IMPLEMENTATION_PLAN.md` section E, `## P14 — 完整表達式、控制流程與多行 lambda` (lines 819-838). This contract restates that section's 12 requirements (P14-01..P14-12) as a concrete acceptance matrix; it does not change the plan's scope. Depends on P13 (ACCEPTED).
 
@@ -54,6 +54,12 @@ Implemented (P14-03 partial): real `while` and `do`-`while` loops (`WhileStateme
 Fixed a stale P05 fixture: removed `"while" -> "class C { void m() { while (true) { x() } return } }"` from `everyFrozenUnsupportedRepresentativeIsSingleAndBalanced()`'s frozen-unsupported map, since it now parses as a real loop with zero diagnostics (the standard P13/P14 pattern whenever a construct graduates from unsupported to real). Six new tests in `P14LoopStatementTest.java` cover: while with block body, while with braceless single-statement body (the exact case that exposed the boundary-skip bug), do-while, break/continue without a label, break/continue with a label, and a missing-while-condition diagnostic.
 
 Explicitly NOT done yet (deliberately deferred to keep this round scoped): labeled statements themselves (`outer: while (...) { ... }` — the label token before the loop keyword isn't parsed as a wrapping construct yet, only `break`/`continue`'s own trailing label operand is), `for` (both basic and enhanced forms — its own larger round), `switch`, `try`/`catch`/`finally`/multi-catch/resources, `synchronized`, `assert`, `throw`, `yield`. P14-04, P14-05, and the rest of P14-03 remain unstarted.
+
+## 3d. Round 4 progress (throw, yield, assert)
+
+Implemented (P14-04 partial): `throw expr` (`ThrowStatement`, expression always required, unlike `return`), `yield expr` (`YieldStatement`, expression always required), and `assert condition [: message]` (`AssertStatement`, condition scanned up to a line boundary or `:`, optional message expression after `:`). Since `yield` is a contextual keyword (lexes as a plain identifier, same situation as `record`), a `looksLikeYieldStatement()` lookahead checks the token immediately after `yield` isn't a continuation that would mean it's being used as an ordinary variable (`.`, `=`, `(`, `++`, `--`, or any compound-assignment operator) — so `yield.foo()` and `yield = 1` still parse as plain expression statements on a variable literally named `yield`, not a mis-fired `YieldStatement`. `assert` moves from the blanket-unsupported set to a real implementation; `switch`/`try`/`synchronized` remain there. Seven new tests in `P14ThrowYieldAssertTest.java` cover: throw, missing-throw-expression, yield, yield-as-plain-variable-name (both `.` and `=` continuations), assert without message, assert with message, and missing-assert-condition.
+
+Explicitly NOT done yet: `for` (both forms), `switch`, `try`/`catch`/`finally`/multi-catch/resources, `synchronized`, labeled statements, method references, block-bodied lambdas (architecture gap noted in round 2), array indexing/literals, generics in expressions. P14-05 and most of P14-03/P14-04 remain unstarted.
 
 ## 4. Test requirements
 
