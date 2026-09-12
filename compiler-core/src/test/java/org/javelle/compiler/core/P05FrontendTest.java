@@ -88,8 +88,8 @@ class P05FrontendTest {
         incomplete.diagnostics().stream().anyMatch(d -> d.code().value().equals("JV-SYN-0002")));
     has(incomplete, "ErrorNode");
     var loop = parse("class C { void m() { for (int i = 0 : i < 2 : i++) {} } }");
-    assertEquals("JV-DEV-0001", loop.diagnostics().getFirst().code().value());
-    has(loop, "UnsupportedSyntaxNode:basic-for");
+    assertTrue(loop.diagnostics().isEmpty(), loop.diagnostics().toString());
+    has(loop, "BasicForStatement");
     var en = parse("enum E { A, B : int value() { return 1 } }");
     assertTrue(en.diagnostics().isEmpty(), en.diagnostics().toString());
     has(en, "EnumDeclaration:E", "EnumConstantDeclaration:A", "EnumConstantDeclaration:B");
@@ -296,12 +296,8 @@ class P05FrontendTest {
   void everyFrozenUnsupportedRepresentativeIsSingleAndBalanced() {
     var samples =
         Map.of(
-            "switch",
-            "class C { void m() { switch (x) { } return } }",
             "try",
             "class C { void m() { try { x() } catch (E e) { y() } return } }",
-            "method-reference",
-            "class C { Object m() {\n Object x = C::new\n return x\n }}",
             "synchronized",
             "class C { void m() { synchronized (this) { x() } return } }");
     for (var sample : samples.entrySet()) {

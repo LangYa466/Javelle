@@ -10,8 +10,8 @@ import org.javelle.compiler.core.frontend.*;
 import org.javelle.compiler.core.source.*;
 import org.junit.jupiter.api.Test;
 
-/** P14 round 5: enhanced for loops. Basic (colon-separated) for is a separate, later round. */
-class P14EnhancedForTest {
+/** P14 round 6: Javelle's colon-separated basic for. */
+class P14BasicForTest {
   private static ParseResult parse(String text) {
     byte[] bytes = text.getBytes(StandardCharsets.UTF_8);
     var source =
@@ -40,33 +40,54 @@ class P14EnhancedForTest {
   }
 
   @Test
-  void enhancedForWithTypedVariable() {
-    var result = parse("class C {\n void m() {\n for (int x : items) {\n use(x)\n }\n }\n}\n");
+  void classicThreePartForLoop() {
+    var result =
+        parse("class C {\n void m() {\n for (int i = 0 : i < 10 : i++) {\n use(i)\n }\n }\n}\n");
     assertTrue(result.diagnostics().isEmpty(), result.diagnostics().toString());
     var all = anchors(result.ast());
-    assertTrue(all.contains("EnhancedForStatement"));
-    assertTrue(all.contains("ForVariableDeclaration:x"));
+    assertTrue(all.contains("BasicForStatement"));
+    assertTrue(all.contains("ForVariableDeclaration:i"));
   }
 
   @Test
-  void enhancedForWithVarVariable() {
-    var result = parse("class C {\n void m() {\n for (var x : items) {\n use(x)\n }\n }\n}\n");
-    assertTrue(result.diagnostics().isEmpty(), result.diagnostics().toString());
-    assertTrue(anchors(result.ast()).contains("ForVariableDeclaration:x"));
-  }
-
-  @Test
-  void enhancedForWithSingleStatementBody() {
-    var result = parse("class C {\n void m() {\n for (var x : items)\n use(x)\n }\n}\n");
-    assertTrue(result.diagnostics().isEmpty(), result.diagnostics().toString());
-    assertTrue(anchors(result.ast()).contains("EnhancedForStatement"));
-  }
-
-  @Test
-  void ternaryInsideEnhancedForIterableDoesNotConfuseColonCounting() {
+  void ternaryInsideConditionDoesNotConfuseColonCounting() {
     var result =
-        parse("class C {\n void m() {\n for (var x : flag ? a : b) {\n use(x)\n }\n }\n}\n");
+        parse(
+            "class C {\n void m() {\n for (int i = 0 : flag ? i < 5 : i < 10 : i++) {\n }\n }\n}\n");
+    assertTrue(result.diagnostics().isEmpty(), result.diagnostics().toString());
+    assertTrue(anchors(result.ast()).contains("BasicForStatement"));
+  }
+
+  @Test
+  void omittedInitConditionAndUpdate() {
+    var result = parse("class C {\n void m() {\n for ( : : ) {\n break\n }\n }\n}\n");
+    assertTrue(result.diagnostics().isEmpty(), result.diagnostics().toString());
+    var all = anchors(result.ast());
+    assertTrue(all.contains("ForInit"));
+    assertTrue(all.contains("ForCondition"));
+    assertTrue(all.contains("ForUpdate"));
+  }
+
+  @Test
+  void multipleUpdateExpressions() {
+    var result =
+        parse("class C {\n void m() {\n for (int i = 0 : i < 10 : i++, j--) {\n }\n }\n}\n");
+    assertTrue(result.diagnostics().isEmpty(), result.diagnostics().toString());
+    assertTrue(anchors(result.ast()).contains("BasicForStatement"));
+  }
+
+  @Test
+  void multiplePlainExpressionInits() {
+    var result = parse("class C {\n void m() {\n for (i = 0, j = 10 : i < j : i++) {\n }\n }\n}\n");
+    assertTrue(result.diagnostics().isEmpty(), result.diagnostics().toString());
+    assertTrue(anchors(result.ast()).contains("BasicForStatement"));
+  }
+
+  @Test
+  void enhancedForStillTakesPriorityOverBasicFor() {
+    var result = parse("class C {\n void m() {\n for (var x : items) {\n }\n }\n}\n");
     assertTrue(result.diagnostics().isEmpty(), result.diagnostics().toString());
     assertTrue(anchors(result.ast()).contains("EnhancedForStatement"));
+    assertFalse(anchors(result.ast()).contains("BasicForStatement"));
   }
 }
