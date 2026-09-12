@@ -451,7 +451,9 @@ public final class RecursiveJavelleParser implements JavelleParser {
       error(current(), "JV-SYN-0002", "missing constructor body");
       return node("ConstructorDeclaration", name.value(), name.rawRange(), methodChildren);
     }
-    methodChildren.addAll(parseStatements());
+    var statements = parseStatements();
+    validateExplicitConstructorInvocations(statements, true);
+    methodChildren.addAll(statements);
     return node("ConstructorDeclaration", name.value(), span(name, previous()), methodChildren);
   }
 
@@ -468,8 +470,41 @@ public final class RecursiveJavelleParser implements JavelleParser {
       error(current(), "JV-SYN-0002", "missing method body");
       return node("MethodDeclaration", name.value(), span(type, name), methodChildren);
     }
-    methodChildren.addAll(parseStatements());
+    var statements = parseStatements();
+    validateExplicitConstructorInvocations(statements, false);
+    methodChildren.addAll(statements);
     return node("MethodDeclaration", name.value(), span(type, previous()), methodChildren);
+  }
+
+  /**
+   * JLS 8.8.7.1: an explicit constructor invocation ({@code this(...)} or {@code super(...)}) may
+   * appear only as the first statement of a constructor body — never in a regular method, and never
+   * after any other statement in a constructor.
+   */
+  private void validateExplicitConstructorInvocations(
+      List<FrontendNode> statements, boolean isConstructor) {
+    for (int i = 0; i < statements.size(); i++) {
+      if (!isExplicitConstructorInvocation(statements.get(i))) continue;
+      if (!isConstructor)
+        error(
+            statements.get(i).range(),
+            "JV-SYN-0002",
+            "this()/super() call is only allowed as the first statement of a constructor");
+      else if (i != 0)
+        error(
+            statements.get(i).range(),
+            "JV-SYN-0002",
+            "this()/super() call must be the first statement in a constructor");
+    }
+  }
+
+  private boolean isExplicitConstructorInvocation(FrontendNode statement) {
+    if (!statement.kind().equals("ExpressionStatement") || statement.children().isEmpty())
+      return false;
+    FrontendNode expr = statement.children().getFirst();
+    if (!expr.kind().equals("CallExpression") || expr.children().isEmpty()) return false;
+    String baseKind = expr.children().getFirst().kind();
+    return baseKind.equals("ThisExpression") || baseKind.equals("SuperExpression");
   }
 
   /**
@@ -914,6 +949,8 @@ public final class RecursiveJavelleParser implements JavelleParser {
         if (index < values.size() && values.get(index).value().equals(")")) index++;
         return nested;
       }
+      if (t.value().equals("this")) return node("ThisExpression", "", t.rawRange(), List.of());
+      if (t.value().equals("super")) return node("SuperExpression", "", t.rawRange(), List.of());
       String kind =
           t.value().equals("null")
               ? "NullLiteral"

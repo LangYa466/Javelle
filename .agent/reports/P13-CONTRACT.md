@@ -2,7 +2,7 @@
 
 TASK / AGENT_ID / BASE_REVISION: `P13-W01` / `/root` / `dev` at `2f6bb43`
 
-STATUS: **CONTRACT_FROZEN — P13 implementation IN_PROGRESS (round 12 of N)**
+STATUS: **CONTRACT_FROZEN — P13 implementation IN_PROGRESS (round 13 of N)**
 
 Source: `prompts/JAVELLE_IMPLEMENTATION_PLAN.md` section E, `## P13 — 完整宣告與型別 grammar` (lines 798-817). This contract restates that section's 12 requirements (P13-01..P13-12) as a concrete acceptance matrix; it does not change the plan's scope. Depends on P12 (ACCEPTED pending its own independent review, in progress concurrently with this round).
 
@@ -100,6 +100,14 @@ Explicitly NOT done yet: generics as a real feature, receiver parameters, type-u
 Implemented (P13-04 remainder): a class-body member that is a bare `{ ... }` (optionally preceded by `static`) now parses as a real `InitializerBlockDeclaration` (with a `StaticModifier` child when static), instead of falling through to "unsupported member". The class-body modifier-consumption loop now tracks whether `static` was seen before deciding what kind of member follows, rather than discarding modifiers unconditionally before any branch runs. Since `parseEnum`/`parseRecord` both delegate their member sections to `parseClassBodyMembers`, initializer blocks work there too for free. Five new tests in `P13InitializerBlockTest.java` cover: instance block, static block, empty block, unterminated block, and blocks nested inside a record and an enum member section.
 
 Explicitly NOT done yet: generics as a real feature, receiver parameters, type-use annotations (P13-03), annotation-element array-literal default values, anonymous classes, compact constructors, `this()`/`super()` placement rules and compact/instance `main` (P13-05), `module`/`open`/package-info/module-info compilation units with no public type (P13-07), the property-initializer-vs-accessor-block disambiguation audit (P13-08), duplicate-constructor/unclosed-generics/class-record-confusion diagnostics (P13-10 remainder), and the Java-fixture ABI-equivalence migration suite (P13-11).
+
+## 3m. Round 13 progress (this()/super() constructor-call placement, real this/super expressions)
+
+Fixed a real correctness bug found while starting P13-05: `this`/`super` in expressions (both reserved keywords since the P12 keyword expansion) fell into `primary()`'s generic fallback, which only preserves a token's text for `IDENTIFIER`-kind tokens — so every `this`/`super` reference silently became a `NameExpression` with an **empty name**, indistinguishable from a parse error in the AST. Added explicit handling producing real `ThisExpression`/`SuperExpression` nodes.
+
+Implemented (P13-05): JLS 8.8.7.1's explicit-constructor-invocation placement rule — a `this(...)`/`super(...)` call statement is only valid as the very first statement of a constructor body. `validateExplicitConstructorInvocations(statements, isConstructor)` is now called from both `parseConstructor` and `parseMethod` on the parsed statement list: a `this()`/`super()` call anywhere in a regular method is diagnosed (`JV-SYN-0002`), and one appearing after the first statement in a constructor is also diagnosed. Five new tests in `P13ConstructorInvocationTest.java` cover: `this()`/`super()` accepted as the first statement, `this()` rejected when not first, `this()` rejected inside a regular method, and `this.x = x` (field access, not a call) correctly unaffected by the placement rule.
+
+Explicitly NOT done yet: compact/instance `main` and the rest of the JLS 8.5 "current non-preview declaration features" inventory (P13-05 remainder), generics as a real feature, receiver parameters, type-use annotations (P13-03), annotation-element array-literal default values, anonymous classes, `module`/`open`/package-info/module-info compilation units with no public type (P13-07), the property-initializer-vs-accessor-block disambiguation audit (P13-08), duplicate-constructor/unclosed-generics/class-record-confusion diagnostics (P13-10 remainder), and the Java-fixture ABI-equivalence migration suite (P13-11).
 
 ## 4. Test requirements
 
