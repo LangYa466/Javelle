@@ -853,18 +853,29 @@ public final class RecursiveJavelleParser implements JavelleParser {
       this.values = values;
     }
 
+    private static final Set<String> ASSIGNMENT_OPERATORS =
+        Set.of("=", "+=", "-=", "*=", "/=", "%=", "&=", "|=", "^=", "<<=", ">>=", ">>>=");
+
     FrontendNode expression(int minimum) {
       FrontendNode left = unary();
       while (index < values.size()) {
         String op = values.get(index).value();
+        if (op.equals("instanceof")) {
+          int prec = 8;
+          if (prec < minimum) break;
+          index++;
+          left = instanceOfRest(left);
+          continue;
+        }
         int precedence = precedence(op);
         if (precedence < minimum) break;
+        boolean isAssignment = ASSIGNMENT_OPERATORS.contains(op);
         Token operator = values.get(index++);
-        int next = op.equals("=") ? precedence : precedence + 1;
+        int next = isAssignment ? precedence : precedence + 1;
         FrontendNode right = expression(next);
         left =
             node(
-                op.equals("=") ? "AssignmentExpression" : "BinaryExpression",
+                isAssignment ? "AssignmentExpression" : "BinaryExpression",
                 operator.value(),
                 new TextRange(
                     OffsetUnit.RAW_UTF16, left.range().startOffset(), right.range().endOffset()),
@@ -888,18 +899,60 @@ public final class RecursiveJavelleParser implements JavelleParser {
       return left;
     }
 
+    /**
+     * {@code x instanceof Type} with an optional single pattern-binding identifier ({@code x
+     * instanceof String s}). Record deconstruction patterns and generic type arguments on the
+     * checked type are not yet supported — full pattern matching is a separate, larger feature.
+     */
+    FrontendNode instanceOfRest(FrontendNode left) {
+      if (index >= values.size() || !isIdentifierLike(values.get(index))) {
+        error(
+            values.get(Math.min(index, values.size() - 1)),
+            "JV-SYN-0002",
+            "expected type after instanceof");
+        return left;
+      }
+      Token type = values.get(index++);
+      Token end = type;
+      String binding = "";
+      if (index < values.size() && isIdentifierLike(values.get(index))) {
+        binding = values.get(index).value();
+        end = values.get(index++);
+      }
+      return node(
+          "InstanceOfExpression",
+          binding,
+          new TextRange(
+              OffsetUnit.RAW_UTF16, left.range().startOffset(), end.rawRange().endOffset()),
+          List.of(left));
+    }
+
     FrontendNode unary() {
-      if (index < values.size() && Set.of("!", "-", "+").contains(values.get(index).value())) {
+      if (index < values.size() && Set.of("!", "-", "+", "~").contains(values.get(index).value())) {
         Token op = values.get(index++);
         FrontendNode value = unary();
         return node("UnaryExpression", op.value(), span(op, tokenEnd(value)), List.of(value));
+      }
+      if (index < values.size() && Set.of("++", "--").contains(values.get(index).value())) {
+        Token op = values.get(index++);
+        FrontendNode value = unary();
+        return node("PrefixExpression", op.value(), span(op, tokenEnd(value)), List.of(value));
       }
       return postfix(primary());
     }
 
     FrontendNode postfix(FrontendNode base) {
       while (index < values.size()) {
-        if (values.get(index).value().equals(".")) {
+        if (Set.of("++", "--").contains(values.get(index).value())) {
+          Token op = values.get(index++);
+          base =
+              node(
+                  "PostfixExpression",
+                  op.value(),
+                  new TextRange(
+                      OffsetUnit.RAW_UTF16, base.range().startOffset(), op.rawRange().endOffset()),
+                  List.of(base));
+        } else if (values.get(index).value().equals(".")) {
           index++;
           if (index >= values.size()) return base;
           Token member = values.get(index++);
@@ -970,13 +1023,17 @@ public final class RecursiveJavelleParser implements JavelleParser {
 
     int precedence(String op) {
       return switch (op) {
-        case "=" -> 1;
+        case "=", "+=", "-=", "*=", "/=", "%=", "&=", "|=", "^=", "<<=", ">>=", ">>>=" -> 1;
         case "||" -> 2;
         case "&&" -> 3;
-        case "==", "!=" -> 4;
-        case "<", ">", "<=", ">=" -> 5;
-        case "+", "-" -> 6;
-        case "*", "/", "%" -> 7;
+        case "|" -> 4;
+        case "^" -> 5;
+        case "&" -> 6;
+        case "==", "!=" -> 7;
+        case "<", ">", "<=", ">=" -> 8;
+        case "<<", ">>", ">>>" -> 9;
+        case "+", "-" -> 10;
+        case "*", "/", "%" -> 11;
         default -> -1;
       };
     }

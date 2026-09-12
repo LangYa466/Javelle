@@ -371,9 +371,9 @@
     {
       "id": "P14",
       "owner": "/root",
-      "status": "TODO",
+      "status": "RUNNING",
       "dependsOn": ["P13"],
-      "evidence": []
+      "evidence": [".agent/reports/P14-CONTRACT.md"]
     }
   ]
 }
