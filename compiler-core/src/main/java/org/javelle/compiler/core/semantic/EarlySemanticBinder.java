@@ -33,10 +33,18 @@ public final class EarlySemanticBinder {
     String packageName = "";
     var imports = new ArrayList<String>();
     var classes = new ArrayList<BoundClass>();
-    for (var node : parsed.ast().children()) {
-      if (node.kind().equals("PackageDeclaration")) packageName = qualified(node, "package");
-      else if (node.kind().equals("ImportDeclaration")) imports.add(qualified(node, "import"));
-      else if (node.kind().equals("ClassDeclaration")) classes.add(bindClass(node, packageName));
+    try {
+      for (var node : parsed.ast().children()) {
+        if (node.kind().equals("PackageDeclaration")) packageName = qualified(node, "package");
+        else if (node.kind().equals("ImportDeclaration")) imports.add(qualified(node, "import"));
+        else if (node.kind().equals("ClassDeclaration")) classes.add(bindClass(node, packageName));
+      }
+    } catch (IllegalArgumentException e) {
+      // The binder lags the parser's supported-syntax frontier by design (e.g. new P14
+      // statement/expression kinds land in the parser well before this binder learns them).
+      // Fail closed with a diagnostic instead of letting the exception escape.
+      error(parsed.ast(), "JV-DEV-0001", String.valueOf(e.getMessage()));
+      return new BindingResult(Optional.empty(), diagnostics);
     }
     var unit = new BoundCompilationUnit(source, packageName, imports, classes);
     diagnostics.addAll(new EarlyTypeChecker().check(unit));
