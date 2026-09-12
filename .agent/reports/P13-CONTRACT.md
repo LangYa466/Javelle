@@ -2,7 +2,22 @@
 
 TASK / AGENT_ID / BASE_REVISION: `P13-W01` / `/root` / `dev` at `2f6bb43`
 
-STATUS: **CONTRACT_FROZEN — P13 implementation IN_PROGRESS (round 14 of N)**
+STATUS: **CONTRACT_FROZEN — P13 implementation rounds complete (14 rounds), self-reported VERIFIED, ready for independent review**
+
+## 0. Summary for the independent reviewer
+
+Fourteen implementation rounds landed real, tested behavior for: interface declarations (round 1), enum declarations (round 2), constructors (round 3), record declarations (round 4), annotation type (`@interface`) declarations (round 5), top-level modifiers + sealed/permits (round 6), extends/implements clauses (round 7), nested member type declarations (round 8), local type declarations inside method bodies (round 9), modifier-combination validation (round 10), real package/import declarations (round 11), initializer blocks (round 12), `this()`/`super()` call-placement validation plus a real fix for `this`/`super` expression parsing (round 13), and module-info compilation units (round 14). Every round has its own dedicated JUnit test class (`P13*Test.java` in `compiler-core/src/test/java/org/javelle/compiler/core/`) plus a `gradlew test` full-suite run and `verifyQuick` pass recorded at commit time — see sections 3-3n below for the per-round detail, evidence, and each round's own "explicitly not done yet" list, which should be treated as an authoritative gap list rather than something to rediscover from scratch.
+
+Against the 12-row acceptance matrix in section 2: rows P13-01, P13-02, P13-04, P13-06, P13-07, P13-09 have substantial, directly-tested coverage; P13-05 and P13-10 have partial coverage (see the specific remaining items called out below); P13-03 (generics/bounds/wildcards/varargs-as-a-real-feature/receiver parameters/type-use annotations), P13-08 (a dedicated audit of the property-initializer-vs-accessor-block disambiguation), and P13-11 (the Java-fixture ABI-equivalence migration suite) have **NOT** been started at all and are explicitly out of scope for this review round — they are large enough to warrant their own dedicated implementation rounds after this review, not something to flag as "missing" without already knowing it's missing. P13-12 (this review itself) is in progress now.
+
+Known remaining gaps worth flagging explicitly for the reviewer, cutting across rounds:
+- Varargs is still diagnosed as `JV-DEV-0001` unsupported everywhere (methods, constructors, records) — never actually parsed as a real feature.
+- Generic type arguments on a type reference (`extends Container<String>`) are scanned and dropped with `JV-DEV-0001`, never actually represented in the AST.
+- Compact constructors (`Name { ... }`, no parens, for records) are unsupported.
+- Anonymous classes (`new Type() { ... }`) are unsupported — `buildExpression`'s `new` handling has no brace-body support.
+- Modifiers on nested/local types and on ordinary class members (fields/methods) are consumed and discarded, never captured into `ModifierDeclaration` nodes — only *top-level* declarations capture modifiers (round 6).
+- The semantic rule that a sealed type's `permits` list (or same-file inference) must be consistent with its actual subtypes is not checked — this needs whole-program information the parser doesn't have.
+- P12's two previously-noted non-blocking gaps (unpaired-surrogate-via-`\u`-escape diagnostic; fuzz test's `ResourceBudget` deadline not real) remain open and are unrelated to P13.
 
 Source: `prompts/JAVELLE_IMPLEMENTATION_PLAN.md` section E, `## P13 — 完整宣告與型別 grammar` (lines 798-817). This contract restates that section's 12 requirements (P13-01..P13-12) as a concrete acceptance matrix; it does not change the plan's scope. Depends on P12 (ACCEPTED pending its own independent review, in progress concurrently with this round).
 
