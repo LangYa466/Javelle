@@ -37,7 +37,14 @@ public final class RecursiveJavelleParser implements JavelleParser {
         children.add(parseImportDeclaration());
       } else {
         var modifiers = parseTopLevelModifiers();
-        if (word("module") || word("open")) {
+        if (word("open") && lookWord(1, "module")) {
+          Token start = take();
+          take();
+          children.add(parseModule(start, true));
+        } else if (word("module")) {
+          Token start = take();
+          children.add(parseModule(start, false));
+        } else if (word("open")) {
           children.add(unsupported("module-declaration"));
         } else if (word("@") && lookWord(1, "interface")) {
           take();
@@ -1094,6 +1101,94 @@ public final class RecursiveJavelleParser implements JavelleParser {
         .filter(m -> m.name().equals(name))
         .findFirst()
         .ifPresent(m -> error(m.range(), "JV-MOD-0001", message));
+  }
+
+  /**
+   * {@code [open] module dotted.name { requires ...; exports ...; opens ...; uses ...; provides
+   * ...; }} — a module-info compilation unit (P13-07).
+   */
+  private FrontendNode parseModule(Token start, boolean isOpen) {
+    String name = parseDottedName();
+    var members = new ArrayList<FrontendNode>();
+    if (isOpen) members.add(node("OpenModifier", "open", start.rawRange(), List.of()));
+    if (!accept("{")) {
+      error(current(), "JV-SYN-0002", "missing module body");
+      return node("ModuleDeclaration", name, span(start, previous()), members);
+    }
+    while (!at(TokenKind.EOF) && !word("}")) {
+      skipLines();
+      if (word("}")) break;
+      int before = p;
+      if (word("requires")) {
+        Token d = take();
+        var mods = new ArrayList<FrontendNode>();
+        while (word("transitive") || word("static")) {
+          Token m = take();
+          mods.add(
+              node(
+                  m.value().equals("transitive") ? "TransitiveModifier" : "StaticModifier",
+                  m.value(),
+                  m.rawRange(),
+                  List.of()));
+        }
+        String required = parseDottedName();
+        members.add(node("RequiresDirective", required, span(d, previous()), mods));
+      } else if (word("exports") || word("opens")) {
+        Token d = take();
+        boolean isExports = d.value().equals("exports");
+        String pkg = parseDottedName();
+        var targets = new ArrayList<FrontendNode>();
+        if (accept("to")) {
+          do {
+            String target = parseDottedName();
+            targets.add(node("ExportsTarget", target, previous().rawRange(), List.of()));
+          } while (accept(","));
+        }
+        members.add(
+            node(
+                isExports ? "ExportsDirective" : "OpensDirective",
+                pkg,
+                span(d, previous()),
+                targets));
+      } else if (word("uses")) {
+        Token d = take();
+        String service = parseDottedName();
+        members.add(node("UsesDirective", service, span(d, previous()), List.of()));
+      } else if (word("provides")) {
+        Token d = take();
+        String service = parseDottedName();
+        var implementations = new ArrayList<FrontendNode>();
+        if (accept("with")) {
+          do {
+            String impl = parseDottedName();
+            implementations.add(
+                node("ProvidesImplementation", impl, previous().rawRange(), List.of()));
+          } while (accept(","));
+        }
+        members.add(node("ProvidesDirective", service, span(d, previous()), implementations));
+      } else {
+        error(current(), "JV-SYN-0002", "unsupported module directive");
+        sync();
+      }
+      if (before == p) take();
+    }
+    Token end = current();
+    if (!accept("}")) error(end, "JV-SYN-0002", "unterminated module");
+    return node("ModuleDeclaration", name, span(start, end), members);
+  }
+
+  /** Dotted identifiers with no wildcard support, e.g. {@code com.example.Service}. */
+  private String parseDottedName() {
+    if (!isIdentifierLike()) {
+      error(current(), "JV-SYN-0002", "expected module/package name");
+      return "<missing>";
+    }
+    var name = new StringBuilder(take().value());
+    while (word(".") && lookIdentifier(1)) {
+      take();
+      name.append('.').append(take().value());
+    }
+    return name.toString();
   }
 
   private FrontendNode parsePackageDeclaration() {

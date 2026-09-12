@@ -2,7 +2,7 @@
 
 TASK / AGENT_ID / BASE_REVISION: `P13-W01` / `/root` / `dev` at `2f6bb43`
 
-STATUS: **CONTRACT_FROZEN — P13 implementation IN_PROGRESS (round 13 of N)**
+STATUS: **CONTRACT_FROZEN — P13 implementation IN_PROGRESS (round 14 of N)**
 
 Source: `prompts/JAVELLE_IMPLEMENTATION_PLAN.md` section E, `## P13 — 完整宣告與型別 grammar` (lines 798-817). This contract restates that section's 12 requirements (P13-01..P13-12) as a concrete acceptance matrix; it does not change the plan's scope. Depends on P12 (ACCEPTED pending its own independent review, in progress concurrently with this round).
 
@@ -108,6 +108,12 @@ Fixed a real correctness bug found while starting P13-05: `this`/`super` in expr
 Implemented (P13-05): JLS 8.8.7.1's explicit-constructor-invocation placement rule — a `this(...)`/`super(...)` call statement is only valid as the very first statement of a constructor body. `validateExplicitConstructorInvocations(statements, isConstructor)` is now called from both `parseConstructor` and `parseMethod` on the parsed statement list: a `this()`/`super()` call anywhere in a regular method is diagnosed (`JV-SYN-0002`), and one appearing after the first statement in a constructor is also diagnosed. Five new tests in `P13ConstructorInvocationTest.java` cover: `this()`/`super()` accepted as the first statement, `this()` rejected when not first, `this()` rejected inside a regular method, and `this.x = x` (field access, not a call) correctly unaffected by the placement rule.
 
 Explicitly NOT done yet: compact/instance `main` and the rest of the JLS 8.5 "current non-preview declaration features" inventory (P13-05 remainder), generics as a real feature, receiver parameters, type-use annotations (P13-03), annotation-element array-literal default values, anonymous classes, `module`/`open`/package-info/module-info compilation units with no public type (P13-07), the property-initializer-vs-accessor-block disambiguation audit (P13-08), duplicate-constructor/unclosed-generics/class-record-confusion diagnostics (P13-10 remainder), and the Java-fixture ABI-equivalence migration suite (P13-11).
+
+## 3n. Round 14 progress (module-info compilation units)
+
+Implemented (P13-07): `[open] module dotted.name { ... }` now parses for real as `ModuleDeclaration`, replacing the old top-level `unsupported("module-declaration")` placeholder for `module` (bare `open` not followed by `module` remains unsupported, since it isn't otherwise a valid Javelle construct). Directives: `requires [transitive] [static] dotted.name` (`RequiresDirective` with `TransitiveModifier`/`StaticModifier` children), `exports dotted.name [to target1, target2, ...]` and the identical-shaped `opens` (`ExportsDirective`/`OpensDirective` with `ExportsTarget` children), `uses dotted.name` (`UsesDirective`), and `provides dotted.name with impl1, impl2, ...` (`ProvidesDirective` with `ProvidesImplementation` children). A new `parseDottedName()` helper reads a plain dotted identifier chain (module/package/service names never take generics or wildcards, unlike import names). Also confirmed as already-working (no code change needed): a `package-info`-style compilation unit — a source file containing only a `package` declaration and no type — already parses cleanly with zero diagnostics, since the top-level loop never required a type declaration to be present. Six new tests in `P13ModuleDeclarationTest.java` cover: requires+exports, exports-to-specific-modules, opens/uses/provides, open module, unterminated module, and the package-only compilation unit confirmation.
+
+Explicitly NOT done yet: generics as a real feature, receiver parameters, type-use annotations (P13-03), annotation-element array-literal default values, anonymous classes, compact/instance `main` and the rest of the JLS 8.5 declaration-feature inventory (P13-05 remainder), the property-initializer-vs-accessor-block disambiguation audit (P13-08), duplicate-constructor/unclosed-generics/class-record-confusion diagnostics (P13-10 remainder), and the Java-fixture ABI-equivalence migration suite (P13-11) — the last major open item before P13-12's independent review.
 
 ## 4. Test requirements
 
