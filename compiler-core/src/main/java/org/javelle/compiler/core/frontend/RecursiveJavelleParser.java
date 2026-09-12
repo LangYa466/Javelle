@@ -761,9 +761,43 @@ public final class RecursiveJavelleParser implements JavelleParser {
         out.add(node("SwitchStatement", "", span(start, previous()), kids));
         continue;
       }
-      if (Set.of("try", "synchronized").contains(current().value())) {
-        String feature = word("try") ? "try" : "synchronized";
-        out.add(unsupported(feature));
+      if (word("try")) {
+        Token start = take();
+        var kids = new ArrayList<FrontendNode>();
+        if (accept("(")) kids.addAll(parseResources());
+        var tryBody = parseStatementOrBlock();
+        if (tryBody != null) kids.add(tryBody);
+        else error(current(), "JV-SYN-0002", "missing try body");
+        skipLines();
+        while (word("catch")) {
+          kids.add(parseCatchClause());
+          skipLines();
+        }
+        if (accept("finally")) {
+          Token finallyStart = previous();
+          var finallyBody = parseStatementOrBlock();
+          if (finallyBody != null)
+            kids.add(
+                node("FinallyBlock", "", span(finallyStart, previous()), List.of(finallyBody)));
+          else error(current(), "JV-SYN-0002", "missing finally body");
+        }
+        out.add(node("TryStatement", "", span(start, previous()), kids));
+        continue;
+      }
+      if (word("synchronized")) {
+        Token start = take();
+        var subjectTokens = takeBalanced("(", ")");
+        var kids = new ArrayList<FrontendNode>();
+        if (!subjectTokens.isEmpty()) kids.add(buildExpression(subjectTokens));
+        else error(start, "JV-SYN-0002", "missing synchronized subject");
+        if (accept("{")) {
+          Token blockStart = previous();
+          var statements = parseStatements();
+          kids.add(node("Block", "", span(blockStart, previous()), statements));
+        } else {
+          error(current(), "JV-SYN-0002", "missing synchronized body");
+        }
+        out.add(node("SynchronizedStatement", "", span(start, previous()), kids));
         continue;
       }
       if (word("return")) {
@@ -1901,6 +1935,85 @@ public final class RecursiveJavelleParser implements JavelleParser {
     if (body != null) kids.add(body);
     else error(current(), "JV-SYN-0002", "missing for body");
     return node("BasicForStatement", "", span(start, previous()), kids);
+  }
+
+  /**
+   * {@code try (}, one resource declaration per newline-separated segment: {@code Type name = expr}
+   * or a bare expression naming an already-declared effectively-final resource. A resource
+   * initializer spanning multiple physical lines itself is not yet supported — each resource must
+   * be exactly one line.
+   */
+  private List<FrontendNode> parseResources() {
+    var segments = new ArrayList<List<Token>>();
+    var current = new ArrayList<Token>();
+    int depth = 0;
+    while (!at(TokenKind.EOF)) {
+      if (word(")") && depth == 0) {
+        take();
+        break;
+      }
+      if (at(TokenKind.NEWLINE) && depth == 0) {
+        take();
+        if (!current.isEmpty()) {
+          segments.add(current);
+          current = new ArrayList<>();
+        }
+        continue;
+      }
+      Token t = take();
+      if (t.value().equals("(") || t.value().equals("[")) depth++;
+      else if (t.value().equals(")") || t.value().equals("]")) depth--;
+      current.add(t);
+    }
+    if (!current.isEmpty()) segments.add(current);
+    var resources = new ArrayList<FrontendNode>();
+    for (var seg : segments) {
+      if (seg.size() >= 3
+          && isIdentifierLike(seg.get(0))
+          && isIdentifierLike(seg.get(1))
+          && seg.get(2).value().equals("=")) {
+        Token type = seg.get(0);
+        Token name = seg.get(1);
+        var initTokens = seg.subList(3, seg.size());
+        var kids = new ArrayList<FrontendNode>();
+        if (!initTokens.isEmpty()) kids.add(buildExpression(initTokens));
+        resources.add(node("ResourceDeclaration", name.value(), span(type, seg.getLast()), kids));
+      } else {
+        resources.add(
+            node(
+                "ResourceDeclaration",
+                "",
+                span(seg.getFirst(), seg.getLast()),
+                List.of(buildExpression(seg))));
+      }
+    }
+    return resources;
+  }
+
+  /** {@code catch (Type1 | Type2 name) { ... }} — one or more pipe-separated exception types. */
+  private FrontendNode parseCatchClause() {
+    Token start = take();
+    accept("(");
+    var types = new ArrayList<FrontendNode>();
+    while (true) {
+      Token type = take();
+      types.add(node("CatchType", type.value(), type.rawRange(), List.of()));
+      if (accept("|")) continue;
+      break;
+    }
+    Token exceptionName = take();
+    accept(")");
+    var kids = new ArrayList<FrontendNode>(types);
+    kids.add(
+        node(
+            "CatchParameterDeclaration",
+            exceptionName.value(),
+            exceptionName.rawRange(),
+            List.of()));
+    var body = parseStatementOrBlock();
+    if (body != null) kids.add(body);
+    else error(current(), "JV-SYN-0002", "missing catch body");
+    return node("CatchClause", "", span(start, previous()), kids);
   }
 
   private boolean isModifier() {

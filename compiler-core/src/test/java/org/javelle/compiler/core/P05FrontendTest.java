@@ -296,10 +296,10 @@ class P05FrontendTest {
   void everyFrozenUnsupportedRepresentativeIsSingleAndBalanced() {
     var samples =
         Map.of(
-            "try",
-            "class C { void m() { try { x() } catch (E e) { y() } return } }",
-            "synchronized",
-            "class C { void m() { synchronized (this) { x() } return } }");
+            "varargs",
+            "class C { void m(int... xs) { return } }",
+            "text-block",
+            "class C { Object m() {\n Object x = \"\"\"\n hi\n \"\"\"\n return x\n }}");
     for (var sample : samples.entrySet()) {
       var result = parse(sample.getValue());
       var development =
