@@ -302,8 +302,6 @@ class P05FrontendTest {
             "class C { void m() { switch (x) { } return } }",
             "try",
             "class C { void m() { try { x() } catch (E e) { y() } return } }",
-            "lambda",
-            "class C { Object m() {\n Object x = value -> value\n return x\n }}",
             "method-reference",
             "class C { Object m() {\n Object x = C::new\n return x\n }}",
             "synchronized",

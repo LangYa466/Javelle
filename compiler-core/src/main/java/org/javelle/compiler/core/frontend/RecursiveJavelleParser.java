@@ -808,13 +808,10 @@ public final class RecursiveJavelleParser implements JavelleParser {
 
   private FrontendNode buildExpression(List<Token> parts) {
     Optional<Token> unsupportedOperator =
-        parts.stream().filter(t -> Set.of("->", "::", "...").contains(t.value())).findFirst();
+        parts.stream().filter(t -> Set.of("::", "...").contains(t.value())).findFirst();
     if (unsupportedOperator.isPresent()) {
       Token token = unsupportedOperator.orElseThrow();
-      String feature =
-          token.value().equals("->")
-              ? "lambda"
-              : token.value().equals("::") ? "method-reference" : "varargs";
+      String feature = token.value().equals("::") ? "method-reference" : "varargs";
       TextRange range = span(parts.getFirst(), parts.getLast());
       error(token, "JV-DEV-0001", "unsupported " + feature);
       return new UnsupportedSyntaxNode(
@@ -989,6 +986,7 @@ public final class RecursiveJavelleParser implements JavelleParser {
     FrontendNode primary() {
       if (index >= values.size())
         return node("ErrorNode", "", values.getLast().rawRange(), List.of());
+      if (looksLikeLambda()) return lambda();
       Token t = values.get(index++);
       if (t.value().equals("new")) {
         FrontendNode target = primary();
@@ -1019,6 +1017,102 @@ public final class RecursiveJavelleParser implements JavelleParser {
                   ? "StringLiteral"
                   : t.kind() == TokenKind.LITERAL ? "NumericLiteral" : "NameExpression";
       return node(kind, t.kind() == TokenKind.IDENTIFIER ? t.value() : "", t.rawRange(), List.of());
+    }
+
+    /**
+     * A lambda starts either at a bare identifier immediately followed by {@code ->} (implicit
+     * single parameter, no parens), or at {@code (} whose matching {@code )} is immediately
+     * followed by {@code ->}.
+     */
+    boolean looksLikeLambda() {
+      if (index >= values.size()) return false;
+      Token first = values.get(index);
+      if (isIdentifierLike(first) && index + 1 < values.size())
+        return values.get(index + 1).value().equals("->");
+      if (!first.value().equals("(")) return false;
+      int depth = 0;
+      for (int i = index; i < values.size(); i++) {
+        String v = values.get(i).value();
+        if (v.equals("(")) depth++;
+        else if (v.equals(")")) {
+          depth--;
+          if (depth == 0) return i + 1 < values.size() && values.get(i + 1).value().equals("->");
+        }
+      }
+      return false;
+    }
+
+    /**
+     * {@code (params) -> body} or {@code identifier -> body}. A block body ({@code -> { ... }}) is
+     * diagnosed unsupported: the cursor operates over a single pre-sliced, single-line token
+     * window, so a multi-line block body would need architecture beyond this round's scope.
+     */
+    FrontendNode lambda() {
+      Token start = values.get(index);
+      var params = lambdaParameters();
+      if (index >= values.size() || !values.get(index).value().equals("->")) {
+        error(start, "JV-SYN-0002", "expected -> in lambda");
+        return node("ErrorNode", "", start.rawRange(), List.of());
+      }
+      index++;
+      if (index < values.size() && values.get(index).value().equals("{")) {
+        Token brace = values.get(index);
+        int depth = 0;
+        Token last = brace;
+        while (index < values.size()) {
+          Token tk = values.get(index++);
+          last = tk;
+          if (tk.value().equals("{")) depth++;
+          else if (tk.value().equals("}")) {
+            depth--;
+            if (depth == 0) break;
+          }
+        }
+        error(brace, "JV-DEV-0001", "unsupported block-bodied lambda");
+        TextRange range = span(start, last);
+        return new UnsupportedSyntaxNode(
+            node("UnsupportedSyntaxNode", range),
+            Optional.empty(),
+            "block-lambda",
+            range,
+            List.of());
+      }
+      FrontendNode body = expression(1);
+      var children = new ArrayList<FrontendNode>(params);
+      children.add(body);
+      return node(
+          "LambdaExpression",
+          "",
+          new TextRange(
+              OffsetUnit.RAW_UTF16, start.rawRange().startOffset(), body.range().endOffset()),
+          children);
+    }
+
+    List<FrontendNode> lambdaParameters() {
+      var params = new ArrayList<FrontendNode>();
+      if (!values.get(index).value().equals("(")) {
+        Token name = values.get(index++);
+        params.add(node("LambdaParameterDeclaration", name.value(), name.rawRange(), List.of()));
+        return params;
+      }
+      index++;
+      while (index < values.size() && !values.get(index).value().equals(")")) {
+        Token first = values.get(index++);
+        if (index < values.size()
+            && isIdentifierLike(values.get(index))
+            && !values.get(index).value().equals(",")) {
+          Token name = values.get(index++);
+          params.add(
+              node("LambdaParameterDeclaration", name.value(), span(first, name), List.of()));
+        } else {
+          params.add(
+              node("LambdaParameterDeclaration", first.value(), first.rawRange(), List.of()));
+        }
+        if (index < values.size() && values.get(index).value().equals(",")) index++;
+        else break;
+      }
+      if (index < values.size() && values.get(index).value().equals(")")) index++;
+      return params;
     }
 
     int precedence(String op) {
