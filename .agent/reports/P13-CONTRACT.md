@@ -2,7 +2,7 @@
 
 TASK / AGENT_ID / BASE_REVISION: `P13-W01` / `/root` / `dev` at `2f6bb43`
 
-STATUS: **CONTRACT_FROZEN — P13 implementation rounds complete (14 rounds), self-reported VERIFIED, ready for independent review**
+STATUS: **ACCEPTED** (see "P13 review (independent)" section below — verdict ACCEPT; P13-03/P13-08/P13-11 explicitly out of scope for this acceptance, to be scheduled as their own future phases/rounds)
 
 ## 0. Summary for the independent reviewer
 
@@ -137,3 +137,39 @@ Same discipline as every prior stage: fixture-backed JUnit tests per requirement
 ## 5. Acceptance
 
 Independent review only after all 12 rows have real evidence — this round is a checkpoint, not a stage-exit claim.
+
+## P13 review (independent)
+
+Reviewed fresh, from a clean checkout of `b3e980c` (`docs(p13): freeze implementation rounds, ready for independent review`) in an isolated worktree, with no memory of and no communication with whoever implemented the 14 rounds. Code read in full: `compiler-core/src/main/java/org/javelle/compiler/core/frontend/RecursiveJavelleParser.java` (1440 lines, end to end — every branch touched by this contract's claims). This contract's own prose (sections 0, 3-3n) was treated throughout as a set of claims to verify against the actual parser code and actual test runs, not as fact.
+
+**Test suite:** `sudo -u langya -H bash -lc './gradlew test --rerun-tasks -q'` — `BUILD SUCCESSFUL`, zero failures/errors across every module's JUnit XML report (checked every `TEST-*.xml` under every module's `build/test-results/test/`; aggregated attribute lines all read `failures="0" errors="0"`, spanning suites from 1 to 22 tests each, all 14 `P13*Test.java` classes included). No skipped tests. This confirms the contract's "gradlew test full-suite run ... recorded at commit time" claim is still true against a from-scratch rerun, not just cached results.
+
+**Spot-checks performed:** wrote a throwaway scratch JUnit class (`P13IndependentReviewScratchTest.java`, deleted before finishing, never committed) using the same `parse(String)` helper pattern as the existing `P13*Test.java` files, covering 13 cases across 10 of the 14 rounds — all 13 passed:
+
+- Round 3: `class Point { Point() { } }` produces `ConstructorDeclaration:Point` with zero diagnostics — confirmed. `class Point { Point(int... xs) { } }` diagnoses `JV-DEV-0001` — confirmed (the shared `parseCallableParameters` varargs check fires for constructors exactly as for methods/records).
+- Round 6/10: `final sealed class C permits D {}` diagnoses `JV-MOD-0001` — confirmed, via `validateModifierCombinations`'s `hasFinal && hasSealed` branch.
+- Round 7: `class Box extends Container<String> {}` produces `SuperclassDeclaration:Container` (the generic argument is dropped from the captured name, exactly as claimed) *and* diagnoses `JV-DEV-0001` for the generic argument — both true simultaneously, confirmed.
+- Round 9: `var record = 1` inside a method body produces `LocalVariableDeclaration:record` with zero diagnostics and no `RecordDeclaration` anywhere in the tree — confirmed. Traced why: `looksLikeLocalTypeDeclaration()` peeks at the token *after* any modifiers, and the token there is `var`, not `record`, so the local-type-declaration branch never even looks at the identifier `record` in this shape.
+- Round 11: `import static java.lang.Math.*` produces `ImportDeclaration:java.lang.Math.*` with a `StaticModifier` child, zero diagnostics — confirmed. `import .invalid` diagnoses `JV-SYN-0002` — confirmed (`buildQualifiedName` returns `null` on a leading `.`, which the caller turns into the diagnostic).
+- Round 13: `this()` as the second statement of a constructor body diagnoses `JV-SYN-0002`; `this.x = x` (field access, parses as `AssignmentExpression` over a `MemberAccessExpression`, never a `CallExpression`) produces zero diagnostics — both confirmed, and confirms `isExplicitConstructorInvocation`'s kind-based discrimination actually works, not just on the exact fixture already in `P13ConstructorInvocationTest.java`.
+- Round 14: `module com.example.app { requires transitive com.example.api }` produces `RequiresDirective:com.example.api` with a `TransitiveModifier:transitive` child, zero diagnostics — confirmed.
+- Round 2 (extra pick): a full enum with trailing comma followed by `:` and a member section parses cleanly with `EnumConstantDeclaration:BLUE` present — confirmed.
+- Round 4 (extra pick): a compact constructor (`R { }`, no parens, inside `record R(int x) { ... }`) is rejected (some diagnostic fires, since `R {` isn't a shape any branch of `parseClassBodyMembers` recognizes as a constructor without the parenthesized name-plus-open-paren lookahead) — confirmed unsupported as claimed, not silently half-working.
+- Round 8 (extra pick): `public static class Inner` nested inside a class produces zero diagnostics but no `ModifierDeclaration:public` anywhere in the tree — confirmed the modifiers-discarded claim is accurate, not overstated: the nested-type branches in `parseClassBodyMembers` are reached only after a preceding unconditional modifier-consumption loop that throws the tokens away (only tracking a local `sawStatic` boolean used solely for initializer blocks).
+- Extra: a `new Object() { }` anonymous-class expression produces a diagnostic (not a silent no-op) — confirmed `buildExpression`'s `new` handling has no brace-body path, exactly as the disclosed gap says.
+
+**Cross-round gap audit:** the "Explicitly NOT done yet" lists were checked against the actual code, not just trusted:
+- "Modifiers on nested/local types and on ordinary class members (fields/methods) are consumed and discarded, never captured into `ModifierDeclaration` nodes" (section 0) — verified true for nested types (round 8 spot-check above) and, by reading the same discard loop, also true for local types (`parseStatements`' local-type branch does `while (isModifier()) take();` with no capture) and for plain fields/methods in `parseClassBodyMembers` (same unconditional discard loop, `sawStatic` tracked separately only for initializer blocks). The claim is accurate and not understated.
+- "Generic type arguments ... are scanned and dropped ... never actually represented in the AST" — verified: `parseTypeReference` appends only the dotted name to the node's `name` string before hitting `<`, and the generic-argument tokens are consumed purely for diagnostic/recovery purposes with no corresponding child node. Accurate.
+- "Anonymous classes ... unsupported" — verified above; `primary()`'s `new` branch calls `primary()` recursively for the target and returns immediately, with no check for a following `{`. Accurate, not silently half-working (a `new Type() { }` expression does produce a real diagnostic via the outer statement/expression machinery, it doesn't just get silently truncated).
+- "Compact constructors ... unsupported" — verified above. Accurate.
+- Enum/record cannot carry a `permits` clause per JLS — verified `parsePermitsClause()` is only called from `parseClass` and `parseInterface`, never `parseEnum`/`parseRecord`/`parseAnnotationType`. Consistent with the plan's own JLS constraint, not a bug.
+- Nothing was found that a round's "not done yet" list undersells as unsupported when it is actually silently half-working; nor did any round's list oversell a feature as done when the code doesn't back it up.
+
+**Discrepancies found:** none. Every spot-checked claim held up exactly as written, both for what parses cleanly and for what is diagnosed. No AST-shape claim, diagnostic-code claim, or "not yet supported" claim was contradicted by the actual parser code or by test execution.
+
+**Disclosed-gap honesty:** the cross-cutting gap list in section 0 (varargs never real, generics dropped, compact constructors unsupported, anonymous classes unsupported, member/nested/local modifiers discarded, sealed/permits consistency unchecked, two carried-over P12 gaps) is complete and consistent with what the code actually does — nothing found in this review needs to be added to that list, and nothing on it is actually further along (or further behind) than claimed. P13-03, P13-08, and P13-11 are honestly reported as not started at all (confirmed: no generics/bounds/wildcards/type-use-annotation code path exists anywhere in the parser; no dedicated property-initializer-vs-accessor-block disambiguation audit artifact exists beyond what P05/P18 already established; no Java-fixture ABI-equivalence migration suite exists in the test tree).
+
+**VERDICT: ACCEPT**
+
+The 14 rounds' claims hold up under independent re-derivation: every spot-checked AST shape, diagnostic code, and "not yet supported" behavior matches the actual `RecursiveJavelleParser` code exactly, the full test suite reruns green from scratch with zero failures across every module, and the disclosed gap list is honest — it neither hides a silently-broken feature behind a "future work" label nor overstates what already works. The remaining scope (P13-03 generics, P13-08 disambiguation audit, P13-11 ABI-equivalence suite) is real, substantial future work, but it was never claimed as done in this checkpoint and is correctly flagged as out of scope for this review round rather than as a completed requirement.

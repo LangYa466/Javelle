@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "phase": "P13",
+  "phase": "P14",
   "tasks": [
     {
       "id": "P00",
@@ -357,9 +357,23 @@
     {
       "id": "P13",
       "owner": "/root",
-      "status": "VERIFIED",
+      "status": "ACCEPTED",
       "dependsOn": ["P12"],
       "evidence": [".agent/reports/P13-CONTRACT.md"]
+    },
+    {
+      "id": "P13-REVIEW",
+      "owner": "/root",
+      "status": "ACCEPTED",
+      "dependsOn": ["P13"],
+      "evidence": [".agent/reports/P13-CONTRACT.md"]
+    },
+    {
+      "id": "P14",
+      "owner": "/root",
+      "status": "TODO",
+      "dependsOn": ["P13"],
+      "evidence": []
     }
   ]
 }
