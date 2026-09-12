@@ -2,7 +2,7 @@
 
 TASK / AGENT_ID / BASE_REVISION: `P14-W01` / `/root` / `dev` at `563fb98` (P13 ACCEPTED)
 
-STATUS: **CONTRACT_FROZEN — P14 implementation IN_PROGRESS (round 4 of N)**
+STATUS: **CONTRACT_FROZEN — P14 implementation IN_PROGRESS (round 5 of N)**
 
 Source: `prompts/JAVELLE_IMPLEMENTATION_PLAN.md` section E, `## P14 — 完整表達式、控制流程與多行 lambda` (lines 819-838). This contract restates that section's 12 requirements (P14-01..P14-12) as a concrete acceptance matrix; it does not change the plan's scope. Depends on P13 (ACCEPTED).
 
@@ -60,6 +60,12 @@ Explicitly NOT done yet (deliberately deferred to keep this round scoped): label
 Implemented (P14-04 partial): `throw expr` (`ThrowStatement`, expression always required, unlike `return`), `yield expr` (`YieldStatement`, expression always required), and `assert condition [: message]` (`AssertStatement`, condition scanned up to a line boundary or `:`, optional message expression after `:`). Since `yield` is a contextual keyword (lexes as a plain identifier, same situation as `record`), a `looksLikeYieldStatement()` lookahead checks the token immediately after `yield` isn't a continuation that would mean it's being used as an ordinary variable (`.`, `=`, `(`, `++`, `--`, or any compound-assignment operator) — so `yield.foo()` and `yield = 1` still parse as plain expression statements on a variable literally named `yield`, not a mis-fired `YieldStatement`. `assert` moves from the blanket-unsupported set to a real implementation; `switch`/`try`/`synchronized` remain there. Seven new tests in `P14ThrowYieldAssertTest.java` cover: throw, missing-throw-expression, yield, yield-as-plain-variable-name (both `.` and `=` continuations), assert without message, assert with message, and missing-assert-condition.
 
 Explicitly NOT done yet: `for` (both forms), `switch`, `try`/`catch`/`finally`/multi-catch/resources, `synchronized`, labeled statements, method references, block-bodied lambdas (architecture gap noted in round 2), array indexing/literals, generics in expressions. P14-05 and most of P14-03/P14-04 remain unstarted.
+
+## 3e. Round 5 progress (enhanced for)
+
+Implemented (P14-03 partial): `for (Type name : iterable) body` and `for (var name : iterable) body` (`EnhancedForStatement` with a `ForVariableDeclaration` child and the iterable expression). Per the spec's explicit warning (`prompts/JAVELLE_IMPLEMENTATION_PLAN.md` line 148: "parser must distinguish ternary's `:`, enhanced-for's `:`, and basic-for's two separators, must not use naive string split"), disambiguation is handled correctly rather than by any string-splitting shortcut: `looksLikeEnhancedFor()` scans the for-header counting only *structural* colons at header-top-level, pairing off (and discarding) each `?`/`:` it finds together as a ternary before counting a colon as a real separator — so `for (var x : flag ? a : b)` correctly sees exactly one structural colon (the ternary's own colon is consumed by its `?`) and is recognized as enhanced-for. Enhanced-for is recognized only for the exact `Type name` / `var name` shape (2 header-lead tokens before the single colon); anything else — most importantly Javelle's colon-separated basic-for (`for (int i = 0 : i < 10 : i++)`, two structural colons) — correctly falls through unchanged to the existing `unsupported("basic-for")` placeholder. Five new tests in `P14EnhancedForTest.java` cover: typed variable, `var` variable, braceless single-statement body, a ternary inside the iterable expression (the specific disambiguation case the spec calls out), and a regression guard that basic-for's colon-separated form still falls back to unsupported rather than being misparsed as enhanced-for.
+
+Explicitly NOT done yet: basic (colon-separated) `for` — its own dedicated round given the complexity already documented above (multiple init/update clauses, omitted segments, JLS scope rules) — `switch`, `try`/`catch`/`finally`/multi-catch/resources, `synchronized`, labeled statements, method references, block-bodied lambdas, array indexing/literals, generics in expressions, modifiers on the enhanced-for loop variable (e.g. `final int x : items` — the "exactly 2 tokens" shape check rejects this, a narrow known gap).
 
 ## 4. Test requirements
 

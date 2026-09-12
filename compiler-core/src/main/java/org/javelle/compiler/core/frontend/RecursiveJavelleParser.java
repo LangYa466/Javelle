@@ -626,7 +626,12 @@ public final class RecursiveJavelleParser implements JavelleParser {
         continue;
       }
       if (word("for")) {
-        out.add(unsupported("basic-for"));
+        if (looksLikeEnhancedFor()) {
+          Token start = take();
+          out.add(parseEnhancedFor(start));
+        } else {
+          out.add(unsupported("basic-for"));
+        }
         continue;
       }
       if (word("while")) {
@@ -1612,6 +1617,56 @@ public final class RecursiveJavelleParser implements JavelleParser {
   private boolean looksLikeYieldStatement() {
     return p + 1 < tokens.size()
         && !YIELD_EXPRESSION_CONTINUATIONS.contains(tokens.get(p + 1).value());
+  }
+
+  /**
+   * {@code for (Type name : iterable)} / {@code for (var name : iterable)} — exactly one top-level
+   * (ternary-aware) colon inside the header, preceded by exactly a type/modifier token and a name
+   * token. Basic for (colon-separated init/condition/update) is a separate, larger round; anything
+   * not matching this exact single-variable shape falls back to it.
+   */
+  private boolean looksLikeEnhancedFor() {
+    if (!lookWord(1, "(")) return false;
+    int i = p + 2;
+    int depth = 1;
+    int ternaryDepth = 0;
+    var colonIndexes = new ArrayList<Integer>();
+    while (i < tokens.size() && depth > 0) {
+      String v = tokens.get(i).value();
+      if (v.equals("(") || v.equals("[")) depth++;
+      else if (v.equals(")") || v.equals("]")) {
+        depth--;
+        if (depth == 0) break;
+      } else if (depth == 1 && v.equals("?")) ternaryDepth++;
+      else if (depth == 1 && v.equals(":")) {
+        if (ternaryDepth > 0) ternaryDepth--;
+        else colonIndexes.add(i);
+      }
+      i++;
+    }
+    if (colonIndexes.size() != 1) return false;
+    int declStart = p + 2;
+    int declLength = colonIndexes.get(0) - declStart;
+    return declLength == 2
+        && isIdentifierLike(tokens.get(declStart))
+        && isIdentifierLike(tokens.get(declStart + 1));
+  }
+
+  private FrontendNode parseEnhancedFor(Token start) {
+    accept("(");
+    Token typeToken = take();
+    Token nameToken = take();
+    if (!accept(":")) error(current(), "JV-SYN-0002", "expected : in enhanced for");
+    var iterableTokens = takeUntilCloseParen();
+    var kids = new ArrayList<FrontendNode>();
+    kids.add(
+        node("ForVariableDeclaration", nameToken.value(), span(typeToken, nameToken), List.of()));
+    if (!iterableTokens.isEmpty()) kids.add(buildExpression(iterableTokens));
+    else error(start, "JV-SYN-0002", "missing enhanced for iterable");
+    var body = parseStatementOrBlock();
+    if (body != null) kids.add(body);
+    else error(current(), "JV-SYN-0002", "missing for body");
+    return node("EnhancedForStatement", "", span(start, previous()), kids);
   }
 
   private boolean isModifier() {
