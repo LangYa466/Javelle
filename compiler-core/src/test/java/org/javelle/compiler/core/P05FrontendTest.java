@@ -296,8 +296,6 @@ class P05FrontendTest {
   void everyFrozenUnsupportedRepresentativeIsSingleAndBalanced() {
     var samples =
         Map.of(
-            "while",
-            "class C { void m() { while (true) { x() } return } }",
             "switch",
             "class C { void m() { switch (x) { } return } }",
             "try",

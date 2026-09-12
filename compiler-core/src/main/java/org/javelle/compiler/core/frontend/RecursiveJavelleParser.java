@@ -583,6 +583,17 @@ public final class RecursiveJavelleParser implements JavelleParser {
     return children;
   }
 
+  /** A {@code { ... }} block, or (if/while/do bodies without braces) a single statement. */
+  private FrontendNode parseStatementOrBlock() {
+    if (accept("{")) {
+      Token blockStart = previous();
+      var statements = parseStatements();
+      return node("Block", "", span(blockStart, previous()), statements);
+    }
+    skipLines();
+    return parseExpressionUntilBoundary();
+  }
+
   private List<FrontendNode> parseStatements() {
     var out = new ArrayList<FrontendNode>();
     while (!at(TokenKind.EOF) && !word("}")) {
@@ -618,11 +629,49 @@ public final class RecursiveJavelleParser implements JavelleParser {
         out.add(unsupported("basic-for"));
         continue;
       }
-      if (Set.of("while", "do", "switch", "try", "synchronized", "assert")
-          .contains(current().value())) {
+      if (word("while")) {
+        Token start = take();
+        var conditionTokens = takeBalanced("(", ")");
+        var kids = new ArrayList<FrontendNode>();
+        if (!conditionTokens.isEmpty()) kids.add(buildExpression(conditionTokens));
+        else error(start, "JV-SYN-0002", "missing while condition");
+        var whileBody = parseStatementOrBlock();
+        if (whileBody != null) kids.add(whileBody);
+        else error(current(), "JV-SYN-0002", "missing while body");
+        out.add(node("WhileStatement", "", span(start, previous()), kids));
+        continue;
+      }
+      if (word("do")) {
+        Token start = take();
+        var kids = new ArrayList<FrontendNode>();
+        var doBody = parseStatementOrBlock();
+        if (doBody != null) kids.add(doBody);
+        else error(current(), "JV-SYN-0002", "missing do body");
+        skipLines();
+        if (!accept("while")) {
+          error(current(), "JV-SYN-0002", "expected while after do body");
+        } else {
+          var conditionTokens = takeBalanced("(", ")");
+          if (!conditionTokens.isEmpty()) kids.add(buildExpression(conditionTokens));
+          else error(previous(), "JV-SYN-0002", "missing do-while condition");
+        }
+        out.add(node("DoWhileStatement", "", span(start, previous()), kids));
+        continue;
+      }
+      if (word("break") || word("continue")) {
+        Token start = take();
+        String label = !atLineBoundary() && isIdentifierLike() ? take().value() : "";
+        out.add(
+            node(
+                start.value().equals("break") ? "BreakStatement" : "ContinueStatement",
+                label,
+                span(start, previous()),
+                List.of()));
+        continue;
+      }
+      if (Set.of("switch", "try", "synchronized", "assert").contains(current().value())) {
         String feature =
             switch (current().value()) {
-              case "while", "do" -> "loop-statement";
               case "switch" -> "switch";
               case "try" -> "try";
               case "synchronized" -> "synchronized";
@@ -652,24 +701,12 @@ public final class RecursiveJavelleParser implements JavelleParser {
         var kids = new ArrayList<FrontendNode>();
         if (!conditionTokens.isEmpty()) kids.add(buildExpression(conditionTokens));
         else error(start, "JV-SYN-0002", "missing if condition");
-        if (accept("{")) {
-          Token blockStart = previous();
-          var statements = parseStatements();
-          kids.add(node("Block", "", span(blockStart, previous()), statements));
-        } else {
-          var statement = parseExpressionUntilBoundary();
-          if (statement != null) kids.add(statement);
-        }
+        var thenBranch = parseStatementOrBlock();
+        if (thenBranch != null) kids.add(thenBranch);
         skipLines();
         if (accept("else")) {
-          if (accept("{")) {
-            Token blockStart = previous();
-            var statements = parseStatements();
-            kids.add(node("Block", "", span(blockStart, previous()), statements));
-          } else {
-            var statement = parseExpressionUntilBoundary();
-            if (statement != null) kids.add(statement);
-          }
+          var elseBranch = parseStatementOrBlock();
+          if (elseBranch != null) kids.add(elseBranch);
         }
         out.add(node("IfStatement", "", span(start, previous()), kids));
         continue;
