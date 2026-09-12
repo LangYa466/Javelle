@@ -85,10 +85,4 @@ class P14LambdaTest {
     var result = parse("class C {\n void m() {\n x = a -> { return a }\n }\n}\n");
     assertTrue(result.diagnostics().stream().anyMatch(d -> d.code().value().equals("JV-DEV-0001")));
   }
-
-  @Test
-  void methodReferenceStillUnsupported() {
-    var result = parse("class C {\n void m() {\n x = String::valueOf\n }\n}\n");
-    assertTrue(result.diagnostics().stream().anyMatch(d -> d.code().value().equals("JV-DEV-0001")));
-  }
 }

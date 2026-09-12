@@ -10,8 +10,8 @@ import org.javelle.compiler.core.frontend.*;
 import org.javelle.compiler.core.source.*;
 import org.junit.jupiter.api.Test;
 
-/** P14 round 5: enhanced for loops. Basic (colon-separated) for is a separate, later round. */
-class P14EnhancedForTest {
+/** P14 round 8: method references (::). */
+class P14MethodReferenceTest {
   private static ParseResult parse(String text) {
     byte[] bytes = text.getBytes(StandardCharsets.UTF_8);
     var source =
@@ -40,33 +40,23 @@ class P14EnhancedForTest {
   }
 
   @Test
-  void enhancedForWithTypedVariable() {
-    var result = parse("class C {\n void m() {\n for (int x : items) {\n use(x)\n }\n }\n}\n");
+  void staticMethodReference() {
+    var result = parse("class C {\n void m() {\n x = String::valueOf\n }\n}\n");
     assertTrue(result.diagnostics().isEmpty(), result.diagnostics().toString());
-    var all = anchors(result.ast());
-    assertTrue(all.contains("EnhancedForStatement"));
-    assertTrue(all.contains("ForVariableDeclaration:x"));
+    assertTrue(anchors(result.ast()).contains("MethodReferenceExpression:valueOf"));
   }
 
   @Test
-  void enhancedForWithVarVariable() {
-    var result = parse("class C {\n void m() {\n for (var x : items) {\n use(x)\n }\n }\n}\n");
+  void constructorReference() {
+    var result = parse("class C {\n void m() {\n x = C::new\n }\n}\n");
     assertTrue(result.diagnostics().isEmpty(), result.diagnostics().toString());
-    assertTrue(anchors(result.ast()).contains("ForVariableDeclaration:x"));
+    assertTrue(anchors(result.ast()).contains("MethodReferenceExpression:new"));
   }
 
   @Test
-  void enhancedForWithSingleStatementBody() {
-    var result = parse("class C {\n void m() {\n for (var x : items)\n use(x)\n }\n}\n");
+  void instanceMethodReferenceAsCallArgument() {
+    var result = parse("class C {\n void m() {\n list.forEach(System.out::println)\n }\n}\n");
     assertTrue(result.diagnostics().isEmpty(), result.diagnostics().toString());
-    assertTrue(anchors(result.ast()).contains("EnhancedForStatement"));
-  }
-
-  @Test
-  void ternaryInsideEnhancedForIterableDoesNotConfuseColonCounting() {
-    var result =
-        parse("class C {\n void m() {\n for (var x : flag ? a : b) {\n use(x)\n }\n }\n}\n");
-    assertTrue(result.diagnostics().isEmpty(), result.diagnostics().toString());
-    assertTrue(anchors(result.ast()).contains("EnhancedForStatement"));
+    assertTrue(anchors(result.ast()).contains("MethodReferenceExpression:println"));
   }
 }

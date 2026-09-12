@@ -595,10 +595,83 @@ public final class RecursiveJavelleParser implements JavelleParser {
   }
 
   private List<FrontendNode> parseStatements() {
-    var out = new ArrayList<FrontendNode>();
+    var out = parseStatementsUntil(() -> word("}"));
+    if (!accept("}")) {
+      error(current(), "JV-SYN-0002", "unterminated block");
+      out.add(node("ErrorNode", "", current().rawRange(), List.of()));
+    }
+    return out;
+  }
+
+  /**
+   * {@code case}/{@code default} colon-bodies run until the next case label or the switch's closing
+   * {@code }} — never their own closing brace, since a case body isn't itself a block.
+   */
+  private List<FrontendNode> parseSwitchCaseBody() {
+    return parseStatementsUntil(() -> word("}") || word("case") || word("default"));
+  }
+
+  /**
+   * Both {@code case value1, value2 -> ...} (arrow, no fallthrough, single statement/block) and
+   * {@code case value:} (colon, classic fallthrough, statements run until the next label). Guards
+   * ({@code when}) and deconstruction patterns are not yet supported — case labels are plain
+   * expressions.
+   */
+  private List<FrontendNode> parseSwitchCases() {
+    var cases = new ArrayList<FrontendNode>();
     while (!at(TokenKind.EOF) && !word("}")) {
       skipLines();
       if (word("}")) break;
+      if (!word("case") && !word("default")) {
+        error(current(), "JV-SYN-0002", "expected case or default");
+        sync();
+        continue;
+      }
+      Token labelStart = take();
+      boolean isDefault = labelStart.value().equals("default");
+      var labels = new ArrayList<FrontendNode>();
+      if (!isDefault) {
+        do {
+          var labelTokens = new ArrayList<Token>();
+          while (!at(TokenKind.EOF) && !word(",") && !word(":") && !word("->"))
+            labelTokens.add(take());
+          if (!labelTokens.isEmpty()) labels.add(buildExpression(labelTokens));
+        } while (accept(","));
+      }
+      boolean isArrow = accept("->");
+      if (!isArrow && !accept(":"))
+        error(current(), "JV-SYN-0002", "expected : or -> in switch case");
+      var body = new ArrayList<FrontendNode>();
+      if (isArrow) {
+        if (accept("{")) {
+          Token blockStart = previous();
+          var statements = parseStatements();
+          body.add(node("Block", "", span(blockStart, previous()), statements));
+        } else {
+          var expr = parseExpressionUntilBoundary();
+          if (expr != null) body.add(node("ExpressionStatement", "", expr.range(), List.of(expr)));
+        }
+      } else {
+        body.addAll(parseSwitchCaseBody());
+      }
+      var children = new ArrayList<FrontendNode>(labels);
+      children.addAll(body);
+      cases.add(
+          node(
+              isDefault ? "SwitchDefaultCase" : "SwitchCase",
+              isArrow ? "arrow" : "colon",
+              span(labelStart, previous()),
+              children));
+    }
+    if (!accept("}")) error(current(), "JV-SYN-0002", "unterminated switch");
+    return cases;
+  }
+
+  private List<FrontendNode> parseStatementsUntil(java.util.function.Supplier<Boolean> stop) {
+    var out = new ArrayList<FrontendNode>();
+    while (!at(TokenKind.EOF) && !stop.get()) {
+      skipLines();
+      if (stop.get()) break;
       if (looksLikeLocalTypeDeclaration()) {
         while (isModifier()) take();
         if (word("class")) {
@@ -629,6 +702,9 @@ public final class RecursiveJavelleParser implements JavelleParser {
         if (looksLikeEnhancedFor()) {
           Token start = take();
           out.add(parseEnhancedFor(start));
+        } else if (looksLikeBasicFor()) {
+          Token start = take();
+          out.add(parseBasicFor(start));
         } else {
           out.add(unsupported("basic-for"));
         }
@@ -674,13 +750,19 @@ public final class RecursiveJavelleParser implements JavelleParser {
                 List.of()));
         continue;
       }
-      if (Set.of("switch", "try", "synchronized").contains(current().value())) {
-        String feature =
-            switch (current().value()) {
-              case "switch" -> "switch";
-              case "try" -> "try";
-              default -> "synchronized";
-            };
+      if (word("switch")) {
+        Token start = take();
+        var subjectTokens = takeBalanced("(", ")");
+        var kids = new ArrayList<FrontendNode>();
+        if (!subjectTokens.isEmpty()) kids.add(buildExpression(subjectTokens));
+        else error(start, "JV-SYN-0002", "missing switch subject");
+        if (!accept("{")) error(current(), "JV-SYN-0002", "missing switch body");
+        else kids.addAll(parseSwitchCases());
+        out.add(node("SwitchStatement", "", span(start, previous()), kids));
+        continue;
+      }
+      if (Set.of("try", "synchronized").contains(current().value())) {
+        String feature = word("try") ? "try" : "synchronized";
         out.add(unsupported(feature));
         continue;
       }
@@ -772,10 +854,6 @@ public final class RecursiveJavelleParser implements JavelleParser {
       var expr = parseExpressionUntilBoundary();
       if (expr != null) out.add(node("ExpressionStatement", "", expr.range(), List.of(expr)));
       else take();
-    }
-    if (!accept("}")) {
-      error(current(), "JV-SYN-0002", "unterminated block");
-      out.add(node("ErrorNode", "", current().rawRange(), List.of()));
     }
     return out;
   }
@@ -884,14 +962,13 @@ public final class RecursiveJavelleParser implements JavelleParser {
 
   private FrontendNode buildExpression(List<Token> parts) {
     Optional<Token> unsupportedOperator =
-        parts.stream().filter(t -> Set.of("::", "...").contains(t.value())).findFirst();
+        parts.stream().filter(t -> t.value().equals("...")).findFirst();
     if (unsupportedOperator.isPresent()) {
       Token token = unsupportedOperator.orElseThrow();
-      String feature = token.value().equals("::") ? "method-reference" : "varargs";
       TextRange range = span(parts.getFirst(), parts.getLast());
-      error(token, "JV-DEV-0001", "unsupported " + feature);
+      error(token, "JV-DEV-0001", "unsupported varargs");
       return new UnsupportedSyntaxNode(
-          node("UnsupportedSyntaxNode", range), Optional.empty(), feature, range, List.of());
+          node("UnsupportedSyntaxNode", range), Optional.empty(), "varargs", range, List.of());
     }
     if (parts.stream().anyMatch(t -> t.value().startsWith("\"\"\""))) {
       Token token =
@@ -1024,6 +1101,22 @@ public final class RecursiveJavelleParser implements JavelleParser {
                   op.value(),
                   new TextRange(
                       OffsetUnit.RAW_UTF16, base.range().startOffset(), op.rawRange().endOffset()),
+                  List.of(base));
+        } else if (values.get(index).value().equals("::")) {
+          Token op = values.get(index++);
+          if (index >= values.size()) {
+            error(op, "JV-SYN-0002", "missing method reference target");
+            return base;
+          }
+          Token member = values.get(index++);
+          base =
+              node(
+                  "MethodReferenceExpression",
+                  member.value(),
+                  new TextRange(
+                      OffsetUnit.RAW_UTF16,
+                      base.range().startOffset(),
+                      member.rawRange().endOffset()),
                   List.of(base));
         } else if (values.get(index).value().equals(".")) {
           index++;
@@ -1667,6 +1760,147 @@ public final class RecursiveJavelleParser implements JavelleParser {
     if (body != null) kids.add(body);
     else error(current(), "JV-SYN-0002", "missing for body");
     return node("EnhancedForStatement", "", span(start, previous()), kids);
+  }
+
+  /**
+   * Javelle's colon-separated basic for: {@code for (init : condition : update)} — exactly two
+   * structural (ternary-aware) colons at header-top-level, as opposed to enhanced-for's one.
+   */
+  private boolean looksLikeBasicFor() {
+    if (!lookWord(1, "(")) return false;
+    int i = p + 2;
+    int depth = 1;
+    int ternaryDepth = 0;
+    int structuralColons = 0;
+    while (i < tokens.size() && depth > 0) {
+      String v = tokens.get(i).value();
+      if (v.equals("(") || v.equals("[")) depth++;
+      else if (v.equals(")") || v.equals("]")) {
+        depth--;
+        if (depth == 0) break;
+      } else if (depth == 1 && v.equals("?")) ternaryDepth++;
+      else if (depth == 1 && v.equals(":")) {
+        if (ternaryDepth > 0) ternaryDepth--;
+        else structuralColons++;
+      }
+      i++;
+    }
+    return structuralColons == 2;
+  }
+
+  /** One of the three colon/paren-delimited segments of a basic for header. */
+  private List<Token> takeForSegment() {
+    var result = new ArrayList<Token>();
+    int depth = 0;
+    int ternaryDepth = 0;
+    while (!at(TokenKind.EOF)) {
+      if (word(")") && depth == 0) {
+        take();
+        return result;
+      }
+      if (word(":") && depth == 0) {
+        if (ternaryDepth > 0) {
+          ternaryDepth--;
+          result.add(take());
+          continue;
+        }
+        take();
+        return result;
+      }
+      Token t = take();
+      if (t.value().equals("(") || t.value().equals("[")) depth++;
+      else if (t.value().equals(")") || t.value().equals("]")) depth--;
+      else if (t.value().equals("?") && depth == 0) ternaryDepth++;
+      result.add(t);
+    }
+    return result;
+  }
+
+  private List<List<Token>> splitTopLevelCommas(List<Token> tokens) {
+    var groups = new ArrayList<List<Token>>();
+    var current = new ArrayList<Token>();
+    int depth = 0;
+    for (Token t : tokens) {
+      if (t.value().equals("(") || t.value().equals("[")) depth++;
+      else if (t.value().equals(")") || t.value().equals("]")) depth--;
+      if (t.value().equals(",") && depth == 0) {
+        groups.add(current);
+        current = new ArrayList<>();
+      } else current.add(t);
+    }
+    groups.add(current);
+    return groups;
+  }
+
+  /**
+   * A basic-for init clause is either one variable declaration ({@code Type name = expr}, a single
+   * declarator only — multiple comma-joined declarators sharing one type are not yet supported) or
+   * one or more comma-separated plain expressions ({@code i = 0, j = 10}).
+   */
+  private List<FrontendNode> parseForInitClauses(List<Token> tokens) {
+    if (tokens.isEmpty()) return List.of();
+    if (tokens.size() >= 3
+        && isIdentifierLike(tokens.get(0))
+        && isIdentifierLike(tokens.get(1))
+        && tokens.get(2).value().equals("=")) {
+      Token type = tokens.get(0);
+      Token name = tokens.get(1);
+      var initTokens = tokens.subList(3, tokens.size());
+      var kids = new ArrayList<FrontendNode>();
+      if (!initTokens.isEmpty()) kids.add(buildExpression(initTokens));
+      return List.of(
+          node("ForVariableDeclaration", name.value(), span(type, tokens.getLast()), kids));
+    }
+    return splitTopLevelCommas(tokens).stream()
+        .filter(g -> !g.isEmpty())
+        .map(this::buildExpression)
+        .toList();
+  }
+
+  private List<FrontendNode> parseForUpdateClauses(List<Token> tokens) {
+    return splitTopLevelCommas(tokens).stream()
+        .filter(g -> !g.isEmpty())
+        .map(this::buildExpression)
+        .toList();
+  }
+
+  private FrontendNode parseBasicFor(Token start) {
+    accept("(");
+    var initTokens = takeForSegment();
+    var conditionTokens = takeForSegment();
+    var updateTokens = takeForSegment();
+    var initNode =
+        node(
+            "ForInit",
+            "",
+            initTokens.isEmpty()
+                ? start.rawRange()
+                : span(initTokens.getFirst(), initTokens.getLast()),
+            parseForInitClauses(initTokens));
+    var conditionNode =
+        node(
+            "ForCondition",
+            "",
+            conditionTokens.isEmpty()
+                ? start.rawRange()
+                : span(conditionTokens.getFirst(), conditionTokens.getLast()),
+            conditionTokens.isEmpty() ? List.of() : List.of(buildExpression(conditionTokens)));
+    var updateNode =
+        node(
+            "ForUpdate",
+            "",
+            updateTokens.isEmpty()
+                ? start.rawRange()
+                : span(updateTokens.getFirst(), updateTokens.getLast()),
+            parseForUpdateClauses(updateTokens));
+    var kids = new ArrayList<FrontendNode>();
+    kids.add(initNode);
+    kids.add(conditionNode);
+    kids.add(updateNode);
+    var body = parseStatementOrBlock();
+    if (body != null) kids.add(body);
+    else error(current(), "JV-SYN-0002", "missing for body");
+    return node("BasicForStatement", "", span(start, previous()), kids);
   }
 
   private boolean isModifier() {
