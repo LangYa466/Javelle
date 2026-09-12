@@ -2,7 +2,7 @@
 
 TASK / AGENT_ID / BASE_REVISION: `P13-W01` / `/root` / `dev` at `2f6bb43`
 
-STATUS: **CONTRACT_FROZEN — P13 implementation rounds complete (14 rounds), self-reported VERIFIED, ready for independent review**
+STATUS: **ACCEPTED** (see "P13 review (independent)" section below — verdict ACCEPT; P13-03/P13-08/P13-11 explicitly out of scope for this acceptance, to be scheduled as their own future phases/rounds)
 
 ## 0. Summary for the independent reviewer
 
