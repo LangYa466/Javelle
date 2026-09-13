@@ -441,9 +441,17 @@ func (e *Emitter) cast(v *ast.Cast) string {
 
 func (e *Emitter) instanceOf(v *ast.InstanceOf) string {
 	if e.patternVars != nil {
+		if ok, isPrim := e.patternOK[v]; isPrim {
+			return "(" + ok + " != 0)"
+		}
 		if name, ok := e.patternVars[v]; ok {
 			return "(" + name + " != NULL)"
 		}
+	}
+	if prim, isPrim := e.prog.Erased(v.Type.Resolved).(*ast.PrimType); isPrim {
+		// a primitive pattern used as a value rather than as a condition: the
+		// binding is not needed here, only the answer
+		return e.primMatchExpr(v, prim)
 	}
 	dst := v.Type.Resolved
 	target := ""
@@ -453,6 +461,19 @@ func (e *Emitter) instanceOf(v *ast.InstanceOf) string {
 		target = "&cls_" + mangle(e.prog.ArrayClass().Full)
 	}
 	return "ty_instanceof((tyobj*)" + e.refExpr(v.X) + ", " + target + ")"
+}
+
+// primMatchExpr renders the run time question a primitive type pattern asks,
+// as a statement expression that yields a boolean.
+func (e *Emitter) primMatchExpr(v *ast.InstanceOf, prim *ast.PrimType) string {
+	src := e.expr(v.X)
+	val := e.tmpName()
+	ok := e.tmpName()
+	inner := e.capture(func() {
+		e.line("%s %s = 0;\n", e.ctype(prim), val)
+		e.line("int32_t %s = ty_prim_match((void*)%s, %d, &%s);\n", ok, src, prim.Kind, val)
+	})
+	return "({ " + inner + " " + ok + " != 0; })"
 }
 
 func (e *Emitter) unary(v *ast.Unary) string {

@@ -182,6 +182,12 @@ int8_t ty_unbox_byte(void *o);
 uint16_t ty_unbox_char(void *o);
 int32_t ty_unbox_bool(void *o);
 
+/* Primitive type patterns (JEP 507). ty_prim_match reports whether a boxed
+   value can be read as the requested primitive kind without losing anything,
+   and stores it through out. kind uses the same numbering as TY_BOX:
+   1 boolean, 2 byte, 3 short, 4 char, 5 int, 6 long, 7 float, 8 double. */
+int32_t ty_prim_match(void *o, int32_t kind, void *out);
+
 /* ---- misc ------------------------------------------------------------- */
 void ty_sync_enter(void *lock);
 void ty_sync_exit(void *lock);

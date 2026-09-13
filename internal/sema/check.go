@@ -613,7 +613,9 @@ func (ctx *methodCtx) checkSwitch(s *ast.Switch, expr bool) {
 		if cs.Pattern != nil {
 			ctx.push()
 			t := c.resolveType(ctx.env, cs.Pattern.Type)
-			if !c.isSubtype(t, xt) && !c.isSubtype(xt, t) {
+			if prim, isPrim := t.(*ast.PrimType); isPrim {
+				ctx.checkPrimitivePattern(cs.Pattern.Pos, prim, xt, cs.Pattern)
+			} else if !c.isSubtype(t, xt) && !c.isSubtype(xt, t) {
 				ctx.errf(cs.Pattern.Pos, "TY-TYP-0037", "incompatible pattern type %s for switch on %s", t, xt)
 			}
 			ctx.declarePattern(cs.Pattern, t)
@@ -750,9 +752,24 @@ func (ctx *methodCtx) checkExpr(e ast.Expr, want ast.Type) {
 	case *ast.InstanceOf:
 		ctx.checkExpr(v.X, nil)
 		t := c.resolveType(ctx.env, v.Type)
+		if _, isPrim := t.(*ast.PrimType); isPrim && v.Binding == nil {
+			// JEP 507: there is nothing to test without a binding
+			ctx.errf(v.Pos, "TY-TYP-0092", "a primitive pattern needs a name to bind the value to")
+		}
 		if v.Binding != nil {
 			xt := v.X.GetType()
-			if !c.isSubtype(t, xt) && !c.isSubtype(xt, t) && !ast.IsError(xt) {
+			if prim, isPrim := t.(*ast.PrimType); isPrim {
+				// JEP 507: a primitive type pattern asks whether the value
+				// survives the conversion, not whether it has the type
+				ctx.checkPrimitivePattern(v.Pos, prim, xt, v.Binding)
+				if sv, ok := xt.(*ast.PrimType); ok {
+					// the test reads a boxed value, so a primitive selector is
+					// boxed first
+					if box := c.b.Boxes[sv.Kind]; box != nil {
+						v.X = ctx.convertWith(v.X, &ast.ClassType{Class: box}, xt)
+					}
+				}
+			} else if !c.isSubtype(t, xt) && !c.isSubtype(xt, t) && !ast.IsError(xt) {
 				ctx.errf(v.Pos, "TY-TYP-0042", "incompatible pattern type %s for %s", t, xt)
 			}
 			ctx.push()
@@ -1500,6 +1517,29 @@ func (ctx *methodCtx) declarePattern(p *ast.Param, t ast.Type) {
 	}
 	if p.Name != "" {
 		p.Sym = ctx.declare(p.Name, t, p.Pos)
+	}
+}
+
+// checkPrimitivePattern validates a primitive type pattern (JEP 507). The
+// selector may be a reference type, in which case the test is a run time
+// question, or a primitive whose value might convert exactly.
+func (ctx *methodCtx) checkPrimitivePattern(pos source.Pos, prim *ast.PrimType, xt ast.Type, p *ast.Param) {
+	if p.Name == "_" {
+		ctx.errf(pos, "TY-TYP-0092", "a primitive pattern needs a name to bind the value to")
+	}
+	if xt == nil || ast.IsError(xt) {
+		return
+	}
+	if sv, ok := xt.(*ast.PrimType); ok {
+		if sv.Kind == ast.Boolean || prim.Kind == ast.Boolean {
+			if sv.Kind != prim.Kind {
+				ctx.errf(pos, "TY-TYP-0093", "boolean cannot be converted to %s", prim)
+			}
+		}
+		return
+	}
+	if !ast.IsRef(xt) {
+		ctx.errf(pos, "TY-TYP-0094", "primitive pattern %s needs a boxed value, found %s", prim, xt)
 	}
 }
 

@@ -646,6 +646,7 @@ func (e *Emitter) hoistPatterns(cond ast.Expr) {
 		return
 	}
 	e.patternVars = map[*ast.InstanceOf]string{}
+	e.patternOK = map[*ast.InstanceOf]string{}
 	var walk func(ast.Expr)
 	walk = func(x ast.Expr) {
 		switch v := x.(type) {
@@ -689,6 +690,19 @@ func (e *Emitter) bindExprPattern(v *ast.InstanceOf) string {
 		return ""
 	}
 	src := e.expr(v.X)
+	if prim, ok := e.prog.Erased(v.Type.Resolved).(*ast.PrimType); ok {
+		// a primitive pattern is a question about the value, so the match is
+		// recorded in a flag next to the value itself
+		n := e.tmpName()
+		okName := e.tmpName()
+		e.line("%s %s = 0;\n", e.ctype(prim), n)
+		e.line("int32_t %s = ty_prim_match((void*)%s, %d, &%s);\n", okName, src, prim.Kind, n)
+		e.patternOK[v] = okName
+		if pat.Sym != nil && !pat.Unnamed {
+			e.locals[pat.Sym] = n
+		}
+		return n
+	}
 	typeName := e.ctype(v.Type.Resolved)
 	n := e.tmpName()
 	// the bound variable holds the value only when the type test succeeds,
@@ -757,6 +771,16 @@ func (e *Emitter) bindComponents(p *ast.Param, recv string) {
 func (e *Emitter) patternBind(cs *ast.Case, id int) string {
 	pat := cs.Pattern
 	src := fmt.Sprintf("((void*)_s%d)", id)
+	if prim, isPrim := e.prog.Erased(pat.Type.Resolved).(*ast.PrimType); isPrim {
+		val := e.tmpName()
+		ok := e.tmpName()
+		e.line("%s %s = 0;\n", e.ctype(prim), val)
+		e.line("int32_t %s = ty_prim_match((void*)%s, %d, &%s);\n", ok, src, prim.Kind, val)
+		if pat.Sym != nil && !pat.Unnamed {
+			e.locals[pat.Sym] = val
+		}
+		return fmt.Sprintf("(%s != 0)", ok)
+	}
 	pred := fmt.Sprintf("ty_instanceof((void*)_s%d, %s)", id, e.classOf(pat.Type.Resolved))
 	ct := e.ctype(pat.Type.Resolved)
 	recv := e.tmpName()
@@ -953,6 +977,17 @@ func (e *Emitter) emitPatternBinding(cs *ast.Case, id int) {
 		return
 	}
 	src := fmt.Sprintf("((void*)_s%d)", id)
+	if prim, isPrim := e.prog.Erased(cs.Pattern.Type.Resolved).(*ast.PrimType); isPrim {
+		// the body only runs when the pattern matched, so the value is simply
+		// read again
+		if cs.Pattern.Sym == nil || cs.Pattern.Unnamed {
+			return
+		}
+		n := e.localName(cs.Pattern.Sym)
+		e.line("%s %s = 0;\n", e.ctype(prim), n)
+		e.line("ty_prim_match((void*)%s, %d, &%s);\n", src, prim.Kind, n)
+		return
+	}
 	if len(cs.Pattern.Decomp) > 0 {
 		n := e.tmpName()
 		ct := e.ctype(cs.Pattern.Type.Resolved)
@@ -980,12 +1015,34 @@ func (e *Emitter) caseCond(s *ast.Switch, cs *ast.Case, id int) string {
 		}
 		parts = append(parts, fmt.Sprintf("((int64_t)_s%d == %s)", id, e.constInt(l)))
 	}
+	primitive := false
 	if cs.Pattern != nil {
-		parts = append(parts, fmt.Sprintf("ty_instanceof((void*)_s%d, %s)", id, e.classOf(cs.Pattern.Type.Resolved)))
+		if _, isPrim := e.prog.Erased(cs.Pattern.Type.Resolved).(*ast.PrimType); isPrim {
+			// a primitive pattern is answered by the value test in patternBind,
+			// there is no class to compare against
+			primitive = true
+			parts = nil
+		} else {
+			parts = append(parts, fmt.Sprintf("ty_instanceof((void*)_s%d, %s)", id, e.classOf(cs.Pattern.Type.Resolved)))
+		}
 	}
 	cond := "1"
 	if len(parts) > 0 {
 		cond = "(" + strings.Join(parts, " || ") + ")"
+	}
+	if primitive {
+		var guard string
+		var bound string
+		inner := e.capture(func() {
+			bound = e.patternBind(cs, id)
+			if cs.Guard != nil {
+				guard = e.expr(cs.Guard)
+			}
+		})
+		if cs.Guard == nil {
+			return fmt.Sprintf("({ %s %s; })", inner, bound)
+		}
+		return fmt.Sprintf("({ %s (%s) && (%s); })", inner, bound, guard)
 	}
 	if cs.Guard == nil {
 		return cond

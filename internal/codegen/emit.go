@@ -31,11 +31,13 @@ type Emitter struct {
 	locals      map[*ast.Var]string
 	enumOrdinal string
 	patternVars map[*ast.InstanceOf]string
-	curClass    *ast.Class
-	retType     ast.Type // declared result type of the method being emitted
-	curLambda   *ast.Lambda
-	switchID    int
-	switchCur   int
+	// matches recorded by primitive type patterns, which test the value
+	patternOK map[*ast.InstanceOf]string
+	curClass  *ast.Class
+	retType   ast.Type // declared result type of the method being emitted
+	curLambda *ast.Lambda
+	switchID  int
+	switchCur int
 	// labels attached to the statement being emitted right now; a loop
 	// consumes them and turns them into its continue and break targets
 	pendingLabels []string
