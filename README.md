@@ -309,7 +309,7 @@ Teyru 以 Java SE 25 最終定案的語法為基準（不含預覽功能），�
 
 ## 標準程式庫
 
-標準程式庫以 **Teyru 本身**撰寫（`internal/prelude/prelude.go`），每次編譯都與使用者程式
+標準程式庫以 **Teyru 本身**撰寫（`lib/*.teyru`），每次編譯都與使用者程式
 一起被編譯與檢查：
 
 `Object`、`String`、`StringBuilder`、`Math`、`System`、`PrintStream`、
@@ -337,9 +337,10 @@ Teyru 以 Java SE 25 最終定案的語法為基準（不含預覽功能），�
 | `internal/codegen` | 產生 C：類別→struct、虛擬呼叫→vtable、介面呼叫→itable、switch 降階、GC 根資訊 |
 | `internal/util` | 前後端共用的工具：名稱修飾、型別描述、C 版面配置 |
 | `internal/runtime/src` | C 執行期：GC、字串、陣列、例外、boxing、Math／System／StringBuilder |
-| `internal/prelude` | 以 Teyru 撰寫的標準程式庫 |
+| `lib` | 以 Teyru 撰寫的標準程式庫 |
 | `tests/programs` | 端到端測試程式與期望輸出（`go test` 會逐一編譯並比對） |
-| `bench` | 與 JVM 對照的效能腳本 |
+| `examples` | 範例程式與 JVM 對照的 benchmark（`bench_*.teyru` 與 `.java`） |
+| `scripts` | 開發腳本：`bench.sh` 效能量測、`pre-commit` 掛勾 |
 | `docs` | 語言參考、診斷碼、架構 |
 
 ---

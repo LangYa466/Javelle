@@ -296,7 +296,7 @@ The complete syntax and semantics live in **[docs/language.md](docs/language.md)
 
 ## Standard library
 
-The standard library is written **in Teyru itself** (`internal/prelude/prelude.go`) and is
+The standard library is written **in Teyru itself** (`lib/*.teyru`) and is
 compiled and checked together with every user program:
 
 `Object`, `String`, `StringBuilder`, `Math`, `System`, `PrintStream`,
@@ -325,9 +325,10 @@ There is no `java.util`, no `printf` and no file I/O — those are deliberate sc
 | `internal/codegen` | C generation: classes to structs, virtual calls to vtables, interface calls to itables, switch lowering, GC root info |
 | `internal/util` | Shared helpers: name mangling, type descriptors, C layout |
 | `internal/runtime/src` | C runtime: GC, strings, arrays, exceptions, boxing, Math/System/StringBuilder |
-| `internal/prelude` | Standard library written in Teyru |
+| `lib` | Standard library, written in Teyru |
 | `tests/programs` | End-to-end programs plus expected output (`go test` compiles and diffs each one) |
-| `bench` | JVM comparison script |
+| `examples` | Examples and the JVM comparison benchmarks (`bench_*.teyru` and `.java`) |
+| `scripts` | Development scripts: `bench.sh`, the `pre-commit` hook |
 | `docs` | Language reference, diagnostics, architecture |
 
 ---

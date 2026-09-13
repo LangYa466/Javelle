@@ -1,0 +1,43 @@
+package teyru
+
+class String extends Object implements Comparable<String> {
+  public native String(String original)
+  public native int length()
+  public native boolean isEmpty()
+  public native char charAt(int index)
+  public native boolean equals(Object o)
+  public native int hashCode()
+  public native int indexOf(String s)
+  public native String substring(int from)
+  public native String substring(int from, int to)
+  public native String toUpperCase()
+  public native String toLowerCase()
+  public native String trim()
+  public native boolean contains(String s)
+  public native boolean startsWith(String s)
+  public native boolean endsWith(String s)
+  public native String replace(char a, char b)
+  public native int compareTo(String s)
+  public native String concat(String s)
+  public native String[] split(String sep)
+  public native String toString()
+  public static native String valueOf(int v)
+  public static native String valueOf(long v)
+  public static native String valueOf(double v)
+  public static native String valueOf(float v)
+  public static native String valueOf(boolean v)
+  public static native String valueOf(char v)
+  public static native String valueOf(Object v)
+}
+
+class StringBuilder extends Object {
+  public native StringBuilder append(String s)
+  public native StringBuilder append(Object o)
+  public native StringBuilder append(int v)
+  public native StringBuilder append(long v)
+  public native StringBuilder append(char c)
+  public native StringBuilder append(double v)
+  public native StringBuilder append(boolean v)
+  public native String toString()
+  public native int length()
+}

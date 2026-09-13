@@ -277,7 +277,7 @@ JEP 378 テキストブロック、JEP 361 switch 式、JEP 286 `var`。
 
 ## 標準ライブラリ
 
-標準ライブラリは **Teyru 自身**で書かれています（`internal/prelude/prelude.go`）。
+標準ライブラリは **Teyru 自身**で書かれています（`lib/*.teyru`）。
 コンパイルのたびにユーザープログラムと一緒に型検査されます。
 
 `Object`、`String`、`StringBuilder`、`Math`、`System`、`PrintStream`、
@@ -307,9 +307,10 @@ JEP 378 テキストブロック、JEP 361 switch 式、JEP 286 `var`。
 | `internal/codegen` | C 生成：クラス→struct、仮想呼び出し→vtable、インターフェース呼び出し→itable、switch 降下、GC ルート情報 |
 | `internal/util` | 前後段で共有する補助：名前修飾、型記述子、C レイアウト |
 | `internal/runtime/src` | C ランタイム：GC、文字列、配列、例外、boxing、Math／System／StringBuilder |
-| `internal/prelude` | Teyru で書かれた標準ライブラリ |
+| `lib` | Teyru で書かれた標準ライブラリ |
 | `tests/programs` | エンドツーエンドのテストプログラムと期待出力（`go test` が逐一比較） |
-| `bench` | JVM との比較スクリプト |
+| `examples` | サンプルと JVM 比較用 benchmark（`bench_*.teyru` と `.java`） |
+| `scripts` | 開発スクリプト：`bench.sh`、`pre-commit` フック |
 | `docs` | 言語リファレンス、診断コード、アーキテクチャ |
 
 ---

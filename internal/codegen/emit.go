@@ -204,9 +204,12 @@ func (e *Emitter) isRefElem(t ast.Type) bool { return e.isRef(t) }
 // ---------------------------------------------------------------- class decls
 
 func (e *Emitter) declareClass(cl *ast.Class) {
+	// the special classes are typedefs of runtime types, and they must be
+	// visible before any struct that has a field of that type
 	switch cl.Special {
 	case "String", "box", "sb":
-		return // the runtime already defines this layout
+		e.types.WriteString(e.structOf(cl))
+		return
 	}
 	fmt.Fprintf(&e.types, "typedef struct %s %s;\n", cname(cl), cname(cl))
 }
@@ -233,7 +236,10 @@ func (e *Emitter) structOf(cl *ast.Class) string {
 }
 
 func (e *Emitter) emitClassMeta(cl *ast.Class) {
-	e.types.WriteString(e.structOf(cl))
+	if cl.Special != "String" && cl.Special != "box" && cl.Special != "sb" {
+		// special classes were declared with their typedef in the first pass
+		e.types.WriteString(e.structOf(cl))
+	}
 	e.emitStaticFields(cl)
 	isIface := cl.IsInterface()
 	flags := 0

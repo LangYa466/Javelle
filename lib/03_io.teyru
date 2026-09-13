@@ -1,0 +1,70 @@
+package teyru
+
+class Math {
+  public static final double PI = 3.141592653589793
+  public static native int abs(int v)
+  public static native long abs(long v)
+  public static native double abs(double v)
+  public static native int max(int a, int b)
+  public static native int min(int a, int b)
+  public static native long max(long a, long b)
+  public static native long min(long a, long b)
+  public static native double max(double a, double b)
+  public static native double min(double a, double b)
+  public static native double sqrt(double v)
+  public static native double pow(double a, double b)
+  public static native double floor(double v)
+  public static native double ceil(double v)
+  public static native long round(double v)
+  public static native double random()
+}
+
+class System {
+  public static final PrintStream out = new PrintStream()
+  public static final PrintStream err = new PrintStream()
+  public static native long currentTimeMillis()
+  public static native long nanoTime()
+  public static native void exit(int status)
+  public static native void arraycopy(Object src, int srcPos, Object dest, int destPos, int length)
+}
+
+class PrintStream extends Object {
+  public native void print(String s)
+  public native void print(Object o)
+  public native void print(int v)
+  public native void print(long v)
+  public native void print(double v)
+  public native void print(float v)
+  public native void print(boolean v)
+  public native void print(char c)
+  public native void println()
+  public native void println(String s)
+  public native void println(Object o)
+  public native void println(int v)
+  public native void println(long v)
+  public native void println(double v)
+  public native void println(float v)
+  public native void println(boolean v)
+  public native void println(char c)
+}
+
+class IO {
+  public static native void print(String s)
+  public static native void print(Object o)
+  public static native void print(int v)
+  public static native void print(long v)
+  public static native void print(double v)
+  public static native void print(float v)
+  public static native void print(boolean v)
+  public static native void print(char c)
+  public static native void println()
+  public static native void println(String s)
+  public static native void println(Object o)
+  public static native void println(int v)
+  public static native void println(long v)
+  public static native void println(double v)
+  public static native void println(float v)
+  public static native void println(boolean v)
+  public static native void println(char c)
+  public static native String readln()
+}

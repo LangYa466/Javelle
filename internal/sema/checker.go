@@ -182,7 +182,7 @@ func (c *Checker) orderedClasses() []*ast.Class {
 func (c *Checker) findMain() {
 	var cands []*ast.Method
 	for _, f := range c.files {
-		if f.Src != nil && strings.HasPrefix(f.Src.Path, "<prelude>") {
+		if f.Src != nil && strings.HasPrefix(f.Src.Path, "<lib>") {
 			continue
 		}
 		var visit func(cl *ast.Class)
@@ -255,7 +255,7 @@ func (c *Checker) declareClass(f *ast.File, cd *ast.ClassDecl, outer *ast.Class)
 	cl.Mods = cd.Mods
 	cl.Outer = outer
 	cd.Sym = cl
-	if f.Src != nil && strings.HasPrefix(f.Src.Path, "<prelude>") {
+	if f.Src != nil && strings.HasPrefix(f.Src.Path, "<lib>") {
 		cl.Builtin = true
 	}
 	if cd.Kind == ast.KindInterface || cd.Kind == ast.KindEnum || cd.Kind == ast.KindRecord {

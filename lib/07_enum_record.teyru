@@ -1,0 +1,15 @@
+package teyru
+
+class Enum<E> extends Object implements Comparable<E> {
+  public int ordinal
+  public String name
+  public native int ordinal()
+  public native String name()
+  public native String toString()
+  public native int hashCode()
+  public native boolean equals(Object o)
+  public native int compareTo(E o)
+}
+
+class Record extends Object {
+}

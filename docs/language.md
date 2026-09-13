@@ -400,7 +400,7 @@ try {
 
 ## 11. 標準程式庫
 
-標準程式庫以 Teyru 撰寫（`internal/prelude/prelude.go`），內容如下：
+標準程式庫以 Teyru 撰寫（`lib/` 下的 `*.teyru`），內容如下：
 
 | 類別 | 內容 |
 |---|---|

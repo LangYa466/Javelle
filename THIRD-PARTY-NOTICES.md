@@ -36,7 +36,7 @@ Go 標準函式庫以 BSD 3-Clause 授權釋出，條文見
 | 元件 | 來源 | 授權 |
 |---|---|---|
 | Teyru 執行期（`tyrt.h`、`tyrt.c`、`tyrt2.c`） | 本專案原創 | 見 `LICENSE` |
-| Teyru 標準程式庫（`internal/prelude/prelude.go`） | 本專案原創，以 Teyru 撰寫 | 見 `LICENSE` |
+| Teyru 標準程式庫（`lib/*.teyru`） | 本專案原創，以 Teyru 撰寫 | 見 `LICENSE` |
 
 沒有使用任何第三方 C 函式庫（沒有 Boehm GC、沒有 libgc、沒有 mimalloc 之類的
 配置器）：垃圾回收器、字串、陣列、例外與 box 類別都是本專案自行實作。

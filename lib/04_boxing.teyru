@@ -1,0 +1,82 @@
+package teyru
+
+class Byte extends Object {
+  public static native Byte valueOf(byte v)
+  public native byte byteValue()
+  public native int hashCode()
+  public native String toString()
+}
+
+class Short extends Object {
+  public static native Short valueOf(short v)
+  public native short shortValue()
+  public native int hashCode()
+  public native String toString()
+}
+
+class Integer extends Object implements Comparable<Integer> {
+  public static native int parseInt(String s)
+  public static native Integer valueOf(int v)
+  public static native int compare(int a, int b)
+  public static native int max(int a, int b)
+  public static native int min(int a, int b)
+  public native int intValue()
+  public native int hashCode()
+  public native boolean equals(Object o)
+  public native int compareTo(Integer o)
+  public native String toString()
+  public static native String toString(int v)
+}
+
+class Long extends Object implements Comparable<Long> {
+  public static native long parseLong(String s)
+  public static native Long valueOf(long v)
+  public static native int compare(long a, long b)
+  public static native long max(long a, long b)
+  public static native long min(long a, long b)
+  public native long longValue()
+  public native int intValue()
+  public native int hashCode()
+  public native boolean equals(Object o)
+  public native int compareTo(Long o)
+  public native String toString()
+  public static native String toString(long v)
+}
+
+class Float extends Object {
+  public static native float parseFloat(String s)
+  public static native Float valueOf(float v)
+  public native float floatValue()
+  public native String toString()
+}
+
+class Double extends Object implements Comparable<Double> {
+  public static native double parseDouble(String s)
+  public static native Double valueOf(double v)
+  public static native int compare(double a, double b)
+  public static native boolean isNaN(double v)
+  public native double doubleValue()
+  public native int hashCode()
+  public native boolean equals(Object o)
+  public native int compareTo(Double o)
+  public native String toString()
+  public static native String toString(double v)
+}
+
+class Character extends Object {
+  public static native Character valueOf(char c)
+  public static native boolean isDigit(char c)
+  public static native boolean isLetter(char c)
+  public static native boolean isWhitespace(char c)
+  public native char charValue()
+  public native String toString()
+}
+
+class Boolean extends Object {
+  public static native boolean parseBoolean(String s)
+  public static native Boolean valueOf(boolean v)
+  public native boolean booleanValue()
+  public native int hashCode()
+  public native boolean equals(Object o)
+  public native String toString()
+}

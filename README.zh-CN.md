@@ -271,7 +271,7 @@ JEP 286 `var`。
 
 ## 标准库
 
-标准库以 **Teyru 本身**编写（`internal/prelude/prelude.go`），每次编译都与用户程序
+标准库以 **Teyru 本身**编写（`lib/*.teyru`），每次编译都与用户程序
 一起被编译与检查：
 
 `Object`、`String`、`StringBuilder`、`Math`、`System`、`PrintStream`、
@@ -299,9 +299,10 @@ JEP 286 `var`。
 | `internal/codegen` | 生成 C：类→struct、虚调用→vtable、接口调用→itable、switch 降级、GC 根信息 |
 | `internal/util` | 前后端共用的工具：名称修饰、类型描述、C 内存布局 |
 | `internal/runtime/src` | C 运行时：GC、字符串、数组、异常、boxing、Math／System／StringBuilder |
-| `internal/prelude` | 用 Teyru 编写的标准库 |
+| `lib` | 用 Teyru 编写的标准库 |
 | `tests/programs` | 端到端测试程序与期望输出（`go test` 会逐一编译并比对） |
-| `bench` | 与 JVM 对照的性能脚本 |
+| `examples` | 示例程序与 JVM 对照的 benchmark（`bench_*.teyru` 与 `.java`） |
+| `scripts` | 开发脚本：`bench.sh` 性能测量、`pre-commit` 钩子 |
 | `docs` | 语言参考、诊断码、架构 |
 
 ---

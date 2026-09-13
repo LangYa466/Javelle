@@ -13,10 +13,10 @@ import (
 	"github.com/LangYa466/Teyru/internal/ast"
 	"github.com/LangYa466/Teyru/internal/codegen"
 	"github.com/LangYa466/Teyru/internal/parser"
-	"github.com/LangYa466/Teyru/internal/prelude"
 	tyrt "github.com/LangYa466/Teyru/internal/runtime"
 	"github.com/LangYa466/Teyru/internal/sema"
 	"github.com/LangYa466/Teyru/internal/source"
+	"github.com/LangYa466/Teyru/lib"
 )
 
 // Options configures a compilation.
@@ -72,7 +72,7 @@ func Compile(paths []string, opts Options) (*Result, error) {
 	}
 
 	diags := &source.Diagnostics{}
-	astFiles := []*ast.File{parsePrelude(diags)}
+	astFiles := parsePrelude(diags)
 	for _, f := range files {
 		astFiles = append(astFiles, parseFile(f, diags))
 	}
@@ -174,8 +174,15 @@ func Compile(paths []string, opts Options) (*Result, error) {
 	return res, nil
 }
 
-func parsePrelude(diags *source.Diagnostics) *ast.File {
-	return parseSource("<prelude>/teyru.teyru", prelude.Source, diags)
+// parsePrelude reads the standard library, which is Teyru source shipped with
+// the compiler, as the first compilation units of every program.
+func parsePrelude(diags *source.Diagnostics) []*ast.File {
+	files := lib.Files()
+	out := make([]*ast.File, 0, len(files))
+	for _, f := range files {
+		out = append(out, parseSource("<lib>/"+f.Name, f.Source, diags))
+	}
+	return out
 }
 
 func parseFile(path string, diags *source.Diagnostics) *ast.File {

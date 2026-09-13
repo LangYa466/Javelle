@@ -16,7 +16,7 @@
    javac」、「產生 bytecode」、或執行期需要 JVM 的設計，都違反產品契約。
 4. **編譯路徑固定**：`.teyru → Go 前後端 → C → clang/LLVM（或 gcc）→ 原生執行檔`。
    執行期在 `internal/runtime/src`，以 C 撰寫。
-5. **標準程式庫以 Teyru 本身撰寫**（`internal/prelude/prelude.go`）。只有在不能用
+5. **標準程式庫以 Teyru 本身撰寫**（`lib/` 下的 `*.teyru`）。只有在不能用
    Teyru 表達的原生操作才能標記 `native`，並在執行期提供實作。
 6. **效能是產品目標，但宣稱必須可重現。** 任何「比 X 快」的說法都要附上
    `examples/bench_*.teyru` 與 `scripts/bench.sh` 可重現的量測環境，並誠實標出劣勢情境。
