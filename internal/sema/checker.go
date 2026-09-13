@@ -72,15 +72,15 @@ func Check(files []*ast.File, diags *source.Diagnostics) *Program {
 	for _, cl := range append([]*ast.Class(nil), c.classes...) {
 		c.resolveHeader(cl)
 	}
+	for _, cl := range append([]*ast.Class(nil), c.classes...) {
+		c.resolveMembers(cl)
+	}
 	env0 := &typeEnv{tvars: map[string]*ast.TypeVar{}}
 	for _, f := range files {
 		if f.StaticMethods == nil {
 			f.StaticMethods = map[string][]*ast.Method{}
 		}
 		c.resolveImports(env0, f)
-	}
-	for _, cl := range append([]*ast.Class(nil), c.classes...) {
-		c.resolveMembers(cl)
 	}
 	c.applyLombokToProgram()
 	for _, cl := range append([]*ast.Class(nil), c.classes...) {

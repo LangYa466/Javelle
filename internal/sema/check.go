@@ -6,6 +6,7 @@ import (
 
 	"github.com/LangYa466/Teyru/internal/ast"
 	"github.com/LangYa466/Teyru/internal/source"
+	"github.com/LangYa466/Teyru/internal/util"
 )
 
 // methodCtx carries the local scope of one method body.
@@ -22,6 +23,7 @@ type methodCtx struct {
 	staticImports []*ast.Field
 	staticMethods map[string][]*ast.Method
 	props         map[ast.Expr]ast.Expr
+	pendingTypeArgs []ast.Type
 }
 
 func (c *Checker) checkBodies(cl *ast.Class) {
@@ -1768,13 +1770,16 @@ type ovScore struct {
 	convs    []int
 	method   *ast.Method
 	instArgs []ast.Type
+	targs    map[*ast.TypeVar]ast.Type // inferred method type arguments
 }
 
 // pickOverload chooses the most specific applicable method.
 func (ctx *methodCtx) pickOverload(recv *ast.ClassType, cands []*ast.Method, args []ast.Expr) (*ast.Method, ovScore) {
-	// check arguments once with no target to obtain their types
+	// Check arguments once with no target to obtain their types. Lambdas and
+	// method references need a target type, so they are checked after the
+	// overload is chosen, in bindArgs.
 	for _, a := range args {
-		if a.GetType() == nil {
+		if a.GetType() == nil && !isLambdaLike(a) {
 			ctx.checkExpr(a, nil)
 		}
 	}
@@ -1842,10 +1847,15 @@ func (ctx *methodCtx) applicable(recv *ast.ClassType, m *ast.Method, args []ast.
 	for i, p := range m.Params {
 		params[i] = c.subst(p, bind)
 	}
-	// method-level type variables: infer from arguments
+	// method-level type variables: explicit arguments win, otherwise infer
 	mbind := map[*ast.TypeVar]ast.Type{}
 	for _, tv := range m.TypeParams {
 		mbind[tv] = nil
+	}
+	if len(ctx.pendingTypeArgs) == len(m.TypeParams) && len(m.TypeParams) > 0 {
+		for i, tv := range m.TypeParams {
+			mbind[tv] = ctx.pendingTypeArgs[i]
+		}
 	}
 	n := len(params)
 	if m.Varargs {
@@ -1871,8 +1881,23 @@ func (ctx *methodCtx) applicable(recv *ast.ClassType, m *ast.Method, args []ast.
 				pt = elem
 			}
 		}
+		if isLambdaLike(a) && a.GetType() == nil {
+			// any functional interface will do; the argument is checked once the
+			// overload is known
+			if pt != nil {
+				if i < len(params) {
+					params[i] = c.subst(pt, mbind)
+				}
+				s.total += 1
+				s.convs = append(s.convs, 1)
+				continue
+			}
+		}
 		if len(mbind) > 0 {
 			pt = c.inferTypeArg(pt, a.GetType(), mbind)
+			if i < len(params) {
+				params[i] = pt
+			}
 		}
 		cost, ok := ctx.convCost(a.GetType(), pt)
 		if !ok {
@@ -1890,12 +1915,17 @@ func (ctx *methodCtx) applicable(recv *ast.ClassType, m *ast.Method, args []ast.
 			s.varargs = len(args)
 		}
 	}
-	for tv, t := range mbind {
-		if t == nil {
-			_ = tv
-		}
-	}
+	s.targs = mbind
 	return s, true
+}
+
+// isLambdaLike reports whether an expression needs a target type.
+func isLambdaLike(e ast.Expr) bool {
+	switch e.(type) {
+	case *ast.Lambda, *ast.MethodRef:
+		return true
+	}
+	return false
 }
 
 func (c *Checker) inferTypeArg(param, arg ast.Type, bind map[*ast.TypeVar]ast.Type) ast.Type {
@@ -1906,7 +1936,12 @@ func (c *Checker) inferTypeArg(param, arg ast.Type, bind map[*ast.TypeVar]ast.Ty
 	case *ast.TypeVarType:
 		if _, ok := bind[p.Var]; ok {
 			if bind[p.Var] == nil {
-				bind[p.Var] = c.erasure(arg)
+				// a primitive argument boxes when it becomes a type argument
+				if util.IsPrim(arg) {
+					bind[p.Var] = c.boxed(arg)
+				} else {
+					bind[p.Var] = c.erasure(arg)
+				}
 			}
 			return bind[p.Var]
 		}
@@ -2027,14 +2062,29 @@ func (ctx *methodCtx) bindArgs(m *ast.Method, s ovScore, args []ast.Expr, recv *
 			}
 		}
 		if pt != nil {
+			if isLambdaLike(a) && a.GetType() == nil {
+				ctx.checkExpr(a, pt)
+			}
 			ctx.convertTo(a, pt)
 		}
 	}
 }
 
 func (ctx *methodCtx) checkCall(v *ast.Call, want ast.Type) {
+	if len(v.TypeArgs) > 0 {
+		var ts []ast.Type
+		for _, te := range v.TypeArgs {
+			ts = append(ts, ctx.c.resolveType(ctx.env, te))
+		}
+		ctx.pendingTypeArgs = ts
+		defer func() { ctx.pendingTypeArgs = nil }()
+	}
 	if v.ThisCtor {
 		ctx.checkThisCtor(v)
+		return
+	}
+	if v.Qual != "" {
+		ctx.checkQualifiedSuper(v)
 		return
 	}
 	var rt ast.Type
@@ -2043,7 +2093,9 @@ func (ctx *methodCtx) checkCall(v *ast.Call, want ast.Type) {
 		rt = v.Recv.GetType()
 	}
 	for _, a := range v.Args {
-		ctx.checkExpr(a, nil)
+		if a.GetType() == nil && !isLambdaLike(a) {
+			ctx.checkExpr(a, nil)
+		}
 	}
 	v.RecvType = rt
 	if rt != nil {
@@ -2073,6 +2125,41 @@ func (ctx *methodCtx) checkArrayCall(v *ast.Call, rt ast.Type) bool {
 		return false
 	}
 	return false
+}
+
+// checkQualifiedSuper resolves `Interface.super.method(...)`, which binds
+// statically to that interface's default implementation.
+func (ctx *methodCtx) checkQualifiedSuper(v *ast.Call) {
+	c := ctx.c
+	iface := c.lookupClassName(ctx.env, v.Qual)
+	if iface == nil || !iface.IsInterface() {
+		ctx.errf(v.Pos, "TY-TYP-0090", "%s does not name a super interface", v.Qual)
+		v.SetType(ast.ErrorType{})
+		return
+	}
+	implements := false
+	c.eachInterface(ctx.cl, func(i *ast.Class) bool {
+		if i == iface {
+			implements = true
+			return false
+		}
+		return true
+	})
+	if !implements {
+		ctx.errf(v.Pos, "TY-TYP-0091", "%s is not a super interface of %s", iface.Name, ctx.cl.Name)
+		v.SetType(ast.ErrorType{})
+		return
+	}
+	recv := &ast.ClassType{Class: iface, Args: typeVarArgs(iface)}
+	m, sc := ctx.pickOverload(recv, ctx.methodsOf(iface, v.Name), v.Args)
+	if m == nil {
+		ctx.errf(v.Pos, "TY-TYP-0076", "cannot find method %s(%s) in %s", v.Name, argTypes(v.Args), iface.Name)
+		v.SetType(ast.ErrorType{})
+		return
+	}
+	ctx.bindArgs(m, sc, v.Args, recv)
+	v.Method = m
+	v.SetType(m.Result)
 }
 
 func (ctx *methodCtx) checkThisCtor(v *ast.Call) {
@@ -2114,7 +2201,7 @@ func (ctx *methodCtx) checkUnqualifiedCall(v *ast.Call, want ast.Type) {
 		ctx.bindArgs(m, s, v.Args, recv)
 		v.Method = m
 		v.Static = m.IsStatic()
-		v.SetType(m.Result)
+		v.SetType(ctx.c.subst(m.Result, s.targs))
 		return
 	}
 	// implicit this receiver also covers superclass methods
@@ -2127,7 +2214,7 @@ func (ctx *methodCtx) checkUnqualifiedCall(v *ast.Call, want ast.Type) {
 			ctx.bindArgs(m, s, v.Args, nil)
 			v.Method = m
 			v.Static = true
-			v.SetType(m.Result)
+			v.SetType(ctx.c.subst(m.Result, s.targs))
 			return
 		}
 	}
@@ -2210,7 +2297,7 @@ func (ctx *methodCtx) checkMethodCall(v *ast.Call, rt ast.Type, want ast.Type) {
 			ctx.bindArgs(m, s, v.Args, &ast.ClassType{Class: cl})
 			v.Method = m
 			v.Static = true
-			v.SetType(m.Result)
+			v.SetType(ctx.c.subst(m.Result, s.targs))
 			return
 		}
 		ctx.errf(v.Pos, "TY-TYP-0076", "cannot find method %s(%s) in %s", v.Name, argTypes(v.Args), cl.Name)
@@ -2251,17 +2338,16 @@ func (ctx *methodCtx) checkMethodCall(v *ast.Call, rt ast.Type, want ast.Type) {
 	ctx.bindArgs(m, s, v.Args, recvCT)
 	v.Method = m
 	v.Static = m.IsStatic()
+	res := ctx.c.subst(m.Result, s.targs)
 	if len(m.Owner.TypeParams) > 0 {
 		if sup := ctx.c.asSuper(recvCT, m.Owner); sup != nil {
-			res := ctx.c.subst(m.Result, bindings(m.Owner, sup.Args))
-			v.SetType(res)
-			return
+			res = ctx.c.subst(res, bindings(m.Owner, sup.Args))
 		}
 	}
+	v.SetType(res)
 	if !v.Static && !ctx.accessibleInstance(m, rt) {
 		ctx.errf(v.Pos, "TY-TYP-0079", "%s has %s access in %s", m.Name, visName(m.Mods), m.Owner.Name)
 	}
-	v.SetType(m.Result)
 	ctx.rewritePropCall(v, m)
 }
 

@@ -57,6 +57,14 @@ func (p *Program) FieldType(f *ast.Field) ast.Type { return f.Type }
 // FieldOwner returns the class declaring a field.
 func (p *Program) FieldOwner(f *ast.Field) *ast.Class { return f.Owner }
 
+// LookupClass finds a class by qualified name.
+func (p *Program) LookupClass(full string) *ast.Class {
+	if p.c == nil {
+		return nil
+	}
+	return p.c.global[full]
+}
+
 // ProgramClass looks up a class from the prelude or the user program by
 // simple name; code generation uses it for the implicit java.io.IO import.
 func (c *Checker) programClass(name string) *ast.Class { return c.global[name] }

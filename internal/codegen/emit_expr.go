@@ -191,6 +191,9 @@ func (e *Emitter) expr(x ast.Expr) string {
 		return e.coerce(e.expr(v.X), v.X.GetType(), v.GetType())
 	case *ast.This:
 		if v.Qual != "" {
+			if cl := e.prog.LookupClass(v.Qual); cl != nil {
+				return "(" + cname(cl) + "*)" + e.outerAccess(cl)
+			}
 			return "((void*)this)"
 		}
 		return "this"
@@ -281,9 +284,30 @@ func (e *Emitter) ident(v *ast.Ident) string {
 		if r == nil {
 			return "0"
 		}
+		if e.curClass != nil && r.Owner != nil && r.Owner != e.curClass && !r.Mods.Has(ast.ModStatic) {
+			return e.outerFieldAccess(r)
+		}
 		return e.fieldAccess(r, "this")
 	}
 	return "0"
+}
+
+// outerAccess walks the enclosing-instance chain to the class that owns an
+// outer object, for references from a nested or inner class.
+func (e *Emitter) outerAccess(target *ast.Class) string {
+	recv := "this"
+	for cl := e.curClass; cl != nil && cl != target; cl = cl.Outer {
+		if cl.OuterField == nil || cl.Outer == nil {
+			return "((void*)this)"
+		}
+		recv = "((" + cname(cl.Outer) + "*)" + recv + "->f_" + mangle(cl.OuterField.Name) + ")"
+	}
+	return recv
+}
+
+// outerFieldAccess reads a field that belongs to an enclosing class.
+func (e *Emitter) outerFieldAccess(f *ast.Field) string {
+	return "((" + cname(f.Owner) + "*)" + e.outerAccess(f.Owner) + ")->f_" + mangle(f.Name)
 }
 
 // fieldAccess renders a field read through a receiver expression.
@@ -680,7 +704,7 @@ func (e *Emitter) newExpr(v *ast.New) string {
 	fmt.Fprintf(&b, "({ %s %s = (%s)ty_alloc(sizeof(%s)); %s->obj.cls = &cls_%s;",
 		cname(cl)+"*", n, cname(cl)+"*", cname(cl), n, mangle(cl.Full))
 	if cl.Inner && cl.OuterField != nil {
-		fmt.Fprintf(&b, " %s->f_%s = (%s)%s;", n, mangle(cl.OuterField.Name), cname(cl.Outer), e.outerArg(v))
+		fmt.Fprintf(&b, " %s->f_%s = (%s*)%s;", n, mangle(cl.OuterField.Name), cname(cl.Outer), e.outerArg(v))
 	}
 	fmt.Fprintf(&b, " ty_clinit(&cls_%s);", mangle(cl.Full))
 	if v.Ctor != nil {

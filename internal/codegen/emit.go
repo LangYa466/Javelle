@@ -31,6 +31,7 @@ type Emitter struct {
 	locals      map[*ast.Var]string
 	enumOrdinal string
 	patternVars map[*ast.InstanceOf]string
+	curClass    *ast.Class
 	switchID    int
 	switchCur   int
 }
@@ -412,6 +413,7 @@ func (e *Emitter) emitMethod(cl *ast.Class, m *ast.Method, idx int) {
 	e.indent = 0
 	fmt.Fprintf(e.code, "static %s {\n", e.signature(m))
 	e.indent++
+	e.curClass = cl
 	for i, pv := range m.ParamVars {
 		e.locals[pv] = fmt.Sprintf("a%d", i)
 	}

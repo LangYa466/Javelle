@@ -1644,6 +1644,18 @@ func (p *parser) parsePostfix(x ast.Expr) ast.Expr {
 				x = &ast.ClassLit{ExprBase: ast.ExprBase{Pos: pos}, Type: &ast.TypeExpr{Pos: x.GetPos(), Name: exprName(x)}}
 				continue
 			}
+			if p.is("super") && !p.isAt(1, "::") {
+				// Interface.super.method(...): a qualified super call
+				p.next()
+				p.expect(".")
+				name := p.ident()
+				call := &ast.Call{ExprBase: ast.ExprBase{Pos: pos}, Name: name, Super: true, Qual: exprName(x)}
+				if p.is("(") {
+					call.Args = p.parseArgs()
+				}
+				x = call
+				continue
+			}
 			name := p.ident()
 			if p.is("(") && !p.lineBreak() {
 				x = &ast.Call{ExprBase: ast.ExprBase{Pos: pos}, Recv: x, Name: name, TypeArgs: targs, Args: p.parseArgs()}

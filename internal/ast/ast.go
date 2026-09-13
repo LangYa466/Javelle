@@ -479,7 +479,8 @@ type (
 		Name     string
 		TypeArgs []*TypeExpr
 		Args     []Expr
-		Super    bool // super.m(...)
+		Super    bool   // super.m(...)
+		Qual     string // Interface.super.m(...) names the super interface
 		// resolved
 		Method   *Method
 		Static   bool
