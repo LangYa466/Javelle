@@ -249,10 +249,12 @@ func (c *Checker) resolveMembers(cl *ast.Class) {
 				c.errf(d.Pos, "TY-TYP-0016", "abstract method %s in non-abstract class %s", d.Name, cl.Name)
 			}
 			if m.Mods.Has(ast.ModNative) {
-				if !cl.Builtin {
-					c.errf(d.Pos, "TY-TYP-0017", "native methods are only allowed in the Teyru runtime library")
-				}
+				// A native method has no Teyru body: the C symbol is either one
+				// the runtime provides (prelude classes) or one the program
+				// links against. `teyru build --native-header` prints the exact
+				// signatures to implement.
 				m.Native = nativeName(cl, m)
+				m.External = !cl.Builtin
 			}
 			if cd.Implicit && !d.IsCtor && d.Name != "main" {
 				m.Mods |= ast.ModStatic

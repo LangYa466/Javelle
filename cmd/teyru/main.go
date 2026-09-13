@@ -27,6 +27,9 @@ flags:
   -O0..-O3      optimisation level (default -O2)
   --llvm-ir <p> write the LLVM IR module to <p> (the backend is clang/LLVM)
   --no-lto      disable link-time optimisation
+  --native <f>  C source implementing the program's native methods (repeatable)
+  --link <arg>  extra argument for the link step, such as -lm or a .a path
+  --native-header <p>  write the C prototypes of every native method to <p>
   -v            verbose
 `
 
@@ -68,6 +71,21 @@ func main() {
 			opts.NoLTO = true
 		case a == "-v":
 			opts.Verbose = true
+		case a == "--native":
+			i++
+			if i < len(args) {
+				opts.Native = append(opts.Native, args[i])
+			}
+		case a == "--link":
+			i++
+			if i < len(args) {
+				opts.Link = append(opts.Link, args[i])
+			}
+		case a == "--native-header":
+			i++
+			if i < len(args) {
+				opts.NativeHeader = args[i]
+			}
 		case a == "--llvm-ir":
 			i++
 			if i < len(args) {

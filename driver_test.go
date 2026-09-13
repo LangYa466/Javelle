@@ -117,3 +117,59 @@ func TestNoJava(t *testing.T) {
 		t.Error("generated C references class files")
 	}
 }
+
+// TestNative compiles a program whose native methods are implemented in C, and
+// checks that the generated header declares exactly what the C side defines.
+func TestNative(t *testing.T) {
+	if _, err := exec.LookPath("clang"); err != nil {
+		if _, err2 := exec.LookPath("gcc"); err2 != nil {
+			t.Skip("no C compiler available")
+		}
+	}
+	want, err := os.ReadFile("tests/native/expected.txt")
+	if err != nil {
+		t.Fatal(err)
+	}
+	dir := t.TempDir()
+	out := filepath.Join(dir, "native")
+	header := filepath.Join(dir, "native.h")
+	res, err := driver.Compile([]string{"tests/native/program.teyru"}, driver.Options{
+		Out:          out,
+		Opt:          "-O1",
+		Native:       []string{"tests/native/impl.c"},
+		NativeHeader: header,
+		ExtraCC:      []string{"-I", dir},
+	})
+	if err != nil {
+		t.Fatalf("compile failed: %v\n%s", err, res.Diags)
+	}
+	got, err := exec.Command(res.Exe).CombinedOutput()
+	if err != nil {
+		t.Fatalf("run failed: %v\n%s", err, got)
+	}
+	if string(got) != string(want) {
+		t.Errorf("output mismatch\n--- want ---\n%s\n--- got ---\n%s", want, got)
+	}
+	// every declaration in the header must be defined by the C the test links
+	decl, err := os.ReadFile(header)
+	if err != nil {
+		t.Fatal(err)
+	}
+	impl, err := os.ReadFile("tests/native/impl.c")
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, line := range strings.Split(string(decl), "\n") {
+		i := strings.Index(line, "tyn_")
+		if i < 0 {
+			continue
+		}
+		name := line[i:]
+		if j := strings.IndexByte(name, '('); j >= 0 {
+			name = name[:j]
+		}
+		if !strings.Contains(string(impl), name+"(") {
+			t.Errorf("the header declares %s but the C implementation does not define it", name)
+		}
+	}
+}

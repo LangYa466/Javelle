@@ -1,9 +1,12 @@
 package codegen
 
 import (
+	"fmt"
+	"sort"
 	"strings"
 
 	"github.com/LangYa466/Teyru/internal/ast"
+	"github.com/LangYa466/Teyru/internal/sema"
 )
 
 // nativeFn maps a prelude native method onto a runtime helper.
@@ -233,4 +236,107 @@ func nativeCall(m *ast.Method, args string) string {
 		return fn.fn + "(" + args + ")"
 	}
 	return m.Native + "(" + args + ")"
+}
+
+// nativeSignature is the C prototype of a method implemented outside the
+// generated program: an instance method receives its receiver first, and every
+// parameter keeps the C type of its Teyru type.
+func (e *Emitter) nativeSignature(m *ast.Method) string {
+	// object parameters and results are void*: the C side sees the runtime
+	// representation, and the header stays independent of generated types
+	ret := e.ctype(m.Result)
+	if e.isRef(m.Result) {
+		ret = "void *"
+	}
+	var params []string
+	if !m.IsStatic() {
+		params = append(params, "void *self")
+	}
+	for i, p := range m.Params {
+		t := e.ctype(p)
+		if e.isRef(p) {
+			t = "void *"
+		}
+		params = append(params, t+" a"+fmt.Sprint(i))
+	}
+	return ret + " " + m.Native + "(" + strings.Join(params, ", ") + ")"
+}
+
+// NativeDecl describes one method a program has to implement in C. It is what
+// `teyru build --native-header` writes out.
+type NativeDecl struct {
+	Signature string // the C prototype to define
+	Method    string // the Teyru method, for the comment above it
+}
+
+// SelectorDecl names one interface method and the dispatch selector the
+// compiler assigned to it, so that native code can call back into Teyru.
+type SelectorDecl struct {
+	Iface    string
+	Method   string
+	Selector int
+}
+
+// InterfaceSelectors lists every interface method of a program with its
+// selector, in a stable order.
+func InterfaceSelectors(p *sema.Program) []SelectorDecl {
+	var out []SelectorDecl
+	for _, cl := range p.Classes {
+		if !cl.Builtin && !cl.IsInterface() {
+			continue
+		}
+		if !cl.IsInterface() {
+			continue
+		}
+		names := make([]string, 0, len(cl.Methods))
+		for name := range cl.Methods {
+			names = append(names, name)
+		}
+		sort.Strings(names)
+		for _, name := range names {
+			for _, m := range cl.Methods[name] {
+				if m.Selector < 0 || m.IsStatic() || m.IsCtor {
+					continue
+				}
+				out = append(out, SelectorDecl{Iface: cl.Name, Method: m.Name, Selector: m.Selector})
+			}
+		}
+	}
+	return out
+}
+
+// NativeDecls lists the native methods a program has to implement in C.
+func NativeDecls(p *sema.Program) []NativeDecl {
+	e := &Emitter{prog: p}
+	return e.nativeDecls()
+}
+
+// nativeDecls lists every native method of a program that is not part of the
+// standard library, in a stable order.
+func (e *Emitter) nativeDecls() []NativeDecl {
+	var out []NativeDecl
+	seen := map[string]bool{}
+	for _, cl := range e.prog.Classes {
+		if cl.Builtin {
+			continue
+		}
+		names := make([]string, 0, len(cl.Methods))
+		for name := range cl.Methods {
+			names = append(names, name)
+		}
+		sort.Strings(names)
+		for _, name := range names {
+			for _, m := range cl.Methods[name] {
+				if !m.External || seen[m.Native] {
+					continue
+				}
+				seen[m.Native] = true
+				out = append(out, NativeDecl{
+					Signature: e.nativeSignature(m),
+					Method:    cl.Full + "." + m.Name,
+				})
+			}
+		}
+	}
+	return out
 }

@@ -143,6 +143,10 @@ func methodIndex(m *ast.Method) int {
 }
 
 func (e *Emitter) cfunc(m *ast.Method) string {
+	if m.External {
+		// implemented outside the generated program
+		return m.Native
+	}
 	if m.LLName == "" {
 		m.LLName = fnName(m.Owner, m, methodIndex(m))
 	}
@@ -445,6 +449,8 @@ func (e *Emitter) emitMethod(cl *ast.Class, m *ast.Method, idx int) {
 		return
 	}
 	if m.External {
+		// a native method is implemented outside this translation unit
+		fmt.Fprintf(&e.fns, "%s;\n", e.nativeSignature(m))
 		return
 	}
 	fmt.Fprintf(&e.fns, "static %s;\n", e.signature(m))
