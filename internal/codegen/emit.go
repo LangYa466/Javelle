@@ -661,7 +661,10 @@ func (e *Emitter) entry() string {
 		recv = "_main_obj, "
 	}
 	if len(main.Params) == 1 {
-		fmt.Fprintf(&b, "  %s(%sty_array_new(0, 8));\n", e.cfunc(main), recv)
+		b.WriteString("  tyarr* _args = ty_array_new(argc > 0 ? argc - 1 : 0, 8);\n")
+		b.WriteString("  _args->refs = 1;\n")
+		b.WriteString("  for (int _i = 1; _i < argc; _i++) ((void**)_args->data)[_i - 1] = (void*)ty_str_intern(argv[_i]);\n")
+		fmt.Fprintf(&b, "  %s(%s_args);\n", e.cfunc(main), recv)
 	} else {
 		fmt.Fprintf(&b, "  %s(%s);\n", e.cfunc(main), strings.TrimSuffix(recv, ", "))
 	}
