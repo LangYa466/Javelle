@@ -325,7 +325,7 @@ func (e *Emitter) stackNew(vd *ast.VarDeclarator, nw *ast.New, ct, name string) 
 	if cl.Inner && cl.OuterField != nil {
 		e.line("%s.f_%s = (%s*)%s;\n", slot, mangle(cl.OuterField.Name), cname(cl.Outer), e.outerArg(nw))
 	}
-	e.line("ty_clinit(&cls_%s);\n", mangle(cl.Full))
+	e.line("%s", e.clinitStmt(cl))
 	e.line("%s(%s);\n", e.cfunc(nw.Ctor), e.argsWithCaptures("&"+slot, nw, cl))
 	e.line("%s %s = &%s;\n", ct, name, slot)
 }

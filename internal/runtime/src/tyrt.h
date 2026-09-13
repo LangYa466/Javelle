@@ -85,6 +85,8 @@ void *ty_assertfail(const char *msg);
 /* The fast path lives in the header so the generated program allocates with an
    inlined bump-pointer check; only a full page or a pending collection falls
    back into the runtime. */
+/* class flags: the class has been initialised */
+#define TY_CLS_INIT 8
 #define TY_HDR 16
 #define TY_ALIGN 16
 extern char *ty_bump;

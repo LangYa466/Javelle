@@ -324,12 +324,45 @@ func (e *Emitter) outerFieldAccess(f *ast.Field) string {
 }
 
 // clinitCall initializes a class before its static state is touched, matching
-// Java's lazy class initialization.
+// Java's lazy class initialization. The initialized flag is tested inline, so
+// the common case is a load and a branch instead of a call, and a class whose
+// hierarchy has no initializer at all needs no code.
 func (e *Emitter) clinitCall(cl *ast.Class) string {
-	if cl == nil || cl == e.prog.Builtins.Object {
+	if cl == nil || cl == e.prog.Builtins.Object || !needsClinit(cl, map[*ast.Class]bool{}) {
 		return ""
 	}
-	return "(void)ty_clinit(&cls_" + mangle(cl.Full) + "), "
+	return "(void)((cls_" + mangle(cl.Full) + ".flags & TY_CLS_INIT) ? 0 : ty_clinit(&cls_" + mangle(cl.Full) + ")), "
+}
+
+// clinitStmt is clinitCall as a statement, for the places that initialise a
+// class before allocating one of its instances.
+func (e *Emitter) clinitStmt(cl *ast.Class) string {
+	if cl == nil || !needsClinit(cl, map[*ast.Class]bool{}) {
+		return ""
+	}
+	n := mangle(cl.Full)
+	return "if (!(cls_" + n + ".flags & TY_CLS_INIT)) ty_clinit(&cls_" + n + ");\n"
+}
+
+// needsClinit reports whether a class or any class it extends starts with a
+// static initializer that has to run.
+func needsClinit(cl *ast.Class, seen map[*ast.Class]bool) bool {
+	if cl == nil || seen[cl] {
+		return false
+	}
+	seen[cl] = true
+	if cl.ClInit != nil {
+		return true
+	}
+	if cl.Super != nil && needsClinit(cl.Super.Class, seen) {
+		return true
+	}
+	for _, i := range cl.Ifaces {
+		if needsClinit(i.Class, seen) {
+			return true
+		}
+	}
+	return false
 }
 
 // fieldAccess renders a field read through a receiver expression.
@@ -952,7 +985,9 @@ func (e *Emitter) newExpr(v *ast.New) string {
 	if cl.Inner && cl.OuterField != nil {
 		fmt.Fprintf(&b, " %s->f_%s = (%s*)%s;", n, mangle(cl.OuterField.Name), cname(cl.Outer), e.outerArg(v))
 	}
-	fmt.Fprintf(&b, " ty_clinit(&cls_%s);", mangle(cl.Full))
+	if init := e.clinitStmt(cl); init != "" {
+		fmt.Fprintf(&b, " %s", strings.TrimSuffix(init, "\n"))
+	}
 	if v.Ctor != nil {
 		fmt.Fprintf(&b, " %s(%s);", e.cfunc(v.Ctor), e.argsWithCaptures(n, v, cl))
 	}

@@ -16,7 +16,7 @@ void ty_unimplemented(const char *what) {
 
 void ty_clinit(tyclass *c) {
   if (!c || (c->flags & 8)) return;
-  c->flags |= 8;
+  c->flags |= TY_CLS_INIT;
   if (c->super) ty_clinit(c->super);
   for (int32_t i = 0; i < c->niface; i++) ty_clinit(c->ifaces[i]);
   if (c->clinit) ((void (*)(void))c->clinit)();
