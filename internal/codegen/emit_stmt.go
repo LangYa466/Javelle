@@ -305,8 +305,29 @@ func (e *Emitter) localVar(v *ast.LocalVar) {
 			e.line("%s %s = %s;\n", ct, name, zeroOf(ct))
 			continue
 		}
+		if nw, ok := e.stackLocals[vd.Sym]; ok && nw == vd.Init {
+			e.stackNew(vd, nw, ct, name)
+			continue
+		}
 		e.line("%s %s = %s;\n", ct, name, e.coerce(e.expr(vd.Init), vd.Init.GetType(), vd.Sym.Type))
 	}
+}
+
+// stackNew allocates an object that provably does not leave the method as a C
+// local, so LLVM can promote its fields and drop the allocation altogether.
+func (e *Emitter) stackNew(vd *ast.VarDeclarator, nw *ast.New, ct, name string) {
+	cty, _ := e.prog.Erased(vd.Sym.Type).(*ast.ClassType)
+	cl := cty.Class
+	slot := "_stack_" + name
+	e.line("%s %s;\n", cname(cl), slot)
+	e.line("memset(&%s, 0, sizeof(%s));\n", slot, slot)
+	e.line("%s.obj.cls = &cls_%s;\n", slot, mangle(cl.Full))
+	if cl.Inner && cl.OuterField != nil {
+		e.line("%s.f_%s = (%s*)%s;\n", slot, mangle(cl.OuterField.Name), cname(cl.Outer), e.outerArg(nw))
+	}
+	e.line("ty_clinit(&cls_%s);\n", mangle(cl.Full))
+	e.line("%s(%s);\n", e.cfunc(nw.Ctor), e.argsWithCaptures("&"+slot, nw, cl))
+	e.line("%s %s = &%s;\n", ct, name, slot)
 }
 
 // exprStmt emits an expression as a statement.
