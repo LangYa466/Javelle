@@ -552,6 +552,16 @@ type (
 		Captures []*Var
 		CapThis  bool
 		Class    *Class // synthesized closure class
+		// ExprStmt marks a body that is a statement expression and whose
+		// functional method returns void (JLS 15.27.2).
+		ExprStmt bool
+		// PreCaptures holds captures registered before the body is checked,
+		// such as the receiver of a bound method reference.
+		PreCaptures []*Var
+		// RecvVar and RecvExpr hold the receiver of a bound method reference
+		// that has to be evaluated once, at the reference itself.
+		RecvVar  *Var
+		RecvExpr Expr
 	}
 	MethodRef struct {
 		ExprBase

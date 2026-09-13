@@ -526,7 +526,13 @@ func (ctx *methodCtx) checkReturn(v *ast.Return) {
 		}
 		return
 	}
-	ctx.checkExpr(v.X, nil)
+	// the declared result type is the target type of a lambda or method
+	// reference in the return expression
+	target := want
+	if target != nil && !ast.IsRef(target) {
+		target = nil
+	}
+	ctx.checkExpr(v.X, target)
 	if want == nil || ast.IsPrim(want, ast.Void) {
 		if !m.IsCtor {
 			ctx.errf(v.Pos, "TY-TYP-0033", "cannot return a value from a void method")
@@ -895,6 +901,11 @@ func (ctx *methodCtx) checkIdent(v *ast.Ident, want ast.Type) {
 	c := ctx.c
 	if v.Ref != nil {
 		ctx.setRefType(v, v.Ref)
+		// the reference was resolved in an enclosing scope: when the lambda
+		// body reuses it, the variable still has to be captured
+		if lv, ok := v.Ref.(*ast.Var); ok {
+			ctx.noteCapture(lv)
+		}
 		return
 	}
 	if lv := ctx.lookupLocal(v.Name); lv != nil {
@@ -2906,7 +2917,7 @@ func (ctx *methodCtx) checkLambda(lam *ast.Lambda, want ast.Type) {
 	lctx.push()
 	outerLocals := ctx.scopes
 	lctx.scopes = append(append([]map[string]*ast.Var{}, outerLocals...), map[string]*ast.Var{})
-	lam.Captures = nil
+	lam.Captures = lam.PreCaptures
 	for i, p := range lam.Params {
 		name := p.Name
 		var t ast.Type
@@ -2927,8 +2938,14 @@ func (ctx *methodCtx) checkLambda(lam *ast.Lambda, want ast.Type) {
 	}
 	switch b := lam.Body.(type) {
 	case ast.Expr:
-		lctx.checkExpr(b, m.Result)
-		lctx.convertTo(b, m.Result)
+		if ast.IsPrim(m.Result, ast.Void) {
+			// a void compatible body is a statement expression (JLS 15.27.2)
+			lctx.checkExpr(b, nil)
+			lam.ExprStmt = true
+		} else {
+			lctx.checkExpr(b, m.Result)
+			lctx.convertTo(b, m.Result)
+		}
 	case *ast.Block:
 		lctx.checkBlock(b, false)
 		if m.Result != ast.TVoid && !endsWithReturn(b) {
@@ -3090,7 +3107,7 @@ func (ctx *methodCtx) checkMethodRef(mr *ast.MethodRef, want ast.Type) {
 			}
 		}
 	} else if len(args) == len(target.Params) {
-		callRecv = recv
+		callRecv = ctx.bindRefReceiver(lam, mr, recv, recvType)
 	} else {
 		callRecv = args[0]
 		args = args[1:]
@@ -3099,6 +3116,29 @@ func (ctx *methodCtx) checkMethodRef(mr *ast.MethodRef, want ast.Type) {
 	mr.Lam = lam
 	ctx.checkLambda(lam, want)
 	mr.SetType(ct)
+}
+
+// bindRefReceiver returns the receiver an instance method reference calls. A
+// simple name is reused directly; any other expression is evaluated once, when
+// the method reference is created, and captured by the closure (JLS 15.13.3).
+func (ctx *methodCtx) bindRefReceiver(lam *ast.Lambda, mr *ast.MethodRef, recv ast.Expr, recvType ast.Type) ast.Expr {
+	if recv == nil {
+		return recv
+	}
+	switch r := recv.(type) {
+	case *ast.Ident:
+		if _, ok := r.Ref.(*ast.Var); ok {
+			return recv
+		}
+	case *ast.This:
+		return recv
+	}
+	v := &ast.Var{Name: fmt.Sprintf("recv%d", ctx.c.varID), Type: recvType, Owner: ctx.m}
+	ctx.c.varID++
+	lam.PreCaptures = append(lam.PreCaptures, v)
+	lam.RecvVar = v
+	lam.RecvExpr = recv
+	return &ast.Ident{ExprBase: ast.ExprBase{Pos: mr.Pos, T: recvType}, Name: v.Name, Ref: v}
 }
 
 func (ctx *methodCtx) recvClassForRef(t ast.Type) *ast.ClassType {

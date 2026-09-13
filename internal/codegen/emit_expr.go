@@ -1062,6 +1062,12 @@ func (e *Emitter) lambdaExpr(lam *ast.Lambda) string {
 	fmt.Fprintf(&b, "({ %s %s = (%s)ty_alloc(sizeof(%s)); %s->obj.cls = &cls_%s;",
 		cname(cl)+"*", n, cname(cl)+"*", cname(cl), n, mangle(cl.Full))
 	for _, v := range e.prog.CapturedVars(cl) {
+		if lam.RecvVar == v && lam.RecvExpr != nil {
+			// the receiver of a bound method reference is evaluated here and
+			// once only, so the closure sees a stable object
+			fmt.Fprintf(&b, " %s->cap_%s = %s;", n, mangle(v.Name), e.refExpr(lam.RecvExpr))
+			continue
+		}
 		fmt.Fprintf(&b, " %s->cap_%s = %s;", n, mangle(v.Name), e.localName(v))
 	}
 	if lam.CapThis {
@@ -1090,7 +1096,11 @@ func (e *Emitter) emitLambdaMethod(cl *ast.Class, m *ast.Method) {
 	}
 	switch b := lam.Body.(type) {
 	case ast.Expr:
-		e.line("return %s;\n", e.coerce(e.expr(b), b.GetType(), m.Result))
+		if lam.ExprStmt {
+			e.line("%s;\n", e.expr(b))
+		} else {
+			e.line("return %s;\n", e.coerce(e.expr(b), b.GetType(), m.Result))
+		}
 	case *ast.Block:
 		e.emitBlockInner(b)
 	}
