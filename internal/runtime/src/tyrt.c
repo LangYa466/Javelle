@@ -40,10 +40,18 @@ static tychunk *chunks = NULL;
 static void **roots_static = NULL; /* addresses of global slots */
 static size_t nroots_static = 0, caproots_static = 0;
 static char *stack_top = NULL;   /* highest address of the current thread stack */
-static int64_t alloc_since_gc = 0;
-static int64_t gc_threshold = 4 << 20;
+int64_t ty_alloc_since = 0;
+int64_t ty_gc_threshold = 4 << 20;
 static int64_t live_bytes = 0;
+char *ty_bump = NULL;
+char *ty_bump_end = NULL;
 static int gc_disabled = 0;
+
+/* Free lists, declared here because the collector rebuilds them. */
+#define TY_NCLASS 64
+static void *freelist[TY_NCLASS];
+static void *bigfree = NULL;
+void ty_free_block(void *payload, size_t total);
 
 void *ty_roots[TY_SHADOW_MAX];
 int64_t ty_sp = 0;
@@ -136,32 +144,54 @@ void ty_gc(void) {
     void *o = mark_stack[--mark_sp];
     trace_object(o);
   }
-  /* sweep: unmarked objects become free; the block goes on a free list. */
+  /* Sweep. Free lists are rebuilt from scratch so that blocks belonging to a
+     reclaimed chunk can never be handed out again. A chunk with no live object
+     is returned to the system instead of being walked on every later cycle;
+     this keeps the cost of a collection proportional to live data rather than
+     to everything ever allocated. */
+  for (int i = 0; i < TY_NCLASS; i++) freelist[i] = NULL;
+  bigfree = NULL;
   live_bytes = 0;
-  for (tychunk *c = chunks; c; c = c->next) {
-    char *p = c->mem;
-    while (p < c->mem + c->used) {
-      uint64_t sz = *(uint64_t *)(p);
+  tychunk **pp = &chunks;
+  while (*pp) {
+    tychunk *c = *pp;
+    int64_t live = 0;
+    for (char *p = c->mem; p < c->mem + c->used;) {
+      uint64_t sz = *(uint64_t *)p;
+      if (*(uint64_t *)(p + 8) & TY_MARK_BIT) live += (int64_t)sz;
+      p += sz;
+    }
+    if (live == 0 && c != chunks) {
+      *pp = c->next;
+      free(c->mem);
+      free(c);
+      continue;
+    }
+    for (char *p = c->mem; p < c->mem + c->used;) {
+      uint64_t sz = *(uint64_t *)p;
       uint64_t *h = (uint64_t *)(p + 8);
-      if (!(*h & TY_MARK_BIT)) {
-        ty_free_block(p + TY_HDR, sz);
-      } else {
+      if (*h & TY_MARK_BIT) {
         *h &= ~(uint64_t)TY_MARK_BIT;
-        live_bytes += (int64_t)sz;
+      } else {
+        ty_free_block(p + TY_HDR, sz);
       }
       p += sz;
     }
+    live_bytes += live;
+    pp = &c->next;
   }
-  alloc_since_gc = 0;
-  gc_threshold = live_bytes * 2;
-  if (gc_threshold < (4 << 20)) gc_threshold = 4 << 20;
+  if (chunks) {
+    ty_bump = chunks->mem + chunks->used;
+    ty_bump_end = chunks->mem + chunks->cap;
+  } else {
+    ty_bump = ty_bump_end = NULL;
+  }
+  ty_alloc_since = 0;
+  ty_gc_threshold = live_bytes * 2;
+  if (ty_gc_threshold < (4 << 20)) ty_gc_threshold = 4 << 20;
 }
 
 /* ------------------------------------------------------------------ allocation */
-
-#define TY_NCLASS 64
-static void *freelist[TY_NCLASS];
-static void *bigfree = NULL;
 
 static int size_class(size_t sz) {
   size_t i = (sz + TY_ALIGN - 1) / TY_ALIGN;
@@ -203,31 +233,44 @@ static void *alloc_slow(size_t total) {
   return NULL;
 }
 
-void *ty_alloc(size_t size) {
-  size_t total = (size + TY_HDR + TY_ALIGN - 1) & ~(size_t)(TY_ALIGN - 1);
-  if (alloc_since_gc > gc_threshold) ty_gc();
+void *ty_alloc_slow(size_t total) {
+  if (ty_alloc_since > ty_gc_threshold) ty_gc();
   void *p = alloc_slow(total);
-  if (!p) {
-    tychunk *c = chunks;
-    if (!c || c->used + total > c->cap) {
-      ty_gc();
-      p = alloc_slow(total);
-      if (p) goto done;
-      size_t cap = total > TY_CHUNK ? ((total + TY_CHUNK - 1) & ~(size_t)(TY_CHUNK - 1)) : TY_CHUNK;
-      c = (tychunk *)malloc(sizeof(tychunk));
-      c->mem = (char *)malloc(cap);
-      c->cap = cap;
-      c->used = 0;
-      c->next = chunks;
-      chunks = c;
-    }
-    p = c->mem + c->used;
-    c->used += total;
+  if (p) {
+    ty_alloc_since += (int64_t)total;
+    *(uint64_t *)p = (uint64_t)total;
+    *(uint64_t *)((char *)p + 8) = 0;
+    void *obj = (char *)p + TY_HDR;
+    memset(obj, 0, total - TY_HDR);
+    return obj;
   }
-done:;
+  tychunk *c = chunks;
+  if (!c || c->used + total > c->cap) {
+    ty_gc();
+    p = alloc_slow(total);
+    if (p) {
+      ty_alloc_since += (int64_t)total;
+      *(uint64_t *)p = (uint64_t)total;
+      *(uint64_t *)((char *)p + 8) = 0;
+      void *obj = (char *)p + TY_HDR;
+      memset(obj, 0, total - TY_HDR);
+      return obj;
+    }
+    size_t cap = total > TY_CHUNK ? ((total + TY_CHUNK - 1) & ~(size_t)(TY_CHUNK - 1)) : TY_CHUNK;
+    c = (tychunk *)malloc(sizeof(tychunk));
+    c->mem = (char *)malloc(cap);
+    c->cap = cap;
+    c->used = 0;
+    c->next = chunks;
+    chunks = c;
+  }
+  p = c->mem + c->used;
+  c->used += total;
+  ty_bump = c->mem + c->used;
+  ty_bump_end = c->mem + c->cap;
+  ty_alloc_since += (int64_t)total;
   *(uint64_t *)p = (uint64_t)total;
   *(uint64_t *)((char *)p + 8) = 0;
-  alloc_since_gc += (int64_t)total;
   void *obj = (char *)p + TY_HDR;
   memset(obj, 0, total - TY_HDR);
   return obj;
@@ -344,6 +387,8 @@ void *ty_itab(void *p, int32_t sel) {
   for (tyclass *k = c->super; k; k = k->super) {
     if (sel < k->isel && k->imap[sel].fn) return k->imap[sel].fn;
   }
+  /* no implementation: fail as a catchable error rather than calling NULL */
+  ty_throw((tyobj *)ty_make_ex(TY_UNSUP, "no implementation for this interface method"));
   return NULL;
 }
 
@@ -361,7 +406,10 @@ tystr *ty_str_new(const char *data, int64_t len) {
 
 tystr *ty_str_intern(const char *data) { return ty_str_new(data, (int64_t)strlen(data)); }
 
-int64_t ty_str_len(tystr *s) { return s ? s->len : 0; }
+int64_t ty_str_len(tystr *s) {
+  if (!s) ty_npe();
+  return s->len;
+}
 
 tystr *ty_str_concat(tystr *a, tystr *b) {
   if (!a) a = ty_str_intern("null");
@@ -394,7 +442,7 @@ int32_t ty_str_cmp(tystr *a, tystr *b) {
 }
 
 int32_t ty_str_hash(tystr *s) {
-  if (!s) return 0;
+  if (!s) ty_npe();
   int32_t h = 0;
   for (int64_t i = 0; i < s->len; i++) h = 31 * h + (unsigned char)s->data[i];
   return h;
@@ -429,22 +477,97 @@ tystr *ty_str_of_char(uint16_t c) {
   }
   return ty_str_new(buf, n);
 }
-tystr *ty_str_of_double(double v) {
-  char buf[64];
-  if (v == (double)(int64_t)v && fabs(v) < 1e15) {
-    int n = snprintf(buf, sizeof buf, "%.1f", v);
-    return ty_str_new(buf, n);
+/* Shortest representation that reads back exactly, formatted the way Java's
+   Double.toString does: plain decimal when 1e-3 <= |v| < 1e7, scientific
+   otherwise, and always with a fractional part. */
+static int fmt_generic(char *buf, size_t cap, long double v, int lo, int hi) {
+  char tmp[96];
+  int prec = hi;
+  for (int p = lo; p <= hi; p++) {
+    snprintf(tmp, sizeof tmp, "%.*Le", p - 1, v);
+    if ((long double)strtod(tmp, NULL) == v) { prec = p; break; }
   }
-  int n = snprintf(buf, sizeof buf, "%.17g", v);
+  snprintf(tmp, sizeof tmp, "%.*Le", prec - 1, v);
+  /* split "[-]d.dddde±XX" into digits and an exponent */
+  char digits[64];
+  int nd = 0;
+  int neg = tmp[0] == '-';
+  for (char *q = tmp; *q && *q != 'e' && *q != 'E'; q++) {
+    if (*q >= '0' && *q <= '9') digits[nd++] = *q;
+  }
+  int exp10 = 0;
+  char *e = strpbrk(tmp, "eE");
+  if (e) exp10 = atoi(e + 1);
+  /* strip trailing zeros of the fractional part */
+  while (nd > 1 && digits[nd - 1] == '0') nd--;
+  /* build the Java form */
+  char out[96];
+  int n = 0;
+  if (neg) out[n++] = '-';
+  int pointPos = exp10 + 1; /* position of the decimal point within digits */
+  if (pointPos > -3 && pointPos <= 7) {
+    if (pointPos <= 0) {
+      out[n++] = '0';
+      out[n++] = '.';
+      for (int i = 0; i < -pointPos; i++) out[n++] = '0';
+      for (int i = 0; i < nd; i++) out[n++] = digits[i];
+    } else {
+      for (int i = 0; i < pointPos; i++) out[n++] = i < nd ? digits[i] : '0';
+      out[n++] = '.';
+      if (nd <= pointPos) {
+        out[n++] = '0';
+      } else {
+        for (int i = pointPos; i < nd; i++) out[n++] = digits[i];
+      }
+    }
+  } else {
+    out[n++] = digits[0];
+    out[n++] = '.';
+    if (nd > 1) {
+      for (int i = 1; i < nd; i++) out[n++] = digits[i];
+    } else {
+      out[n++] = '0';
+    }
+    out[n++] = 'E';
+    n += snprintf(out + n, sizeof out - (size_t)n, "%d", exp10);
+  }
+  if (n >= (int)cap) n = (int)cap - 1;
+  memcpy(buf, out, (size_t)n);
+  buf[n] = 0;
+  return n;
+}
+
+static int fmt_double(char *buf, size_t cap, double v) {
+  if (v != v) return snprintf(buf, cap, "NaN");
+  if (v == 1.0 / 0.0) return snprintf(buf, cap, "Infinity");
+  if (v == -1.0 / 0.0) return snprintf(buf, cap, "-Infinity");
+  if (v == 0.0) return snprintf(buf, cap, "0.0");
+  return fmt_generic(buf, cap, (long double)v, 15, 17);
+}
+
+static int fmt_float(char *buf, size_t cap, float v) {
+  if (v != v) return snprintf(buf, cap, "NaN");
+  if (v == 1.0f / 0.0f) return snprintf(buf, cap, "Infinity");
+  if (v == -1.0f / 0.0f) return snprintf(buf, cap, "-Infinity");
+  if (v == 0.0f) return snprintf(buf, cap, "0.0");
+  char tmp[96];
+  int prec = 9;
+  for (int p = 6; p <= 9; p++) {
+    snprintf(tmp, sizeof tmp, "%.*e", p - 1, (double)v);
+    if ((float)strtod(tmp, NULL) == v) { prec = p; break; }
+  }
+  snprintf(tmp, sizeof tmp, "%.*e", prec - 1, (double)v);
+  return fmt_generic(buf, cap, strtold(tmp, NULL), prec, prec);
+}
+
+tystr *ty_str_of_double(double v) {
+  char buf[96];
+  int n = fmt_double(buf, sizeof buf, v);
   return ty_str_new(buf, n);
 }
 tystr *ty_str_of_float(float v) {
-  char buf[64];
-  if (v == (float)(int64_t)v && fabsf(v) < 1e7f) {
-    int n = snprintf(buf, sizeof buf, "%.1f", (double)v);
-    return ty_str_new(buf, n);
-  }
-  int n = snprintf(buf, sizeof buf, "%.9g", (double)v);
+  char buf[96];
+  int n = fmt_float(buf, sizeof buf, v);
   return ty_str_new(buf, n);
 }
 
@@ -489,7 +612,7 @@ tystr *ty_str_sub(tystr *s, int32_t from, int32_t to) {
   return ty_str_new(s->data + from, to - from);
 }
 int32_t ty_str_indexof(tystr *s, tystr *sub) {
-  if (!s || !sub) return -1;
+  if (!s || !sub) ty_npe();
   if (sub->len == 0) return 0;
   for (int64_t i = 0; i + sub->len <= s->len; i++)
     if (memcmp(s->data + i, sub->data, (size_t)sub->len) == 0) return (int32_t)i;
@@ -515,13 +638,19 @@ tystr *ty_str_replace(tystr *s, uint16_t a, uint16_t b) {
     if ((unsigned char)r->data[i] == (a & 0xFF)) r->data[i] = (char)b;
   return r;
 }
-int32_t ty_str_isempty(tystr *s) { return !s || s->len == 0; }
+int32_t ty_str_isempty(tystr *s) {
+  if (!s) ty_npe();
+  return s->len == 0;
+}
 int32_t ty_str_toint(tystr *s) { return s ? (int32_t)strtoll(s->data, NULL, 10) : 0; }
 
 /* ------------------------------------------------------------------ arrays */
 
 tyarr *ty_array_new(int64_t len, int64_t elemsize) { return ty_alloc_arr(len, (size_t)elemsize); }
-int64_t ty_array_len(tyarr *a) { return a ? a->len : 0; }
+int64_t ty_array_len(tyarr *a) {
+  if (!a) ty_npe();
+  return a->len;
+}
 tyarr *ty_array_clone(tyarr *a, int64_t elemsize) {
   tyarr *r = ty_alloc_arr(a->len, (size_t)elemsize);
   memcpy(r->data, a->data, (size_t)(a->len * elemsize));
@@ -591,8 +720,17 @@ void ty_print_str(tystr *s) { if (s) fwrite(s->data, 1, (size_t)s->len, stdout);
 void ty_println_str(tystr *s) { ty_print_str(s); putchar('\n'); }
 void ty_print_int(int64_t v) { printf("%lld", (long long)v); }
 void ty_println_int(int64_t v) { printf("%lld\n", (long long)v); }
-void ty_print_double(double v) { printf("%.17g", v); }
-void ty_println_double(double v) { printf("%.17g\n", v); }
+void ty_print_double(double v) {
+  char buf[96];
+  int n = fmt_double(buf, sizeof buf, v);
+  fwrite(buf, 1, (size_t)n, stdout);
+}
+void ty_println_double(double v) {
+  ty_print_double(v);
+  putchar('\n');
+}
+void ty_print_float(float v) { ty_print_str(ty_str_of_float(v)); }
+void ty_println_float(float v) { ty_print_float(v); putchar('\n'); }
 void ty_print_char(uint16_t c) {
   if (c < 0x80) putchar((int)c);
   else fputs(ty_str_of_char(c)->data, stdout);

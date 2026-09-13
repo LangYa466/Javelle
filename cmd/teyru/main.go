@@ -26,6 +26,7 @@ flags:
   --cc <name>   C compiler to use (default clang)
   -O0..-O3      optimisation level (default -O2)
   --llvm-ir <p> write the LLVM IR module to <p> (the backend is clang/LLVM)
+  --no-lto      disable link-time optimisation
   -v            verbose
 `
 
@@ -63,6 +64,8 @@ func main() {
 			if i < len(args) {
 				opts.CC = args[i]
 			}
+		case a == "--no-lto":
+			opts.NoLTO = true
 		case a == "-v":
 			opts.Verbose = true
 		case a == "--llvm-ir":

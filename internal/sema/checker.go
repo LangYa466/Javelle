@@ -33,22 +33,22 @@ type Builtins struct {
 
 // Checker holds global analysis state.
 type Checker struct {
-	diags    *source.Diagnostics
-	files    []*ast.File
-	classes  []*ast.Class
-	global   map[string]*ast.Class // simple and full names
-	b        *Builtins
-	nextID   int
-	varID    int
-	tvID     int
-	anonN    map[*ast.Class]int
-	selector int
-	todo     []func()
-	Props    map[ast.Expr]ast.Expr
-	program  *Program
-	objType  *ast.ClassType
-	strType  *ast.ClassType
-	arrCls   *ast.Class
+	diags      *source.Diagnostics
+	files      []*ast.File
+	classes    []*ast.Class
+	global     map[string]*ast.Class // simple and full names
+	b          *Builtins
+	nextID     int
+	varID      int
+	tvID       int
+	anonN      map[*ast.Class]int
+	selector   int
+	todo       []func()
+	Props      map[ast.Expr]ast.Expr
+	program    *Program
+	objType    *ast.ClassType
+	strType    *ast.ClassType
+	arrCls     *ast.Class
 	extensions map[*ast.Class][]*ast.Class
 }
 

@@ -1,0 +1,13 @@
+ok:5
+illegal:negative
+arith:zero
+caught deep: bottom
+bounds
+cast
+divide
+npe
+inner finally
+outer caught: inner
+chained
+true
+true

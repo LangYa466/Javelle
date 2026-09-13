@@ -1002,7 +1002,7 @@ func (c *Checker) lombokBuilder(cl *ast.Class, a *ast.Annotation, classAnnos []*
 
 	// static builder() on the annotated class
 	if !hasMethodDecl(cl.Decl, factoryName, 0) {
-		fac := c.newSynthMethod(cl, factoryName, (ast.ModPublic|ast.ModStatic), &ast.ClassType{Class: b}, nil, nil,
+		fac := c.newSynthMethod(cl, factoryName, (ast.ModPublic | ast.ModStatic), &ast.ClassType{Class: b}, nil, nil,
 			blockOf(returnOf(newObj(b))), "")
 		fac.Anno = "@Builder"
 		c.addSynthMethod(cl, fac)

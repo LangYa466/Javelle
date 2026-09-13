@@ -1,0 +1,5 @@
+#!/bin/sh
+# Runs the full local check before every commit: formatting, vet and the
+# end-to-end suite. Install with `make hooks`. Set TEYRU_SKIP_HOOKS=1 to bypass.
+[ "$TEYRU_SKIP_HOOKS" = "1" ] && exit 0
+exec make check

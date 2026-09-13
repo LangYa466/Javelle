@@ -11,18 +11,18 @@ import (
 
 // methodCtx carries the local scope of one method body.
 type methodCtx struct {
-	c             *Checker
-	cl            *ast.Class
-	m             *ast.Method
-	env           *typeEnv
-	scopes        []map[string]*ast.Var
-	loops         int
-	sw            *ast.Switch
-	try           int
-	lambda        *ast.Lambda
-	staticImports []*ast.Field
-	staticMethods map[string][]*ast.Method
-	props         map[ast.Expr]ast.Expr
+	c               *Checker
+	cl              *ast.Class
+	m               *ast.Method
+	env             *typeEnv
+	scopes          []map[string]*ast.Var
+	loops           int
+	sw              *ast.Switch
+	try             int
+	lambda          *ast.Lambda
+	staticImports   []*ast.Field
+	staticMethods   map[string][]*ast.Method
+	props           map[ast.Expr]ast.Expr
 	pendingTypeArgs []ast.Type
 }
 
@@ -58,7 +58,7 @@ func (c *Checker) checkBodies(cl *ast.Class) {
 				if want != nil {
 					ctx.convertTo(vd.Init, want)
 				}
-				if f := vd.Fld; f != nil && !f.IsProp {
+				if f := vd.Fld; f != nil && !f.IsProp && f.Mods.Has(ast.ModFinal) {
 					f.ConstVal = c.constFieldInit(isStaticField(f), vd.Init)
 				}
 			}
@@ -93,6 +93,8 @@ func (c *Checker) checkBodies(cl *ast.Class) {
 	c.checkAbstracts(cl)
 }
 
+// constFieldInit records the compile-time value of a constant variable: only a
+// final field with a constant initializer may be inlined at use sites (JLS 4.12.4).
 func (c *Checker) constFieldInit(isStatic bool, e ast.Expr) any {
 	if !isStatic {
 		return nil
@@ -940,17 +942,21 @@ func (ctx *methodCtx) lookupStaticField(name string) *ast.Field {
 
 // noteCapture marks a local as captured when referenced from a lambda or inner class.
 func (ctx *methodCtx) noteCapture(v *ast.Var) {
-	if ctx.lambda != nil {
-		if v.Owner == ctx.m && ctx.m != nil {
-			for _, c := range ctx.lambda.Captures {
-				if c == v {
-					return
-				}
-			}
-			ctx.lambda.Captures = append(ctx.lambda.Captures, v)
-			v.Captured = true
+	if ctx.lambda == nil {
+		return
+	}
+	// variables of the enclosing method are copied into the lambda object;
+	// the lambda's own parameters and locals stay on the C stack
+	if v.Owner == ctx.m {
+		return
+	}
+	for _, c := range ctx.lambda.Captures {
+		if c == v {
+			return
 		}
 	}
+	ctx.lambda.Captures = append(ctx.lambda.Captures, v)
+	v.Captured = true
 }
 
 func (ctx *methodCtx) captureOuter(target *ast.Class, v *ast.Var) {
@@ -1264,10 +1270,12 @@ func (ctx *methodCtx) checkBinary(v *ast.Binary, want ast.Type) {
 		v.SetType(ast.TBoolean)
 		return
 	case "<", ">", "<=", ">=":
-		if isRefType(xt) && isRefType(yt) {
+		if isRefType(xt) {
 			if bt := unboxOrPrim(c, xt); bt != nil {
 				xt = bt
 			}
+		}
+		if isRefType(yt) {
 			if bt := unboxOrPrim(c, yt); bt != nil {
 				yt = bt
 			}
@@ -1358,8 +1366,8 @@ func (ctx *methodCtx) checkAssign(v *ast.Assign) {
 			vr.Assigns++
 		}
 	}
-	ctx.checkExpr(v.Y, nil)
 	xt := v.X.GetType()
+	ctx.checkExpr(v.Y, xt)
 	if v.Op == "=" {
 		ctx.convertTo(v.Y, xt)
 		v.SetType(xt)
@@ -1503,6 +1511,14 @@ func (ctx *methodCtx) checkCond2(v *ast.Cond, want ast.Type) {
 		v.SetType(ast.ErrorType{})
 		return
 	}
+	// A conditional expression in an assignment or argument position is a
+	// poly expression: when both branches fit the target type, that is its type.
+	if want != nil && !ast.IsError(want) && !ast.IsPrim(want, ast.Void) {
+		if ctx.c.assignableTo(xt, want) && ctx.c.assignableTo(yt, want) {
+			v.SetType(want)
+			return
+		}
+	}
 	if sameType(xt, yt) {
 		v.SetType(xt)
 		return
@@ -1618,7 +1634,13 @@ func (ctx *methodCtx) checkNew(v *ast.New, want ast.Type) {
 			ctx.errf(v.Pos, "TY-TYP-0070", "cannot subclass enum %s", cl.Name)
 		}
 	}
-	ctor := c.resolveCtor(ctx, ct, v, cl)
+	// resolve the constructor against the parameterised type so that type
+	// arguments substitute into the constructor signature
+	ctorType := ct
+	if pt, ok := t.(*ast.ClassType); ok && len(pt.Args) > 0 {
+		ctorType = pt
+	}
+	ctor := c.resolveCtor(ctx, ctorType, v, cl)
 	_ = ctor
 	// outer instance for inner classes
 	if cl.Inner {
@@ -1917,6 +1939,48 @@ func (ctx *methodCtx) applicable(recv *ast.ClassType, m *ast.Method, args []ast.
 	}
 	s.targs = mbind
 	return s, true
+}
+
+// assignableTo reports whether a value of type t may be used where target is
+// expected, without reporting diagnostics.
+func (c *Checker) assignableTo(t, target ast.Type) bool {
+	if t == nil || target == nil || ast.IsError(t) || ast.IsError(target) {
+		return true
+	}
+	if sameType(t, target) {
+		return true
+	}
+	if _, ok := t.(ast.NullType); ok {
+		return ast.IsRef(target)
+	}
+	if p, ok := t.(*ast.PrimType); ok {
+		if q, ok2 := target.(*ast.PrimType); ok2 {
+			return widening(p, q)
+		}
+		if _, ok2 := c.unboxed(target); ok2 {
+			return true
+		}
+		if ct, ok2 := target.(*ast.ClassType); ok2 {
+			return ct.Class.Special == "Object"
+		}
+		return false
+	}
+	if q, ok := target.(*ast.PrimType); ok {
+		if bp, ok2 := c.unboxed(t); ok2 {
+			return widening(bp, q)
+		}
+		return false
+	}
+	if _, ok := t.(*ast.ArrayType); ok {
+		if ct, ok2 := target.(*ast.ClassType); ok2 {
+			switch ct.Class.Special {
+			case "Object", "Cloneable", "Serializable":
+				return true
+			}
+			return false
+		}
+	}
+	return c.isSubtype(t, target)
 }
 
 // isLambdaLike reports whether an expression needs a target type.
@@ -2720,7 +2784,6 @@ func (ctx *methodCtx) checkLambda(lam *ast.Lambda, want ast.Type) {
 			p.Unnamed = true
 		}
 		p.Sym = lctx.declare(name, t, p.Pos)
-		p.Sym.Owner = ctx.m
 		m.ParamVars = append(m.ParamVars, p.Sym)
 	}
 	if isStaticCtx(ctx.cl) || ctx.m != nil && ctx.m.IsStatic() {
@@ -2735,6 +2798,13 @@ func (ctx *methodCtx) checkLambda(lam *ast.Lambda, want ast.Type) {
 		if m.Result != ast.TVoid && !endsWithReturn(b) {
 			lctx.errf(b.End, "TY-TYP-0020", "missing return statement")
 		}
+	}
+	if lam.CapThis {
+		// `this` of the enclosing class is captured as a field
+		f := &ast.Field{Name: "this", Type: &ast.ClassType{Class: ctx.cl, Args: typeVarArgs(ctx.cl)},
+			Mods: ast.ModPrivate | ast.ModFinal, Pos: lam.Pos, Storage: true, Owner: cl}
+		cl.Fields = append(cl.Fields, f)
+		cl.FieldMap["this"] = f
 	}
 	// captured variables become fields of the synthetic class
 	for _, v := range lam.Captures {
@@ -2875,7 +2945,14 @@ func (ctx *methodCtx) checkMethodRef(mr *ast.MethodRef, want ast.Type) {
 	}
 	var callRecv ast.Expr
 	if target.IsStatic() {
-		callRecv = nil
+		// qualify the call with the declaring class so it resolves from
+		// anywhere, not just from the enclosing class
+		if o := target.Owner; o != nil {
+			callRecv = &ast.Ident{
+				ExprBase: ast.ExprBase{Pos: mr.Pos, T: &ast.ClassType{Class: o, Args: typeVarArgs(o)}},
+				Name:     o.Name, Ref: o,
+			}
+		}
 	} else if len(args) == len(target.Params) {
 		callRecv = recv
 	} else {

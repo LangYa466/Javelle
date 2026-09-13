@@ -27,6 +27,7 @@ type Options struct {
 	CC       string // C compiler (default: clang)
 	Opt      string // optimisation flag (default -O2)
 	EmitLLVM string // if set, also write LLVM IR here (the backend is clang/LLVM)
+	NoLTO    bool   // disable link-time optimisation (on by default)
 	Verbose  bool
 	ExtraCC  []string
 	NoGC     bool
@@ -116,16 +117,21 @@ func Compile(paths []string, opts Options) (*Result, error) {
 		}
 	}
 	exe := opts.Out
-	args := []string{}
 	opt := opts.Opt
 	if opt == "" {
 		opt = "-O2"
 	}
-	args = append(args, opt, "-std=gnu11", "-fno-strict-aliasing", "-w",
-		"-I", rtDir, cfile)
-	args = append(args, strings.Fields(rtC)...)
-	args = append(args, "-o", exe, "-lm", "-lpthread")
-	args = append(args, opts.ExtraCC...)
+	base := []string{opt, "-std=gnu11", "-fno-strict-aliasing", "-w", "-I", rtDir, cfile}
+	base = append(base, strings.Fields(rtC)...)
+	base = append(base, "-o", exe, "-lm", "-lpthread")
+	base = append(base, opts.ExtraCC...)
+	// Link-time optimisation lets clang inline runtime helpers (string ops, the
+	// allocation fast path) into the generated program. It is on by default and
+	// silently retried without it when the toolchain has no LTO support.
+	args := append([]string{}, base...)
+	if !opts.NoLTO {
+		args = append([]string{"-flto"}, base...)
+	}
 	cc := opts.CC
 	if cc == "" {
 		cc = findCC()
@@ -136,6 +142,16 @@ func Compile(paths []string, opts Options) (*Result, error) {
 	cmd := exec.Command(cc, args...)
 	cmd.Stderr = os.Stderr
 	if err := cmd.Run(); err != nil {
+		if !opts.NoLTO {
+			if opts.Verbose {
+				fmt.Fprintln(os.Stderr, "teyru: retrying without -flto")
+			}
+			retry := exec.Command(cc, base...)
+			retry.Stderr = os.Stderr
+			if err2 := retry.Run(); err2 == nil {
+				return &Result{CFile: cfile, Exe: exe, Diags: diags}, nil
+			}
+		}
 		_ = rtH
 		return &Result{CFile: cfile, Diags: diags}, fmt.Errorf("C backend failed: %w", err)
 	}

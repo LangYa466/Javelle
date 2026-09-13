@@ -5,6 +5,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <setjmp.h>
+#include <string.h>
 
 typedef struct tyclass tyclass;
 typedef struct tyobj tyobj;
@@ -80,7 +81,32 @@ void *ty_negarr(void);
 void *ty_assertfail(const char *msg);
 
 /* ---- allocation / GC -------------------------------------------------- */
-void *ty_alloc(size_t size);
+
+/* The fast path lives in the header so the generated program allocates with an
+   inlined bump-pointer check; only a full page or a pending collection falls
+   back into the runtime. */
+#define TY_HDR 16
+#define TY_ALIGN 16
+extern char *ty_bump;
+extern char *ty_bump_end;
+extern int64_t ty_alloc_since;
+extern int64_t ty_gc_threshold;
+void *ty_alloc_slow(size_t total);
+
+static inline void *ty_alloc(size_t size) {
+  size_t total = (size + TY_HDR + TY_ALIGN - 1) & ~(size_t)(TY_ALIGN - 1);
+  char *p = ty_bump;
+  if (p + total > ty_bump_end || ty_alloc_since > ty_gc_threshold) {
+    return ty_alloc_slow(total);
+  }
+  ty_bump = p + total;
+  ty_alloc_since += (int64_t)total;
+  *(uint64_t *)p = (uint64_t)total;
+  *(uint64_t *)(p + 8) = 0;
+  void *obj = p + TY_HDR;
+  memset(obj, 0, total - TY_HDR);
+  return obj;
+}
 void *ty_alloc_arr(int64_t len, size_t elemsize);
 void ty_gc_init(void);
 void ty_gc(void);
@@ -163,6 +189,8 @@ void ty_print_int(int64_t v);
 void ty_println_int(int64_t v);
 void ty_print_double(double v);
 void ty_println_double(double v);
+void ty_print_float(float v);
+void ty_println_float(float v);
 void ty_print_char(uint16_t c);
 void ty_println_char(uint16_t c);
 void ty_print_bool(int32_t v);
@@ -179,6 +207,7 @@ void ty_clinit(tyclass *c);
 void *ty_class_of(void *o);
 tystr *ty_class_name(void *c);
 tystr *ty_str_ident(tystr *s);
+tystr *ty_str_copy(tystr *s);
 int32_t ty_str_eq_obj(tystr *s, void *o);
 tystr *ty_str_sub_from(tystr *s, int32_t from);
 int64_t ty_str_tolong(tystr *s);

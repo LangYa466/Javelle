@@ -41,7 +41,8 @@ interface Iterator<T> {
   T next()
 }
 
-class String extends Object {
+class String extends Object implements Comparable<String> {
+  public native String(String original)
   public native int length()
   public native boolean isEmpty()
   public native char charAt(int index)
@@ -106,6 +107,7 @@ class PrintStream extends Object {
   public native void print(int v)
   public native void print(long v)
   public native void print(double v)
+  public native void print(float v)
   public native void print(boolean v)
   public native void print(char c)
   public native void println()
@@ -114,6 +116,7 @@ class PrintStream extends Object {
   public native void println(int v)
   public native void println(long v)
   public native void println(double v)
+  public native void println(float v)
   public native void println(boolean v)
   public native void println(char c)
 }
@@ -124,6 +127,7 @@ class IO {
   public static native void print(int v)
   public static native void print(long v)
   public static native void print(double v)
+  public static native void print(float v)
   public static native void print(boolean v)
   public static native void print(char c)
   public static native void println()
@@ -132,6 +136,7 @@ class IO {
   public static native void println(int v)
   public static native void println(long v)
   public static native void println(double v)
+  public static native void println(float v)
   public static native void println(boolean v)
   public static native void println(char c)
   public static native String readln()

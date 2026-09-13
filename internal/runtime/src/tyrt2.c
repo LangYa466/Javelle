@@ -27,6 +27,8 @@ tystr *ty_class_name(void *c) { return c ? ty_str_intern(((tyclass *)c)->name) :
 
 tystr *ty_str_ident(tystr *s) { return s; }
 
+tystr *ty_str_copy(tystr *s) { return s ? ty_str_new(s->data, s->len) : NULL; }
+
 int32_t ty_str_eq_obj(tystr *a, void *b) {
   if (b == NULL) return a == NULL;
   return ty_str_eq(a, (tystr *)b);

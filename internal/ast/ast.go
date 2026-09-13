@@ -649,27 +649,25 @@ type Method struct {
 	SynthKind  string
 	// Body is a compiler-synthesized body (annotation processing). It is
 	// type-checked like an ordinary method body.
-	Body       *Block
-	Anno       string // the annotation that generated this member
-	Checked    bool   // sema has already checked this synthesized body
-	Tolerate   bool   // @Tolerate: allow a generated duplicate
-	SyncOn     *Field // @Synchronized lock field for static methods
+	Body         *Block
+	Anno         string // the annotation that generated this member
+	Checked      bool   // sema has already checked this synthesized body
+	Tolerate     bool   // @Tolerate: allow a generated duplicate
+	SyncOn       *Field // @Synchronized lock field for static methods
 	ParamNonNull []bool
-	Lambda     *Lambda
-	Used       bool
-	Bridge     *Method
-	Forward    *Method // anonymous-class constructor forwards to this target
-	ThisVar    *Var
-	ParamVars  []*Var
-	Locals     []*Var
-	HasTry     bool
-	External   bool
+	Lambda       *Lambda
+	Used         bool
+	Bridge       *Method
+	Forward      *Method // anonymous-class constructor forwards to this target
+	ThisVar      *Var
+	ParamVars    []*Var
+	Locals       []*Var
+	HasTry       bool
+	External     bool
 }
 
 // IsStatic reports whether the method is static.
 func (m *Method) IsStatic() bool { return m.Mods.Has(ModStatic) }
-
-
 
 // Class is a resolved class, interface, enum or record.
 type Class struct {
@@ -680,7 +678,7 @@ type Class struct {
 	Decl         *ClassDecl
 	File         *File
 	Outer        *Class
-	Owner      *Class // enclosing class for synthesized nested types
+	Owner        *Class // enclosing class for synthesized nested types
 	TypeParams   []*TypeVar
 	Super        *ClassType
 	Ifaces       []*ClassType

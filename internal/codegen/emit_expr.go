@@ -190,6 +190,9 @@ func (e *Emitter) expr(x ast.Expr) string {
 	case *ast.Conv:
 		return e.coerce(e.expr(v.X), v.X.GetType(), v.GetType())
 	case *ast.This:
+		if e.curLambda != nil && v.Qual == "" && e.curLambda.CapThis {
+			return "((" + e.ctype(v.GetType()) + ")this->cap_this)"
+		}
 		if v.Qual != "" {
 			if cl := e.prog.LookupClass(v.Qual); cl != nil {
 				return "(" + cname(cl) + "*)" + e.outerAccess(cl)
@@ -272,6 +275,20 @@ func (e *Emitter) stringGlobals() string { return "" }
 
 func (e *Emitter) ident(v *ast.Ident) string {
 	switch r := v.Ref.(type) {
+	case *ast.Field:
+		if r == nil {
+			return "0"
+		}
+		// a static final constant is inlined at every use site
+		if r.Mods.Has(ast.ModStatic) && r.ConstVal != nil {
+			if lit, ok := e.prog.ConstantLiteral(r); ok {
+				return lit
+			}
+		}
+		if e.curClass != nil && r.Owner != nil && r.Owner != e.curClass && !r.Mods.Has(ast.ModStatic) {
+			return e.outerFieldAccess(r)
+		}
+		return e.fieldAccess(r, "this")
 	case *ast.Var:
 		if r == nil {
 			return "0"
@@ -280,14 +297,6 @@ func (e *Emitter) ident(v *ast.Ident) string {
 			return "this->f_" + mangle(r.Field.Name)
 		}
 		return e.localName(r)
-	case *ast.Field:
-		if r == nil {
-			return "0"
-		}
-		if e.curClass != nil && r.Owner != nil && r.Owner != e.curClass && !r.Mods.Has(ast.ModStatic) {
-			return e.outerFieldAccess(r)
-		}
-		return e.fieldAccess(r, "this")
 	}
 	return "0"
 }
@@ -310,6 +319,15 @@ func (e *Emitter) outerFieldAccess(f *ast.Field) string {
 	return "((" + cname(f.Owner) + "*)" + e.outerAccess(f.Owner) + ")->f_" + mangle(f.Name)
 }
 
+// clinitCall initializes a class before its static state is touched, matching
+// Java's lazy class initialization.
+func (e *Emitter) clinitCall(cl *ast.Class) string {
+	if cl == nil || cl == e.prog.Builtins.Object {
+		return ""
+	}
+	return "(void)ty_clinit(&cls_" + mangle(cl.Full) + "), "
+}
+
 // fieldAccess renders a field read through a receiver expression.
 func (e *Emitter) fieldAccess(f *ast.Field, recv string) string {
 	if f.Owner == nil {
@@ -317,7 +335,7 @@ func (e *Emitter) fieldAccess(f *ast.Field, recv string) string {
 	}
 	name := "f_" + mangle(f.Name)
 	if f.Mods.Has(ast.ModStatic) {
-		return "G_" + mangle(f.Owner.Full) + "_" + mangle(f.Name)
+		return "(" + e.clinitCall(f.Owner) + "G_" + mangle(f.Owner.Full) + "_" + mangle(f.Name) + ")"
 	}
 	ct := cname(f.Owner)
 	return "((" + ct + "*)" + recv + ")->" + name
@@ -341,14 +359,23 @@ func (e *Emitter) selectExpr(v *ast.Select) string {
 	return "0"
 }
 
+// boundCheck wraps an array access with an inline range test.
+func (e *Emitter) boundCheck(a, i string) string {
+	n := e.tmpName()
+	return "({ tyarr* " + n + " = (tyarr*)" + a + "; int64_t _i = (int64_t)(" + i + ");" +
+		" (_i < 0 || _i >= " + n + "->len) ? (int64_t)(intptr_t)ty_aioobe(_i, " + n + "->len), (int64_t)0 : _i; })"
+}
+
 func (e *Emitter) indexExpr(v *ast.Index) string {
 	a := e.tmpRef(e.expr(v.X))
 	i := e.expr(v.Index)
 	elem := v.GetType()
+	cast := e.ctype(elem)
+	idx := e.boundCheck(a, i)
 	if e.isRef(elem) {
-		return "((" + e.ctype(elem) + ")ty_arr_ref((tyarr*)" + a + ", " + i + "))"
+		return "(((" + cast + ")((void**)((tyarr*)" + a + ")->data)[" + idx + "]))"
 	}
-	return "((((" + e.ctype(elem) + "*)ty_arr_ptr((tyarr*)" + a + ", " + i + ")))[0])"
+	return "((((" + cast + "*)((tyarr*)" + a + ")->data)[" + idx + "]))"
 }
 
 func (e *Emitter) cast(v *ast.Cast) string {
@@ -392,6 +419,15 @@ func (e *Emitter) instanceOf(v *ast.InstanceOf) string {
 }
 
 func (e *Emitter) unary(v *ast.Unary) string {
+	if v.Op == "++" || v.Op == "--" {
+		if pre := e.targetClinit(v.X); pre != "" {
+			return "(" + pre + e.unaryInner(v) + ")"
+		}
+	}
+	return e.unaryInner(v)
+}
+
+func (e *Emitter) unaryInner(v *ast.Unary) string {
 	x := e.expr(v.X)
 	xt := v.X.GetType()
 	switch v.Op {
@@ -422,18 +458,23 @@ func (e *Emitter) unary(v *ast.Unary) string {
 	return x
 }
 
-// lvalue renders an assignable expression.
+// lvalue renders an assignable expression. Static targets are returned without
+// the class-initialization wrapper because a comma expression is not assignable;
+// assignClinit adds it around the whole assignment instead.
 func (e *Emitter) lvalue(x ast.Expr) string {
 	switch v := x.(type) {
 	case *ast.Ident:
 		if f, ok := v.Ref.(*ast.Field); ok {
+			if f.Mods.Has(ast.ModStatic) {
+				return "G_" + mangle(f.Owner.Full) + "_" + mangle(f.Name)
+			}
 			return e.fieldAccess(f, "this")
 		}
 		return e.ident(v)
 	case *ast.Select:
 		if f, ok := v.Ref.(*ast.Field); ok {
 			if f.Mods.Has(ast.ModStatic) {
-				return e.fieldAccess(f, "")
+				return "G_" + mangle(f.Owner.Full) + "_" + mangle(f.Name)
 			}
 			return e.fieldAccess(f, e.tmpRef(e.expr(v.X)))
 		}
@@ -442,15 +483,116 @@ func (e *Emitter) lvalue(x ast.Expr) string {
 		a := e.tmpRef(e.expr(v.X))
 		i := e.expr(v.Index)
 		elem := v.GetType()
+		idx := e.boundCheck(a, i)
 		if e.isRef(elem) {
-			return "((*((" + e.ctype(elem) + "*)ty_arr_slot_ref((tyarr*)" + a + ", " + i + "))))"
+			return "((((void**)((tyarr*)" + a + ")->data)[" + idx + "]))"
 		}
-		return "(((" + e.ctype(elem) + "*)ty_arr_ptr((tyarr*)" + a + ", " + i + "))[0])"
+		return "((((" + e.ctype(elem) + "*)((tyarr*)" + a + ")->data)[" + idx + "]))"
 	}
 	return e.expr(x)
 }
 
+// isFloatingLiteral reports whether a literal is a floating-point value.
+func isFloatingLiteral(l *ast.Literal) bool {
+	return l.Kind == ast.LitDouble || l.Kind == ast.LitFloat
+}
+
+// foldBinary evaluates a binary expression over literals at compile time.
+func (e *Emitter) foldBinary(v *ast.Binary) (string, bool) {
+	xl, xok := v.X.(*ast.Literal)
+	yl, yok := v.Y.(*ast.Literal)
+	if !xok || !yok {
+		return "", false
+	}
+	// string concatenation of two literals
+	if v.Op == "+" && xl.Kind == ast.LitString && yl.Kind == ast.LitString {
+		return e.strLit(xl.Str + yl.Str), true
+	}
+	pt, isPrim := v.OpType.(*ast.PrimType)
+	if !isPrim || !pt.IsNumeric() {
+		return "", false
+	}
+	wide := pt.Kind == ast.Long
+	isFloat := isFloatingLiteral(xl) || isFloatingLiteral(yl)
+	if isFloat {
+		x, y := xl.Flt, yl.Flt
+		if !isFloatingLiteral(xl) {
+			x = float64(int64(xl.Int))
+		}
+		if !isFloatingLiteral(yl) {
+			y = float64(int64(yl.Int))
+		}
+		switch v.Op {
+		case "+":
+			return e.literal(&ast.Literal{Kind: ast.LitDouble, Flt: x + y}), true
+		case "-":
+			return e.literal(&ast.Literal{Kind: ast.LitDouble, Flt: x - y}), true
+		case "*":
+			return e.literal(&ast.Literal{Kind: ast.LitDouble, Flt: x * y}), true
+		case "/":
+			if y != 0 {
+				return e.literal(&ast.Literal{Kind: ast.LitDouble, Flt: x / y}), true
+			}
+		}
+		return "", false
+	}
+	x, y := int64(xl.Int), int64(yl.Int)
+	var r int64
+	switch v.Op {
+	case "+":
+		r = x + y
+	case "-":
+		r = x - y
+	case "*":
+		r = x * y
+	case "/":
+		if y == 0 {
+			return "", false
+		}
+		r = x / y
+	case "%":
+		if y == 0 {
+			return "", false
+		}
+		r = x % y
+	case "&":
+		r = x & y
+	case "|":
+		r = x | y
+	case "^":
+		r = x ^ y
+	case "<<":
+		r = x << (uint(y) & 63)
+	case ">>":
+		r = x >> (uint(y) & 63)
+	default:
+		return "", false
+	}
+	if !wide {
+		r = int64(int32(r))
+	}
+	kind := ast.LitInt
+	if wide {
+		kind = ast.LitLong
+	}
+	return e.literal(&ast.Literal{Kind: kind, Int: uint64(r)}), true
+}
+
 func (e *Emitter) binary(v *ast.Binary) string {
+	if s, ok := e.foldBinary(v); ok {
+		return s
+	}
+	// `>>>` is an unsigned shift, which C spells with an unsigned operand
+	if v.Op == ">>>" {
+		ut := "uint32_t"
+		if ast.IsPrim(v.OpType, ast.Long) {
+			ut = "uint64_t"
+		}
+		if ast.IsPrim(v.OpType, ast.Byte) || ast.IsPrim(v.OpType, ast.Short) || ast.IsPrim(v.OpType, ast.Char) {
+			ut = "uint32_t"
+		}
+		return "(" + e.ctype(v.GetType()) + ")((" + ut + ")(" + e.expr(v.X) + ") >> " + e.expr(v.Y) + ")"
+	}
 	lt, rt := v.X.GetType(), v.Y.GetType()
 	switch v.Op {
 	case "==", "!=":
@@ -519,7 +661,7 @@ func (e *Emitter) equality(v *ast.Binary, lt, rt ast.Type) string {
 }
 
 func (e *Emitter) divExpr(v *ast.Binary) string {
-	x, y := e.expr(v.X), e.expr(v.Y)
+	x, y := e.operand(v.X, v.OpType), e.operand(v.Y, v.OpType)
 	if ast.IsPrim(v.OpType, ast.Long) {
 		return "ty_div_long(" + x + ", " + y + ")"
 	}
@@ -527,7 +669,7 @@ func (e *Emitter) divExpr(v *ast.Binary) string {
 }
 
 func (e *Emitter) remExpr(v *ast.Binary) string {
-	x, y := e.expr(v.X), e.expr(v.Y)
+	x, y := e.operand(v.X, v.OpType), e.operand(v.Y, v.OpType)
 	if ast.IsPrim(v.OpType, ast.Long) {
 		return "ty_rem_long(" + x + ", " + y + ")"
 	}
@@ -577,12 +719,47 @@ func (e *Emitter) stringOperand(x ast.Expr) string {
 	return "ty_str_of_obj((tyobj*)" + e.expr(x) + ")"
 }
 
+// targetClinit returns the class-initialization prefix for a static target.
+func (e *Emitter) targetClinit(x ast.Expr) string {
+	var ref any
+	switch t := x.(type) {
+	case *ast.Ident:
+		ref = t.Ref
+	case *ast.Select:
+		ref = t.Ref
+	}
+	if f, ok := ref.(*ast.Field); ok && f.Mods.Has(ast.ModStatic) && f.Owner != nil {
+		return e.clinitCall(f.Owner)
+	}
+	return ""
+}
+
 func (e *Emitter) assign(v *ast.Assign) string {
+	pre := e.targetClinit(v.X)
 	lv := e.lvalue(v.X)
+	if pre != "" {
+		return "(" + pre + e.assignInner(v, lv) + ")"
+	}
+	return e.assignInner(v, lv)
+}
+
+func (e *Emitter) assignInner(v *ast.Assign, lv string) string {
 	if v.Op == "=" {
 		return "(" + lv + " = " + e.coerce(e.expr(v.Y), v.Y.GetType(), v.X.GetType()) + ")"
 	}
+	if v.Op == "+=" && e.isStringType(v.X.GetType()) {
+		// string += is concatenation
+		return "(" + lv + " = (tystr*)" + e.concat(&ast.Binary{
+			ExprBase: ast.ExprBase{Pos: v.Pos, T: v.X.GetType()}, Op: "+", X: v.X, Y: v.Y}) + ")"
+	}
 	op := v.Op[:len(v.Op)-1]
+	if op == ">>>" {
+		ut := "uint32_t"
+		if ast.IsPrim(v.X.GetType(), ast.Long) {
+			ut = "uint64_t"
+		}
+		return "(" + lv + " = (" + e.ctype(v.X.GetType()) + ")((" + ut + ")" + lv + " >> " + e.expr(v.Y) + "))"
+	}
 	if op == "/" || op == "%" {
 		xt := v.X.GetType()
 		fn := "ty_div_int"
@@ -626,6 +803,10 @@ func (e *Emitter) callExpr(v *ast.Call) string {
 	a := e.args(recv, v.Args, m)
 	if m.External {
 		return m.Native + "(" + a + ")"
+	}
+	if m.IsStatic() && !v.Super && v.Recv != nil {
+		// touching a static member initializes its class first
+		return "(" + e.clinitCall(m.Owner) + name + "(" + a + "))"
 	}
 	if v.Static || m.IsStatic() || v.Super {
 		// super calls bind statically to the superclass implementation
@@ -695,6 +876,23 @@ func (e *Emitter) newExpr(v *ast.New) string {
 		}
 	}
 	cl := ct.Class
+	// a native constructor is implemented by a runtime helper
+	if v.Ctor != nil {
+		if nf, ok := nativeTable[nativeKey(v.Ctor)]; ok && nf.fn != "" {
+			args := make([]string, 0, len(v.Args))
+			for i, a := range v.Args {
+				var want ast.Type
+				if i < len(v.Ctor.Params) {
+					want = v.Ctor.Params[i]
+				}
+				args = append(args, e.coerce(e.expr(a), a.GetType(), want))
+			}
+			if nf.recv != "" && len(args) > 0 {
+				args[0] = "(" + nf.recv + ")" + args[0]
+			}
+			return "(" + e.ctype(ct) + ")" + nf.fn + "(" + strings.Join(args, ", ") + ")"
+		}
+	}
 	if fn, ok := specialNew[cl.Name]; ok && len(v.Args) == 0 {
 		p := cname(cl) + "*"
 		return "({ " + p + " _o = (" + p + ")" + fn + "(); _o->obj.cls = &cls_" + mangle(cl.Full) + "; _o; })"
@@ -814,6 +1012,11 @@ func (e *Emitter) emitLambdaMethod(cl *ast.Class, m *ast.Method) {
 	e.indent++
 	for i, pv := range m.ParamVars {
 		e.locals[pv] = fmt.Sprintf("a%d", i)
+	}
+	// captured locals live in fields of the synthetic lambda class
+	e.curLambda = lam
+	for v, f := range cl.CapFields {
+		e.locals[v] = "this->cap_" + mangle(f.Name)
 	}
 	switch b := lam.Body.(type) {
 	case ast.Expr:

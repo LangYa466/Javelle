@@ -1,6 +1,11 @@
 package sema
 
-import "github.com/LangYa466/Teyru/internal/ast"
+import (
+	"fmt"
+	"strconv"
+
+	"github.com/LangYa466/Teyru/internal/ast"
+)
 
 // Erased returns the runtime type of t (generics are erased at code generation).
 func (p *Program) Erased(t ast.Type) ast.Type {
@@ -77,6 +82,45 @@ func (p *Program) Lowered(x ast.Expr) (ast.Expr, bool) {
 	}
 	v, ok := p.c.Props[x]
 	return v, ok
+}
+
+// ConstantLiteral renders a compile-time constant field as a C literal.
+func (p *Program) ConstantLiteral(f *ast.Field) (string, bool) {
+	switch v := f.ConstVal.(type) {
+	case constValue:
+		switch v.kind {
+		case ast.LitString:
+			return `"` + escapeC(v.s) + `"`, true
+		case ast.LitInt, ast.LitLong:
+			return strconv.FormatInt(v.i, 10), true
+		case ast.LitDouble, ast.LitFloat:
+			return strconv.FormatFloat(v.f, 'g', -1, 64), true
+		}
+	}
+	return "", false
+}
+
+// escapeC escapes a string for a C literal.
+func escapeC(s string) string {
+	out := make([]byte, 0, len(s)+8)
+	for i := 0; i < len(s); i++ {
+		c := s[i]
+		switch {
+		case c == '"':
+			out = append(out, '\\', '"')
+		case c == '\\':
+			out = append(out, '\\', '\\')
+		case c == '\n':
+			out = append(out, '\\', 'n')
+		case c == '\t':
+			out = append(out, '\\', 't')
+		case c < 32 || c > 126:
+			out = append(out, fmt.Sprintf("\\%03o", c)...)
+		default:
+			out = append(out, c)
+		}
+	}
+	return string(out)
 }
 
 // ConstInt evaluates a constant integer expression.

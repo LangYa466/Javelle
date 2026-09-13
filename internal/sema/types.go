@@ -208,7 +208,8 @@ func (c *Checker) isSubtype(a, b ast.Type) bool {
 			if sup == nil {
 				return false
 			}
-			if len(y.Args) == 0 {
+			if len(y.Args) == 0 || len(sup.Args) == 0 {
+				// raw or partially parameterised: unchecked but allowed
 				return true
 			}
 			if len(sup.Args) != len(y.Args) {
@@ -256,6 +257,13 @@ func (c *Checker) isSubtype(a, b ast.Type) bool {
 			}
 			if _, ok := y.Elem.(*ast.PrimType); ok {
 				return false
+			}
+			// Arrays of the same class are compatible regardless of type
+			// arguments (unchecked, exactly like Java).
+			if xe, ok := x.Elem.(*ast.ClassType); ok {
+				if ye, ok2 := y.Elem.(*ast.ClassType); ok2 && xe.Class == ye.Class {
+					return true
+				}
 			}
 			return c.isSubtype(x.Elem, y.Elem)
 		case *ast.TypeVarType:

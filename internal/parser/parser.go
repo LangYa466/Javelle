@@ -635,7 +635,11 @@ func (p *parser) parseMemberAfterMods(cd *ast.ClassDecl, pos source.Pos, mods as
 		if p.accept("throws") {
 			md.Throws = p.parseTypeList()
 		}
-		md.Body = p.parseBlock()
+		if p.is("{") {
+			md.Body = p.parseBlock()
+		} else {
+			p.terminator()
+		}
 		return md
 	}
 	if cd.Kind == ast.KindRecord && p.tok().Kind == lexer.Ident && p.tok().Text == cd.Name && p.isAt(1, "{") {

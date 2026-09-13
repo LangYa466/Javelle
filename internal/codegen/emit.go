@@ -32,6 +32,7 @@ type Emitter struct {
 	enumOrdinal string
 	patternVars map[*ast.InstanceOf]string
 	curClass    *ast.Class
+	curLambda   *ast.Lambda
 	switchID    int
 	switchCur   int
 }
