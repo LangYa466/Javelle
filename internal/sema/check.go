@@ -483,13 +483,18 @@ func (ctx *methodCtx) checkForEach(v *ast.ForEach) {
 	declared := v.Var.Type.Name != "var" && v.Var.Type.Name != "val"
 	if declared {
 		dt := c.resolveType(ctx.env, v.Var.Type)
-		if !ast.IsError(elem) && !c.isSubtype(elem, dt) {
+		// `for (int v : listOfInteger)` unboxes, like any other assignment
+		if !ast.IsError(elem) && !c.assignableTo(elem, dt) {
 			ctx.errf(v.Var.Pos, "TY-TYP-0031", "incompatible types: %s is not assignable to %s", elem, dt)
 		}
-		elem = dt
+		// the element type stays what the sequence yields; code generation
+		// converts it to the declared type of the loop variable
+		v.Var.Sym = ctx.declare(v.Var.Name, dt, v.Var.Pos)
+		v.Elem = elem
+	} else {
+		v.Elem = elem
+		v.Var.Sym = ctx.declare(v.Var.Name, elem, v.Var.Pos)
 	}
-	v.Elem = elem
-	v.Var.Sym = ctx.declare(v.Var.Name, elem, v.Var.Pos)
 	if v.Var.Name == "_" {
 		v.Var.Unnamed = true
 	}

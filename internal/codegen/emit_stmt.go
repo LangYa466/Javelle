@@ -458,11 +458,13 @@ func (e *Emitter) forEach(v *ast.ForEach) {
 			e.line("int64_t %s = 0;\n", ix+"_i")
 			e.line("for (%s = 0; %s < %s->len; %s++) {\n", ix+"_i", ix+"_i", ix, ix+"_i")
 			e.indent++
+			raw := e.tmpName()
 			if e.isRefElem(v.Elem) {
-				e.line("%s %s = (%s)((void**)%s->data)[%s];\n", e.ctype(v.Elem), name, e.ctype(v.Elem), ix, ix+"_i")
+				e.line("%s %s = (%s)((void**)%s->data)[%s];\n", e.ctype(v.Elem), raw, e.ctype(v.Elem), ix, ix+"_i")
 			} else {
-				e.line("%s %s = ((%s*)%s->data)[%s];\n", e.ctype(v.Elem), name, e.ctype(v.Elem), ix, ix+"_i")
+				e.line("%s %s = ((%s*)%s->data)[%s];\n", e.ctype(v.Elem), raw, e.ctype(v.Elem), ix, ix+"_i")
 			}
+			e.line("%s %s = %s;\n", e.ctype(v.Var.Sym.Type), name, e.coerce(raw, v.Elem, v.Var.Sym.Type))
 		}
 		e.pushLoop("")
 		e.stmtAsBlock(v.Body)
@@ -484,7 +486,11 @@ func (e *Emitter) forEach(v *ast.ForEach) {
 	e.line("while (((int32_t(*)(void*))ty_itab((tyobj*)%s, %d))(%s)) {\n", it, hnSel, it)
 	e.indent++
 	if v.Var.Sym != nil {
-		e.line("%s %s = (%s)((void*(*)(void*))ty_itab((tyobj*)%s, %d))(%s);\n", e.ctype(v.Elem), name, e.ctype(v.Elem), it, nxSel, it)
+		// `for (int v : list)` unboxes the element the iterator hands back
+		raw := e.tmpName()
+		e.line("%s %s = (%s)((void*(*)(void*))ty_itab((tyobj*)%s, %d))(%s);\n",
+			e.ctype(v.Elem), raw, e.ctype(v.Elem), it, nxSel, it)
+		e.line("%s %s = %s;\n", e.ctype(v.Var.Sym.Type), name, e.coerce(raw, v.Elem, v.Var.Sym.Type))
 	}
 	e.pushLoop("")
 	e.stmtAsBlock(v.Body)
