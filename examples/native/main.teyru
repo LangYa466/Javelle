@@ -1,7 +1,7 @@
 // Native methods are declared in Teyru and implemented in C.
 //
-//   teyru build --native-header native.h examples/native.teyru -o native
-//   teyru build --native examples/native_impl.c examples/native.teyru -o native
+//   teyru build --native-header native.h examples/native/main.teyru -o native
+//   teyru build --native examples/native/impl.c examples/native/main.teyru -o native
 //
 // The header lists exactly what the C side has to define.
 class Native {

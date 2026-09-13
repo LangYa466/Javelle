@@ -1,4 +1,4 @@
-/* The C side of examples/native.teyru.
+/* The C side of examples/native/main.teyru.
    Every symbol below is the one `teyru build --native-header` printed. */
 #include "tyrt.h"
 
