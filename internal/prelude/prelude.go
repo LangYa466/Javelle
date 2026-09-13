@@ -118,6 +118,25 @@ class PrintStream extends Object {
   public native void println(char c)
 }
 
+class IO {
+  public static native void print(String s)
+  public static native void print(Object o)
+  public static native void print(int v)
+  public static native void print(long v)
+  public static native void print(double v)
+  public static native void print(boolean v)
+  public static native void print(char c)
+  public static native void println()
+  public static native void println(String s)
+  public static native void println(Object o)
+  public static native void println(int v)
+  public static native void println(long v)
+  public static native void println(double v)
+  public static native void println(boolean v)
+  public static native void println(char c)
+  public static native String readln()
+}
+
 class System {
   public static final PrintStream out = new PrintStream()
   public static final PrintStream err = new PrintStream()

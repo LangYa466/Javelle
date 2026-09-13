@@ -201,3 +201,13 @@ tystr *ty_sb_tostring(void *p) {
 }
 int32_t ty_sb_len(void *p) { return (int32_t)((tySB *)p)->len; }
 
+
+/* ---- java.io.IO -------------------------------------------------------- */
+
+tystr *ty_readln(void) {
+  static char buf[4096];
+  if (!fgets(buf, (int)sizeof buf, stdin)) return NULL;
+  size_t n = strlen(buf);
+  while (n > 0 && (buf[n - 1] == '\n' || buf[n - 1] == '\r')) buf[--n] = 0;
+  return ty_str_new(buf, (int64_t)n);
+}

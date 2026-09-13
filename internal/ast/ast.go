@@ -2,7 +2,11 @@
 // symbols and types that semantic analysis attaches to it.
 package ast
 
-import "github.com/LangYa466/Teyru/internal/source"
+import (
+	"strings"
+
+	"github.com/LangYa466/Teyru/internal/source"
+)
 
 // Modifier flags.
 type Mods uint32
@@ -27,11 +31,54 @@ const (
 // Has reports whether m contains f.
 func (m Mods) Has(f Mods) bool { return m&f != 0 }
 
-// Annotation is a parsed annotation; Teyru records but does not process them
-// except @Override and @FunctionalInterface.
+// Annotation is a parsed annotation. Teyru keeps the arguments so that
+// annotation-driven code generation (Lombok compatibility) can read them.
 type Annotation struct {
 	Pos  source.Pos
-	Name string
+	Name string // simple or qualified name as written
+	Args []*AnnoArg
+}
+
+// AnnoArg is one annotation argument, either `value` or `name = value`.
+type AnnoArg struct {
+	Name  string
+	Value Expr        // literal, class literal, enum constant, array, or nil
+	Anno  *Annotation // when the value is a nested annotation
+}
+
+// Arg returns the named argument, or the single value-form argument.
+func (a *Annotation) Arg(name string) *AnnoArg {
+	for _, x := range a.Args {
+		if x.Name == name {
+			return x
+		}
+	}
+	return nil
+}
+
+// Value returns the value-form argument, if any.
+func (a *Annotation) Value() *AnnoArg {
+	for _, x := range a.Args {
+		if x.Name == "" {
+			return x
+		}
+	}
+	return nil
+}
+
+// Is reports whether the annotation is one of the given names, matching either
+// the simple name or the fully qualified one.
+func (a *Annotation) Is(names ...string) bool {
+	simple := a.Name
+	if i := strings.LastIndexByte(simple, '.'); i >= 0 {
+		simple = simple[i+1:]
+	}
+	for _, n := range names {
+		if a.Name == n || simple == n {
+			return true
+		}
+	}
+	return false
 }
 
 // TypeExpr is a syntactic type reference.
@@ -143,7 +190,7 @@ type VarDeclarator struct {
 	Fld  *Field // fields
 }
 
-// Param is a method or lambda parameter.
+// Param is a method, lambda or pattern parameter.
 type Param struct {
 	Pos     source.Pos
 	Mods    Mods
@@ -151,6 +198,26 @@ type Param struct {
 	Name    string
 	Varargs bool
 	Sym     *Var
+	// Decomp holds the component patterns of a record pattern (JEP 440).
+	Decomp []*Param
+	// Unnamed marks `_`, which binds nothing (JEP 456).
+	Unnamed bool
+	// Comps holds the record components a record pattern destructures into.
+	Comps []*Field
+}
+
+// RecordComps lists a record's components in declaration order.
+func (c *Class) RecordComps() []*Field {
+	var out []*Field
+	if c.Decl == nil {
+		return nil
+	}
+	for _, rc := range c.Decl.RecordComps {
+		if f := c.FieldMap[rc.Name]; f != nil {
+			out = append(out, f)
+		}
+	}
+	return out
 }
 
 // MethodDecl declares a method or constructor.
@@ -261,11 +328,12 @@ type (
 		Finally   *Block
 	}
 	Catch struct {
-		Pos   source.Pos
-		Types []*TypeExpr
-		Name  string
-		Body  *Block
-		Sym   *Var
+		Pos     source.Pos
+		Types   []*TypeExpr
+		Name    string
+		Unnamed bool // `catch (T _)`
+		Body    *Block
+		Sym     *Var
 	}
 	Switch struct {
 		Pos   source.Pos
@@ -312,6 +380,7 @@ const (
 // Case is a switch case; Default is set for `default`.
 type Case struct {
 	Pos     source.Pos
+	Null    bool // `case null`
 	Labels  []Expr
 	Pattern *Param // type pattern `case Type name`
 	Default bool
@@ -572,6 +641,7 @@ type Method struct {
 	Lambda     *Lambda
 	Used       bool
 	Bridge     *Method
+	Forward    *Method // anonymous-class constructor forwards to this target
 	ThisVar    *Var
 	ParamVars  []*Var
 	Locals     []*Var

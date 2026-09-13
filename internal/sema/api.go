@@ -57,6 +57,10 @@ func (p *Program) FieldType(f *ast.Field) ast.Type { return f.Type }
 // FieldOwner returns the class declaring a field.
 func (p *Program) FieldOwner(f *ast.Field) *ast.Class { return f.Owner }
 
+// ProgramClass looks up a class from the prelude or the user program by
+// simple name; code generation uses it for the implicit java.io.IO import.
+func (c *Checker) programClass(name string) *ast.Class { return c.global[name] }
+
 // Lowered returns the desugared form of an expression (property reads become
 // getter calls, and so on).
 func (p *Program) Lowered(x ast.Expr) (ast.Expr, bool) {

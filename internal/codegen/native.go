@@ -152,6 +152,24 @@ var nativeTable = map[string]nativeFn{
 	"PrintStream.print(C)":        {fn: "ty_print_char"},
 	"PrintStream.print(Object)":   {fn: "ty_print_obj"},
 
+	// ---- java.io.IO (implicitly imported in compact source files)
+	"IO.println()":       {fn: "ty_println_void"},
+	"IO.println(String)": {fn: "ty_println_str"},
+	"IO.println(I)":      {fn: "ty_println_int"},
+	"IO.println(J)":      {fn: "ty_println_int"},
+	"IO.println(D)":      {fn: "ty_println_double"},
+	"IO.println(Z)":      {fn: "ty_println_bool"},
+	"IO.println(C)":      {fn: "ty_println_char"},
+	"IO.println(Object)": {fn: "ty_println_obj"},
+	"IO.print(String)":   {fn: "ty_print_str"},
+	"IO.print(I)":        {fn: "ty_print_int"},
+	"IO.print(J)":        {fn: "ty_print_int"},
+	"IO.print(D)":        {fn: "ty_print_double"},
+	"IO.print(Z)":        {fn: "ty_print_bool"},
+	"IO.print(C)":        {fn: "ty_print_char"},
+	"IO.print(Object)":   {fn: "ty_print_obj"},
+	"IO.readln()":        {fn: "ty_readln"},
+
 	// ---- StringBuilder
 	"StringBuilder.append(String)": {fn: "ty_sb_append_str", recv: "void*"},
 	"StringBuilder.append(Object)": {fn: "ty_sb_append_obj", recv: "void*"},

@@ -146,8 +146,18 @@ func (ctx *methodCtx) errf(pos source.Pos, code, format string, args ...any) {
 	ctx.c.errf(pos, code, format, args...)
 }
 
+// declareUnnamed creates a binding for `_`, which is never referenced.
+func (ctx *methodCtx) declareUnnamed(pos source.Pos) *ast.Var {
+	return ctx.declare("_$"+fmt.Sprint(ctx.c.varID), ast.ErrorType{}, pos)
+}
+
 // declare adds a local variable to the innermost scope.
 func (ctx *methodCtx) declare(name string, t ast.Type, pos source.Pos) *ast.Var {
+	if name == "_" {
+		// `_` is the unnamed variable (JEP 456): it never collides and is
+		// never referenced, so give it a unique internal name.
+		name = "_$" + fmt.Sprint(ctx.c.varID)
+	}
 	cur := ctx.scopes[len(ctx.scopes)-1]
 	if prev := cur[name]; prev != nil {
 		ctx.errf(pos, "TY-TYP-0021", "duplicate local variable %s", name)
@@ -397,7 +407,10 @@ func (ctx *methodCtx) checkForEach(v *ast.ForEach) {
 	}
 	v.Elem = elem
 	v.Var.Sym = ctx.declare(v.Var.Name, elem, v.Var.Pos)
-	if v.Var.Type.Name == "val" {
+	if v.Var.Name == "_" {
+		v.Var.Unnamed = true
+	}
+	if v.Var.Type != nil && v.Var.Type.Name == "val" {
 		v.Var.Sym.Final = true
 	}
 	ctx.checkStmt(v.Body)
@@ -454,6 +467,9 @@ func (ctx *methodCtx) checkTry(v *ast.Try) {
 		}
 		ct := c.resolveType(ctx.env, cat.Types[0])
 		cat.Sym = ctx.declare(cat.Name, ct, cat.Pos)
+		if cat.Name == "_" {
+			cat.Unnamed = true
+		}
 		ctx.checkBlock(cat.Body, true)
 		ctx.pop()
 	}
@@ -469,8 +485,11 @@ func (ctx *methodCtx) checkSwitch(s *ast.Switch, expr bool) {
 	xt := s.X.GetType()
 	hasPattern := false
 	for _, cs := range s.Cases {
-		if cs.Pattern != nil {
+		if cs.Pattern != nil || cs.Null {
 			hasPattern = true
+		}
+		if cs.Null && !ast.IsRef(xt) {
+			ctx.errf(cs.Pos, "TY-TYP-0089", "'case null' requires a reference selector")
 		}
 	}
 	switch {
@@ -503,7 +522,7 @@ func (ctx *methodCtx) checkSwitch(s *ast.Switch, expr bool) {
 			if !c.isSubtype(t, xt) && !c.isSubtype(xt, t) {
 				ctx.errf(cs.Pattern.Pos, "TY-TYP-0037", "incompatible pattern type %s for switch on %s", t, xt)
 			}
-			cs.Pattern.Sym = ctx.declare(cs.Pattern.Name, t, cs.Pattern.Pos)
+			ctx.declarePattern(cs.Pattern, t)
 		}
 		if isEnumType(xt) {
 			if et, ok := xt.(*ast.ClassType); ok {
@@ -643,7 +662,7 @@ func (ctx *methodCtx) checkExpr(e ast.Expr, want ast.Type) {
 				ctx.errf(v.Pos, "TY-TYP-0042", "incompatible pattern type %s for %s", t, xt)
 			}
 			ctx.push()
-			v.Binding.Sym = ctx.declare(v.Binding.Name, t, v.Binding.Pos)
+			ctx.declarePattern(v.Binding, t)
 		}
 		v.SetType(ast.TBoolean)
 	case *ast.Lambda:
@@ -1328,6 +1347,43 @@ func (ctx *methodCtx) checkAssign(v *ast.Assign) {
 	}
 }
 
+// declarePattern binds the variables of a (possibly record) pattern.
+func (ctx *methodCtx) declarePattern(p *ast.Param, t ast.Type) {
+	if len(p.Decomp) > 0 {
+		cl := recordOf(t)
+		if cl == nil {
+			ctx.errf(p.Pos, "TY-TYP-0087", "record pattern requires a record type, found %s", t)
+			return
+		}
+		comps := cl.RecordComps()
+		if len(comps) != len(p.Decomp) {
+			ctx.errf(p.Pos, "TY-TYP-0088", "record pattern for %s needs %d components, found %d", cl.Name, len(comps), len(p.Decomp))
+			return
+		}
+		p.Comps = comps
+		for i, sub := range p.Decomp {
+			ctx.declarePattern(sub, comps[i].Type)
+		}
+		return
+	}
+	if p.Unnamed {
+		p.Sym = ctx.declareUnnamed(p.Pos)
+		return
+	}
+	if p.Name != "" {
+		p.Sym = ctx.declare(p.Name, t, p.Pos)
+	}
+}
+
+// recordOf returns the record class behind a type, if any.
+func recordOf(t ast.Type) *ast.Class {
+	ct, ok := t.(*ast.ClassType)
+	if !ok || ct.Class.Kind != ast.KindRecord {
+		return nil
+	}
+	return ct.Class
+}
+
 // propertyOf returns the property behind an assignable expression.
 func (ctx *methodCtx) propertyOf(x ast.Expr) *ast.Field {
 	var ref any
@@ -1527,6 +1583,9 @@ func (ctx *methodCtx) checkNew(v *ast.New, want ast.Type) {
 		sub.Anon = true
 		delete(ctx.cl.Nested, body.Name)
 		sub.Mods |= ast.ModFinal
+		// An anonymous class only carries an enclosing instance when it is
+		// created in an instance context (JLS 15.9.5).
+		sub.Inner = !ctx.inStatic()
 		if cl.IsInterface() {
 			sub.Ifaces = append(sub.Ifaces, ct)
 		} else {
@@ -1536,13 +1595,34 @@ func (ctx *methodCtx) checkNew(v *ast.New, want ast.Type) {
 		sub.Resolved = true
 		sub.LocalOwner = ctx.m
 		c.resolveMembers(sub)
+		// The constructor of the anonymous class mirrors the target's
+		// signature and forwards to it; drop the synthesized default ctor.
+		var kept []*ast.Method
+		for _, k := range sub.Ctors {
+			if k.SynthKind != "default-ctor" {
+				kept = append(kept, k)
+			}
+		}
+		sub.Ctors = kept
+		anonCtor := &ast.Method{
+			Name: "<init>", Owner: sub, IsCtor: true, Mods: ast.ModPublic,
+			Result: ast.TVoid, Pos: v.Pos, SynthKind: "anon-ctor", Forward: ctor,
+		}
+		if ctor != nil {
+			anonCtor.Params = ctor.Params
+			anonCtor.ParamNames = ctor.ParamNames
+			anonCtor.Varargs = ctor.Varargs
+		}
+		c.addCtor(sub, anonCtor)
 		c.layout(sub)
 		c.checkBodies(sub)
 		t = &ast.ClassType{Class: sub}
 		v.Body = body
+		v.Ctor = anonCtor
+	} else {
+		v.Ctor = ctor
 	}
 	v.SetType(t)
-	v.Ctor = ctor
 }
 
 func findEnclosing(from, target *ast.Class) *ast.Class {
@@ -1589,6 +1669,13 @@ func (c *Checker) isInstanceContext(ctx *methodCtx, target *ast.Class) bool {
 
 // resolveCtor picks a constructor and checks arguments.
 func (c *Checker) resolveCtor(ctx *methodCtx, ct *ast.ClassType, v *ast.New, cl *ast.Class) *ast.Method {
+	if cl.IsInterface() {
+		// interfaces have no constructors; an anonymous class implements one
+		for _, a := range v.Args {
+			ctx.checkExpr(a, nil)
+		}
+		return nil
+	}
 	var cands []*ast.Method
 	cands = append(cands, cl.Ctors...)
 	if len(cands) == 0 {
@@ -2001,7 +2088,20 @@ func (ctx *methodCtx) checkUnqualifiedCall(v *ast.Call, want ast.Type) {
 			return
 		}
 	}
-	// a type name?  Foo.bar() handled elsewhere; here it would be an error
+	// Compact source files implicitly import java.io.IO, so bare
+	// print/println/readln calls resolve there (JEP 512).
+	if ctx.cl != nil && ctx.cl.Decl != nil && ctx.cl.Decl.Implicit {
+		if io := ctx.c.programClass("IO"); io != nil {
+			recv := &ast.ClassType{Class: io}
+			if m, s := ctx.pickOverload(recv, ctx.methodsOf(io, v.Name), v.Args); m != nil {
+				ctx.bindArgs(m, s, v.Args, recv)
+				v.Method = m
+				v.Static = true
+				v.SetType(m.Result)
+				return
+			}
+		}
+	}
 	ctx.errf(v.Pos, "TY-TYP-0076", "cannot find method %s(%s)", v.Name, argTypes(v.Args))
 	v.SetType(ast.ErrorType{})
 }
@@ -2429,8 +2529,11 @@ func (ctx *methodCtx) checkLambda(lam *ast.Lambda, want ast.Type) {
 		if i < len(params) {
 			t = params[i]
 		}
-		if p.Type != nil {
+		if p.Type != nil && p.Type.Name != "var" {
 			t = c.resolveType(ctx.env, p.Type)
+		}
+		if p.Name == "_" {
+			p.Unnamed = true
 		}
 		p.Sym = lctx.declare(name, t, p.Pos)
 		p.Sym.Owner = ctx.m

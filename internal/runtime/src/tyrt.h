@@ -171,6 +171,7 @@ void ty_print_obj(void *o);
 void ty_println_obj(void *o);
 void ty_println_void(void);
 void ty_init(void);
+tystr *ty_readln(void);
 void ty_unimplemented(const char *what) __attribute__((noreturn));
 
 /* ---- prelude helpers --------------------------------------------------- */

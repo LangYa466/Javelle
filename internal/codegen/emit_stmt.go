@@ -41,6 +41,7 @@ func (e *Emitter) stmt(s ast.Stmt) {
 	case *ast.ExprStmt:
 		e.exprStmt(v.X)
 	case *ast.If:
+		e.hoistPatterns(v.Cond)
 		e.line("if (%s) {\n", e.cond(v.Cond))
 		e.indent++
 		e.stmtAsBlock(v.Then)
@@ -52,12 +53,19 @@ func (e *Emitter) stmt(s ast.Stmt) {
 			e.indent--
 		}
 		e.line("}\n")
+		e.clearPatterns()
 	case *ast.While:
-		e.line("while (%s) {\n", e.cond(v.Cond))
-		e.indent++
-		e.stmtAsBlock(v.Body)
-		e.indent--
-		e.line("}\n")
+		inner := e.capture(func() {
+			e.hoistPatterns(v.Cond)
+			e.line("while (%s) {\n", e.cond(v.Cond))
+			e.indent++
+			e.stmtAsBlock(v.Body)
+			e.indent--
+			e.line("}\n")
+		})
+		// the bindings are declared once, outside the loop
+		e.code.WriteString(inner)
+		e.clearPatterns()
 	case *ast.DoWhile:
 		e.line("do {\n")
 		e.indent++
@@ -438,6 +446,88 @@ func (e *Emitter) catchCond(cat *ast.Catch) string {
 
 // ---------------------------------------------------------------- switch
 
+// hoistPatterns declares the variables bound by `instanceof` patterns that
+// appear in a controlling expression, so the condition can refer to them.
+func (e *Emitter) hoistPatterns(cond ast.Expr) {
+	if cond == nil {
+		return
+	}
+	e.patternVars = map[*ast.InstanceOf]string{}
+	var walk func(ast.Expr)
+	walk = func(x ast.Expr) {
+		switch v := x.(type) {
+		case *ast.InstanceOf:
+			if v.Binding != nil {
+				name := e.bindExprPattern(v)
+				if name != "" {
+					e.patternVars[v] = name
+				}
+			}
+			walk(v.X)
+		case *ast.Binary:
+			walk(v.X)
+			walk(v.Y)
+		case *ast.Unary:
+			walk(v.X)
+		case *ast.Cond:
+			walk(v.C)
+			walk(v.X)
+			walk(v.Y)
+		case *ast.Conv:
+			walk(v.X)
+		}
+	}
+	walk(cond)
+}
+
+// bindExprPattern declares the variable of an instanceof pattern and returns
+// the C expression that holds the matched value (empty for `_`).
+func (e *Emitter) bindExprPattern(v *ast.InstanceOf) string {
+	pat := v.Binding
+	if pat == nil {
+		return ""
+	}
+	src := e.expr(v.X)
+	typeName := e.ctype(v.Type.Resolved)
+	n := e.tmpName()
+	e.line("%s %s = (%s)(void*)%s;\n", typeName, n, typeName, src)
+	if len(pat.Decomp) > 0 {
+		e.bindComponents(pat, n)
+		return n
+	}
+	if pat.Sym != nil && !pat.Unnamed {
+		e.locals[pat.Sym] = n
+		return n
+	}
+	return n
+}
+
+// bindComponents extracts the record components of a record pattern.
+func (e *Emitter) bindComponents(p *ast.Param, recv string) {
+	for i, sub := range p.Decomp {
+		if i >= len(p.Comps) {
+			return
+		}
+		comp := p.Comps[i]
+		if len(sub.Decomp) > 0 {
+			inner := e.tmpName()
+			ct := e.ctype(comp.Type)
+			e.line("%s %s = (%s)(%s)->f_%s;\n", ct, inner, ct, recv, mangle(comp.Name))
+			e.bindComponents(sub, inner)
+			continue
+		}
+		if sub.Sym == nil || sub.Unnamed {
+			continue
+		}
+		ct := e.ctype(comp.Type)
+		e.locals[sub.Sym] = e.tmpName()
+		e.line("%s %s = (%s)(%s)->f_%s;\n", ct, e.locals[sub.Sym], ct, recv, mangle(comp.Name))
+	}
+}
+
+// clearPatterns drops the substitutions recorded for one controlling expression.
+func (e *Emitter) clearPatterns() { e.patternVars = nil }
+
 // switchNeedsChain reports whether the switch uses patterns or guards, which
 // cannot be expressed as a plain C switch and are lowered as an if/else chain.
 func switchNeedsChain(s *ast.Switch) bool {
@@ -522,7 +612,7 @@ func (e *Emitter) switchStmt(s *ast.Switch, resultTmp string) {
 
 // isDefaultCase reports whether a case is the default branch.
 func isDefaultCase(cs *ast.Case) bool {
-	return cs.Default || (len(cs.Labels) == 0 && cs.Pattern == nil)
+	return cs.Default || (len(cs.Labels) == 0 && cs.Pattern == nil && !cs.Null)
 }
 
 // switchChain lowers a switch with type patterns or guards into an if/else
@@ -589,18 +679,32 @@ func (e *Emitter) switchChain(s *ast.Switch, resultTmp string, id int) {
 	e.line("}\n")
 }
 
-// emitPatternBinding declares the variable of a type pattern case.
+// emitPatternBinding declares the variables of a type or record pattern case.
 func (e *Emitter) emitPatternBinding(cs *ast.Case, id int) {
-	if cs.Pattern == nil || cs.Pattern.Sym == nil {
+	if cs.Pattern == nil {
+		return
+	}
+	src := fmt.Sprintf("((void*)_s%d)", id)
+	if len(cs.Pattern.Decomp) > 0 {
+		n := e.tmpName()
+		ct := e.ctype(cs.Pattern.Type.Resolved)
+		e.line("%s %s = (%s)%s;\n", ct, n, ct, src)
+		e.bindComponents(cs.Pattern, n)
+		return
+	}
+	if cs.Pattern.Sym == nil || cs.Pattern.Unnamed {
 		return
 	}
 	ct := e.ctype(cs.Pattern.Sym.Type)
-	e.line("%s %s = (%s)(void*)_s%d;\n", ct, e.localName(cs.Pattern.Sym), ct, id)
+	e.line("%s %s = (%s)%s;\n", ct, e.localName(cs.Pattern.Sym), ct, src)
 }
 
 // caseCond renders the condition that selects a case.
 func (e *Emitter) caseCond(s *ast.Switch, cs *ast.Case, id int) string {
 	var parts []string
+	if cs.Null {
+		parts = append(parts, fmt.Sprintf("(_s%d == NULL)", id))
+	}
 	for _, l := range cs.Labels {
 		if s.Kind == ast.SwitchString {
 			parts = append(parts, fmt.Sprintf("ty_str_eq((tystr*)_s%d, (tystr*)%s)", id, e.expr(l)))
@@ -619,9 +723,9 @@ func (e *Emitter) caseCond(s *ast.Switch, cs *ast.Case, id int) string {
 		return cond
 	}
 	guard := e.expr(cs.Guard)
-	if cs.Pattern != nil && cs.Pattern.Sym != nil {
-		ct := e.ctype(cs.Pattern.Sym.Type)
-		return fmt.Sprintf("({ %s %s = (%s)(void*)_s%d; (%s) && (%s); })", ct, e.localName(cs.Pattern.Sym), ct, id, cond, guard)
+	if cs.Pattern != nil {
+		inner := e.capture(func() { e.emitPatternBinding(cs, id) })
+		return fmt.Sprintf("({ %s (%s) && (%s); })", inner, cond, guard)
 	}
 	return "(" + cond + " && " + guard + ")"
 }

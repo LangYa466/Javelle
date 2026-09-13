@@ -81,13 +81,17 @@ func (e *Emitter) coerce(v string, src, dst ast.Type) string {
 }
 
 func (e *Emitter) boxCall(v string, p *ast.PrimType, dst ast.Type) string {
-	if ct, ok := dst.(*ast.ClassType); ok {
-		if fn := boxFn(p.Kind); fn != "" && ct.Class.Special == "box" {
-			return fn + "(" + v + ")"
+	fn := boxFn(p.Kind)
+	if fn == "" {
+		return v
+	}
+	switch d := dst.(type) {
+	case *ast.ClassType:
+		if d.Class.Special == "box" || d.Class.Special == "Object" {
+			return "(" + cname(d.Class) + "*)" + fn + "(" + v + ")"
 		}
-		if ct.Class.Special == "Object" {
-			return "(tyobj*)" + boxFn(p.Kind) + "(" + v + ")"
-		}
+	case *ast.TypeVarType:
+		return "(void*)" + fn + "(" + v + ")"
 	}
 	return v
 }
@@ -348,6 +352,11 @@ func (e *Emitter) cast(v *ast.Cast) string {
 }
 
 func (e *Emitter) instanceOf(v *ast.InstanceOf) string {
+	if e.patternVars != nil {
+		if name, ok := e.patternVars[v]; ok {
+			return "(" + name + " != NULL)"
+		}
+	}
 	dst := v.Type.Resolved
 	target := ""
 	if ct, ok := dst.(*ast.ClassType); ok {

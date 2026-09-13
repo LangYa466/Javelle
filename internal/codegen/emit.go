@@ -30,6 +30,7 @@ type Emitter struct {
 	thrown      []string
 	locals      map[*ast.Var]string
 	enumOrdinal string
+	patternVars map[*ast.InstanceOf]string
 	switchID    int
 	switchCur   int
 }
@@ -424,34 +425,73 @@ func (e *Emitter) emitMethod(cl *ast.Class, m *ast.Method, idx int) {
 	e.code.WriteString("}\n\n")
 }
 
-// emitCtorBody writes field initializers, the super call and the body.
+// ctorCallIndex returns the position of the this()/super() call in a
+// constructor body, or -1 when there is none.
+func ctorCallIndex(b *ast.Block) int {
+	for i, st := range b.Stmts {
+		es, ok := st.(*ast.ExprStmt)
+		if !ok {
+			continue
+		}
+		if call, ok := es.X.(*ast.Call); ok && call.ThisCtor {
+			return i
+		}
+	}
+	return -1
+}
+
+// emitCtorBody writes the chained constructor call, field initializers and the
+// body. Teyru supports flexible constructor bodies (JEP 513): statements may
+// appear before the super()/this() call, and they run first.
 func (e *Emitter) emitCtorBody(cl *ast.Class, m *ast.Method) {
 	e.line("\n")
-	if cl.Super != nil {
-		hasSuperCall := false
-		if m.Decl != nil && m.Decl.Body != nil && len(m.Decl.Body.Stmts) > 0 {
-			if c, ok := m.Decl.Body.Stmts[0].(*ast.ExprStmt); ok {
-				if call, ok2 := c.X.(*ast.Call); ok2 && call.ThisCtor {
-					hasSuperCall = true
-				}
-			}
-		}
-		if !hasSuperCall {
-			sup := e.findSuperCtor(cl)
-			if sup == nil && cl.Super.Class != e.prog.Builtins.Object {
-				e.line("/* no accessible super constructor */\n")
-			}
-			if sup != nil {
-				e.line("%s(%s);\n", e.cfunc(sup), e.args("this", nil, sup))
-			}
+	body := bodyOf(m)
+	idx := -1
+	if body != nil {
+		idx = ctorCallIndex(body)
+	}
+	// 1. prologue: statements before the explicit constructor call
+	if idx > 0 {
+		for _, st := range body.Stmts[:idx] {
+			e.stmt(st)
 		}
 	}
+	// 2. chain to the superclass or the sibling constructor
+	switch {
+	case m.SynthKind == "anon-ctor" && m.Forward != nil:
+		recv := "this"
+		if o := m.Forward.Owner; o != nil {
+			recv = "(" + cname(o) + "*)this"
+		}
+		var args []string
+		for i := range m.Params {
+			args = append(args, fmt.Sprintf("a%d", i))
+		}
+		call := e.cfunc(m.Forward) + "(" + recv
+		if len(args) > 0 {
+			call += ", " + strings.Join(args, ", ")
+		}
+		e.line("%s);\n", call)
+	case idx >= 0:
+		// the explicit call is emitted with the rest of the body
+	case cl.Super == nil || cl.Super.Class == e.prog.Builtins.Object:
+		// nothing to chain to
+	default:
+		if sup := e.findSuperCtor(cl); sup != nil {
+			e.line("%s(%s);\n", e.cfunc(sup), e.args("this", nil, sup))
+		}
+	}
+	// 3. instance field initializers run after the superclass constructor
 	e.emitFieldInits(cl, m)
-	if cl.Outer != nil && cl.Inner {
-		// the outer instance is installed by the caller through a synthetic field
-	}
-	if m.Decl != nil && m.Decl.Body != nil {
-		e.emitBlockInner(m.Decl.Body)
+	// 4. the body itself (including the explicit constructor call, if any)
+	if body != nil {
+		stmts := body.Stmts
+		if idx > 0 {
+			stmts = stmts[idx:]
+		}
+		for _, st := range stmts {
+			e.stmt(st)
+		}
 	}
 	if m.Decl != nil && m.Decl.Compact {
 		e.emitRecordAssign(cl, m)

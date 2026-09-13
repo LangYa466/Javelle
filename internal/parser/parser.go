@@ -2,6 +2,8 @@
 package parser
 
 import (
+	"fmt"
+	"os"
 	"strings"
 
 	"github.com/LangYa466/Teyru/internal/ast"
@@ -180,6 +182,17 @@ func (p *parser) parseFile() *ast.File {
 	for p.is("import") {
 		pos := p.pos()
 		p.next()
+		if p.isIdent("module") {
+			// module import declaration (JEP 511): parsed and ignored, there
+			// is no module system at run time.
+			p.next()
+			p.qualifiedName()
+			for p.accept(".") && p.is("*") {
+				p.next()
+			}
+			p.terminator()
+			continue
+		}
 		imp := &ast.Import{Pos: pos}
 		if p.accept("static") {
 			imp.Static = true
@@ -273,12 +286,139 @@ func (p *parser) parseAnnotations() []*ast.Annotation {
 		pos := p.pos()
 		p.next()
 		name := p.qualifiedName()
+		an := &ast.Annotation{Pos: pos, Name: name}
 		if p.is("(") && !p.tok().NL {
-			p.skipBalanced("(", ")")
+			p.next()
+			p.pushNL(false)
+			for !p.is(")") && p.tok().Kind != lexer.EOF {
+				arg := &ast.AnnoArg{}
+				if p.tok().Kind == lexer.Ident && p.isAt(1, "=") {
+					arg.Name = p.ident()
+					p.next() // '='
+				}
+				arg.Value, arg.Anno = p.parseAnnoValue()
+				an.Args = append(an.Args, arg)
+				if !p.accept(",") {
+					break
+				}
+			}
+			p.popNL()
+			p.expect(")")
 		}
-		out = append(out, &ast.Annotation{Pos: pos, Name: name})
+		out = append(out, an)
 	}
 	return out
+}
+
+// parseAnnoValue parses the restricted expression grammar of annotation
+// arguments: literals, class literals, enum constants, arrays and nested
+// annotations. Anything else is skipped so a stray expression cannot derail
+// the parse of the declaration that follows.
+func (p *parser) parseAnnoValue() (ast.Expr, *ast.Annotation) {
+	if p.is("@") {
+		pos := p.pos()
+		p.next()
+		name := p.qualifiedName()
+		an := &ast.Annotation{Pos: pos, Name: name}
+		if p.is("(") {
+			p.next()
+			p.pushNL(false)
+			for !p.is(")") && p.tok().Kind != lexer.EOF {
+				arg := &ast.AnnoArg{}
+				if p.tok().Kind == lexer.Ident && p.isAt(1, "=") {
+					arg.Name = p.ident()
+					p.next()
+				}
+				arg.Value, arg.Anno = p.parseAnnoValue()
+				an.Args = append(an.Args, arg)
+				if !p.accept(",") {
+					break
+				}
+			}
+			p.popNL()
+			p.expect(")")
+		}
+		return nil, an
+	}
+	pos := p.pos()
+	base := ast.ExprBase{Pos: pos}
+	switch {
+	case p.is("{"):
+		ai := &ast.ArrayInit{ExprBase: base}
+		p.next()
+		p.pushNL(false)
+		for !p.is("}") && p.tok().Kind != lexer.EOF {
+			v, _ := p.parseAnnoValue()
+			ai.Elems = append(ai.Elems, v)
+			if !p.accept(",") {
+				break
+			}
+		}
+		p.popNL()
+		p.expect("}")
+		ai.SetType(&ast.ArrayType{Elem: ast.TInt})
+		return ai, nil
+	case p.is("-"):
+		p.next()
+		v, _ := p.parseAnnoValue()
+		if lit, ok := v.(*ast.Literal); ok {
+			if lit.Kind == ast.LitInt || lit.Kind == ast.LitLong {
+				lit.Int = -lit.Int
+			} else if lit.Kind == ast.LitDouble || lit.Kind == ast.LitFloat {
+				lit.Flt = -lit.Flt
+			}
+			lit.Pos = pos
+		}
+		return v, nil
+	case p.tok().Kind == lexer.Ident && p.isAt(1, ".") && p.isAt(2, "class"):
+		p.next()
+		p.next()
+		p.next()
+		cl := &ast.ClassLit{ExprBase: base, Type: &ast.TypeExpr{Pos: pos, Name: p.tok().Text}}
+		cl.SetType(&ast.ClassType{})
+		return cl, nil
+	case p.tok().Kind == lexer.IntLit:
+		t := p.next()
+		return &ast.Literal{ExprBase: base, Kind: ast.LitInt, Int: t.Int}, nil
+	case p.tok().Kind == lexer.LongLit:
+		t := p.next()
+		return &ast.Literal{ExprBase: base, Kind: ast.LitLong, Int: t.Int}, nil
+	case p.tok().Kind == lexer.FloatLit:
+		t := p.next()
+		return &ast.Literal{ExprBase: base, Kind: ast.LitFloat, Flt: t.Flt}, nil
+	case p.tok().Kind == lexer.DoubleLit:
+		t := p.next()
+		return &ast.Literal{ExprBase: base, Kind: ast.LitDouble, Flt: t.Flt}, nil
+	case p.tok().Kind == lexer.CharLit:
+		t := p.next()
+		return &ast.Literal{ExprBase: base, Kind: ast.LitChar, Int: t.Int}, nil
+	case p.tok().Kind == lexer.StringLit:
+		t := p.next()
+		return &ast.Literal{ExprBase: base, Kind: ast.LitString, Str: t.Text}, nil
+	case p.is("true") || p.is("false"):
+		t := p.next()
+		return &ast.Literal{ExprBase: base, Kind: ast.LitBool, Bool: t.Text == "true"}, nil
+	case p.tok().Kind == lexer.Ident:
+		x := ast.Expr(&ast.Ident{ExprBase: base, Name: p.ident()})
+		for p.is(".") && p.peekN(1).Kind == lexer.Ident {
+			p.next()
+			x = &ast.Select{ExprBase: ast.ExprBase{Pos: pos}, X: x, Name: p.ident()}
+		}
+		return x, nil
+	case p.tok().Kind == lexer.Keyword && primNames[p.tok().Text] && p.isAt(1, "."):
+		name := p.tok().Text
+		p.next()
+		p.next()
+		p.expect("class")
+		cl := &ast.ClassLit{ExprBase: base, Type: &ast.TypeExpr{Pos: pos, Name: name}}
+		cl.SetType(&ast.ClassType{})
+		return cl, nil
+	}
+	// unknown form: swallow one token so parsing can continue
+	if p.tok().Kind != lexer.EOF && !p.is(")") && !p.is("}") {
+		p.next()
+	}
+	return &ast.Literal{ExprBase: base, Kind: ast.LitNull}, nil
 }
 
 func (p *parser) skipBalanced(open, close string) {
@@ -1037,6 +1177,9 @@ func (p *parser) parseSwitch() *ast.Switch {
 				if p.is("default") {
 					p.next()
 					c.Default = true
+				} else if p.is("null") && (p.isAt(1, "->") || p.isAt(1, ":") || p.isAt(1, ",")) {
+					p.next()
+					c.Null = true
 				} else if pat := p.tryTypePattern(); pat != nil {
 					c.Pattern = pat
 				} else {
@@ -1093,7 +1236,12 @@ func (p *parser) parseSwitch() *ast.Switch {
 	return s
 }
 
-func (p *parser) tryTypePattern() *ast.Param {
+func (p *parser) tryTypePattern() *ast.Param { return p.tryTypePatternOpt(false) }
+
+// tryTypePatternOpt parses a type pattern; inComponent allows `)` to end it
+// (record pattern component lists).
+func (p *parser) tryTypePatternOpt(inComponent bool) *ast.Param {
+	dbg := os.Getenv("TEYRU_DEBUG_PATTERN") != ""
 	var prm *ast.Param
 	p.speculate(func() bool {
 		p.parseModifiers()
@@ -1102,12 +1250,60 @@ func (p *parser) tryTypePattern() *ast.Param {
 			return false
 		}
 		typ := p.parseType()
+		if p.is("(") {
+			prm = p.parseRecordComponents(typ)
+			if len(prm.Decomp) == 0 {
+				return false
+			}
+			return p.patternEnd(inComponent)
+		}
 		if p.tok().Kind != lexer.Ident || p.isIdent("when") {
 			return false
 		}
 		prm = &ast.Param{Pos: p.pos(), Type: typ, Name: p.ident()}
-		return p.is("->") || p.is(":") || p.isIdent("when") || p.is(",")
+		if prm.Name == "_" {
+			prm.Unnamed = true
+		}
+		return p.patternEnd(inComponent)
 	})
+	if dbg {
+		fmt.Fprintf(os.Stderr, "DBG pattern result=%v next=%q\n", prm != nil, p.tok().Text)
+	}
+	return prm
+}
+
+// patternEnd reports whether the token after a pattern may legitimately follow it.
+func (p *parser) patternEnd(inComponent bool) bool {
+	if p.is("->") || p.is(":") || p.isIdent("when") || p.is(",") {
+		return true
+	}
+	return inComponent && p.is(")")
+}
+
+// parseRecordComponents parses the `(pattern, pattern, ...)` part of a record
+// pattern, with typ already parsed as the record type.
+func (p *parser) parseRecordComponents(typ *ast.TypeExpr) *ast.Param {
+	prm := &ast.Param{Pos: typ.Pos, Type: typ}
+	p.expect("(")
+	p.pushNL(false)
+	for !p.is(")") && p.tok().Kind != lexer.EOF {
+		comp := p.tryTypePatternOpt(true)
+		if comp == nil {
+			if p.tok().Kind != lexer.Ident {
+				break
+			}
+			comp = &ast.Param{Pos: p.pos(), Name: p.ident()}
+			if comp.Name == "_" {
+				comp.Unnamed = true
+			}
+		}
+		prm.Decomp = append(prm.Decomp, comp)
+		if !p.accept(",") {
+			break
+		}
+	}
+	p.popNL()
+	p.expect(")")
 	return prm
 }
 
@@ -1300,8 +1496,13 @@ func (p *parser) parseBinary(level int) ast.Expr {
 			io := &ast.InstanceOf{ExprBase: ast.ExprBase{Pos: pos}, X: x}
 			final := p.accept("final")
 			io.Type = p.parseType()
-			if p.tok().Kind == lexer.Ident && !p.lineBreak() {
+			if p.is("(") {
+				io.Binding = p.parseRecordComponents(io.Type)
+			} else if p.tok().Kind == lexer.Ident && !p.lineBreak() {
 				io.Binding = &ast.Param{Pos: p.pos(), Type: io.Type, Name: p.ident()}
+				if io.Binding.Name == "_" {
+					io.Binding.Unnamed = true
+				}
 				if final {
 					io.Binding.Mods = ast.ModFinal
 				}
