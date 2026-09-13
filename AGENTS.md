@@ -19,7 +19,7 @@
 5. **標準程式庫以 Teyru 本身撰寫**（`internal/prelude/prelude.go`）。只有在不能用
    Teyru 表達的原生操作才能標記 `native`，並在執行期提供實作。
 6. **效能是產品目標，但宣稱必須可重現。** 任何「比 X 快」的說法都要附上
-   `bench/` 可執行的量測與環境，並誠實標出劣勢情境。
+   `examples/bench_*.teyru` 與 `scripts/bench.sh` 可重現的量測環境，並誠實標出劣勢情境。
 
 ---
 
@@ -109,7 +109,7 @@ source → lexer → parser → ast → sema → codegen
   go build ./... && go vet ./... && go test ./... -count=1
   ```
 
-- 效能相關的改動要附上 `bench/` 的前後數字。
+- 效能相關的改動要附上 `sh scripts/bench.sh` 的前後數字。
 
 ---
 
