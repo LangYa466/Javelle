@@ -1,0 +1,239 @@
+package parser
+
+import (
+	"strings"
+	"testing"
+
+	"github.com/LangYa466/Teyru/internal/ast"
+	"github.com/LangYa466/Teyru/internal/source"
+)
+
+func parse(t *testing.T, src string) (*ast.File, string) {
+	t.Helper()
+	d := &source.Diagnostics{}
+	f := Parse(source.NewFile("t.teyru", src), d)
+	return f, d.String()
+}
+
+func TestClassMembers(t *testing.T) {
+	src := `class A {
+  public int x = 1
+  private String name
+  public A(int v) {
+    x = v
+  }
+  public int get() {
+    return x
+  }
+}
+`
+	f, errs := parse(t, src)
+	if errs != "" {
+		t.Fatalf("parse errors: %s", errs)
+	}
+	if len(f.Types) != 1 || f.Types[0].Name != "A" {
+		t.Fatalf("expected class A, got %+v", f.Types)
+	}
+	if len(f.Types[0].Members) != 4 {
+		t.Errorf("expected 4 members, got %d", len(f.Types[0].Members))
+	}
+}
+
+func TestStatementsTerminateAtNewline(t *testing.T) {
+	src := `class A {
+  public static void main(String[] args) {
+    int a = 1
+    int b = 2
+    System.out.println(a + b)
+  }
+}
+`
+	_, errs := parse(t, src)
+	if errs != "" {
+		t.Fatalf("parse errors: %s", errs)
+	}
+}
+
+func TestMissingTerminatorIsReported(t *testing.T) {
+	src := `class A {
+  public static void main(String[] args) {
+    int a = 1 int b = 2
+  }
+}
+`
+	_, errs := parse(t, src)
+	if !strings.Contains(errs, "TY-SYN") {
+		t.Errorf("expected a syntax diagnostic, got %q", errs)
+	}
+}
+
+func TestContinuationAfterOperator(t *testing.T) {
+	src := `class A {
+  public static void main(String[] args) {
+    int a = 1 +
+      2
+    System.out.println(a)
+  }
+}
+`
+	_, errs := parse(t, src)
+	if errs != "" {
+		t.Fatalf("an expression may continue after an operator: %s", errs)
+	}
+}
+
+func TestChainedCallAcrossLines(t *testing.T) {
+	src := `class A {
+  public static void main(String[] args) {
+    String s = "x"
+      .toUpperCase()
+      .trim()
+    System.out.println(s)
+  }
+}
+`
+	_, errs := parse(t, src)
+	if errs != "" {
+		t.Fatalf("a leading dot continues the expression: %s", errs)
+	}
+}
+
+func TestBasicForColons(t *testing.T) {
+	src := `class A {
+  public static void main(String[] args) {
+    for (int i = 0 : i < 10 : i++) {
+      System.out.println(i)
+    }
+  }
+}
+`
+	f, errs := parse(t, src)
+	if errs != "" {
+		t.Fatalf("parse errors: %s", errs)
+	}
+	body := f.Types[0].Members[0].(*ast.MethodDecl).Body
+	loop, ok := body.Stmts[0].(*ast.For)
+	if !ok {
+		t.Fatalf("expected a basic for, got %T", body.Stmts[0])
+	}
+	if len(loop.Init) != 1 || loop.Cond == nil || len(loop.Update) != 1 {
+		t.Errorf("for parts incomplete: %+v", loop)
+	}
+}
+
+func TestTernaryInsideForHeader(t *testing.T) {
+	src := `class A {
+  public static void main(String[] args) {
+    int n = 3
+    for (int i = 0 : i < n ? 5 : 6 : i++) {
+      break
+    }
+  }
+}
+`
+	_, errs := parse(t, src)
+	if errs != "" {
+		t.Fatalf("the conditional ':' must not split the header: %s", errs)
+	}
+}
+
+func TestEnumMemberSeparator(t *testing.T) {
+	src := `enum E {
+  A, B
+
+  :
+  public int f() {
+    return 1
+  }
+}
+`
+	f, errs := parse(t, src)
+	if errs != "" {
+		t.Fatalf("parse errors: %s", errs)
+	}
+	if len(f.Types[0].EnumConsts) != 2 {
+		t.Errorf("expected 2 constants, got %d", len(f.Types[0].EnumConsts))
+	}
+}
+
+func TestRecordComponentsAndPatterns(t *testing.T) {
+	src := `record P(int x, int y) {
+}
+
+class A {
+  static String f(Object o) {
+    return switch (o) {
+      case P(int x, int y) -> "p"
+      case String s when s.length() > 2 -> "long"
+      default -> "other"
+    }
+  }
+}
+`
+	_, errs := parse(t, src)
+	if errs != "" {
+		t.Fatalf("parse errors: %s", errs)
+	}
+}
+
+func TestAccessorsAndField(t *testing.T) {
+	src := `class A {
+  private int v
+  public int value {
+    get {
+      return field
+    }
+    set {
+      field = value
+    }
+  }
+}
+`
+	f, errs := parse(t, src)
+	if errs != "" {
+		t.Fatalf("parse errors: %s", errs)
+	}
+	fd, ok := f.Types[0].Members[1].(*ast.FieldDecl)
+	if !ok || len(fd.Accessor) != 2 {
+		t.Fatalf("expected a property with two accessors, got %+v", f.Types[0].Members[1])
+	}
+}
+
+func TestAnnotationArguments(t *testing.T) {
+	src := `class A {
+  @SuppressWarnings({"a", "b"})
+  @Named(value = "x", count = 3)
+  public void f() {
+  }
+}
+`
+	f, errs := parse(t, src)
+	if errs != "" {
+		t.Fatalf("parse errors: %s", errs)
+	}
+	md := f.Types[0].Members[0].(*ast.MethodDecl)
+	if len(md.Annos) != 2 {
+		t.Fatalf("expected 2 annotations, got %d", len(md.Annos))
+	}
+	if got := md.Annos[1].Arg("count"); got == nil {
+		t.Error("named annotation argument lost")
+	}
+}
+
+func TestUnnamedVariables(t *testing.T) {
+	src := `class A {
+  public static void main(String[] args) {
+    try {
+      f()
+    } catch (RuntimeException _) {
+    }
+  }
+  static void f() {
+  }
+}
+`
+	_, errs := parse(t, src)
+	if errs != "" {
+		t.Fatalf("parse errors: %s", errs)
+	}
+}

@@ -81,7 +81,8 @@ func fnName(cl *ast.Class, m *ast.Method, idx int) string {
 	}
 	name := m.Name
 	if m.IsCtor {
-		name = "init"
+		// "<init>" mangles to "_init_", which cannot collide with a user method
+		name = "<init>"
 	}
 	if m.Accessor != nil && m.Prop != nil {
 		if m.Accessor.IsSet {

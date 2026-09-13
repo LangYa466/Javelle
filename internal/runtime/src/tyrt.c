@@ -652,7 +652,10 @@ int64_t ty_array_len(tyarr *a) {
   return a->len;
 }
 tyarr *ty_array_clone(tyarr *a, int64_t elemsize) {
+  if (!a) ty_npe();
   tyarr *r = ty_alloc_arr(a->len, (size_t)elemsize);
+  r->esize = a->esize;
+  r->refs = a->refs;
   memcpy(r->data, a->data, (size_t)(a->len * elemsize));
   return r;
 }

@@ -783,6 +783,28 @@ func (e *Emitter) assignInner(v *ast.Assign, lv string) string {
 func (e *Emitter) callExpr(v *ast.Call) string {
 	m := v.Method
 	if m == nil {
+		// arrays have Object-like methods but no method symbol
+		if arr, ok := v.Recv.GetType().(ast.Type); ok {
+			if at, isArr := arr.(*ast.ArrayType); isArr {
+				switch v.Name {
+				case "clone":
+					return "((tyarr*)ty_array_clone((tyarr*)" + e.expr(v.Recv) + ", " + e.elemSize(at.Elem) + "))"
+				case "toString":
+					return "((tystr*)ty_str_intern(\"[array]\"))"
+				case "hashCode":
+					return "ty_object_hash((void*)" + e.expr(v.Recv) + ")"
+				case "equals":
+					a := e.tmpRef(e.expr(v.Recv))
+					var other string
+					if len(v.Args) > 0 {
+						other = e.expr(v.Args[0])
+					} else {
+						other = "NULL"
+					}
+					return "((void*)" + a + " == (void*)" + other + ")"
+				}
+			}
+		}
 		return "0"
 	}
 	recv := ""
@@ -800,7 +822,7 @@ func (e *Emitter) callExpr(v *ast.Call) string {
 		return e.nativeCall(m, recv, v.Args)
 	}
 	name := e.cfunc(m)
-	a := e.args(recv, v.Args, m)
+	a := e.argsFor(recv, v.Args, m, v)
 	if m.External {
 		return m.Native + "(" + a + ")"
 	}

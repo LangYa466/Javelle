@@ -216,6 +216,26 @@ func (e *Emitter) exprStmt(x ast.Expr) {
 
 // args renders the C argument list of a call, inserting conversions.
 func (e *Emitter) args(recv string, list []ast.Expr, m *ast.Method) string {
+	return e.argsFor(recv, list, m, nil)
+}
+
+// argsFor renders a call's argument list; call is used to consult the varargs
+// decision made during overload resolution and may be nil.
+func (e *Emitter) argsFor(recv string, list []ast.Expr, m *ast.Method, call *ast.Call) string {
+	if call != nil && m != nil && m.Varargs && e.prog.VarargsDirect(call) {
+		var parts []string
+		if recv != "" && !m.IsStatic() {
+			parts = append(parts, "("+cname(m.Owner)+"*)"+recv)
+		}
+		for i, a := range list {
+			var want ast.Type
+			if i < len(m.Params) {
+				want = m.Params[i]
+			}
+			parts = append(parts, e.coerce(e.expr(a), a.GetType(), want))
+		}
+		return strings.Join(parts, ", ")
+	}
 	var parts []string
 	if recv != "" && m != nil && !m.IsStatic() {
 		parts = append(parts, "("+cname(m.Owner)+"*)"+recv)
@@ -235,9 +255,14 @@ func (e *Emitter) args(recv string, list []ast.Expr, m *ast.Method) string {
 		}
 		parts = append(parts, e.coerce(e.expr(a), a.GetType(), want))
 	}
-	// varargs packing
-	if m != nil && m.Varargs && len(list) != len(m.Params) {
-		e.packVarargs(&parts, list, m)
+	// varargs packing, unless overload resolution chose to pass the array itself
+	if m != nil && m.Varargs {
+		direct := call != nil && e.prog.VarargsDirect(call)
+		if !direct && call != nil {
+			e.packVarargs(&parts, list, m)
+		} else if call == nil && len(list) != len(m.Params) {
+			e.packVarargs(&parts, list, m)
+		}
 	}
 	if len(parts) == 0 {
 		return ""
@@ -246,13 +271,15 @@ func (e *Emitter) args(recv string, list []ast.Expr, m *ast.Method) string {
 }
 
 func (e *Emitter) packVarargs(parts *[]string, list []ast.Expr, m *ast.Method) {
-	// last parameter is an array; gather the remaining arguments into one
-	if len(*parts) == 0 {
-		return
-	}
+	// the last parameter is an array; gather the remaining arguments into one
 	n := len(m.Params) - 1
-	head := (*parts)[:n+boolToInt(!m.IsStatic())]
-	tail := (*parts)[n+boolToInt(!m.IsStatic()):]
+	off := boolToInt(!m.IsStatic())
+	head := []string{}
+	tail := *parts
+	if len(*parts) >= n+off {
+		head = (*parts)[:n+off]
+		tail = (*parts)[n+off:]
+	}
 	elem := m.Params[len(m.Params)-1].(*ast.ArrayType).Elem
 	es := e.elemSize(elem)
 	var b strings.Builder

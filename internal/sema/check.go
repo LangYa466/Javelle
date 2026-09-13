@@ -1793,6 +1793,9 @@ type ovScore struct {
 	method   *ast.Method
 	instArgs []ast.Type
 	targs    map[*ast.TypeVar]ast.Type // inferred method type arguments
+	// directVarargs records that a varargs method was called with the array
+	// itself rather than with individual arguments
+	directVarargs bool
 }
 
 // pickOverload chooses the most specific applicable method.
@@ -1888,6 +1891,22 @@ func (ctx *methodCtx) applicable(recv *ast.ClassType, m *ast.Method, args []ast.
 	}
 	if !m.Varargs && len(args) != len(params) {
 		return ovScore{}, false
+	}
+	// A varargs method also accepts the array itself in place of the arguments.
+	if m.Varargs && len(args) == len(params) {
+		direct := true
+		total := 0
+		for i, a := range args {
+			cost, ok := ctx.convCost(a.GetType(), params[i])
+			if !ok {
+				direct = false
+				break
+			}
+			total += cost
+		}
+		if direct {
+			return ovScore{method: m, instArgs: params, targs: mbind, total: total, directVarargs: true}, true
+		}
 	}
 	s := ovScore{method: m, instArgs: params}
 	for i, a := range args {
@@ -2109,20 +2128,38 @@ func (ctx *methodCtx) convCost(src, target ast.Type) (int, bool) {
 
 // bindArgs records conversions for the chosen overload.
 func (ctx *methodCtx) bindArgs(m *ast.Method, s ovScore, args []ast.Expr, recv *ast.ClassType) {
-	for i, a := range args {
-		var pt ast.Type
-		if i < len(m.Params) {
-			pt = m.Params[i]
-		} else if m.Varargs && len(m.Params) > 0 {
-			if arr, ok := m.Params[len(m.Params)-1].(*ast.ArrayType); ok {
-				pt = arr.Elem
+	if s.directVarargs {
+		for i, a := range args {
+			if i < len(s.instArgs) {
+				ctx.convertTo(a, s.instArgs[i])
 			}
 		}
-		if i < len(s.instArgs) {
-			pt = s.instArgs[i]
-		} else if m.Varargs && len(s.instArgs) > 0 {
-			if arr, ok := s.instArgs[len(s.instArgs)-1].(*ast.ArrayType); ok {
-				pt = arr.Elem
+		return
+	}
+	fixed := len(m.Params)
+	if m.Varargs {
+		fixed--
+	}
+	for i, a := range args {
+		var pt ast.Type
+		if i < fixed {
+			if i < len(s.instArgs) {
+				pt = s.instArgs[i]
+			} else if i < len(m.Params) {
+				pt = m.Params[i]
+			}
+		} else if m.Varargs && len(m.Params) > 0 {
+			// trailing arguments are elements of the varargs array
+			last := len(s.instArgs) - 1
+			if last >= 0 && last < len(s.instArgs) {
+				if arr, ok := s.instArgs[last].(*ast.ArrayType); ok {
+					pt = arr.Elem
+				}
+			}
+			if pt == nil {
+				if arr, ok := m.Params[len(m.Params)-1].(*ast.ArrayType); ok {
+					pt = arr.Elem
+				}
 			}
 		}
 		if pt != nil {
@@ -2263,6 +2300,9 @@ func (ctx *methodCtx) checkUnqualifiedCall(v *ast.Call, want ast.Type) {
 	recv := &ast.ClassType{Class: ctx.cl, Args: typeVarArgs(ctx.cl)}
 	if m, s := ctx.pickOverload(recv, ctx.methodsOf(ctx.cl, v.Name), v.Args); m != nil {
 		ctx.bindArgs(m, s, v.Args, recv)
+		if s.directVarargs {
+			ctx.c.Direct[v] = true
+		}
 		v.Method = m
 		v.Static = m.IsStatic()
 		v.SetType(ctx.c.subst(m.Result, s.targs))
@@ -2402,6 +2442,9 @@ func (ctx *methodCtx) checkMethodCall(v *ast.Call, rt ast.Type, want ast.Type) {
 	ctx.bindArgs(m, s, v.Args, recvCT)
 	v.Method = m
 	v.Static = m.IsStatic()
+	if s.directVarargs {
+		ctx.c.Direct[v] = true
+	}
 	res := ctx.c.subst(m.Result, s.targs)
 	if len(m.Owner.TypeParams) > 0 {
 		if sup := ctx.c.asSuper(recvCT, m.Owner); sup != nil {

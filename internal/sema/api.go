@@ -123,6 +123,15 @@ func escapeC(s string) string {
 	return string(out)
 }
 
+// VarargsDirect reports whether a call passes an array directly to a varargs
+// method instead of individual arguments.
+func (p *Program) VarargsDirect(x ast.Expr) bool {
+	if p.c == nil {
+		return false
+	}
+	return p.c.Direct[x]
+}
+
 // ConstInt evaluates a constant integer expression.
 func (p *Program) ConstInt(x ast.Expr) *int64 {
 	if p.c == nil {

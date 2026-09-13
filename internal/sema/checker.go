@@ -45,6 +45,7 @@ type Checker struct {
 	selector   int
 	todo       []func()
 	Props      map[ast.Expr]ast.Expr
+	Direct     map[ast.Expr]bool // varargs calls that pass the array itself
 	program    *Program
 	objType    *ast.ClassType
 	strType    *ast.ClassType
@@ -57,7 +58,7 @@ var _ = 0
 
 // Check analyses the prelude plus user files.
 func Check(files []*ast.File, diags *source.Diagnostics) *Program {
-	c := &Checker{diags: diags, files: files, global: map[string]*ast.Class{}, anonN: map[*ast.Class]int{}, Props: map[ast.Expr]ast.Expr{}}
+	c := &Checker{diags: diags, files: files, global: map[string]*ast.Class{}, anonN: map[*ast.Class]int{}, Props: map[ast.Expr]ast.Expr{}, Direct: map[ast.Expr]bool{}}
 	defer func() { c.program.c = c }()
 	c.program = &Program{Files: files, StringLits: map[string]int{}}
 	for _, f := range files {
