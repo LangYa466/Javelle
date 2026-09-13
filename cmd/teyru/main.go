@@ -17,6 +17,7 @@ usage:
   teyru build [flags] <files...>   compile to a native executable
   teyru run   [flags] <files...> [-- args...]  compile and run
   teyru emit  [flags] <files...>   print the generated C
+  teyru emit-llvm [flags] <files...>  print the LLVM IR the backend feeds to LLVM
   teyru version                    print the version
 
 flags:
@@ -24,7 +25,7 @@ flags:
   -c <path>     keep the generated C at <path>
   --cc <name>   C compiler to use (default clang)
   -O0..-O3      optimisation level (default -O2)
-  --llvm        report the LLVM-based backend in use
+  --llvm-ir <p> write the LLVM IR module to <p> (the backend is clang/LLVM)
   -v            verbose
 `
 
@@ -64,8 +65,11 @@ func main() {
 			}
 		case a == "-v":
 			opts.Verbose = true
-		case a == "--llvm":
-			opts.LLVM = true
+		case a == "--llvm-ir":
+			i++
+			if i < len(args) {
+				opts.EmitLLVM = args[i]
+			}
 		case len(a) > 2 && a[0] == '-' && a[1] == 'O':
 			opts.Opt = a
 		default:
@@ -80,7 +84,7 @@ func main() {
 	case "help", "--help", "-h":
 		fmt.Print(usage)
 		return
-	case "build", "run", "emit":
+	case "build", "run", "emit", "emit-llvm":
 	default:
 		fmt.Fprintf(os.Stderr, "teyru: unknown command %q\n", cmd)
 		fmt.Print(usage)
@@ -100,6 +104,16 @@ func main() {
 		opts.Out = filepath.Join(os.TempDir(), "teyru-emit")
 		opts.CFile = opts.Out + ".c"
 		opts.EmitC = ""
+	}
+	if cmd == "emit-llvm" {
+		dir, err := os.MkdirTemp("", "teyru-llvm-")
+		if err != nil {
+			fail(err)
+		}
+		defer os.RemoveAll(dir)
+		opts.Out = filepath.Join(dir, "program")
+		opts.CFile = filepath.Join(dir, "program.c")
+		opts.EmitLLVM = filepath.Join(dir, "program.ll")
 	}
 
 	start := time.Now()
@@ -121,6 +135,12 @@ func main() {
 		}
 		os.Stdout.Write(data)
 		os.Remove(res.CFile)
+	case "emit-llvm":
+		data, err := os.ReadFile(res.LLVMFile)
+		if err != nil {
+			fail(err)
+		}
+		os.Stdout.Write(data)
 	case "run":
 		code, err := driver.Run(res.Exe, progArgs)
 		if err != nil {

@@ -1,19 +1,13 @@
 # Build outputs
-/build/
-/.gradle/
-/.intellijPlatform/
+/teyru
+*.exe
 *.o
-*.class
+*.out
+*.ll
 a.out
-teyru
-!cmd/teyru
 
 # Editor / OS
 .idea/
 .vscode/
 *.iml
 .DS_Store
-
-# Agent-local evidence and disposable workspace
-.agent/logs/
-.agent/tmp/

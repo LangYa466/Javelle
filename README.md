@@ -4,15 +4,19 @@
 
 Teyru 的語法對 Java 開發者高度熟悉（類別、介面、泛型、lambda、例外、record、enum、annotation），
 但拿掉了分號，補上原生 property，並且用**原生機器碼**執行：編譯器把整個程式降成 C，
-再由 clang/LLVM（或 gcc）編成執行檔。執行時只有一個 4 KB 等級的執行期，裡頭有自己的
-垃圾回收器（conservative mark-and-sweep）、字串、陣列與例外實作。
+再由 clang/LLVM（或 gcc）編成執行檔。執行期只有約兩千行的 C，裡頭有自己的
+垃圾回收器（conservative mark-and-sweep）、字串、陣列與例外實作，沒有任何 VM。
 
 ```
 Teyru 原始碼 (.teyru)
       │  Go 寫的編譯器：lexer → parser → 語意分析 → C 產生器
       ▼
-  generated C  ──clang/LLVM──▶  原生執行檔（無 JVM、無 bytecode）
+  generated C  ──clang（Clang 前端 + LLVM 中後端）──▶  LLVM IR  ──▶  原生執行檔
+                                                            （無 JVM、無 bytecode）
 ```
+
+後端是 **LLVM**：`./teyru emit-llvm` 可以直接印出 IR 模組，要接 `opt`／`llc`／
+自訂 pass 都沒問題；只想用 C 也可以直接編譯產生出來的 C 檔。
 
 ---
 
@@ -63,6 +67,9 @@ go build -o teyru ./cmd/teyru
 
 # 看編譯器產生的 C 程式碼
 ./teyru emit hello.teyru
+
+# 看交給 LLVM 的 IR（後端是 clang/LLVM，可用 opt/llc 直接接手）
+./teyru emit-llvm hello.teyru
 
 # 版本
 ./teyru version
@@ -203,7 +210,7 @@ interface Fn<R> {
 
 | 路徑 | 說明 |
 |---|---|
-| `cmd/teyru` | CLI 進入點（`build`／`run`／`emit`／`version`） |
+| `cmd/teyru` | CLI 進入點（`build`／`run`／`emit`／`emit-llvm`／`version`） |
 | `internal/source` | 檔案、位置、診斷 |
 | `internal/lexer` | 詞法分析；換行不產生 token，只標記「前面有換行」 |
 | `internal/parser` | 遞迴下降剖析器，用前瞻判斷敘述是否結束 |

@@ -27,7 +27,7 @@ type Options struct {
 	CFile    string // generated C path (defaults to a sibling .c of Out)
 	CC       string // C compiler (default: clang)
 	Opt      string // optimisation flag (default -O2)
-	LLVM     bool   // route the backend through LLVM IR (clang -emit-llvm + llc)
+	EmitLLVM string // if set, also write LLVM IR here (the backend is clang/LLVM)
 	Verbose  bool
 	ExtraCC  []string
 	NoGC     bool
@@ -36,9 +36,10 @@ type Options struct {
 
 // Result reports the outcome of a compilation.
 type Result struct {
-	CFile string
-	Exe   string
-	Diags *source.Diagnostics
+	CFile    string
+	LLVMFile string
+	Exe      string
+	Diags    *source.Diagnostics
 }
 
 // Compile turns Teyru sources into a native executable.
@@ -139,7 +140,23 @@ func Compile(paths []string, opts Options) (*Result, error) {
 		_ = rtH
 		return &Result{CFile: cfile, Diags: diags}, fmt.Errorf("C backend failed: %w", err)
 	}
-	return &Result{CFile: cfile, Exe: exe, Diags: diags}, nil
+	res := &Result{CFile: cfile, Exe: exe, Diags: diags}
+	if opts.EmitLLVM != "" {
+		// The backend is clang, whose middle and back end are LLVM: emit the
+		// module-level IR so it can be inspected or fed to llc/opt directly.
+		irArgs := []string{"-S", "-emit-llvm", "-std=gnu11", "-fno-strict-aliasing", "-w",
+			"-I", rtDir, cfile, "-o", opts.EmitLLVM}
+		if opt != "" {
+			irArgs = append(irArgs, opt)
+		}
+		ir := exec.Command(cc, irArgs...)
+		ir.Stderr = os.Stderr
+		if err := ir.Run(); err != nil {
+			return res, fmt.Errorf("LLVM IR emission failed: %w", err)
+		}
+		res.LLVMFile = opts.EmitLLVM
+	}
+	return res, nil
 }
 
 func parsePrelude(diags *source.Diagnostics) *ast.File {
