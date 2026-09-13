@@ -22,7 +22,7 @@ Teyru source (.teyru)
 The back end **is LLVM**: `./teyru emit-llvm` prints the IR module so it can go straight
 into `opt`, `llc` or a custom pass; `./teyru emit` prints the generated C.
 
-**Docs:** [Language reference](docs/language.md) · [Lombok layer](docs/lombok.md) · [Diagnostics](docs/diagnostics.md) · [Compiler architecture](docs/architecture.md) · [Contributor rules](AGENTS.md)
+**Docs:** [Language reference](docs/language.md) · [Native interop](docs/native.md) · [Lombok layer](docs/lombok.md) · [Diagnostics](docs/diagnostics.md) · [Compiler architecture](docs/architecture.md) · [Contributor rules](AGENTS.md)
 
 ---
 
@@ -55,7 +55,7 @@ Measured on one machine (Linux x86-64, clang 22, OpenJDK 21 Temurin, best of 5 r
 | `bench_loop` loops and integer math | **0.0208 s** | 0.0430 s | **2.1x faster** |
 | `bench_oop` objects and virtual calls | **0.0044 s** | 0.0261 s | **5.9x faster** |
 | `bench_string` string handling | **0.0096 s** | 0.0542 s | **5.7x faster** |
-| `bench_alloc` short-lived allocation | 0.0605 s | **0.0323 s** | 0.53x (JVM wins) |
+| `bench_alloc` short-lived allocation | **0.0232 s** | 0.0288 s | **1.24x faster** |
 
 **Where the speed comes from:**
 
@@ -66,18 +66,21 @@ Measured on one machine (Linux x86-64, clang 22, OpenJDK 21 Temurin, best of 5 r
 3. **No bytecode interpreter.** clang/LLVM optimises the whole program up front
    (LTO inlining across the module, constant propagation, loop vectorisation)
    instead of waiting for a JIT to find hot spots.
-4. **Allocation and bounds checks take an inlined fast path.** `ty_alloc` bumps a
+4. **Objects that do not need an allocation do not get one.** Escape analysis puts
+   an object that stays inside its method on the C stack, and LLVM then promotes its
+   fields to registers and deletes the object, the same result a JVM gets from scalar
+   replacement. That is what makes `bench_alloc` faster than HotSpot.
+5. **Allocation and bounds checks take an inlined fast path.** `ty_alloc` bumps a
    pointer inline in the header, array access only calls the slow path when it must,
    and the collector releases chunks that are completely empty.
-5. **Predictable performance.** No deoptimisation, no warmup curve, no GC tuning.
+6. **Predictable performance.** No deoptimisation, no warmup curve, no GC tuning.
 
-**The honest boundary.** On microbenchmarks dominated by short-lived objects,
-HotSpot's escape analysis can eliminate the objects outright (scalar replacement),
-and the JVM wins (`bench_alloc`: Teyru 0.0605 s vs JVM 0.0323 s). Every number above
-includes process startup, so the absolute values are small. Teyru's collector is a
-conservative mark-and-sweep with chunk reclamation, not a generational copying
-collector, which is why we do not claim to be faster in every situation. Every
-number is reproducible with `sh scripts/bench.sh`.
+**The honest boundary.** Escape analysis only covers objects that stay inside the
+method that creates them. An object stored into a field, an array, a return value or
+another object still goes to the heap and the mark-and-sweep collector, and HotSpot's
+generational assumption wins on workloads where objects live long and are collected
+repeatedly. Every number above includes process startup, so the absolute values are
+small. Every number is reproducible with `sh scripts/bench.sh`.
 
 ---
 
@@ -302,13 +305,23 @@ compiled and checked together with every user program:
 `Object`, `String`, `StringBuilder`, `Math`, `System`, `PrintStream`,
 `Iterable`/`Iterator`, `Comparable`, `AutoCloseable`, `Cloneable`, `Enum`, `Record`,
 the eight primitive wrappers (`Byte`, `Short`, `Integer`, `Long`, `Float`, `Double`,
+`Character`, `Boolean`), the collections (`List`, `ArrayList`, `HashMap`), and the
 `Character`, `Boolean`), and the `Throwable` family (`Exception`, `RuntimeException`,
 `NullPointerException`, `ArrayIndexOutOfBoundsException`, `ArithmeticException`,
 `ClassCastException`, `IllegalArgumentException`, `IllegalStateException`,
 `NoSuchElementException`, `NegativeArraySizeException`, `AssertionError`,
 `UnsupportedOperationException`).
 
-There is no `java.util`, no `printf` and no file I/O — those are deliberate scope limits.
+`ArrayList` implements `Iterable`, so `for (String s : names)` reads the same as in
+Java. There is no `printf` and no file I/O — those remain deliberate scope limits.
+
+To bring your own native library, declare a `native` method and implement it in C.
+See [`docs/native.md`](docs/native.md):
+
+```sh
+teyru build --native-header native.h program.teyru   # the declarations to implement
+teyru build --native impl.c program.teyru            # compile them together
+```
 
 ---
 
@@ -395,6 +408,10 @@ teyru help                                     print usage
 | `--cc <name>` | C compiler to use (defaults to `clang`, then `gcc`, then `cc`) |
 | `-O0`…`-O3` | Optimisation level (default `-O2`) |
 | `--llvm-ir <path>` | Also write the LLVM IR module here |
+| `--native <file.c>` | Compile a C file into the program, implementing native methods (repeatable) |
+| `--native-header <path>` | Write the declarations of the native methods (see [docs/native.md](docs/native.md)) |
+| `--link <arg>` | Extra argument for the link step, such as `--link -lm` |
+| `--no-lto` | Disable LTO (the build retries without it when the toolchain lacks support) |
 | `-v` | Print the compiler command being run |
 
 ---

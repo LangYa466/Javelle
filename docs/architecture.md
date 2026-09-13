@@ -74,12 +74,19 @@ Teyru 沒有分號。詞法分析器不產生 NEWLINE token，而是在每個 to
 | 常數折疊 | `codegen.foldBinary`、`ident` | 字面值運算、`static final` 常數、字串相加在編譯期算完 |
 | 死 chunk 回收 | `tyrt.c` 的 sweep | 一個 chunk 內若沒有任何存活物件就整塊 `free` 還給系統，回收成本因此與存活量成正比，而不是與歷史配置量成正比 |
 | 字串常數 | `codegen.strLit` | 字串字面值是靜態 `tystr`，不經配置、不進 GC |
-| 類別初始化 | `ty_clinit` | 惰性初始化，且只在靜態成員存取與 `new` 時檢查 |
+| 類別初始化 | `codegen.clinitStmt` | 惰性初始化，但旗標由產生的程式碼自己測；繼承鏈上沒有靜態初始化區塊的類別完全不產生程式碼 |
+| 逃逸分析 | `codegen.escape.go` | 不離開所在方法的物件放在 C 堆疊上，LLVM 得以提升欄位並刪除物件 |
+| 原生互通 | `codegen.native.go` | `native` 方法的 C 符號與宣告由編譯器產生（`--native-header`） |
 
-已知的效能邊界：GC 是保守式標記清除（無分代假設），因此「大量短命物件」的
-microbenchmark 上會輸給 HotSpot 的逃逸分析。`bench_alloc` 是唯一落後的項目，
-其餘四項（`fib`、`loop`、`oop`、`string`）皆快於 JVM；重現方式見
-`sh scripts/bench.sh`。
+逃逸分析（`escape.go`）判斷一個區域物件是否可能活過方法：只有欄位讀取、對
+「接收者不會外流」的方法呼叫、以及身分比較算安全；參數、欄位或陣列寫入、
+回傳、lambda 捕獲、匿名類別一律留在堆積。方法是否會讓接收者外流，是對呼叫圖
+做的傳遞分析（native 方法假設不會，抽象方法假設會）。被提升的物件位址在堆疊
+上，回收器的保守掃描仍然找得到它指向的堆積物件。
+
+已知的效能邊界：逃逸分析只涵蓋留在方法內的物件；真正上堆積的物件仍走保守式
+標記清除（無分代假設），在「物件長期存活、反覆回收」的負載上 HotSpot 仍可能
+勝出。目前的五項 benchmark 都快於 JVM；重現方式見 `sh scripts/bench.sh`。
 
 ## 垃圾回收
 

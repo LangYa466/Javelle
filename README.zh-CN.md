@@ -20,7 +20,7 @@ Teyru 源码 (.teyru)
 后端是 **LLVM**：`./teyru emit-llvm` 可以直接打印 IR 模块，接 `opt`／`llc`／自定义 pass
 都没有问题；只想看 C 也可以用 `./teyru emit`。
 
-**文档**：[语言参考](docs/language.md) · [Lombok 兼容层](docs/lombok.md) · [诊断码一览](docs/diagnostics.md) · [编译器架构](docs/architecture.md) · [工作规范](AGENTS.md)
+**文档**：[语言参考](docs/language.md) · [原生互通](docs/native.md) · [Lombok 兼容层](docs/lombok.md) · [诊断码一览](docs/diagnostics.md) · [编译器架构](docs/architecture.md) · [工作规范](AGENTS.md)
 
 ---
 
@@ -53,7 +53,7 @@ Teyru 源码 (.teyru)
 | `bench_loop` 循环与整数运算 | **0.0208 s** | 0.0430 s | **2.1 倍快** |
 | `bench_oop` 对象与虚调用 | **0.0044 s** | 0.0261 s | **5.9 倍快** |
 | `bench_string` 字符串处理 | **0.0096 s** | 0.0542 s | **5.7 倍快** |
-| `bench_alloc` 短命对象分配 | 0.0605 s | **0.0323 s** | 0.53 倍（JVM 更快） |
+| `bench_alloc` 短命对象分配 | **0.0232 s** | 0.0288 s | **1.24 倍快** |
 
 **为什么快：**
 
@@ -62,15 +62,17 @@ Teyru 源码 (.teyru)
    `static final` 常量折叠、vtable 与接口表都由编译器填好。
 3. **没有字节码解释阶段。** clang/LLVM 直接优化整个程序（LTO 跨模块内联、
    常量传播、循环向量化），不需要等 JIT 观察热点。
-4. **分配与边界检查都走行内快速路径。** `ty_alloc` 的指针碰撞分配在头文件内联，
+4. **不需要分配的对象就不分配。** 逃逸分析把“不离开所在方法”的对象放在 C 栈上，
+   LLVM 随后把它的字段提升为寄存器、把整个对象消除——与 JVM 的 scalar replacement
+   效果相同，`bench_alloc` 正是靠这一点赢过 HotSpot。
+5. **分配与边界检查都走行内快速路径。** `ty_alloc` 的指针碰撞分配在头文件内联，
    数组访问只在必要时调用慢路径；GC 会回收完全空掉的 chunk。
-5. **可预测的性能。** 没有 deopt、没有预热曲线、没有 GC 调参。
+6. **可预测的性能。** 没有 deopt、没有预热曲线、没有 GC 调参。
 
-**诚实的边界。** 在“大量短命对象”的 microbenchmark 上，HotSpot 的逃逸分析可能直接把
-对象消除（scalar replacement），此时 JVM 反而会赢（`bench_alloc`：Teyru 0.0605 s
-vs JVM 0.0323 s）。上面的数字都包含 process 启动，所以绝对值都很小；Teyru 目前的 GC
-是保守标记清除（含 chunk 回收），不是分代复制式。所有数字都可以用
-`sh scripts/bench.sh` 重现。
+**诚实的边界。** 逃逸分析只覆盖“不离开所在方法”的对象。会存进字段、数组、返回或
+交给其他对象的对象仍然走堆与标记清除回收，而 HotSpot 有分代假设，所以在“对象长期
+存活、反复回收”的负载上 JVM 仍可能胜出。上面的数字都包含 process 启动，绝对值都很
+小；重现方式见 `sh scripts/bench.sh`。
 
 ---
 
@@ -276,13 +278,22 @@ JEP 286 `var`。
 
 `Object`、`String`、`StringBuilder`、`Math`、`System`、`PrintStream`、
 `Iterable`／`Iterator`、`Comparable`、`AutoCloseable`、`Cloneable`、`Enum`、`Record`、
-八种原生包装类（`Byte`／`Short`／`Integer`／`Long`／`Float`／`Double`／`Character`／`Boolean`），
-以及 `Throwable` 家族（`Exception`、`RuntimeException`、`NullPointerException`、
+八种原生包装类（`Byte`／`Short`／`Integer`／`Long`／`Float`／`Double`／`Character`／`Boolean`）、
+集合（`List`／`ArrayList`／`HashMap`），以及 `Throwable` 家族（`Exception`、`RuntimeException`、`NullPointerException`、
 `ArrayIndexOutOfBoundsException`、`ArithmeticException`、`ClassCastException`、
 `IllegalArgumentException`、`IllegalStateException`、`NoSuchElementException`、
 `NegativeArraySizeException`、`AssertionError`、`UnsupportedOperationException`）。
 
-没有 `java.util` 集合、没有 `printf`、没有文件 I/O——这些都是刻意的范围限制。
+`ArrayList` 实现 `Iterable`，所以 `for (String s : names)` 与 Java 写法一致。
+没有 `printf`、没有文件 I/O——这些仍是刻意的范围限制。
+
+需要自己的原生库时，声明 `native` 方法并用 C 实现，完整说明见
+[`docs/native.md`](docs/native.md)：
+
+```sh
+teyru build --native-header native.h program.teyru   # 生成要实现的声明
+teyru build --native impl.c program.teyru            # 一起编译
+```
 
 ---
 
@@ -362,6 +373,10 @@ teyru help                                     帮助
 | `--cc <name>` | 使用的 C 编译器（默认依次查找 `clang`、`gcc`、`cc`） |
 | `-O0`…`-O3` | 优化等级（默认 `-O2`） |
 | `--llvm-ir <path>` | 额外输出 LLVM IR 模块 |
+| `--native <file.c>` | 加入 C 文件一起编译，实现 native 方法（可重复） |
+| `--native-header <path>` | 生成 native 方法的声明（见 [docs/native.md](docs/native.md)） |
+| `--link <arg>` | 传给链接步骤的参数，例如 `--link -lm` |
+| `--no-lto` | 关闭 LTO（工具链不支持时自动退回） |
 | `-v` | 显示实际执行的编译命令 |
 
 ---

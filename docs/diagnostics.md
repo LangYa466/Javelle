@@ -71,7 +71,7 @@ hello.teyru:4:11: error[TY-TYP-0051]: incompatible types: String cannot be conve
 | TY-TYP-0014 | `method %s needs a body` | 非抽象方法要有 body。 |
 | TY-TYP-0015 | `abstract or native method %s cannot have a body` | `abstract`／`native` 方法不能有 body。 |
 | TY-TYP-0016 | `abstract method %s in non-abstract class %s` | 有抽象方法的類別必須標 `abstract`。 |
-| TY-TYP-0017 | `native methods are only allowed in the Teyru runtime library` | 使用者程式不能宣告 `native`。 |
+| TY-TYP-0017 | （已移除） | `native` 方法現在可以宣告在任一類別，並以 `--native` 提供的 C 實作。 |
 | TY-TYP-0018 | `'%s' is only allowed for local variables` | `var`／`val` 不能用在欄位、參數或回傳型別。 |
 | TY-TYP-0019 | `%s must implement %s from %s` | 具體類別沒有實作介面或父類別的抽象方法。 |
 | TY-TYP-0020 | `missing return statement` | 有回傳值的方法在某些路徑沒有 `return`。 |

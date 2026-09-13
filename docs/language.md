@@ -414,8 +414,27 @@ try {
 | 介面 | `Cloneable`、`Comparable<T>`、`AutoCloseable`、`Iterable<T>`、`Iterator<T>` |
 | `Enum<E>` | `ordinal`、`name`、`compareTo`、`toString`、`hashCode`、`equals` |
 | `Record` | 所有 record 的根 |
+| `List<T>` | `size`、`get`、`add`、`isEmpty`、`contains`、`indexOf`；繼承 `Iterable<T>` |
+| `ArrayList<T>` | `List<T>` 的實作；可加倍成長，另有 `set`、`removeAt`、`clear`、`toString` |
+| `HashMap<K,V>` | `put`、`get`、`containsKey`、`remove`、`size`、`isEmpty`、`toString` |
+| `Logger` | `trace`／`debug`／`info`／`warn`／`error` |
 
-沒有 `java.util` 集合、沒有 `printf`、沒有正規表達式、沒有檔案 I/O。
+集合以 Teyru 撰寫，因此 `for` 迴圈直接支援：
+
+```teyru
+List<String> names = new ArrayList<String>()
+names.add("ada")
+names.add("grace")
+for (String n : names) {
+  System.out.println(n)
+}
+```
+
+`for (int v : listOfInteger)` 會自動拆箱。沒有 `printf`、沒有正規表達式、
+沒有檔案 I/O。
+
+需要自己的原生程式庫時，`native` 方法可以實作在 C 裡，見
+[docs/native.md](native.md)。
 
 ## 12. 與 Java 的差異
 

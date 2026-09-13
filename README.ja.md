@@ -22,7 +22,7 @@ Teyru ソース (.teyru)
 バックエンドは **LLVM** です。`./teyru emit-llvm` で IR モジュールを出力できるので、
 そのまま `opt` や `llc`、独自パスに渡せます。C を見たいときは `./teyru emit` です。
 
-**ドキュメント：**[言語リファレンス](docs/language.md) · [Lombok 互換レイヤー](docs/lombok.md) · [診断コード一覧](docs/diagnostics.md) · [コンパイラ構成](docs/architecture.md) · [開発ルール](AGENTS.md)
+**ドキュメント：**[言語リファレンス](docs/language.md) · [ネイティブ連携](docs/native.md) · [Lombok 互換レイヤー](docs/lombok.md) · [診断コード一覧](docs/diagnostics.md) · [コンパイラ構成](docs/architecture.md) · [開発ルール](AGENTS.md)
 
 ---
 
@@ -55,7 +55,7 @@ Teyru ソース (.teyru)
 | `bench_loop` ループと整数演算 | **0.0208 s** | 0.0430 s | **2.1 倍速い** |
 | `bench_oop` オブジェクトと仮想呼び出し | **0.0044 s** | 0.0261 s | **5.9 倍速い** |
 | `bench_string` 文字列処理 | **0.0096 s** | 0.0542 s | **5.7 倍速い** |
-| `bench_alloc` 短命オブジェクトの確保 | 0.0605 s | **0.0323 s** | 0.53 倍（JVM が速い） |
+| `bench_alloc` 短命オブジェクトの確保 | **0.0232 s** | 0.0288 s | **1.24 倍速い** |
 
 **速さの理由：**
 
@@ -65,16 +65,20 @@ Teyru ソース (.teyru)
    テーブルの確定をすべてコンパイラが行う。
 3. **バイトコード解釈の段階がない。** clang/LLVM がプログラム全体を最初から最適化する
    （LTO による横断インライン、定数伝播、ループのベクトル化）。
-4. **確保と境界チェックはインラインの高速経路を通る。** `ty_alloc` はヘッダー内で
+4. **確保が要らないオブジェクトは確保しない。** エスケープ解析が「生成したメソッドから
+   出ない」オブジェクトを C のスタックに置き、LLVM がそのフィールドをレジスタへ昇格して
+   オブジェクトごと消します。JVM の scalar replacement と同じ結果で、`bench_alloc` が
+   HotSpot を上回る理由です。
+5. **確保と境界チェックはインラインの高速経路を通る。** `ty_alloc` はヘッダー内で
    ポインタを進めるだけ、配列アクセスは必要なときだけ低速経路を呼び、GC は完全に
    空になった chunk を解放する。
-5. **予測可能な性能。** 脱最適化もウォームアップ曲線も GC チューニングもない。
+6. **予測可能な性能。** 脱最適化もウォームアップ曲線も GC チューニングもない。
 
-**正直な限界。** 短命オブジェクトが多い microbenchmark では、HotSpot のエスケープ解析が
-オブジェクトを消してしまい（scalar replacement）、JVM が勝つ（`bench_alloc`：Teyru
-0.0605 s 対 JVM 0.0323 s）。上の数値はすべてプロセス起動を含むため絶対値は小さい。
-Teyru の GC は chunk 回収つきの保守的マークアンドスイープであり、世代別コピーではない。
-`sh scripts/bench.sh` で再現できる。
+**正直な限界。** エスケープ解析が扱うのは「生成したメソッドから出ない」オブジェクト
+だけです。フィールド、配列、戻り値、他のオブジェクトへ渡したものはヒープと
+マークアンドスイープに残り、オブジェクトが長生きして繰り返し回収される負荷では
+HotSpot の世代別の仮定が勝ります。上の数値はすべてプロセス起動を含むため絶対値は
+小さい。`sh scripts/bench.sh` で再現できる。
 
 ---
 
@@ -283,13 +287,23 @@ JEP 378 テキストブロック、JEP 361 switch 式、JEP 286 `var`。
 `Object`、`String`、`StringBuilder`、`Math`、`System`、`PrintStream`、
 `Iterable`／`Iterator`、`Comparable`、`AutoCloseable`、`Cloneable`、`Enum`、`Record`、
 八つのプリミティブラッパー（`Byte`／`Short`／`Integer`／`Long`／`Float`／`Double`／
+`Character`／`Boolean`）、コレクション（`List`／`ArrayList`／`HashMap`）、および
 `Character`／`Boolean`）、そして `Throwable` ファミリ（`Exception`、`RuntimeException`、
 `NullPointerException`、`ArrayIndexOutOfBoundsException`、`ArithmeticException`、
 `ClassCastException`、`IllegalArgumentException`、`IllegalStateException`、
 `NoSuchElementException`、`NegativeArraySizeException`、`AssertionError`、
 `UnsupportedOperationException`）。
 
-`java.util` のコレクション、`printf`、ファイル I/O はありません。これらは意図的な
+`ArrayList` は `Iterable` を実装しているので、`for (String s : names)` は Java と
+同じ書き方になります。`printf` とファイル I/O は意図的な範囲外のままです。
+
+自前のネイティブライブラリは `native` メソッドを宣言して C で実装します。詳細は
+[`docs/native.md`](docs/native.md)：
+
+```sh
+teyru build --native-header native.h program.teyru   # 実装すべき宣言を出力
+teyru build --native impl.c program.teyru            # 一緒にコンパイル
+```
 スコープ制限です。
 
 ---
@@ -377,6 +391,10 @@ teyru help                                     使い方
 | `--cc <name>` | 使用する C コンパイラ（既定は `clang`、`gcc`、`cc` の順に探索） |
 | `-O0`…`-O3` | 最適化レベル（既定 `-O2`） |
 | `--llvm-ir <path>` | LLVM IR モジュールも出力 |
+| `--native <file.c>` | C ファイルを一緒にコンパイルして native メソッドを実装（複数可） |
+| `--native-header <path>` | native メソッドの宣言を出力（[docs/native.md](docs/native.md)） |
+| `--link <arg>` | リンク手順へ渡す引数（例：`--link -lm`） |
+| `--no-lto` | LTO を無効化（未対応のツールチェーンでは自動的にフォールバック） |
 | `-v` | 実行されるコンパイルコマンドを表示 |
 
 ---

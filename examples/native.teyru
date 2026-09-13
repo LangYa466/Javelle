@@ -1,0 +1,27 @@
+// Native methods are declared in Teyru and implemented in C.
+//
+//   teyru build --native-header native.h examples/native.teyru -o native
+//   teyru build --native examples/native_impl.c examples/native.teyru -o native
+//
+// The header lists exactly what the C side has to define.
+class Native {
+  public static native int add(int a, int b)
+  public static native String greet(String who)
+  public native int scale(int v)
+
+  private int factor
+
+  public Native(int factor) {
+    this.factor = factor
+  }
+}
+
+class Main {
+  public static void main(String[] args) {
+    System.out.println(Native.add(2, 3))
+    System.out.println(Native.greet("world"))
+
+    Native n = new Native(3)
+    System.out.println(n.scale(5))
+  }
+}
