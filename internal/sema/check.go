@@ -467,7 +467,15 @@ func (ctx *methodCtx) checkSwitch(s *ast.Switch, expr bool) {
 	c := ctx.c
 	ctx.checkExpr(s.X, nil)
 	xt := s.X.GetType()
+	hasPattern := false
+	for _, cs := range s.Cases {
+		if cs.Pattern != nil {
+			hasPattern = true
+		}
+	}
 	switch {
+	case hasPattern && ast.IsRef(xt):
+		s.Kind = ast.SwitchType
 	case isNumericType(xt) || ast.IsPrim(xt, ast.Char):
 		s.Kind = ast.SwitchInt
 	case c.isSubtype(xt, c.strType):
@@ -2507,14 +2515,10 @@ func (ctx *methodCtx) checkMethodRef(mr *ast.MethodRef, want ast.Type) {
 	for i := range params {
 		lam.Params = append(lam.Params, &ast.Param{Pos: mr.Pos, Name: fmt.Sprintf("p%d", i)})
 	}
-	var recv ast.Expr
-	var callee string
-	switch {
-	case mr.Name == "new":
+	callee := mr.Name
+	recv := mr.X
+	if mr.Name == "new" {
 		callee = "<new>"
-	default:
-		callee = mr.Name
-		recv = mr.X
 	}
 	// resolve the target method
 	var target *ast.Method
@@ -2542,9 +2546,12 @@ func (ctx *methodCtx) checkMethodRef(mr *ast.MethodRef, want ast.Type) {
 		}
 		_ = s
 		target = m
-		call := &ast.New{ExprBase: ast.ExprBase{Pos: mr.Pos, T: ct2}, Type: mr.TypeX, Ctor: target}
-		_ = call
-		lam.Body = &ast.New{ExprBase: ast.ExprBase{Pos: mr.Pos, T: ct2}, Type: mr.TypeX}
+		te := mr.TypeX
+		if te == nil {
+			te = &ast.TypeExpr{Pos: mr.Pos, Name: ct2.Class.Name, Resolved: ct2}
+		}
+		te.Resolved = ct2
+		lam.Body = &ast.New{ExprBase: ast.ExprBase{Pos: mr.Pos, T: ct2}, Type: te, Ctor: target}
 		mr.Lam = lam
 		ctx.checkLambda(lam, want)
 		mr.SetType(ct)

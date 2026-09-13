@@ -171,6 +171,7 @@ void ty_print_obj(void *o);
 void ty_println_obj(void *o);
 void ty_println_void(void);
 void ty_init(void);
+void ty_unimplemented(const char *what) __attribute__((noreturn));
 
 /* ---- prelude helpers --------------------------------------------------- */
 void ty_clinit(tyclass *c);
@@ -224,6 +225,8 @@ int64_t ty_nanos(void);
 void ty_exit(int32_t code);
 void ty_arraycopy(void *src, int32_t spos, void *dst, int32_t dpos, int32_t len);
 void *ty_illarg(const char *msg);
+void *ty_illegal_state(const char *msg);
+void *ty_make_ex(tyclass *c, const char *msg);
 int32_t ty_obj_equal(void *a, void *b);
 int32_t ty_enum_ordinal(void *o);
 void *ty_enum_name(void *o);

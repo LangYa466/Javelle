@@ -12,15 +12,16 @@ import (
 
 	"github.com/LangYa466/Teyru/internal/ast"
 	"github.com/LangYa466/Teyru/internal/sema"
+	"github.com/LangYa466/Teyru/internal/util"
 )
 
 // Emitter produces one C translation unit for a whole program.
 type Emitter struct {
 	prog        *sema.Program
-	types       strings.Builder // typedefs and struct declarations
-	fns         strings.Builder // forward declarations
+	types       strings.Builder  // typedefs and struct declarations
+	fns         strings.Builder  // forward declarations
 	code        *strings.Builder // function bodies
-	data        strings.Builder // globals: strings, class metadata
+	data        strings.Builder  // globals: strings, class metadata
 	strings     map[string]int
 	strOrder    []string
 	mainCls     *ast.Class
@@ -29,6 +30,8 @@ type Emitter struct {
 	thrown      []string
 	locals      map[*ast.Var]string
 	enumOrdinal string
+	switchID    int
+	switchCur   int
 }
 
 // Emit returns the C source for a program.
@@ -60,26 +63,13 @@ func (e *Emitter) run() {
 
 // ---------------------------------------------------------------- naming
 
-// cname mangles a class's full name into a C identifier.
+// cname is the C type name of a class.
 func cname(cl *ast.Class) string {
-	return "C_" + mangle(cl.Full)
+	return "C_" + util.Mangle(cl.Full)
 }
 
-func mangle(s string) string {
-	var b strings.Builder
-	for i := 0; i < len(s); i++ {
-		c := s[i]
-		switch {
-		case c >= 'a' && c <= 'z' || c >= 'A' && c <= 'Z' || c == '_' || (i > 0 && c >= '0' && c <= '9'):
-			b.WriteByte(c)
-		case c == '.' || c == '$':
-			b.WriteByte('_')
-		default:
-			b.WriteByte('_')
-		}
-	}
-	return b.String()
-}
+// mangle is the shared identifier mangler.
+func mangle(s string) string { return util.Mangle(s) }
 
 func fnName(cl *ast.Class, m *ast.Method, idx int) string {
 	owner := ""
@@ -169,15 +159,7 @@ func (e *Emitter) ctype(t ast.Type) string {
 	return "void*"
 }
 
-func (e *Emitter) isRef(t ast.Type) bool {
-	switch t.(type) {
-	case *ast.ClassType, *ast.ArrayType, ast.NullType, *ast.WildcardType:
-		return true
-	case *ast.TypeVarType:
-		return true
-	}
-	return false
-}
+func (e *Emitter) isRef(t ast.Type) bool { return util.IsRef(t) }
 
 // zero renders the zero value of a C type.
 func zeroOf(c string) string {
@@ -188,30 +170,9 @@ func zeroOf(c string) string {
 	return "NULL"
 }
 
-// elemSize returns the byte size of an array element type.
+// elemSize returns the byte size of an array element type as a C constant.
 func (e *Emitter) elemSize(t ast.Type) string {
-	switch v := t.(type) {
-	case *ast.PrimType:
-		switch v.Kind {
-		case ast.Boolean, ast.Int:
-			return "4"
-		case ast.Byte:
-			return "1"
-		case ast.Short:
-			return "2"
-		case ast.Char:
-			return "2"
-		case ast.Long:
-			return "8"
-		case ast.Float:
-			return "4"
-		case ast.Double:
-			return "8"
-		}
-	case *ast.TypeVarType:
-		return "8"
-	}
-	return "8"
+	return fmt.Sprint(util.SizeOf(t))
 }
 
 func (e *Emitter) isRefElem(t ast.Type) bool { return e.isRef(t) }
@@ -304,23 +265,16 @@ func (e *Emitter) emitClassMeta(cl *ast.Class) {
 	}
 	fmt.Fprintf(&e.data, "static tyclass* if_%s[] = {%s};\n", mangle(cl.Full), strings.Join(ifs, ", "))
 	// reference field offsets, following the C struct layout with alignment
-	var offs []string
-	off := int64(8)
-	for _, f := range cl.InstFields {
-		off = align(off, e.alignOf(f.Type))
-		if e.isRef(f.Type) {
-			offs = append(offs, fmt.Sprint(off))
-		}
-		off += e.sizeOf(f.Type)
-	}
+	var capTypes []ast.Type
 	for _, v := range sortedCaps(cl) {
-		off = align(off, e.alignOf(v.Type))
-		if e.isRef(v.Type) {
-			offs = append(offs, fmt.Sprint(off))
-		}
-		off += e.sizeOf(v.Type)
+		capTypes = append(capTypes, v.Type)
 	}
-	off = align(off, 8)
+	refOffsets, isize := util.FieldLayout(cl.InstFields, capTypes)
+	offs := make([]string, 0, len(refOffsets))
+	for _, o := range refOffsets {
+		offs = append(offs, fmt.Sprint(o))
+	}
+	off := isize
 	if len(offs) == 0 {
 		offs = []string{"0"}
 	}
@@ -378,47 +332,7 @@ func sortedCaps(cl *ast.Class) []*ast.Var {
 	return out
 }
 
-func align(off, a int64) int64 {
-	if a <= 1 {
-		return off
-	}
-	return (off + a - 1) / a * a
-}
-
-// alignOf returns the C alignment of a type.
-func (e *Emitter) alignOf(t ast.Type) int64 {
-	switch v := t.(type) {
-	case *ast.PrimType:
-		switch v.Kind {
-		case ast.Byte, ast.Boolean:
-			return 1
-		case ast.Short, ast.Char:
-			return 2
-		case ast.Long, ast.Double:
-			return 8
-		}
-		return 4
-	}
-	return 8
-}
-
-func (e *Emitter) sizeOf(t ast.Type) int64 {
-	switch v := t.(type) {
-	case *ast.PrimType:
-		switch v.Kind {
-		case ast.Boolean, ast.Int, ast.Float:
-			return 4
-		case ast.Byte:
-			return 1
-		case ast.Short, ast.Char:
-			return 2
-		case ast.Long, ast.Double:
-			return 8
-		}
-		return 4
-	}
-	return 8
-}
+func (e *Emitter) sizeOf(t ast.Type) int64 { return util.SizeOf(t) }
 
 // ---------------------------------------------------------------- methods
 
@@ -502,7 +416,9 @@ func (e *Emitter) emitMethod(cl *ast.Class, m *ast.Method, idx int) {
 	} else if body != nil {
 		e.emitBlockInner(body)
 	} else {
-		e.line("/* unimplemented */\n")
+		// Only reachable for abstract or native methods with no implementation;
+		// fail loudly instead of returning an undefined value.
+		e.line("ty_unimplemented(%s);\n", e.cstr(cl.Full+"."+m.Name))
 	}
 	e.indent--
 	e.code.WriteString("}\n\n")

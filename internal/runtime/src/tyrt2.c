@@ -9,6 +9,11 @@
 
 /* ---- class initialisation --------------------------------------------- */
 
+void ty_unimplemented(const char *what) {
+  fprintf(stderr, "teyru: no implementation for %s\n", what);
+  exit(70);
+}
+
 void ty_clinit(tyclass *c) {
   if (!c || (c->flags & 8)) return;
   c->flags |= 8;
@@ -130,7 +135,18 @@ void ty_arraycopy(void *src, int32_t spos, void *dst, int32_t dpos, int32_t len)
           (size_t)len * a->esize);
 }
 
-void *ty_illarg(const char *msg) { return NULL; }
+void *ty_illarg(const char *msg) { return ty_make_ex(TY_ILLARG, msg); }
+void *ty_illegal_state(const char *msg) { return ty_make_ex(TY_ILLSTATE, msg); }
+
+/* ---- exceptions with a message ----------------------------------------- */
+
+void *ty_make_ex(tyclass *c, const char *msg) {
+  tyobj *o = (tyobj *)ty_alloc(sizeof(tyobj) + 2 * sizeof(void *));
+  o->cls = c;
+  ((void **)((char *)o + sizeof(tyobj)))[0] = ty_str_new(msg, (int64_t)strlen(msg));
+  ((void **)((char *)o + sizeof(tyobj)))[1] = NULL;
+  return o;
+}
 
 /* ---- object equality --------------------------------------------------- */
 

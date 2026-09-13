@@ -213,6 +213,9 @@ class Throwable extends Object {
   public Throwable cause
   public Throwable() {
   }
+  public Throwable(String message) {
+    this.message = message
+  }
   public String getMessage() {
     return message
   }
@@ -225,39 +228,99 @@ class Throwable extends Object {
 }
 
 class Exception extends Throwable {
+  public Exception() {
+  }
+  public Exception(String message) {
+    super(message)
+  }
 }
 
 class RuntimeException extends Exception {
+  public RuntimeException() {
+  }
+  public RuntimeException(String message) {
+    super(message)
+  }
 }
 
 class NullPointerException extends RuntimeException {
+  public NullPointerException() {
+  }
+  public NullPointerException(String message) {
+    super(message)
+  }
 }
 
 class ArithmeticException extends RuntimeException {
+  public ArithmeticException() {
+  }
+  public ArithmeticException(String message) {
+    super(message)
+  }
 }
 
 class ArrayIndexOutOfBoundsException extends RuntimeException {
+  public ArrayIndexOutOfBoundsException() {
+  }
+  public ArrayIndexOutOfBoundsException(String message) {
+    super(message)
+  }
 }
 
 class ClassCastException extends RuntimeException {
+  public ClassCastException() {
+  }
+  public ClassCastException(String message) {
+    super(message)
+  }
 }
 
 class IllegalArgumentException extends RuntimeException {
+  public IllegalArgumentException() {
+  }
+  public IllegalArgumentException(String message) {
+    super(message)
+  }
 }
 
 class IllegalStateException extends RuntimeException {
+  public IllegalStateException() {
+  }
+  public IllegalStateException(String message) {
+    super(message)
+  }
 }
 
 class NoSuchElementException extends RuntimeException {
+  public NoSuchElementException() {
+  }
+  public NoSuchElementException(String message) {
+    super(message)
+  }
 }
 
 class NegativeArraySizeException extends RuntimeException {
+  public NegativeArraySizeException() {
+  }
+  public NegativeArraySizeException(String message) {
+    super(message)
+  }
 }
 
 class AssertionError extends RuntimeException {
+  public AssertionError() {
+  }
+  public AssertionError(String message) {
+    super(message)
+  }
 }
 
 class UnsupportedOperationException extends RuntimeException {
+  public UnsupportedOperationException() {
+  }
+  public UnsupportedOperationException(String message) {
+    super(message)
+  }
 }
 
 class Enum<E> extends Object implements Comparable<E> {

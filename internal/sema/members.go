@@ -2,11 +2,10 @@ package sema
 
 import (
 	"strings"
-	"unicode"
-	"unicode/utf8"
 
 	"github.com/LangYa466/Teyru/internal/ast"
 	"github.com/LangYa466/Teyru/internal/source"
+	"github.com/LangYa466/Teyru/internal/util"
 )
 
 func (c *Checker) addField(cl *ast.Class, f *ast.Field) {
@@ -316,43 +315,18 @@ func hasMethodDecl(cd *ast.ClassDecl, name string, nparams int) bool {
 	return false
 }
 
+// nativeName is the C symbol the runtime must provide for a native method.
 func nativeName(cl *ast.Class, m *ast.Method) string {
 	var b strings.Builder
 	b.WriteString("tyn_")
-	b.WriteString(strings.ReplaceAll(cl.Full, "$", "_"))
+	b.WriteString(util.Mangle(cl.Full))
 	b.WriteByte('_')
-	b.WriteString(m.Name)
+	b.WriteString(util.Mangle(m.Name))
 	for _, p := range m.Params {
 		b.WriteByte('_')
-		b.WriteString(descriptor(p))
+		b.WriteString(util.Descriptor(p))
 	}
 	return b.String()
-}
-
-func descriptor(t ast.Type) string {
-	switch v := t.(type) {
-	case *ast.PrimType:
-		return [...]string{"V", "Z", "B", "S", "C", "I", "J", "F", "D"}[v.Kind]
-	case *ast.ArrayType:
-		return "A" + descriptor(v.Elem)
-	case *ast.ClassType:
-		return v.Class.Name
-	case *ast.TypeVarType:
-		return "O"
-	}
-	return "O"
-}
-
-// capitalize applies the JavaBeans rule used for property accessor names.
-func capitalize(name string) string {
-	r, n := utf8.DecodeRuneInString(name)
-	if n < len(name) {
-		r2, _ := utf8.DecodeRuneInString(name[n:])
-		if unicode.IsUpper(r) && unicode.IsUpper(r2) {
-			return name
-		}
-	}
-	return string(unicode.ToUpper(r)) + name[n:]
 }
 
 func (c *Checker) resolveFieldDecl(cl *ast.Class, env *typeEnv, d *ast.FieldDecl, isIface bool) {
@@ -415,7 +389,7 @@ func (c *Checker) resolveProperty(cl *ast.Class, f *ast.Field, d *ast.FieldDecl,
 		m := &ast.Method{Mods: mods, Pos: acc.Pos, Accessor: acc, Prop: f}
 		acc.Sym = m
 		if acc.IsSet {
-			m.Name = "set" + capitalize(f.Name)
+			m.Name = "set" + util.Capitalize(f.Name)
 			m.Result = ast.TVoid
 			m.Params = []ast.Type{f.Type}
 			m.ParamNames = []string{acc.ParamName}
@@ -425,7 +399,7 @@ func (c *Checker) resolveProperty(cl *ast.Class, f *ast.Field, d *ast.FieldDecl,
 			if ast.IsPrim(f.Type, ast.Boolean) {
 				prefix = "is"
 			}
-			m.Name = prefix + capitalize(f.Name)
+			m.Name = prefix + util.Capitalize(f.Name)
 			m.Result = f.Type
 			f.Getter = m
 		}

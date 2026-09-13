@@ -1,0 +1,88 @@
+// Package util holds helpers shared by the front end and the back end.
+//
+// The front end and the code generator must agree on how a Teyru symbol turns
+// into a C identifier and on how a method signature is keyed, so both live
+// here rather than being duplicated in each package.
+package util
+
+import (
+	"strings"
+	"unicode"
+	"unicode/utf8"
+
+	"github.com/LangYa466/Teyru/internal/ast"
+)
+
+// Mangle turns an arbitrary qualified name into a C identifier.
+//
+// Dots and the `$` of nested and synthetic classes become underscores; every
+// other character that is not valid in a C identifier is replaced too, so the
+// result is always safe to paste into generated code.
+func Mangle(s string) string {
+	var b strings.Builder
+	b.Grow(len(s) + 4)
+	for i := 0; i < len(s); i++ {
+		c := s[i]
+		switch {
+		case c >= 'a' && c <= 'z', c >= 'A' && c <= 'Z', c == '_':
+			b.WriteByte(c)
+		case c >= '0' && c <= '9' && i > 0:
+			b.WriteByte(c)
+		default:
+			b.WriteByte('_')
+		}
+	}
+	if b.Len() == 0 {
+		return "_"
+	}
+	return b.String()
+}
+
+// Capitalize applies the JavaBeans rule used for property accessor names: the
+// first code point is upper-cased unless the first two are already upper-case
+// (so `URL` stays `URL` rather than becoming `URL` via `Url`).
+func Capitalize(name string) string {
+	if name == "" {
+		return name
+	}
+	r, n := utf8.DecodeRuneInString(name)
+	if n < len(name) {
+		r2, _ := utf8.DecodeRuneInString(name[n:])
+		if unicode.IsUpper(r) && unicode.IsUpper(r2) {
+			return name
+		}
+	}
+	return string(unicode.ToUpper(r)) + name[n:]
+}
+
+// Descriptor encodes a type as a single character, matching the JVM-ish
+// convention the runtime uses for native method names.
+func Descriptor(t ast.Type) string {
+	switch v := t.(type) {
+	case *ast.PrimType:
+		return [...]string{"V", "Z", "B", "S", "C", "I", "J", "F", "D"}[v.Kind]
+	case *ast.ArrayType:
+		return "A"
+	case *ast.ClassType:
+		return v.Class.Name
+	case *ast.TypeVarType:
+		return "O"
+	}
+	return "O"
+}
+
+// Signature renders a parameter list as a stable lookup key, for example
+// `println(I)`.
+func Signature(name string, params []ast.Type) string {
+	var b strings.Builder
+	b.WriteString(name)
+	b.WriteByte('(')
+	for i, p := range params {
+		if i > 0 {
+			b.WriteByte(',')
+		}
+		b.WriteString(Descriptor(p))
+	}
+	b.WriteByte(')')
+	return b.String()
+}

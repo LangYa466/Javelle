@@ -283,7 +283,7 @@ func (e *Emitter) forEach(v *ast.ForEach) {
 			e.line("for (%s = 0; %s < %s->len; %s++) {\n", ix+"_i", ix+"_i", ix, ix+"_i")
 			e.indent++
 			if e.isRefElem(v.Elem) {
-				e.line("%s %s = (%s)((void**)%s->data)[%s];\n", e.ctype(v.Elem)+"*", name, e.ctype(v.Elem)+"*", ix, ix+"_i")
+				e.line("%s %s = (%s)((void**)%s->data)[%s];\n", e.ctype(v.Elem), name, e.ctype(v.Elem), ix, ix+"_i")
 			} else {
 				e.line("%s %s = ((%s*)%s->data)[%s];\n", e.ctype(v.Elem), name, e.ctype(v.Elem), ix, ix+"_i")
 			}
@@ -304,7 +304,7 @@ func (e *Emitter) forEach(v *ast.ForEach) {
 	e.line("while (((int32_t(*)(void*))ty_itab((tyobj*)%s, %d))(%s)) {\n", it, hnSel, it)
 	e.indent++
 	if v.Var.Sym != nil {
-		e.line("%s %s = (%s)((void*(*)(void*))ty_itab((tyobj*)%s, %d))(%s);\n", e.ctype(v.Elem)+"*", name, e.ctype(v.Elem)+"*", it, nxSel, it)
+		e.line("%s %s = (%s)((void*(*)(void*))ty_itab((tyobj*)%s, %d))(%s);\n", e.ctype(v.Elem), name, e.ctype(v.Elem), it, nxSel, it)
 	}
 	e.stmtAsBlock(v.Body)
 	e.indent--
@@ -438,69 +438,203 @@ func (e *Emitter) catchCond(cat *ast.Catch) string {
 
 // ---------------------------------------------------------------- switch
 
+// switchNeedsChain reports whether the switch uses patterns or guards, which
+// cannot be expressed as a plain C switch and are lowered as an if/else chain.
+func switchNeedsChain(s *ast.Switch) bool {
+	for _, cs := range s.Cases {
+		if cs.Pattern != nil || cs.Guard != nil {
+			return true
+		}
+	}
+	return false
+}
+
+// switchStmt lowers a switch statement or expression. Cases are emitted as
+// labels so that colon-form cases keep Java's fall-through semantics; resultTmp
+// is non-empty for switch expressions and receives the yielded value.
 func (e *Emitter) switchStmt(s *ast.Switch, resultTmp string) {
+	if len(s.Cases) == 0 {
+		return
+	}
+	id := e.switchID
+	e.switchID++
+	if switchNeedsChain(s) {
+		e.switchChain(s, resultTmp, id)
+		return
+	}
 	e.line("{\n")
 	e.indent++
 	selT := e.ctype(s.X.GetType())
-	if s.Kind == ast.SwitchString {
-		e.line("tystr* _s = (tystr*)%s;\n", e.expr(s.X))
-		e.line("int _k = -1;\n")
+	switch s.Kind {
+	case ast.SwitchString:
+		e.line("tystr* _s%d = (tystr*)%s;\n", id, e.expr(s.X))
+		e.line("int _k%d = -1;\n", id)
 		for i, cs := range s.Cases {
-			if cs.Default || len(cs.Labels) == 0 {
+			if isDefaultCase(cs) {
 				continue
 			}
 			for _, l := range cs.Labels {
-				e.line("if (_k < 0 && ty_str_eq(_s, %s)) _k = %d;\n", e.tmpRef(e.expr(l)), i)
+				e.line("if (_k%d < 0 && ty_str_eq(_s%d, %s)) _k%d = %d;\n", id, id, e.tmpRef(e.expr(l)), id, i)
 			}
 		}
-		e.line("switch (_k) {\n")
-		for i := range s.Cases {
-			e.line("case %d: goto _c%d;\n", i, i)
-		}
-		e.line("default: goto _cd;\n}\n")
-	} else {
-		e.line("%s _s = %s;\n", selT, e.expr(s.X))
-		if s.Kind == ast.SwitchEnum {
-			e.line("int32_t _e = %s((void*)_s);\n", e.enumOrdinalFn())
-			e.line("switch (_e) {\n")
-		} else {
-			e.line("switch ((int64_t)_s) {\n")
-		}
-		for i, cs := range s.Cases {
-			if cs.Default {
-				continue
-			}
-			for _, l := range cs.Labels {
-				e.line("case %s: ", e.constInt(l))
-			}
-			if len(cs.Labels) > 0 {
-				e.line("goto _c%d;\n", i)
-			}
-		}
-		e.line("default: goto _cd;\n}\n")
+		e.line("switch (_k%d) {\n", id)
+	case ast.SwitchEnum:
+		e.line("%s _s%d = %s;\n", selT, id, e.expr(s.X))
+		e.line("int32_t _e%d = ty_enum_ordinal((void*)_s%d);\n", id, id)
+		e.line("switch (_e%d) {\n", id)
+	default:
+		e.line("%s _s%d = %s;\n", selT, id, e.expr(s.X))
+		e.line("switch ((int64_t)_s%d) {\n", id)
 	}
 	for i, cs := range s.Cases {
-		if cs.Default {
+		if isDefaultCase(cs) {
 			continue
 		}
-		e.line("_c%d: ;\n", i)
+		for _, l := range cs.Labels {
+			e.line("case %s: ", e.constInt(l))
+		}
+		if len(cs.Labels) > 0 {
+			e.line("goto _c%d_%d;\n", id, i)
+		}
+	}
+	e.line("default: goto _cd%d;\n}\n", id)
+	for i, cs := range s.Cases {
+		if isDefaultCase(cs) {
+			continue
+		}
+		e.line("_c%d_%d: ;\n", id, i)
 		e.indent++
-		e.switchCaseBody(cs, resultTmp)
+		e.switchCaseBody(cs, resultTmp, id)
 		e.indent--
 	}
-	e.line("_cd: ;\n")
+	e.line("_cd%d: ;\n", id)
 	e.indent++
 	for _, cs := range s.Cases {
-		if cs.Default {
-			e.switchCaseBody(cs, resultTmp)
+		if isDefaultCase(cs) {
+			e.switchCaseBody(cs, resultTmp, id)
 		}
 	}
 	e.indent--
-	e.line("_end: ;\n")
+	e.line("_end%d: ;\n", id)
 	e.indent--
 	e.line("}\n")
 }
 
+// isDefaultCase reports whether a case is the default branch.
+func isDefaultCase(cs *ast.Case) bool {
+	return cs.Default || (len(cs.Labels) == 0 && cs.Pattern == nil)
+}
+
+// switchChain lowers a switch with type patterns or guards into an if/else
+// chain that computes the case index, then reuses the labelled-case scheme.
+func (e *Emitter) switchChain(s *ast.Switch, resultTmp string, id int) {
+	e.line("{\n")
+	e.indent++
+	selT := e.ctype(s.X.GetType())
+	e.line("%s _s%d = %s;\n", selT, id, e.expr(s.X))
+	e.line("int _k%d = -1;\n", id)
+	def := -1
+	n := 0
+	for i, cs := range s.Cases {
+		if isDefaultCase(cs) {
+			def = i
+			continue
+		}
+		kw := "if"
+		if n > 0 {
+			kw = "else if"
+		}
+		n++
+		e.line("%s (%s) { _k%d = %d; }\n", kw, e.caseCond(s, cs, id), id, i)
+	}
+	if def >= 0 {
+		if n > 0 {
+			e.line("else { _k%d = %d; }\n", id, def)
+		} else {
+			e.line("_k%d = %d;\n", id, def)
+		}
+	} else if n > 0 && resultTmp != "" {
+		// A switch expression with no matching case and no default has no value.
+		e.line("if (_k%d < 0) { ty_throw((tyobj*)ty_illegal_state(%s)); }\n", id, e.cstr("no matching switch case"))
+	}
+	e.line("switch (_k%d) {\n", id)
+	for i, cs := range s.Cases {
+		if isDefaultCase(cs) {
+			continue
+		}
+		e.line("case %d: goto _c%d_%d;\n", i, id, i)
+	}
+	e.line("default: goto _cd%d;\n}\n", id)
+	for i, cs := range s.Cases {
+		if isDefaultCase(cs) {
+			continue
+		}
+		e.line("_c%d_%d: ;\n", id, i)
+		e.indent++
+		e.emitPatternBinding(cs, id)
+		e.switchCaseBody(cs, resultTmp, id)
+		e.indent--
+	}
+	e.line("_cd%d: ;\n", id)
+	e.indent++
+	for _, cs := range s.Cases {
+		if isDefaultCase(cs) {
+			e.emitPatternBinding(cs, id)
+			e.switchCaseBody(cs, resultTmp, id)
+		}
+	}
+	e.indent--
+	e.line("_end%d: ;\n", id)
+	e.indent--
+	e.line("}\n")
+}
+
+// emitPatternBinding declares the variable of a type pattern case.
+func (e *Emitter) emitPatternBinding(cs *ast.Case, id int) {
+	if cs.Pattern == nil || cs.Pattern.Sym == nil {
+		return
+	}
+	ct := e.ctype(cs.Pattern.Sym.Type)
+	e.line("%s %s = (%s)(void*)_s%d;\n", ct, e.localName(cs.Pattern.Sym), ct, id)
+}
+
+// caseCond renders the condition that selects a case.
+func (e *Emitter) caseCond(s *ast.Switch, cs *ast.Case, id int) string {
+	var parts []string
+	for _, l := range cs.Labels {
+		if s.Kind == ast.SwitchString {
+			parts = append(parts, fmt.Sprintf("ty_str_eq((tystr*)_s%d, (tystr*)%s)", id, e.expr(l)))
+			continue
+		}
+		parts = append(parts, fmt.Sprintf("((int64_t)_s%d == %s)", id, e.constInt(l)))
+	}
+	if cs.Pattern != nil {
+		parts = append(parts, fmt.Sprintf("ty_instanceof((void*)_s%d, %s)", id, e.classOf(cs.Pattern.Type.Resolved)))
+	}
+	cond := "1"
+	if len(parts) > 0 {
+		cond = "(" + strings.Join(parts, " || ") + ")"
+	}
+	if cs.Guard == nil {
+		return cond
+	}
+	guard := e.expr(cs.Guard)
+	if cs.Pattern != nil && cs.Pattern.Sym != nil {
+		ct := e.ctype(cs.Pattern.Sym.Type)
+		return fmt.Sprintf("({ %s %s = (%s)(void*)_s%d; (%s) && (%s); })", ct, e.localName(cs.Pattern.Sym), ct, id, cond, guard)
+	}
+	return "(" + cond + " && " + guard + ")"
+}
+
+// classOf renders the class descriptor of a resolved type.
+func (e *Emitter) classOf(t ast.Type) string {
+	if ct, ok := t.(*ast.ClassType); ok {
+		return "&cls_" + mangle(ct.Class.Full)
+	}
+	return "&cls_" + mangle(e.prog.ArrayClass().Full)
+}
+
+// constInt renders a case label as a C integer constant.
 func (e *Emitter) constInt(l ast.Expr) string {
 	if lit, ok := l.(*ast.Literal); ok {
 		switch lit.Kind {
@@ -515,44 +649,46 @@ func (e *Emitter) constInt(l ast.Expr) string {
 }
 
 // switchCaseBody emits one case body; Java colon cases fall through.
-func (e *Emitter) switchCaseBody(cs *ast.Case, resultTmp string) {
+func (e *Emitter) switchCaseBody(cs *ast.Case, resultTmp string, id int) {
 	if cs.ArrowX != nil {
 		if resultTmp != "" {
 			e.line("%s = %s;\n", resultTmp, e.expr(cs.ArrowX))
 		} else {
 			e.line("(void)(%s);\n", e.expr(cs.ArrowX))
 		}
-		e.line("goto _end;\n")
+		e.line("goto _end%d;\n", id)
 		return
 	}
 	for _, st := range cs.Body {
-		if y, ok := st.(*ast.Yield); ok && resultTmp != "" {
-			e.line("%s = %s;\n", resultTmp, e.expr(y.X))
-			e.line("goto _end;\n")
-			continue
-		}
-		if b, ok := st.(*ast.Block); ok && resultTmp != "" {
-			e.emitYieldBlock(b, resultTmp)
+		if y, ok := st.(*ast.Yield); ok {
+			if resultTmp != "" {
+				e.line("%s = %s;\n", resultTmp, e.expr(y.X))
+			}
+			e.line("goto _end%d;\n", id)
 			continue
 		}
 		if _, isBreak := st.(*ast.Break); isBreak {
-			e.line("goto _end;\n")
+			e.line("goto _end%d;\n", id)
+			continue
+		}
+		if b, ok := st.(*ast.Block); ok && resultTmp != "" {
+			e.emitYieldBlock(b, resultTmp, id)
 			continue
 		}
 		e.stmt(st)
 	}
 }
 
-func (e *Emitter) emitYieldBlock(b *ast.Block, resultTmp string) {
+// emitYieldBlock handles blocks that yield a value inside a switch expression.
+func (e *Emitter) emitYieldBlock(b *ast.Block, resultTmp string, id int) {
 	for _, st := range b.Stmts {
 		if y, ok := st.(*ast.Yield); ok {
 			e.line("%s = %s;\n", resultTmp, e.expr(y.X))
+			e.line("goto _end%d;\n", id)
 			continue
 		}
 		e.stmt(st)
 	}
 }
-
-func (e *Emitter) enumOrdinalFn() string { return "ty_enum_ordinal" }
 
 var _ = ast.ModPublic

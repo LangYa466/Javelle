@@ -5,37 +5,12 @@ import (
 	"strings"
 
 	"github.com/LangYa466/Teyru/internal/ast"
+	"github.com/LangYa466/Teyru/internal/util"
 )
 
 // nativeKey identifies a native (runtime-implemented) method precisely.
 func nativeKey(m *ast.Method) string {
-	var b strings.Builder
-	b.WriteString(m.Owner.Name)
-	b.WriteByte('.')
-	b.WriteString(m.Name)
-	b.WriteByte('(')
-	for i, p := range m.Params {
-		if i > 0 {
-			b.WriteByte(',')
-		}
-		b.WriteString(descOf(p))
-	}
-	b.WriteByte(')')
-	return b.String()
-}
-
-func descOf(t ast.Type) string {
-	switch v := t.(type) {
-	case *ast.PrimType:
-		return [...]string{"V", "Z", "B", "S", "C", "I", "J", "F", "D"}[v.Kind]
-	case *ast.ArrayType:
-		return "A"
-	case *ast.ClassType:
-		return v.Class.Name
-	case *ast.TypeVarType:
-		return "O"
-	}
-	return "O"
+	return m.Owner.Name + "." + util.Signature(m.Name, m.Params)
 }
 
 // emitSynthetic writes the C body of a compiler-synthesized method.

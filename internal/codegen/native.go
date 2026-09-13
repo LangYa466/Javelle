@@ -164,12 +164,12 @@ var nativeTable = map[string]nativeFn{
 	"StringBuilder.length()":       {fn: "ty_sb_len", recv: "void*"},
 
 	// ---- Enum
-	"Enum.ordinal()":       {fn: "ty_enum_ordinal", recv: "void*"},
-	"Enum.name()":          {fn: "ty_enum_name", recv: "void*"},
-	"Enum.toString()":      {fn: "ty_enum_name", recv: "void*"},
-	"Enum.hashCode()":      {fn: "ty_enum_ordinal", recv: "void*"},
-	"Enum.equals(Object)":  {fn: "ty_obj_eq", recv: "void*"},
-	"Enum.compareTo(O)": {fn: "ty_enum_compare", recv: "void*"},
+	"Enum.ordinal()":      {fn: "ty_enum_ordinal", recv: "void*"},
+	"Enum.name()":         {fn: "ty_enum_name", recv: "void*"},
+	"Enum.toString()":     {fn: "ty_enum_name", recv: "void*"},
+	"Enum.hashCode()":     {fn: "ty_enum_ordinal", recv: "void*"},
+	"Enum.equals(Object)": {fn: "ty_obj_eq", recv: "void*"},
+	"Enum.compareTo(O)":   {fn: "ty_enum_compare", recv: "void*"},
 }
 
 // nativeCall renders a call to a prelude native method.
