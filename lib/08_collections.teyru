@@ -4,9 +4,21 @@ interface List<T> extends Iterable<T> {
   int size()
   T get(int i)
   void add(T v)
+  void addAll(List<T> other)
   boolean isEmpty()
   boolean contains(T v)
   int indexOf(T v)
+}
+
+interface Map<K, V> {
+  V get(K key)
+  void put(K key, V value)
+  void putAll(Map<K, V> other)
+  boolean containsKey(K key)
+  V remove(K key)
+  int size()
+  boolean isEmpty()
+  List<K> keys()
 }
 
 class ArrayList<T> implements List<T>, Iterable<T> {
@@ -24,6 +36,11 @@ class ArrayList<T> implements List<T>, Iterable<T> {
     items = new Object[capacity > 0 ? capacity : 1]
   }
 
+  public ArrayList(List<T> other) {
+    items = new Object[other.size() > 0 ? other.size() : 1]
+    addAll(other)
+  }
+
   public int size() {
     return count
   }
@@ -38,6 +55,12 @@ class ArrayList<T> implements List<T>, Iterable<T> {
     }
     items[count] = v
     count++
+  }
+
+  public void addAll(List<T> other) {
+    for (T v : other) {
+      add(v)
+    }
   }
 
   public T get(int i) {
@@ -143,7 +166,7 @@ class ArrayListIterator<T> implements Iterator<T> {
   }
 }
 
-class HashMap<K, V> {
+class HashMap<K, V> implements Map<K, V> {
   private Object[] keys
   private Object[] values
   private int count
@@ -153,6 +176,13 @@ class HashMap<K, V> {
     keys = new Object[16]
     values = new Object[16]
     mask = 15
+  }
+
+  public HashMap(Map<K, V> other) {
+    keys = new Object[16]
+    values = new Object[16]
+    mask = 15
+    putAll(other)
   }
 
   public int size() {
@@ -174,6 +204,22 @@ class HashMap<K, V> {
     keys[slot] = key
     values[slot] = value
     count++
+  }
+
+  public void putAll(Map<K, V> other) {
+    for (K k : other.keys()) {
+      put(k, other.get(k))
+    }
+  }
+
+  public List<K> keys() {
+    ArrayList<K> out = new ArrayList<K>(count > 0 ? count : 1)
+    for (int i = 0 : i < keys.length : i++) {
+      if (keys[i] != null) {
+        out.add((K) keys[i])
+      }
+    }
+    return out
   }
 
   public V get(K key) {
