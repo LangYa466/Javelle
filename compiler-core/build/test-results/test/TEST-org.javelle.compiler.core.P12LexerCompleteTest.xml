@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="org.javelle.compiler.core.P12LexerCompleteTest" tests="16" skipped="0" failures="0" errors="0" timestamp="2026-09-12T05:57:03.032Z" hostname="nobara-pc" time="0.046">
+  <properties/>
+  <testcase name="crLfAndLoneCrAllLexAsNewlineTokens()" classname="org.javelle.compiler.core.P12LexerCompleteTest" time="0.001"/>
+  <testcase name="wellFormedTextBlockLexesAsOneLiteralWithNoDiagnostics()" classname="org.javelle.compiler.core.P12LexerCompleteTest" time="0.0"/>
+  <testcase name="astralIdentifiersViaSurrogatePairsLexAsOneIdentifier()" classname="org.javelle.compiler.core.P12LexerCompleteTest" time="0.002"/>
+  <testcase name="textBlockEscapedClosingQuotesDoNotEndTheBlock()" classname="org.javelle.compiler.core.P12LexerCompleteTest" time="0.001"/>
+  <testcase name="textBlockLineContinuationEscapeIsOnlyValidInTextBlocks()" classname="org.javelle.compiler.core.P12LexerCompleteTest" time="0.0"/>
+  <testcase name="backslashBeforeRawNewlineInPlainStringIsInvalidAndUnterminated()" classname="org.javelle.compiler.core.P12LexerCompleteTest" time="0.001"/>
+  <testcase name="javadocCommentsAreDistinguishedFromPlainBlockComments()" classname="org.javelle.compiler.core.P12LexerCompleteTest" time="0.001"/>
+  <testcase name="validStringEscapesAreAccepted()" classname="org.javelle.compiler.core.P12LexerCompleteTest" time="0.0"/>
+  <testcase name="textBlockOpenDelimiterMustBeFollowedByLineTerminator()" classname="org.javelle.compiler.core.P12LexerCompleteTest" time="0.001"/>
+  <testcase name="contextualWordsLexAsPlainIdentifiers()" classname="org.javelle.compiler.core.P12LexerCompleteTest" time="0.0"/>
+  <testcase name="deterministicMutationFuzzNeverThrowsHangsOrExceedsBudgets()" classname="org.javelle.compiler.core.P12LexerCompleteTest" time="0.033"/>
+  <testcase name="newlineTokensCarryPositionMetadataAndNoSyntheticSemicolonIsEverInserted()" classname="org.javelle.compiler.core.P12LexerCompleteTest" time="0.001"/>
+  <testcase name="fullJava25ReservedWordsLexAsKeywords()" classname="org.javelle.compiler.core.P12LexerCompleteTest" time="0.001"/>
+  <testcase name="invalidEscapeIsDiagnosedButLexingContinues()" classname="org.javelle.compiler.core.P12LexerCompleteTest" time="0.0"/>
+  <testcase name="unterminatedTextBlockIsOneBoundedDiagnosticNotAHang()" classname="org.javelle.compiler.core.P12LexerCompleteTest" time="0.0"/>
+  <testcase name="utf8BomIsConsumedAsLeadingTriviaNotIdentifierText()" classname="org.javelle.compiler.core.P12LexerCompleteTest" time="0.001"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

@@ -1,0 +1,95 @@
+package sema
+
+import "github.com/LangYa466/Teyru/internal/ast"
+
+// Erased returns the runtime type of t (generics are erased at code generation).
+func (p *Program) Erased(t ast.Type) ast.Type {
+	if p.c == nil {
+		return t
+	}
+	return p.c.erasure(t)
+}
+
+// AllInterfaces lists every interface implemented by cl.
+func (p *Program) AllInterfaces(cl *ast.Class) []*ast.Class {
+	if p.c == nil {
+		return nil
+	}
+	return p.c.AllInterfaces(cl)
+}
+
+// InterfaceMethods lists the instance methods declared by an interface.
+func (p *Program) InterfaceMethods(iface *ast.Class) []*ast.Method {
+	var out []*ast.Method
+	for _, name := range sortedMethodNames(iface) {
+		for _, m := range iface.Methods[name] {
+			if m.IsStatic() || m.IsCtor || m.SynthKind == "lambda-ctor" {
+				continue
+			}
+			out = append(out, m)
+		}
+	}
+	return out
+}
+
+// Implements returns the method of cl that implements iface method im.
+func (p *Program) Implements(cl *ast.Class, im *ast.Method) *ast.Method {
+	if p.c == nil {
+		return nil
+	}
+	return p.c.Implementation(cl, im)
+}
+
+// SelectorOf returns the dispatch selector of an interface method.
+func (p *Program) SelectorOf(m *ast.Method) int { return m.Selector }
+
+// IsSubtype reports whether a is assignable to b without a cast.
+func (p *Program) IsSubtype(a, b ast.Type) bool {
+	if p.c == nil {
+		return false
+	}
+	return p.c.isSubtype(a, b)
+}
+
+// FieldType returns a field's declared type.
+func (p *Program) FieldType(f *ast.Field) ast.Type { return f.Type }
+
+// FieldOwner returns the class declaring a field.
+func (p *Program) FieldOwner(f *ast.Field) *ast.Class { return f.Owner }
+
+// Lowered returns the desugared form of an expression (property reads become
+// getter calls, and so on).
+func (p *Program) Lowered(x ast.Expr) (ast.Expr, bool) {
+	if p.c == nil {
+		return nil, false
+	}
+	v, ok := p.c.Props[x]
+	return v, ok
+}
+
+// ConstInt evaluates a constant integer expression.
+func (p *Program) ConstInt(x ast.Expr) *int64 {
+	if p.c == nil {
+		return nil
+	}
+	cv := p.c.constEval(x)
+	if !cv.ok {
+		return nil
+	}
+	v := cv.i
+	return &v
+}
+
+// ArrayClass returns the synthetic class used for array values.
+func (p *Program) ArrayClass() *ast.Class {
+	if p.c == nil {
+		return nil
+	}
+	return p.c.arrayClass()
+}
+
+// ObjectClass returns the root class of the hierarchy.
+func (p *Program) ObjectClass() *ast.Class { return p.Builtins.Object }
+
+// WrapInOuter records that cl is an inner class holding an outer instance.
+func (p *Program) OuterFieldOf(cl *ast.Class) *ast.Field { return cl.OuterField }

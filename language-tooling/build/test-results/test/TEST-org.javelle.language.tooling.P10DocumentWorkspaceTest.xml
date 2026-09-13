@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="org.javelle.language.tooling.P10DocumentWorkspaceTest" tests="5" skipped="0" failures="0" errors="0" timestamp="2026-09-12T05:58:18.356Z" hostname="nobara-pc" time="1.041">
+  <properties/>
+  <testcase name="validatedWorkspacePropertyMetadataSeedsSemanticIndexWithoutFabrication()" classname="org.javelle.language.tooling.P10DocumentWorkspaceTest" time="0.539"/>
+  <testcase name="utf16CrLfIncrementalChangeIsAtomicAndRejectsSurrogateInterior()" classname="org.javelle.language.tooling.P10DocumentWorkspaceTest" time="0.005"/>
+  <testcase name="cooperativeCancellationStopsAtInjectedCompilerStageCheckpoint()" classname="org.javelle.language.tooling.P10DocumentWorkspaceTest" time="0.058"/>
+  <testcase name="resolvedRootsClasspathAndToolchainDriveSymbols()" classname="org.javelle.language.tooling.P10DocumentWorkspaceTest" time="0.421"/>
+  <testcase name="compilerBackedSyntaxDiagnosticUsesRawUtf16()" classname="org.javelle.language.tooling.P10DocumentWorkspaceTest" time="0.006"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[/Use.java:4: error: cannot find symbol
+    RootSymbol root;
+    ^
+  symbol:   class RootSymbol
+  location: class Use
+]]></system-err>
+</testsuite>

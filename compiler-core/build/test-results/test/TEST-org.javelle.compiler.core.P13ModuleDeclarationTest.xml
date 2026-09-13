@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="org.javelle.compiler.core.P13ModuleDeclarationTest" tests="6" skipped="0" failures="0" errors="0" timestamp="2026-09-12T05:57:03.112Z" hostname="nobara-pc" time="0.003">
+  <properties/>
+  <testcase name="exportsToSpecificModules()" classname="org.javelle.compiler.core.P13ModuleDeclarationTest" time="0.0"/>
+  <testcase name="packageOnlyCompilationUnitIsValid()" classname="org.javelle.compiler.core.P13ModuleDeclarationTest" time="0.0"/>
+  <testcase name="openModule()" classname="org.javelle.compiler.core.P13ModuleDeclarationTest" time="0.001"/>
+  <testcase name="moduleWithRequiresAndExports()" classname="org.javelle.compiler.core.P13ModuleDeclarationTest" time="0.0"/>
+  <testcase name="unterminatedModuleIsADiagnosedError()" classname="org.javelle.compiler.core.P13ModuleDeclarationTest" time="0.001"/>
+  <testcase name="opensUsesAndProvides()" classname="org.javelle.compiler.core.P13ModuleDeclarationTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="org.javelle.compiler.core.P13ConstructorInvocationTest" tests="5" skipped="0" failures="0" errors="0" timestamp="2026-09-12T05:57:03.086Z" hostname="nobara-pc" time="0.003">
+  <properties/>
+  <testcase name="thisCallNotFirstStatementIsRejected()" classname="org.javelle.compiler.core.P13ConstructorInvocationTest" time="0.001"/>
+  <testcase name="thisCallAsFirstStatementIsAccepted()" classname="org.javelle.compiler.core.P13ConstructorInvocationTest" time="0.001"/>
+  <testcase name="thisFieldAccessIsUnaffectedByThePlacementRule()" classname="org.javelle.compiler.core.P13ConstructorInvocationTest" time="0.0"/>
+  <testcase name="thisCallInRegularMethodIsRejected()" classname="org.javelle.compiler.core.P13ConstructorInvocationTest" time="0.001"/>
+  <testcase name="superCallAsFirstStatementIsAccepted()" classname="org.javelle.compiler.core.P13ConstructorInvocationTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

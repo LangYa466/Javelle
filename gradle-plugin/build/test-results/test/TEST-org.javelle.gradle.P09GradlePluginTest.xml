@@ -1,0 +1,643 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="org.javelle.gradle.P09GradlePluginTest" tests="5" skipped="0" failures="0" errors="0" timestamp="2026-09-12T05:57:07.012Z" hostname="nobara-pc" time="53.672">
+  <properties/>
+  <testcase name="compilationFailureAndOwnershipAttacksPreserveAcceptedOutputs()" classname="org.javelle.gradle.P09GradlePluginTest" time="19.548"/>
+  <testcase name="packagedPluginGeneratesCompilesJarsAndIsUpToDate()" classname="org.javelle.gradle.P09GradlePluginTest" time="12.805"/>
+  <testcase name="missingCompilerFailsBeforePublishing()" classname="org.javelle.gradle.P09GradlePluginTest" time="0.242"/>
+  <testcase name="everyDeclaredCompilerInputInvalidatesGeneration()" classname="org.javelle.gradle.P09GradlePluginTest" time="19.992"/>
+  <testcase name="selectedJdk25LauncherAndRelease25AreRecorded()" classname="org.javelle.gradle.P09GradlePluginTest" time="1.075"/>
+  <system-out><![CDATA[> Task :Javelle:build-logic:compileJava UP-TO-DATE
+> Task :Javelle:build-logic:pluginDescriptors UP-TO-DATE
+> Task :Javelle:build-logic:processResources UP-TO-DATE
+> Task :Javelle:build-logic:classes UP-TO-DATE
+> Task :Javelle:build-logic:jar UP-TO-DATE
+> Task :Javelle:workspace-model:compileJava UP-TO-DATE
+> Task :Javelle:gradle-plugin:compileJava UP-TO-DATE
+> Task :Javelle:gradle-plugin:pluginDescriptors UP-TO-DATE
+> Task :Javelle:gradle-plugin:processResources UP-TO-DATE
+> Task :Javelle:gradle-plugin:classes UP-TO-DATE
+> Task :Javelle:gradle-plugin:jar UP-TO-DATE
+> Task :Javelle:workspace-model:processResources NO-SOURCE
+> Task :Javelle:workspace-model:classes UP-TO-DATE
+> Task :Javelle:workspace-model:jar UP-TO-DATE
+> Task :exportJavelleWorkspaceModel
+> Task :processResources NO-SOURCE
+> Task :generateJavelleJava
+> Task :compileJava
+> Task :classes
+
+BUILD SUCCESSFUL in 12s
+13 actionable tasks: 3 executed, 10 up-to-date
+Consider enabling configuration cache to speed up this build: https://docs.gradle.org/9.6.0/userguide/configuration_cache_enabling.html
+> Task :Javelle:build-logic:compileJava UP-TO-DATE
+> Task :Javelle:build-logic:pluginDescriptors UP-TO-DATE
+> Task :Javelle:build-logic:processResources UP-TO-DATE
+> Task :Javelle:build-logic:classes UP-TO-DATE
+> Task :Javelle:build-logic:jar UP-TO-DATE
+> Task :Javelle:workspace-model:compileJava UP-TO-DATE
+> Task :Javelle:gradle-plugin:compileJava UP-TO-DATE
+> Task :Javelle:gradle-plugin:pluginDescriptors UP-TO-DATE
+> Task :Javelle:gradle-plugin:processResources UP-TO-DATE
+> Task :Javelle:gradle-plugin:classes UP-TO-DATE
+> Task :Javelle:gradle-plugin:jar UP-TO-DATE
+> Task :Javelle:workspace-model:processResources NO-SOURCE
+> Task :Javelle:workspace-model:classes UP-TO-DATE
+> Task :Javelle:workspace-model:jar UP-TO-DATE
+> Task :exportJavelleWorkspaceModel UP-TO-DATE
+> Task :generateJavelleJava FAILED
+
+FAILURE: Build failed with an exception.
+
+* What went wrong:
+Execution failed for task ':generateJavelleJava' (registered by plugin 'org.javelle').
+> A failure occurred while executing org.javelle.gradle.GenerateJavelleWork
+   > Javelle compiler failed (exit 3): {"schemaVersion":1,"command":"emit-java","status":"COMPILATION_ERROR","diagnostics":[{"code":"JV-SYN-0001","severity":"ERROR","source":{"uri":"A.javelle","sha256":"edcc80dda71ea05ecdbf9f96e4ac130795bc18755e8fc5b60e0233acdb9a80f4"},"range":{"unit":"RAW_UTF16","start":33,"end":34},"message":"Javelle syntax does not allow semicolons","relatedInformation":[],"fixes":[{"id":"remove-semicolon","title":"Remove semicolon","kind":"QUICK_FIX","edits":[{"source":{"uri":"A.javelle","sha256":"edcc80dda71ea05ecdbf9f96e4ac130795bc18755e8fc5b60e0233acdb9a80f4"},"range":{"unit":"RAW_UTF16","start":33,"end":34},"replacement":""}]}],"data":{}}],"summary":{"errors":1,"warnings":0,"information":0,"hints":0}}
+
+
+* Try:
+> Run with --stacktrace option to get the stack trace.
+> Run with --info or --debug option to get more log output.
+> Run with --scan to get full insights from a Build Scan (powered by Develocity).
+> Get more help at https://help.gradle.org.
+
+BUILD FAILED in 1s
+12 actionable tasks: 1 executed, 11 up-to-date
+> Task :Javelle:build-logic:compileJava UP-TO-DATE
+> Task :Javelle:build-logic:pluginDescriptors UP-TO-DATE
+> Task :Javelle:build-logic:processResources UP-TO-DATE
+> Task :Javelle:build-logic:classes UP-TO-DATE
+> Task :Javelle:build-logic:jar UP-TO-DATE
+> Task :Javelle:workspace-model:compileJava UP-TO-DATE
+> Task :Javelle:gradle-plugin:compileJava UP-TO-DATE
+> Task :Javelle:gradle-plugin:pluginDescriptors UP-TO-DATE
+> Task :Javelle:gradle-plugin:processResources UP-TO-DATE
+> Task :Javelle:gradle-plugin:classes UP-TO-DATE
+> Task :Javelle:gradle-plugin:jar UP-TO-DATE
+> Task :Javelle:workspace-model:processResources NO-SOURCE
+> Task :Javelle:workspace-model:classes UP-TO-DATE
+> Task :Javelle:workspace-model:jar UP-TO-DATE
+> Task :exportJavelleWorkspaceModel UP-TO-DATE
+> Task :generateJavelleJava FAILED
+
+FAILURE: Build failed with an exception.
+
+* What went wrong:
+Execution failed for task ':generateJavelleJava' (registered by plugin 'org.javelle').
+> A failure occurred while executing org.javelle.gradle.GenerateJavelleWork
+   > Javelle compiler failed (exit 4): JV-CLI-IO: owned output changed: p/A.java
+
+
+* Try:
+> Run with --stacktrace option to get the stack trace.
+> Run with --info or --debug option to get more log output.
+> Run with --scan to get full insights from a Build Scan (powered by Develocity).
+> Get more help at https://help.gradle.org.
+
+BUILD FAILED in 1s
+12 actionable tasks: 1 executed, 11 up-to-date
+> Task :Javelle:build-logic:compileJava UP-TO-DATE
+> Task :Javelle:build-logic:pluginDescriptors UP-TO-DATE
+> Task :Javelle:build-logic:processResources UP-TO-DATE
+> Task :Javelle:build-logic:classes UP-TO-DATE
+> Task :Javelle:build-logic:jar UP-TO-DATE
+> Task :Javelle:workspace-model:compileJava UP-TO-DATE
+> Task :Javelle:gradle-plugin:compileJava UP-TO-DATE
+> Task :Javelle:gradle-plugin:pluginDescriptors UP-TO-DATE
+> Task :Javelle:gradle-plugin:processResources UP-TO-DATE
+> Task :Javelle:gradle-plugin:classes UP-TO-DATE
+> Task :Javelle:gradle-plugin:jar UP-TO-DATE
+> Task :Javelle:workspace-model:processResources NO-SOURCE
+> Task :Javelle:workspace-model:classes UP-TO-DATE
+> Task :Javelle:workspace-model:jar UP-TO-DATE
+> Task :exportJavelleWorkspaceModel UP-TO-DATE
+> Task :generateJavelleJava
+
+BUILD SUCCESSFUL in 1s
+12 actionable tasks: 1 executed, 11 up-to-date
+Consider enabling configuration cache to speed up this build: https://docs.gradle.org/9.6.0/userguide/configuration_cache_enabling.html
+> Task :Javelle:build-logic:compileJava UP-TO-DATE
+> Task :Javelle:build-logic:pluginDescriptors UP-TO-DATE
+> Task :Javelle:build-logic:processResources UP-TO-DATE
+> Task :Javelle:build-logic:classes UP-TO-DATE
+> Task :Javelle:build-logic:jar UP-TO-DATE
+> Task :Javelle:workspace-model:compileJava UP-TO-DATE
+> Task :Javelle:gradle-plugin:compileJava UP-TO-DATE
+> Task :Javelle:gradle-plugin:pluginDescriptors UP-TO-DATE
+> Task :Javelle:gradle-plugin:processResources UP-TO-DATE
+> Task :Javelle:gradle-plugin:classes UP-TO-DATE
+> Task :Javelle:gradle-plugin:jar UP-TO-DATE
+> Task :Javelle:workspace-model:processResources NO-SOURCE
+> Task :Javelle:workspace-model:classes UP-TO-DATE
+> Task :Javelle:workspace-model:jar UP-TO-DATE
+> Task :exportJavelleWorkspaceModel UP-TO-DATE
+> Task :generateJavelleJava FAILED
+
+FAILURE: Build failed with an exception.
+
+* What went wrong:
+Execution failed for task ':generateJavelleJava' (registered by plugin 'org.javelle').
+> A failure occurred while executing org.javelle.gradle.GenerateJavelleWork
+   > Javelle compiler failed (exit 4): JV-CLI-IO: output symlink rejected
+
+
+* Try:
+> Run with --stacktrace option to get the stack trace.
+> Run with --info or --debug option to get more log output.
+> Run with --scan to get full insights from a Build Scan (powered by Develocity).
+> Get more help at https://help.gradle.org.
+
+BUILD FAILED in 1s
+12 actionable tasks: 1 executed, 11 up-to-date
+> Task :Javelle:build-logic:compileJava UP-TO-DATE
+> Task :Javelle:build-logic:pluginDescriptors UP-TO-DATE
+> Task :Javelle:build-logic:processResources UP-TO-DATE
+> Task :Javelle:build-logic:classes UP-TO-DATE
+> Task :Javelle:build-logic:jar UP-TO-DATE
+> Task :Javelle:workspace-model:compileJava UP-TO-DATE
+> Task :Javelle:gradle-plugin:compileJava UP-TO-DATE
+> Task :Javelle:gradle-plugin:pluginDescriptors UP-TO-DATE
+> Task :Javelle:gradle-plugin:processResources UP-TO-DATE
+> Task :Javelle:gradle-plugin:classes UP-TO-DATE
+> Task :Javelle:gradle-plugin:jar UP-TO-DATE
+> Task :Javelle:workspace-model:processResources NO-SOURCE
+> Task :Javelle:workspace-model:classes UP-TO-DATE
+> Task :Javelle:workspace-model:jar UP-TO-DATE
+> Task :exportJavelleWorkspaceModel UP-TO-DATE
+> Task :generateJavelleJava FAILED
+
+FAILURE: Build failed with an exception.
+
+* What went wrong:
+Execution failed for task ':generateJavelleJava' (registered by plugin 'org.javelle').
+> A failure occurred while executing org.javelle.gradle.GenerateJavelleWork
+   > Javelle compiler failed (exit 4): JV-CLI-IO: foreign output collision: p/B.java
+
+
+* Try:
+> Run with --stacktrace option to get the stack trace.
+> Run with --info or --debug option to get more log output.
+> Run with --scan to get full insights from a Build Scan (powered by Develocity).
+> Get more help at https://help.gradle.org.
+
+BUILD FAILED in 1s
+12 actionable tasks: 1 executed, 11 up-to-date
+> Task :Javelle:build-logic:compileJava UP-TO-DATE
+> Task :Javelle:build-logic:pluginDescriptors UP-TO-DATE
+> Task :Javelle:build-logic:processResources UP-TO-DATE
+> Task :Javelle:build-logic:classes UP-TO-DATE
+> Task :Javelle:build-logic:jar UP-TO-DATE
+> Task :Javelle:workspace-model:compileJava UP-TO-DATE
+> Task :Javelle:gradle-plugin:compileJava UP-TO-DATE
+> Task :Javelle:gradle-plugin:pluginDescriptors UP-TO-DATE
+> Task :Javelle:gradle-plugin:processResources UP-TO-DATE
+> Task :Javelle:gradle-plugin:classes UP-TO-DATE
+> Task :Javelle:gradle-plugin:jar UP-TO-DATE
+> Task :Javelle:workspace-model:processResources NO-SOURCE
+> Task :Javelle:workspace-model:classes UP-TO-DATE
+> Task :Javelle:workspace-model:jar UP-TO-DATE
+
+> Task :help
+
+Welcome to Gradle 9.6.0.
+
+To run a build, run gradle <task> ...
+
+To see a list of available tasks, run gradle tasks
+
+To see more detail about a task, run gradle help --task <task>
+
+To see a list of command-line options, run gradle --help
+
+For more detail on using Gradle, see https://docs.gradle.org/9.6.0/userguide/command_line_interface.html
+
+For troubleshooting, visit https://help.gradle.org
+
+BUILD SUCCESSFUL in 4s
+11 actionable tasks: 1 executed, 10 up-to-date
+Consider enabling configuration cache to speed up this build: https://docs.gradle.org/9.6.0/userguide/configuration_cache_enabling.html
+Calculating task graph as no cached configuration is available for tasks: jar test run
+> Task :Javelle:build-logic:compileJava UP-TO-DATE
+> Task :Javelle:build-logic:pluginDescriptors UP-TO-DATE
+> Task :Javelle:build-logic:processResources UP-TO-DATE
+> Task :Javelle:build-logic:classes UP-TO-DATE
+> Task :Javelle:build-logic:jar UP-TO-DATE
+> Task :Javelle:workspace-model:compileJava UP-TO-DATE
+> Task :Javelle:gradle-plugin:compileJava UP-TO-DATE
+> Task :Javelle:gradle-plugin:pluginDescriptors UP-TO-DATE
+> Task :Javelle:gradle-plugin:processResources UP-TO-DATE
+> Task :Javelle:gradle-plugin:classes UP-TO-DATE
+> Task :Javelle:gradle-plugin:jar UP-TO-DATE
+> Task :Javelle:workspace-model:processResources NO-SOURCE
+> Task :Javelle:workspace-model:classes UP-TO-DATE
+> Task :Javelle:workspace-model:jar UP-TO-DATE
+> Task :processTestResources NO-SOURCE
+> Task :processResources NO-SOURCE
+> Task :exportJavelleWorkspaceModel
+> Task :exportTestJavelleWorkspaceModel
+> Task :generateJavelleJava
+> Task :compileJava
+> Task :classes
+
+> Task :run
+OK
+> Task :jar
+> Task :generateTestJavelleJava
+
+> Task :compileTestJava
+warning: unknown enum constant Status.STABLE
+  reason: class file for org.apiguardian.api.API$Status not found
+warning: unknown enum constant Status.STABLE
+warning: unknown enum constant Status.STABLE
+warning: unknown enum constant Status.STABLE
+warning: unknown enum constant Status.STABLE
+warning: unknown enum constant Status.STABLE
+warning: unknown enum constant Status.STABLE
+warning: unknown enum constant Status.STABLE
+warning: unknown enum constant Status.STABLE
+warning: unknown enum constant Status.STABLE
+warning: unknown enum constant Status.STABLE
+warning: unknown enum constant Status.STABLE
+warning: unknown enum constant Status.STABLE
+warning: unknown enum constant Status.STABLE
+warning: unknown enum constant Status.STABLE
+warning: unknown enum constant Status.STABLE
+warning: unknown enum constant Status.STABLE
+warning: unknown enum constant Status.STABLE
+warning: unknown enum constant Status.STABLE
+warning: unknown enum constant Status.STABLE
+warning: unknown enum constant Status.STABLE
+warning: unknown enum constant Status.STABLE
+warning: unknown enum constant Status.STABLE
+warning: unknown enum constant Status.STABLE
+warning: unknown enum constant Status.STABLE
+warning: unknown enum constant Status.STABLE
+warning: unknown enum constant Status.STABLE
+warning: unknown enum constant Status.STABLE
+warning: unknown enum constant Status.STABLE
+warning: unknown enum constant Status.STABLE
+warning: unknown enum constant Status.STABLE
+warning: unknown enum constant Status.STABLE
+warning: unknown enum constant Status.STABLE
+warning: unknown enum constant Status.STABLE
+warning: unknown enum constant Status.STABLE
+warning: unknown enum constant Status.STABLE
+warning: unknown enum constant Status.STABLE
+warning: unknown enum constant Status.STABLE
+warning: unknown enum constant Status.STABLE
+warning: unknown enum constant Status.STABLE
+warning: unknown enum constant Status.STABLE
+warning: unknown enum constant Status.STABLE
+warning: unknown enum constant Status.STABLE
+warning: unknown enum constant Status.STABLE
+warning: unknown enum constant Status.STABLE
+warning: unknown enum constant Status.STABLE
+warning: unknown enum constant Status.STABLE
+warning: unknown enum constant Status.STABLE
+warning: unknown enum constant Status.STABLE
+warning: unknown enum constant Status.STABLE
+warning: unknown enum constant Status.STABLE
+warning: unknown enum constant Status.STABLE
+warning: unknown enum constant Status.STABLE
+warning: unknown enum constant Status.STABLE
+warning: unknown enum constant Status.STABLE
+warning: unknown enum constant Status.STABLE
+warning: unknown enum constant Status.STABLE
+warning: unknown enum constant Status.STABLE
+warning: unknown enum constant Status.STABLE
+warning: unknown enum constant Status.STABLE
+warning: unknown enum constant Status.STABLE
+warning: unknown enum constant Status.STABLE
+warning: unknown enum constant Status.STABLE
+warning: unknown enum constant Status.STABLE
+warning: unknown enum constant Status.STABLE
+warning: unknown enum constant Status.STABLE
+warning: unknown enum constant Status.STABLE
+warning: unknown enum constant Status.STABLE
+warning: unknown enum constant Status.STABLE
+warning: unknown enum constant Status.STABLE
+warning: unknown enum constant Status.STABLE
+warning: unknown enum constant Status.STABLE
+warning: unknown enum constant Status.STABLE
+warning: unknown enum constant Status.STABLE
+warning: unknown enum constant Status.STABLE
+warning: unknown enum constant Status.STABLE
+warning: unknown enum constant Status.STABLE
+warning: unknown enum constant Status.STABLE
+warning: unknown enum constant Status.STABLE
+warning: unknown enum constant Status.STABLE
+warning: unknown enum constant Status.STABLE
+warning: unknown enum constant Status.STABLE
+warning: unknown enum constant Status.STABLE
+warning: unknown enum constant Status.STABLE
+warning: unknown enum constant Status.STABLE
+warning: unknown enum constant Status.STABLE
+warning: unknown enum constant Status.STABLE
+warning: unknown enum constant Status.STABLE
+warning: unknown enum constant Status.STABLE
+warning: unknown enum constant Status.STABLE
+warning: unknown enum constant Status.STABLE
+warning: unknown enum constant Status.STABLE
+warning: unknown enum constant Status.STABLE
+warning: unknown enum constant Status.STABLE
+warning: unknown enum constant Status.STABLE
+warning: unknown enum constant Status.STABLE
+warning: unknown enum constant Status.STABLE
+warning: unknown enum constant Status.STABLE
+warning: unknown enum constant Status.STABLE
+warning: unknown enum constant Status.STABLE
+100 warnings
+
+> Task :testClasses
+> Task :test
+
+[Incubating] Problems report is available at: file:///tmp/junit-8616958045722801940/build/reports/problems/problems-report.html
+
+BUILD SUCCESSFUL in 5s
+19 actionable tasks: 9 executed, 10 up-to-date
+Configuration cache entry stored.
+Reusing configuration cache.
+> Task :processTestResources NO-SOURCE
+> Task :processResources NO-SOURCE
+> Task :exportTestJavelleWorkspaceModel UP-TO-DATE
+> Task :exportJavelleWorkspaceModel UP-TO-DATE
+> Task :generateJavelleJava UP-TO-DATE
+> Task :compileJava UP-TO-DATE
+> Task :classes UP-TO-DATE
+> Task :jar UP-TO-DATE
+> Task :generateTestJavelleJava UP-TO-DATE
+> Task :compileTestJava UP-TO-DATE
+> Task :testClasses UP-TO-DATE
+> Task :test UP-TO-DATE
+
+> Task :run
+OK
+BUILD SUCCESSFUL in 92ms
+9 actionable tasks: 1 executed, 8 up-to-date
+Configuration cache entry reused.
+> Task :Javelle:build-logic:compileJava UP-TO-DATE
+> Task :Javelle:build-logic:pluginDescriptors UP-TO-DATE
+> Task :Javelle:build-logic:processResources UP-TO-DATE
+> Task :Javelle:build-logic:classes UP-TO-DATE
+> Task :Javelle:build-logic:jar UP-TO-DATE
+> Task :Javelle:workspace-model:compileJava UP-TO-DATE
+> Task :Javelle:gradle-plugin:compileJava UP-TO-DATE
+> Task :Javelle:gradle-plugin:pluginDescriptors UP-TO-DATE
+> Task :Javelle:gradle-plugin:processResources UP-TO-DATE
+> Task :Javelle:gradle-plugin:classes UP-TO-DATE
+> Task :Javelle:gradle-plugin:jar UP-TO-DATE
+> Task :Javelle:workspace-model:processResources NO-SOURCE
+> Task :Javelle:workspace-model:classes UP-TO-DATE
+> Task :Javelle:workspace-model:jar UP-TO-DATE
+> Task :exportJavelleWorkspaceModel UP-TO-DATE
+> Task :processResources NO-SOURCE
+> Task :generateJavelleJava
+> Task :compileJava
+> Task :classes
+> Task :jar
+
+BUILD SUCCESSFUL in 1s
+14 actionable tasks: 3 executed, 11 up-to-date
+Consider enabling configuration cache to speed up this build: https://docs.gradle.org/9.6.0/userguide/configuration_cache_enabling.html
+> Task :Javelle:build-logic:compileJava UP-TO-DATE
+> Task :Javelle:build-logic:pluginDescriptors UP-TO-DATE
+> Task :Javelle:build-logic:processResources UP-TO-DATE
+> Task :Javelle:build-logic:classes UP-TO-DATE
+> Task :Javelle:build-logic:jar UP-TO-DATE
+> Task :Javelle:workspace-model:compileJava UP-TO-DATE
+> Task :Javelle:gradle-plugin:compileJava UP-TO-DATE
+> Task :Javelle:gradle-plugin:pluginDescriptors UP-TO-DATE
+> Task :Javelle:gradle-plugin:processResources UP-TO-DATE
+> Task :Javelle:gradle-plugin:classes UP-TO-DATE
+> Task :Javelle:gradle-plugin:jar UP-TO-DATE
+> Task :Javelle:workspace-model:processResources NO-SOURCE
+> Task :Javelle:workspace-model:classes UP-TO-DATE
+> Task :Javelle:workspace-model:jar UP-TO-DATE
+> Task :exportJavelleWorkspaceModel UP-TO-DATE
+> Task :processResources NO-SOURCE
+> Task :generateJavelleJava
+> Task :compileJava UP-TO-DATE
+> Task :classes UP-TO-DATE
+> Task :jar
+
+BUILD SUCCESSFUL in 1s
+14 actionable tasks: 2 executed, 12 up-to-date
+Consider enabling configuration cache to speed up this build: https://docs.gradle.org/9.6.0/userguide/configuration_cache_enabling.html
+> Task :Javelle:build-logic:compileJava UP-TO-DATE
+> Task :Javelle:build-logic:pluginDescriptors UP-TO-DATE
+> Task :Javelle:build-logic:processResources UP-TO-DATE
+> Task :Javelle:build-logic:classes UP-TO-DATE
+> Task :Javelle:build-logic:jar UP-TO-DATE
+> Task :Javelle:workspace-model:compileJava UP-TO-DATE
+> Task :Javelle:gradle-plugin:compileJava UP-TO-DATE
+> Task :Javelle:gradle-plugin:pluginDescriptors UP-TO-DATE
+> Task :Javelle:gradle-plugin:processResources UP-TO-DATE
+> Task :Javelle:gradle-plugin:classes UP-TO-DATE
+> Task :Javelle:gradle-plugin:jar UP-TO-DATE
+> Task :Javelle:workspace-model:processResources NO-SOURCE
+> Task :Javelle:workspace-model:classes UP-TO-DATE
+> Task :Javelle:workspace-model:jar UP-TO-DATE
+> Task :exportJavelleWorkspaceModel UP-TO-DATE
+> Task :generateJavelleJava
+
+BUILD SUCCESSFUL in 734ms
+12 actionable tasks: 1 executed, 11 up-to-date
+Consider enabling configuration cache to speed up this build: https://docs.gradle.org/9.6.0/userguide/configuration_cache_enabling.html
+> Task :Javelle:build-logic:compileJava UP-TO-DATE
+> Task :Javelle:build-logic:pluginDescriptors UP-TO-DATE
+> Task :Javelle:build-logic:processResources UP-TO-DATE
+> Task :Javelle:build-logic:classes UP-TO-DATE
+> Task :Javelle:build-logic:jar UP-TO-DATE
+> Task :Javelle:workspace-model:compileJava UP-TO-DATE
+> Task :Javelle:gradle-plugin:compileJava UP-TO-DATE
+> Task :Javelle:gradle-plugin:pluginDescriptors UP-TO-DATE
+> Task :Javelle:gradle-plugin:processResources UP-TO-DATE
+> Task :Javelle:gradle-plugin:classes UP-TO-DATE
+> Task :Javelle:gradle-plugin:jar UP-TO-DATE
+> Task :Javelle:workspace-model:processResources NO-SOURCE
+> Task :Javelle:workspace-model:classes UP-TO-DATE
+> Task :Javelle:workspace-model:jar UP-TO-DATE
+> Task :exportJavelleWorkspaceModel
+> Task :generateJavelleJava FAILED
+
+[Incubating] Problems report is available at: file:///tmp/junit-14846301651679289424/build/reports/problems/problems-report.html
+
+FAILURE: Build failed with an exception.
+
+* What went wrong:
+A problem was found with the configuration of task ':generateJavelleJava' (type 'GenerateJavelleJava').
+Input file does not exist
+  In plugin 'org.javelle' type 'org.javelle.gradle.GenerateJavelleJava' property 'compilerExecutable' specifies file '/tmp/junit-14846301651679289424/missing' which doesn't exist
+    An input file was expected to be present but it doesn't exist
+    For more information, please refer to https://docs.gradle.org/9.6.0/userguide/validation_problems.html#input_file_does_not_exist in the Gradle documentation.
+    Possible solutions:
+      1. Make sure the file exists before the task is called.
+      2. Make sure that the task which produces the file is declared as an input.
+
+* Try:
+> Run with --scan to get full insights from a Build Scan (powered by Develocity).
+
+BUILD FAILED in 211ms
+12 actionable tasks: 2 executed, 10 up-to-date
+> Task :Javelle:build-logic:compileJava UP-TO-DATE
+> Task :Javelle:build-logic:pluginDescriptors UP-TO-DATE
+> Task :Javelle:build-logic:processResources UP-TO-DATE
+> Task :Javelle:build-logic:classes UP-TO-DATE
+> Task :Javelle:build-logic:jar UP-TO-DATE
+> Task :Javelle:workspace-model:compileJava UP-TO-DATE
+> Task :Javelle:gradle-plugin:compileJava UP-TO-DATE
+> Task :Javelle:gradle-plugin:pluginDescriptors UP-TO-DATE
+> Task :Javelle:gradle-plugin:processResources UP-TO-DATE
+> Task :Javelle:gradle-plugin:classes UP-TO-DATE
+> Task :Javelle:gradle-plugin:jar UP-TO-DATE
+> Task :Javelle:workspace-model:processResources NO-SOURCE
+> Task :Javelle:workspace-model:classes UP-TO-DATE
+> Task :Javelle:workspace-model:jar UP-TO-DATE
+> Task :exportJavelleWorkspaceModel
+> Task :generateJavelleJava
+
+BUILD SUCCESSFUL in 1s
+12 actionable tasks: 2 executed, 10 up-to-date
+Consider enabling configuration cache to speed up this build: https://docs.gradle.org/9.6.0/userguide/configuration_cache_enabling.html
+> Task :Javelle:build-logic:compileJava UP-TO-DATE
+> Task :Javelle:build-logic:pluginDescriptors UP-TO-DATE
+> Task :Javelle:build-logic:processResources UP-TO-DATE
+> Task :Javelle:build-logic:classes UP-TO-DATE
+> Task :Javelle:build-logic:jar UP-TO-DATE
+> Task :Javelle:workspace-model:compileJava UP-TO-DATE
+> Task :Javelle:gradle-plugin:compileJava UP-TO-DATE
+> Task :Javelle:gradle-plugin:pluginDescriptors UP-TO-DATE
+> Task :Javelle:gradle-plugin:processResources UP-TO-DATE
+> Task :Javelle:gradle-plugin:classes UP-TO-DATE
+> Task :Javelle:gradle-plugin:jar UP-TO-DATE
+> Task :Javelle:workspace-model:processResources NO-SOURCE
+> Task :Javelle:workspace-model:classes UP-TO-DATE
+> Task :Javelle:workspace-model:jar UP-TO-DATE
+> Task :exportJavelleWorkspaceModel UP-TO-DATE
+> Task :generateJavelleJava UP-TO-DATE
+
+BUILD SUCCESSFUL in 235ms
+12 actionable tasks: 12 up-to-date
+Consider enabling configuration cache to speed up this build: https://docs.gradle.org/9.6.0/userguide/configuration_cache_enabling.html
+> Task :Javelle:build-logic:compileJava UP-TO-DATE
+> Task :Javelle:build-logic:pluginDescriptors UP-TO-DATE
+> Task :Javelle:build-logic:processResources UP-TO-DATE
+> Task :Javelle:build-logic:classes UP-TO-DATE
+> Task :Javelle:build-logic:jar UP-TO-DATE
+> Task :Javelle:workspace-model:compileJava UP-TO-DATE
+> Task :Javelle:gradle-plugin:compileJava UP-TO-DATE
+> Task :Javelle:gradle-plugin:pluginDescriptors UP-TO-DATE
+> Task :Javelle:gradle-plugin:processResources UP-TO-DATE
+> Task :Javelle:gradle-plugin:classes UP-TO-DATE
+> Task :Javelle:gradle-plugin:jar UP-TO-DATE
+> Task :Javelle:workspace-model:processResources NO-SOURCE
+> Task :Javelle:workspace-model:classes UP-TO-DATE
+> Task :Javelle:workspace-model:jar UP-TO-DATE
+> Task :exportJavelleWorkspaceModel UP-TO-DATE
+> Task :generateJavelleJava
+
+BUILD SUCCESSFUL in 1s
+12 actionable tasks: 1 executed, 11 up-to-date
+Consider enabling configuration cache to speed up this build: https://docs.gradle.org/9.6.0/userguide/configuration_cache_enabling.html
+> Task :Javelle:build-logic:compileJava UP-TO-DATE
+> Task :Javelle:build-logic:pluginDescriptors UP-TO-DATE
+> Task :Javelle:build-logic:processResources UP-TO-DATE
+> Task :Javelle:build-logic:classes UP-TO-DATE
+> Task :Javelle:build-logic:jar UP-TO-DATE
+> Task :Javelle:workspace-model:compileJava UP-TO-DATE
+> Task :Javelle:gradle-plugin:compileJava UP-TO-DATE
+> Task :Javelle:gradle-plugin:pluginDescriptors UP-TO-DATE
+> Task :Javelle:gradle-plugin:processResources UP-TO-DATE
+> Task :Javelle:gradle-plugin:classes UP-TO-DATE
+> Task :Javelle:gradle-plugin:jar UP-TO-DATE
+> Task :Javelle:workspace-model:processResources NO-SOURCE
+> Task :Javelle:workspace-model:classes UP-TO-DATE
+> Task :Javelle:workspace-model:jar UP-TO-DATE
+> Task :exportJavelleWorkspaceModel UP-TO-DATE
+> Task :generateJavelleJava
+
+BUILD SUCCESSFUL in 1s
+12 actionable tasks: 1 executed, 11 up-to-date
+Consider enabling configuration cache to speed up this build: https://docs.gradle.org/9.6.0/userguide/configuration_cache_enabling.html
+> Task :Javelle:build-logic:compileJava UP-TO-DATE
+> Task :Javelle:build-logic:pluginDescriptors UP-TO-DATE
+> Task :Javelle:build-logic:processResources UP-TO-DATE
+> Task :Javelle:build-logic:classes UP-TO-DATE
+> Task :Javelle:build-logic:jar UP-TO-DATE
+> Task :Javelle:workspace-model:compileJava UP-TO-DATE
+> Task :Javelle:gradle-plugin:compileJava UP-TO-DATE
+> Task :Javelle:gradle-plugin:pluginDescriptors UP-TO-DATE
+> Task :Javelle:gradle-plugin:processResources UP-TO-DATE
+> Task :Javelle:gradle-plugin:classes UP-TO-DATE
+> Task :Javelle:gradle-plugin:jar UP-TO-DATE
+> Task :Javelle:workspace-model:processResources NO-SOURCE
+> Task :Javelle:workspace-model:classes UP-TO-DATE
+> Task :Javelle:workspace-model:jar UP-TO-DATE
+> Task :exportJavelleWorkspaceModel UP-TO-DATE
+> Task :generateJavelleJava
+
+BUILD SUCCESSFUL in 8s
+12 actionable tasks: 1 executed, 11 up-to-date
+Consider enabling configuration cache to speed up this build: https://docs.gradle.org/9.6.0/userguide/configuration_cache_enabling.html
+> Task :Javelle:build-logic:compileJava UP-TO-DATE
+> Task :Javelle:build-logic:pluginDescriptors UP-TO-DATE
+> Task :Javelle:build-logic:processResources UP-TO-DATE
+> Task :Javelle:build-logic:classes UP-TO-DATE
+> Task :Javelle:build-logic:jar UP-TO-DATE
+> Task :Javelle:workspace-model:compileJava UP-TO-DATE
+> Task :Javelle:gradle-plugin:compileJava UP-TO-DATE
+> Task :Javelle:gradle-plugin:pluginDescriptors UP-TO-DATE
+> Task :Javelle:gradle-plugin:processResources UP-TO-DATE
+> Task :Javelle:gradle-plugin:classes UP-TO-DATE
+> Task :Javelle:gradle-plugin:jar UP-TO-DATE
+> Task :Javelle:workspace-model:processResources NO-SOURCE
+> Task :Javelle:workspace-model:classes UP-TO-DATE
+> Task :Javelle:workspace-model:jar UP-TO-DATE
+> Task :exportJavelleWorkspaceModel
+> Task :generateJavelleJava
+
+BUILD SUCCESSFUL in 5s
+12 actionable tasks: 2 executed, 10 up-to-date
+Consider enabling configuration cache to speed up this build: https://docs.gradle.org/9.6.0/userguide/configuration_cache_enabling.html
+> Task :Javelle:build-logic:compileJava UP-TO-DATE
+> Task :Javelle:build-logic:pluginDescriptors UP-TO-DATE
+> Task :Javelle:build-logic:processResources UP-TO-DATE
+> Task :Javelle:build-logic:classes UP-TO-DATE
+> Task :Javelle:build-logic:jar UP-TO-DATE
+> Task :Javelle:workspace-model:compileJava UP-TO-DATE
+> Task :Javelle:gradle-plugin:compileJava UP-TO-DATE
+> Task :Javelle:gradle-plugin:pluginDescriptors UP-TO-DATE
+> Task :Javelle:gradle-plugin:processResources UP-TO-DATE
+> Task :Javelle:gradle-plugin:classes UP-TO-DATE
+> Task :Javelle:gradle-plugin:jar UP-TO-DATE
+> Task :Javelle:workspace-model:processResources NO-SOURCE
+> Task :Javelle:workspace-model:classes UP-TO-DATE
+> Task :Javelle:workspace-model:jar UP-TO-DATE
+> Task :exportJavelleWorkspaceModel
+> Task :generateJavelleJava
+
+BUILD SUCCESSFUL in 1s
+12 actionable tasks: 2 executed, 10 up-to-date
+Consider enabling configuration cache to speed up this build: https://docs.gradle.org/9.6.0/userguide/configuration_cache_enabling.html
+> Task :Javelle:build-logic:compileJava UP-TO-DATE
+> Task :Javelle:build-logic:pluginDescriptors UP-TO-DATE
+> Task :Javelle:build-logic:processResources UP-TO-DATE
+> Task :Javelle:build-logic:classes UP-TO-DATE
+> Task :Javelle:build-logic:jar UP-TO-DATE
+> Task :Javelle:workspace-model:compileJava UP-TO-DATE
+> Task :Javelle:gradle-plugin:compileJava UP-TO-DATE
+> Task :Javelle:gradle-plugin:pluginDescriptors UP-TO-DATE
+> Task :Javelle:gradle-plugin:processResources UP-TO-DATE
+> Task :Javelle:gradle-plugin:classes UP-TO-DATE
+> Task :Javelle:gradle-plugin:jar UP-TO-DATE
+> Task :Javelle:workspace-model:processResources NO-SOURCE
+> Task :Javelle:workspace-model:classes UP-TO-DATE
+> Task :Javelle:workspace-model:jar UP-TO-DATE
+> Task :exportJavelleWorkspaceModel
+> Task :generateJavelleJava
+
+BUILD SUCCESSFUL in 1s
+12 actionable tasks: 2 executed, 10 up-to-date
+Consider enabling configuration cache to speed up this build: https://docs.gradle.org/9.6.0/userguide/configuration_cache_enabling.html
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

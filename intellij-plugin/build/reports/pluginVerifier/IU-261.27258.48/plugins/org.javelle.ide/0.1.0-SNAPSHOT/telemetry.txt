@@ -1,0 +1,9 @@
+Plugin ID: org.javelle.ide
+Plugin Version: 0.1.0-SNAPSHOT
+Descriptor parsed in: 258 ms
+Descriptor parsed (raw ms): 258
+Plugin size (bytes): 371829
+Verified classes in plugin artifact: 3
+Verification time: 1 m 44 s 548 ms
+Verification time (raw ms): 104548
+

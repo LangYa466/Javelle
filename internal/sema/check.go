@@ -1,0 +1,2802 @@
+package sema
+
+import (
+	"fmt"
+	"strings"
+
+	"github.com/LangYa466/Teyru/internal/ast"
+	"github.com/LangYa466/Teyru/internal/source"
+)
+
+// methodCtx carries the local scope of one method body.
+type methodCtx struct {
+	c             *Checker
+	cl            *ast.Class
+	m             *ast.Method
+	env           *typeEnv
+	scopes        []map[string]*ast.Var
+	loops         int
+	sw            *ast.Switch
+	try           int
+	lambda        *ast.Lambda
+	staticImports []*ast.Field
+	staticMethods map[string][]*ast.Method
+	props         map[ast.Expr]ast.Expr
+}
+
+func (c *Checker) checkBodies(cl *ast.Class) {
+	if cl.Decl == nil {
+		return
+	}
+	for _, mem := range cl.Decl.Members {
+		switch d := mem.(type) {
+		case *ast.MethodDecl:
+			if d.Sym == nil || d.Body == nil {
+				continue
+			}
+			ctx := c.newCtx(cl, d.Sym)
+			if d.Compact {
+				ctx.declareCompact(cl, d)
+			}
+			ctx.checkBlock(d.Body, false)
+			if d.Sym.Result != ast.TVoid && !d.Sym.IsCtor && !endsWithReturn(d.Body) {
+				ctx.errf(d.Body.End, "TY-TYP-0020", "missing return statement")
+			}
+		case *ast.FieldDecl:
+			for _, vd := range d.Vars {
+				if vd.Init == nil {
+					continue
+				}
+				ctx := c.newCtx(cl, nil)
+				var want ast.Type
+				if vd.Fld != nil {
+					want = vd.Fld.Type
+				}
+				ctx.checkExpr(vd.Init, want)
+				if want != nil {
+					ctx.convertTo(vd.Init, want)
+				}
+				if f := vd.Fld; f != nil && !f.IsProp {
+					f.ConstVal = c.constFieldInit(isStaticField(f), vd.Init)
+				}
+			}
+			for _, acc := range d.Accessor {
+				if acc.Body == nil || acc.Sym == nil {
+					continue
+				}
+				ctx := c.newCtx(cl, acc.Sym)
+				if f := acc.Sym.Prop; f != nil {
+					if acc.IsSet {
+						ctx.declare(acc.ParamName, f.Type, acc.Pos)
+					}
+					if f.Storage {
+						ctx.declare("field", f.Type, acc.Pos)
+					}
+				}
+				ctx.checkBlock(acc.Body, false)
+			}
+		case *ast.InitBlock:
+			ctx := c.newCtx(cl, nil)
+			ctx.checkBlock(d.Body, false)
+		}
+	}
+	c.checkAbstracts(cl)
+}
+
+func (c *Checker) constFieldInit(isStatic bool, e ast.Expr) any {
+	if !isStatic {
+		return nil
+	}
+	cv := c.constEval(e)
+	if cv.ok {
+		return cv
+	}
+	return nil
+}
+
+func isStaticField(f *ast.Field) bool { return f.Mods.Has(ast.ModStatic) }
+
+func endsWithReturn(b *ast.Block) bool {
+	if len(b.Stmts) == 0 {
+		return false
+	}
+	switch s := b.Stmts[len(b.Stmts)-1].(type) {
+	case *ast.Return:
+		return true
+	case *ast.Block:
+		return endsWithReturn(s)
+	case *ast.If:
+		return s.Else != nil && endsWithReturn(fromStmt(s.Then)) && endsWithReturn(fromStmt(s.Else))
+	case *ast.Switch:
+		if s.Kind == ast.SwitchType {
+			return true
+		}
+	case *ast.ExprStmt:
+		if _, ok := s.X.(*ast.Call); ok {
+			return false
+		}
+	}
+	return false
+}
+
+func fromStmt(s ast.Stmt) *ast.Block {
+	if b, ok := s.(*ast.Block); ok {
+		return b
+	}
+	return &ast.Block{Stmts: []ast.Stmt{s}}
+}
+
+func (c *Checker) newCtx(cl *ast.Class, m *ast.Method) *methodCtx {
+	ctx := &methodCtx{c: c, cl: cl, m: m, env: c.classEnv(cl)}
+	if cl.File != nil {
+		ctx.staticImports = cl.File.StaticImports
+		ctx.staticMethods = cl.File.StaticMethods
+	}
+	ctx.props = c.Props
+	ctx.push()
+	if m != nil {
+		for i, p := range m.ParamNames {
+			ctx.declare(p, m.Params[i], m.Pos)
+		}
+	}
+	return ctx
+}
+
+func (ctx *methodCtx) push() { ctx.scopes = append(ctx.scopes, map[string]*ast.Var{}) }
+func (ctx *methodCtx) pop()  { ctx.scopes = ctx.scopes[:len(ctx.scopes)-1] }
+
+func (ctx *methodCtx) errf(pos source.Pos, code, format string, args ...any) {
+	ctx.c.errf(pos, code, format, args...)
+}
+
+// declare adds a local variable to the innermost scope.
+func (ctx *methodCtx) declare(name string, t ast.Type, pos source.Pos) *ast.Var {
+	cur := ctx.scopes[len(ctx.scopes)-1]
+	if prev := cur[name]; prev != nil {
+		ctx.errf(pos, "TY-TYP-0021", "duplicate local variable %s", name)
+	}
+	id := ctx.c.varID
+	ctx.c.varID++
+	v := &ast.Var{Name: name, Type: t, Pos: pos, ID: id, Owner: ctx.m}
+	if ctx.m != nil {
+		ctx.m.Locals = append(ctx.m.Locals, v)
+	}
+	cur[name] = v
+	return v
+}
+
+func (ctx *methodCtx) lookupLocal(name string) *ast.Var {
+	for i := len(ctx.scopes) - 1; i >= 0; i-- {
+		if v := ctx.scopes[i][name]; v != nil {
+			return v
+		}
+	}
+	return nil
+}
+
+// lookupField searches the class chain for a field, then static imports.
+func (ctx *methodCtx) lookupField(name string) *ast.Field {
+	for cl := ctx.cl; cl != nil; cl = cl.Outer {
+		for k := cl; k != nil; {
+			if f := k.FieldMap[name]; f != nil {
+				return f
+			}
+			if !k.Resolved || k.Super == nil {
+				break
+			}
+			k = k.Super.Class
+		}
+		if cl.Outer == nil {
+			break
+		}
+	}
+	return nil
+}
+
+func isStaticCtx(cl *ast.Class) bool {
+	return cl.Decl != nil && cl.Decl.Implicit
+}
+
+func (ctx *methodCtx) inStatic() bool { return ctx.m == nil || ctx.m.IsStatic() }
+
+// expectType gives the declared type of a field declarator.
+// declareCompact binds the record components inside a compact constructor.
+func (ctx *methodCtx) declareCompact(cl *ast.Class, d *ast.MethodDecl) {
+	for _, rc := range cl.Decl.RecordComps {
+		f := cl.FieldMap[rc.Name]
+		if f == nil {
+			continue
+		}
+		ctx.declare(rc.Name, f.Type, rc.Pos)
+	}
+}
+
+// ---------------------------------------------------------------- statements
+
+func (ctx *methodCtx) checkBlock(b *ast.Block, scoped bool) {
+	if scoped {
+		ctx.push()
+		defer ctx.pop()
+	}
+	for _, s := range b.Stmts {
+		ctx.checkStmt(s)
+	}
+}
+
+func (ctx *methodCtx) checkStmt(s ast.Stmt) {
+	c := ctx.c
+	switch v := s.(type) {
+	case *ast.Block:
+		ctx.checkBlock(v, true)
+	case *ast.Empty:
+	case *ast.LocalVar:
+		ctx.checkLocalVar(v)
+	case *ast.LocalClass:
+		cd := v.Decl
+		if cd.Sym == nil {
+			cl := c.declareClass(ctx.cl.File, cd, ctx.cl)
+			cl.LocalOwner = ctx.m
+			c.resolveHeader(cl)
+			c.resolveMembers(cl)
+			c.layout(cl)
+			c.checkBodies(cl)
+		}
+	case *ast.ExprStmt:
+		ctx.checkExpr(v.X, nil)
+	case *ast.If:
+		ctx.checkCond(v.Cond)
+		ctx.checkStmt(v.Then)
+		if v.Else != nil {
+			ctx.checkStmt(v.Else)
+		}
+	case *ast.While:
+		ctx.checkCond(v.Cond)
+		ctx.loops++
+		ctx.checkStmt(v.Body)
+		ctx.loops--
+	case *ast.DoWhile:
+		ctx.loops++
+		ctx.checkStmt(v.Body)
+		ctx.loops--
+		ctx.checkCond(v.Cond)
+	case *ast.For:
+		ctx.push()
+		for _, s := range v.Init {
+			ctx.checkStmt(s)
+		}
+		if v.Cond != nil {
+			ctx.checkCond(v.Cond)
+		}
+		for _, u := range v.Update {
+			ctx.checkExpr(u, nil)
+		}
+		ctx.loops++
+		ctx.checkStmt(v.Body)
+		ctx.loops--
+		ctx.pop()
+	case *ast.ForEach:
+		ctx.checkForEach(v)
+	case *ast.Return:
+		ctx.checkReturn(v)
+	case *ast.Break:
+		if ctx.loops == 0 && ctx.sw == nil || v.Label != "" {
+			if v.Label == "" {
+				ctx.errf(v.Pos, "TY-TYP-0022", "break outside of loop or switch")
+			}
+		}
+	case *ast.Continue:
+		if ctx.loops == 0 {
+			ctx.errf(v.Pos, "TY-TYP-0023", "continue outside of loop")
+		}
+	case *ast.Throw:
+		ctx.checkExpr(v.X, nil)
+		if t := v.X.GetType(); t != nil && !c.isSubtype(t, &ast.ClassType{Class: c.b.Throwable}) && !ast.IsError(t) {
+			if _, isNull := t.(ast.NullType); !isNull {
+				ctx.errf(v.Pos, "TY-TYP-0024", "thrown value must be a Throwable, found %s", t)
+			}
+		}
+	case *ast.Try:
+		ctx.checkTry(v)
+	case *ast.Switch:
+		ctx.checkSwitch(v, false)
+	case *ast.Yield:
+		ctx.checkExpr(v.X, nil)
+	case *ast.Labeled:
+		ctx.checkStmt(v.Body)
+	case *ast.Assert:
+		ctx.checkCond(v.Cond)
+		if v.Msg != nil {
+			ctx.checkExpr(v.Msg, nil)
+		}
+	case *ast.Sync:
+		ctx.checkExpr(v.Lock, nil)
+		if lt := v.Lock.GetType(); lt != nil && ast.IsPrim(lt, ast.Void) {
+			ctx.errf(v.Pos, "TY-TYP-0025", "cannot synchronize on void")
+		}
+		ctx.checkBlock(v.Body, true)
+	}
+}
+
+func (ctx *methodCtx) checkLocalVar(v *ast.LocalVar) {
+	c := ctx.c
+	explicit := v.Type.Name != "var" && v.Type.Name != "val"
+	var base ast.Type
+	if explicit {
+		base = c.resolveType(ctx.env, v.Type)
+	}
+	if !explicit && v.Mods.Has(ast.ModFinal) {
+		ctx.errf(v.Pos, "TY-TYP-0026", "local variables cannot be declared final; use 'val'")
+	}
+	for i, vd := range v.Vars {
+		t := base
+		for k := 0; k < vd.Dims; k++ {
+			t = &ast.ArrayType{Elem: t}
+		}
+		if !explicit {
+			if vd.Init == nil {
+				ctx.errf(vd.Pos, "TY-TYP-0027", "'%s' requires an initializer", v.Type.Name)
+				vd.Sym = ctx.declare(vd.Name, ast.ErrorType{}, vd.Pos)
+				continue
+			}
+			ctx.checkExpr(vd.Init, nil)
+			it := vd.Init.GetType()
+			if isNullType(it) {
+				ctx.errf(vd.Pos, "TY-TYP-0028", "'%s' cannot infer a type from null", v.Type.Name)
+				it = ast.ErrorType{}
+			}
+			if it != nil {
+				if _, isLam := vd.Init.(*ast.Lambda); isLam {
+					ctx.errf(vd.Pos, "TY-TYP-0029", "'%s' cannot infer a functional interface type; declare it explicitly", v.Type.Name)
+					it = ast.ErrorType{}
+				}
+			}
+			t = it
+		} else if vd.Init != nil {
+			ctx.checkExpr(vd.Init, t)
+			ctx.convert(vd.Init, t)
+		}
+		v2 := ctx.declare(vd.Name, t, vd.Pos)
+		if v.Type.Name == "val" || v.Mods.Has(ast.ModFinal) {
+			v2.Final = true
+		}
+		vd.Sym = v2
+		_ = i
+	}
+}
+
+func (ctx *methodCtx) checkForEach(v *ast.ForEach) {
+	c := ctx.c
+	ctx.push()
+	defer ctx.pop()
+	ctx.checkExpr(v.X, nil)
+	xt := v.X.GetType()
+	var elem ast.Type
+	if arr, ok := xt.(*ast.ArrayType); ok {
+		elem = arr.Elem
+		v.Iterable = false
+	} else {
+		iter := &ast.ClassType{Class: c.b.Iterable}
+		if xt != nil && c.isSubtype(xt, iter) {
+			v.Iterable = true
+			if ct, ok := xt.(*ast.ClassType); ok {
+				if sup := c.asSuper(ct, c.b.Iterable); sup != nil && len(sup.Args) == 1 {
+					elem = sup.Args[0]
+				}
+			}
+		} else if xt != nil && !ast.IsError(xt) {
+			ctx.errf(v.Var.Pos, "TY-TYP-0030", "for-each requires an array or Iterable, found %s", xt)
+			elem = ast.ErrorType{}
+		} else {
+			elem = ast.ErrorType{}
+		}
+	}
+	declared := v.Var.Type.Name != "var" && v.Var.Type.Name != "val"
+	if declared {
+		dt := c.resolveType(ctx.env, v.Var.Type)
+		if !ast.IsError(elem) && !c.isSubtype(elem, dt) {
+			ctx.errf(v.Var.Pos, "TY-TYP-0031", "incompatible types: %s is not assignable to %s", elem, dt)
+		}
+		elem = dt
+	}
+	v.Elem = elem
+	v.Var.Sym = ctx.declare(v.Var.Name, elem, v.Var.Pos)
+	if v.Var.Type.Name == "val" {
+		v.Var.Sym.Final = true
+	}
+	ctx.checkStmt(v.Body)
+}
+
+func (ctx *methodCtx) checkReturn(v *ast.Return) {
+	m := ctx.m
+	if m == nil {
+		return
+	}
+	want := m.Result
+	if m.IsCtor {
+		want = ast.TVoid
+	}
+	if v.X == nil {
+		if want != nil && !ast.IsPrim(want, ast.Void) {
+			ctx.errf(v.Pos, "TY-TYP-0032", "return value required for %s", m.Name)
+		}
+		return
+	}
+	ctx.checkExpr(v.X, nil)
+	if want == nil || ast.IsPrim(want, ast.Void) {
+		if !m.IsCtor {
+			ctx.errf(v.Pos, "TY-TYP-0033", "cannot return a value from a void method")
+		}
+		return
+	}
+	ctx.convertTo(v.X, want)
+}
+
+func (ctx *methodCtx) checkTry(v *ast.Try) {
+	c := ctx.c
+	ctx.push()
+	defer ctx.pop()
+	ctx.try++
+	for _, r := range v.Resources {
+		ctx.checkStmt(r)
+		if lv, ok := r.(*ast.LocalVar); ok {
+			for _, vd := range lv.Vars {
+				if vd.Sym != nil {
+					vd.Sym.Final = true
+				}
+			}
+		}
+	}
+	ctx.checkBlock(v.Body, true)
+	for _, cat := range v.Catches {
+		ctx.push()
+		for _, te := range cat.Types {
+			t := c.resolveType(ctx.env, te)
+			if !c.isSubtype(t, &ast.ClassType{Class: c.b.Throwable}) && !ast.IsError(t) {
+				ctx.errf(te.Pos, "TY-TYP-0034", "catch type must be a Throwable, found %s", t)
+			}
+		}
+		ct := c.resolveType(ctx.env, cat.Types[0])
+		cat.Sym = ctx.declare(cat.Name, ct, cat.Pos)
+		ctx.checkBlock(cat.Body, true)
+		ctx.pop()
+	}
+	if v.Finally != nil {
+		ctx.checkBlock(v.Finally, true)
+	}
+	ctx.try--
+}
+
+func (ctx *methodCtx) checkSwitch(s *ast.Switch, expr bool) {
+	c := ctx.c
+	ctx.checkExpr(s.X, nil)
+	xt := s.X.GetType()
+	switch {
+	case isNumericType(xt) || ast.IsPrim(xt, ast.Char):
+		s.Kind = ast.SwitchInt
+	case c.isSubtype(xt, c.strType):
+		s.Kind = ast.SwitchString
+	case isEnumType(xt):
+		s.Kind = ast.SwitchEnum
+	default:
+		if xt != nil && !ast.IsError(xt) {
+			ctx.errf(s.Pos, "TY-TYP-0035", "switch selector must be an integral, String or enum type, found %s", xt)
+		}
+		s.Kind = ast.SwitchInt
+	}
+	seen := map[string]bool{}
+	hasDefault := false
+	for _, cs := range s.Cases {
+		if cs.Default {
+			if hasDefault {
+				ctx.errf(cs.Pos, "TY-TYP-0036", "duplicate default label")
+			}
+			hasDefault = true
+		}
+		if cs.Pattern != nil {
+			ctx.push()
+			t := c.resolveType(ctx.env, cs.Pattern.Type)
+			if !c.isSubtype(t, xt) && !c.isSubtype(xt, t) {
+				ctx.errf(cs.Pattern.Pos, "TY-TYP-0037", "incompatible pattern type %s for switch on %s", t, xt)
+			}
+			cs.Pattern.Sym = ctx.declare(cs.Pattern.Name, t, cs.Pattern.Pos)
+		}
+		for _, l := range cs.Labels {
+			ctx.checkExpr(l, nil)
+			ctx.convertTo(l, xt)
+			cv := c.constEval(l)
+			if !cv.ok {
+				ctx.errf(l.GetPos(), "TY-TYP-0038", "case label must be a constant expression")
+				continue
+			}
+			key := cv.s
+			if cv.kind != ast.LitString {
+				key = fmt.Sprintf("%d", cv.i)
+				if cv.kind == ast.LitDouble || cv.kind == ast.LitFloat {
+					key = fmt.Sprintf("%v", cv.f)
+				}
+			}
+			if seen[key] {
+				ctx.errf(l.GetPos(), "TY-TYP-0039", "duplicate case label")
+			}
+			seen[key] = true
+		}
+		if cs.Guard != nil {
+			ctx.checkCond(cs.Guard)
+		}
+		prev := ctx.sw
+		ctx.sw = s
+		ctx.push()
+		if cs.ArrowX != nil {
+			ctx.checkExpr(cs.ArrowX, nil)
+		}
+		for _, st := range cs.Body {
+			ctx.checkStmt(st)
+		}
+		ctx.pop()
+		ctx.sw = prev
+		if cs.Pattern != nil {
+			ctx.pop()
+		}
+	}
+}
+
+func isEnumType(t ast.Type) bool {
+	ct, ok := t.(*ast.ClassType)
+	return ok && ct.Class.Kind == ast.KindEnum
+}
+
+// ---------------------------------------------------------------- expressions
+
+func (ctx *methodCtx) checkCond(e ast.Expr) {
+	ctx.checkExpr(e, ast.TBoolean)
+	ctx.convertTo(e, ast.TBoolean)
+}
+
+func (ctx *methodCtx) checkExpr(e ast.Expr, want ast.Type) {
+	c := ctx.c
+	switch v := e.(type) {
+	case *ast.Literal:
+		switch v.Kind {
+		case ast.LitInt:
+			v.SetType(ast.TInt)
+		case ast.LitLong:
+			v.SetType(ast.TLong)
+		case ast.LitFloat:
+			v.SetType(ast.TFloat)
+		case ast.LitDouble:
+			v.SetType(ast.TDouble)
+		case ast.LitChar:
+			v.SetType(ast.TChar)
+		case ast.LitString:
+			v.SetType(c.strType)
+		case ast.LitBool:
+			v.SetType(ast.TBoolean)
+		case ast.LitNull:
+			v.SetType(ast.NullType{})
+		}
+	case *ast.Ident:
+		ctx.checkIdent(v, want)
+	case *ast.Select:
+		ctx.checkSelect(v, want)
+	case *ast.Index:
+		ctx.checkExpr(v.X, nil)
+		ctx.checkExpr(v.Index, ast.TInt)
+		ctx.convertTo(v.Index, ast.TInt)
+		xt := v.X.GetType()
+		if arr, ok := xt.(*ast.ArrayType); ok {
+			v.SetType(arr.Elem)
+		} else if ast.IsError(xt) || xt == nil {
+			v.SetType(ast.ErrorType{})
+		} else {
+			ctx.errf(v.Pos, "TY-TYP-0040", "array required, found %s", xt)
+			v.SetType(ast.ErrorType{})
+		}
+	case *ast.Call:
+		ctx.checkCall(v, want)
+	case *ast.New:
+		ctx.checkNew(v, want)
+	case *ast.NewArray:
+		ctx.checkNewArray(v)
+	case *ast.ArrayInit:
+		ctx.checkArrayInit(v, want)
+	case *ast.Unary:
+		ctx.checkUnary(v)
+	case *ast.Binary:
+		ctx.checkBinary(v, want)
+	case *ast.Assign:
+		ctx.checkAssign(v)
+	case *ast.Cond:
+		ctx.checkCond2(v, want)
+	case *ast.Cast:
+		ctx.checkExpr(v.X, nil)
+		t := c.resolveType(ctx.env, v.Type)
+		for i := 0; i < v.Type.Dims; i++ {
+		}
+		xt := v.X.GetType()
+		if xt != nil && !c.isCastable(xt, t) {
+			ctx.errf(v.Pos, "TY-TYP-0041", "inconvertible types: %s cannot be cast to %s", xt, t)
+		}
+		v.SetType(t)
+	case *ast.InstanceOf:
+		ctx.checkExpr(v.X, nil)
+		t := c.resolveType(ctx.env, v.Type)
+		if v.Binding != nil {
+			xt := v.X.GetType()
+			if !c.isSubtype(t, xt) && !c.isSubtype(xt, t) && !ast.IsError(xt) {
+				ctx.errf(v.Pos, "TY-TYP-0042", "incompatible pattern type %s for %s", t, xt)
+			}
+			ctx.push()
+			v.Binding.Sym = ctx.declare(v.Binding.Name, t, v.Binding.Pos)
+		}
+		v.SetType(ast.TBoolean)
+	case *ast.Lambda:
+		ctx.checkLambda(v, want)
+	case *ast.MethodRef:
+		ctx.checkMethodRef(v, want)
+	case *ast.This:
+		if v.Qual != "" {
+			oc := ctx.lookupOuter(v.Qual)
+			if oc == nil {
+				ctx.errf(v.Pos, "TY-TYP-0043", "not an enclosing class: %s", v.Qual)
+				v.SetType(ast.ErrorType{})
+				return
+			}
+			v.Qual = oc.Full
+			v.SetType(&ast.ClassType{Class: oc, Args: typeVarArgs(oc)})
+			return
+		}
+		if ctx.lambda != nil {
+			ctx.lambda.CapThis = true
+		}
+		v.SetType(&ast.ClassType{Class: ctx.cl, Args: typeVarArgs(ctx.cl)})
+	case *ast.SuperExpr:
+		if ctx.cl.Super == nil {
+			ctx.errf(v.Pos, "TY-TYP-0044", "no superclass")
+			v.SetType(ast.ErrorType{})
+			return
+		}
+		v.SetType(ctx.cl.Super)
+	case *ast.SwitchExpr:
+		ctx.checkSwitch(v.S, true)
+		var rt ast.Type
+		for _, cs := range v.S.Cases {
+			var t ast.Type
+			switch {
+			case cs.ArrowX != nil:
+				t = cs.ArrowX.GetType()
+			case len(cs.Body) == 1:
+				if y, ok := cs.Body[0].(*ast.Yield); ok {
+					t = y.X.GetType()
+				} else if th, ok := cs.Body[0].(*ast.Throw); ok {
+					_ = th
+					continue
+				} else if b, ok := cs.Body[0].(*ast.Block); ok {
+					t = blockYieldType(b)
+					if t == nil {
+						continue
+					}
+				} else {
+					continue
+				}
+			default:
+				continue
+			}
+			if rt == nil {
+				rt = t
+			} else if !sameType(rt, t) {
+				if c.isSubtype(t, rt) {
+				} else if c.isSubtype(rt, t) {
+					rt = t
+				} else {
+					rt = c.lub(rt, t)
+				}
+			}
+		}
+		if rt == nil {
+			rt = ast.ErrorType{}
+		}
+		v.SetType(rt)
+	case *ast.ClassLit:
+		t := c.resolveType(ctx.env, v.Type)
+		v.SetType(&ast.ClassType{Class: c.b.Object})
+		if _, ok := t.(*ast.ClassType); ok {
+			v.SetType(&ast.ClassType{Class: c.b.Object})
+		}
+		v.Type.Resolved = t
+	default:
+		ctx.errf(e.GetPos(), "TY-INT-0002", "unsupported expression %T", e)
+		e.SetType(ast.ErrorType{})
+	}
+}
+
+func blockYieldType(b *ast.Block) ast.Type {
+	for _, s := range b.Stmts {
+		if y, ok := s.(*ast.Yield); ok {
+			return y.X.GetType()
+		}
+	}
+	return nil
+}
+
+// lub returns a common supertype.
+func (c *Checker) lub(a, b ast.Type) ast.Type {
+	if p, ok := a.(*ast.PrimType); ok {
+		if q, ok := b.(*ast.PrimType); ok {
+			return numericPromote(p, q)
+		}
+		return c.objType
+	}
+	ca, ok1 := a.(*ast.ClassType)
+	cb, ok2 := b.(*ast.ClassType)
+	if !ok1 || !ok2 {
+		if ast.IsRef(a) && ast.IsRef(b) {
+			return c.objType
+		}
+		return ast.ErrorType{}
+	}
+	sup := c.asSuper(cb, ca.Class)
+	if sup != nil {
+		if len(ca.Args) == 0 || len(sup.Args) == 0 {
+			return &ast.ClassType{Class: ca.Class}
+		}
+		return ca
+	}
+	sup = c.asSuper(ca, cb.Class)
+	if sup != nil {
+		if len(cb.Args) == 0 || len(sup.Args) == 0 {
+			return &ast.ClassType{Class: cb.Class}
+		}
+		return cb
+	}
+	return c.objType
+}
+
+func (ctx *methodCtx) lookupOuter(name string) *ast.Class {
+	for cl := ctx.cl.Outer; cl != nil; cl = cl.Outer {
+		if cl.Name == name || cl.Full == name {
+			return cl
+		}
+	}
+	return nil
+}
+
+func (ctx *methodCtx) checkIdent(v *ast.Ident, want ast.Type) {
+	c := ctx.c
+	if lv := ctx.lookupLocal(v.Name); lv != nil {
+		v.Ref = lv
+		v.SetType(lv.Type)
+		ctx.noteCapture(lv)
+		return
+	}
+	// enclosing method locals (local/anonymous classes)
+	for cl := ctx.cl; cl != nil; cl = cl.Outer {
+		if cl.LocalOwner == nil {
+			continue
+		}
+		oc := c.newCtx(cl.Outer, cl.LocalOwner)
+		if lv := oc.lookupLocal(v.Name); lv != nil {
+			v.Ref = lv
+			v.SetType(lv.Type)
+			ctx.captureOuter(cl, lv)
+			ctx.noteCapture(lv)
+			return
+		}
+	}
+	if f := ctx.lookupField(v.Name); f != nil {
+		if ctx.inStatic() && !f.Mods.Has(ast.ModStatic) && ctx.m != nil {
+			ctx.errf(v.Pos, "TY-TYP-0045", "cannot access instance field %s from a static context", v.Name)
+		}
+		if f.Mods.Has(ast.ModPrivate) && f.Owner != ctx.cl {
+			ctx.errf(v.Pos, "TY-TYP-0046", "%s has private access in %s", f.Name, f.Owner.Name)
+		}
+		v.Ref = f
+		v.SetType(f.Type)
+		ctx.rewriteProp(v, f)
+		return
+	}
+	// static field of enclosing/imported types
+	if f := ctx.lookupStaticField(v.Name); f != nil {
+		v.Ref = f
+		v.SetType(f.Type)
+		ctx.rewriteProp(v, f)
+		return
+	}
+	// a type name used as a qualifier for a static member
+	if cl := c.lookupClassName(ctx.env, v.Name); cl != nil {
+		v.Ref = cl
+		v.SetType(&ast.ClassType{Class: cl})
+		return
+	}
+	ctx.errf(v.Pos, "TY-TYP-0048", "cannot find symbol %s", v.Name)
+	v.SetType(ast.ErrorType{})
+}
+
+// rewriteProp turns a field read into a getter call for native properties.
+func (ctx *methodCtx) rewriteProp(v ast.Expr, f *ast.Field) {
+	if !f.IsProp {
+		return
+	}
+	if id, ok := v.(*ast.Ident); ok {
+		if id.Name == "field" {
+			return
+		}
+	}
+	if f.Getter == nil {
+		ctx.errf(v.GetPos(), "TY-PROP-0005", "property %s has no getter; use 'field' inside an accessor", f.Name)
+		v.SetType(ast.ErrorType{})
+		return
+	}
+	ctx.errf(v.GetPos(), "TY-PROP-0006", "property reads are lowered during emission")
+}
+
+func (ctx *methodCtx) lookupStaticField(name string) *ast.Field {
+	for _, f := range ctx.staticImports {
+		if f.Name == name {
+			return f
+		}
+	}
+	return nil
+}
+
+// noteCapture marks a local as captured when referenced from a lambda or inner class.
+func (ctx *methodCtx) noteCapture(v *ast.Var) {
+	if ctx.lambda != nil {
+		if v.Owner == ctx.m && ctx.m != nil {
+			for _, c := range ctx.lambda.Captures {
+				if c == v {
+					return
+				}
+			}
+			ctx.lambda.Captures = append(ctx.lambda.Captures, v)
+			v.Captured = true
+		}
+	}
+}
+
+func (ctx *methodCtx) captureOuter(target *ast.Class, v *ast.Var) {
+	// mark every class between ctx.cl and target as capturing v
+	for cl := ctx.cl; cl != nil; cl = cl.Outer {
+		if cl.CapFields[v] == nil {
+			f := &ast.Field{Name: "_cap$" + v.Name, Type: v.Type, Mods: ast.ModPrivate | ast.ModFinal, Pos: v.Pos, Storage: true}
+			cl.CapFields[v] = f
+		}
+		if cl == target {
+			break
+		}
+	}
+}
+
+// convert inserts an implicit conversion when needed.
+func (ctx *methodCtx) convert(e ast.Expr, target ast.Type) ast.Expr {
+	return ctx.convertWith(e, target, e.GetType())
+}
+
+func (ctx *methodCtx) convertWith(e ast.Expr, target, src ast.Type) ast.Expr {
+	c := ctx.c
+	if target == nil || src == nil || ast.IsError(target) || ast.IsError(src) {
+		return e
+	}
+	if sameType(target, src) {
+		return e
+	}
+	if _, ok := src.(ast.NullType); ok && ast.IsRef(target) {
+		return e
+	}
+	if isPrimType(src) && ast.IsRef(target) {
+		// boxing
+		if _, ok := c.unboxed(target); ok {
+			return &ast.Conv{ExprBase: ast.ExprBase{Pos: e.GetPos(), T: target}, X: e}
+		}
+	}
+	if ast.IsRef(src) && isPrimType(target) {
+		if _, ok := c.unboxed(src); ok {
+			return &ast.Conv{ExprBase: ast.ExprBase{Pos: e.GetPos(), T: target}, X: e}
+		}
+	}
+	return e
+}
+
+func isPrimType(t ast.Type) bool {
+	_, ok := t.(*ast.PrimType)
+	return ok
+}
+
+// convertTo checks assignability and records conversions.
+func (ctx *methodCtx) convertTo(e ast.Expr, target ast.Type) {
+	c := ctx.c
+	src := e.GetType()
+	if target == nil || src == nil || ast.IsError(target) || ast.IsError(src) {
+		return
+	}
+	if sameType(src, target) {
+		return
+	}
+	if _, ok := src.(ast.NullType); ok {
+		if isPrimType(target) {
+			ctx.errf(e.GetPos(), "TY-TYP-0049", "null is not assignable to %s", target)
+		}
+		return
+	}
+	if isPrimType(src) && isPrimType(target) {
+		sp := src.(*ast.PrimType)
+		tp := target.(*ast.PrimType)
+		if sp.IsNumeric() && tp.IsNumeric() {
+			// narrowing needs a cast, except when the source is a constant in range
+			if widening(sp, tp) {
+				e.SetType(target)
+				return
+			}
+			if cv := c.constEval(e); cv.ok {
+				if fitsConstant(cv, tp) {
+					return
+				}
+			}
+			ctx.errf(e.GetPos(), "TY-TYP-0050", "possible lossy conversion from %s to %s", sp, tp)
+			return
+		}
+		ctx.errf(e.GetPos(), "TY-TYP-0051", "incompatible types: %s cannot be converted to %s", src, target)
+		return
+	}
+	if isPrimType(src) && ast.IsRef(target) {
+		if _, ok := c.unboxed(target); ok {
+			e.SetType(target)
+			return
+		}
+		if ct, ok := target.(*ast.ClassType); ok && ct.Class.Special == "Object" {
+			e.SetType(target)
+			return
+		}
+		ctx.errf(e.GetPos(), "TY-TYP-0051", "incompatible types: %s cannot be converted to %s", src, target)
+		return
+	}
+	if ast.IsRef(src) && isPrimType(target) {
+		if bp, ok := c.unboxed(src); ok {
+			if widening(bp, target.(*ast.PrimType)) {
+				e.SetType(target)
+				return
+			}
+		}
+		ctx.errf(e.GetPos(), "TY-TYP-0051", "incompatible types: %s cannot be converted to %s", src, target)
+		return
+	}
+	if ast.IsRef(src) && ast.IsRef(target) {
+		if c.isSubtype(src, target) {
+			return
+		}
+		// unchecked: erasure match (List<String> -> List)
+		if ct, ok := src.(*ast.ClassType); ok {
+			if tt, ok2 := target.(*ast.ClassType); ok2 && tt.Class.Special != "box" {
+				if c.asSuper(ct, tt.Class) != nil {
+					return
+				}
+			}
+		}
+		ctx.errf(e.GetPos(), "TY-TYP-0051", "incompatible types: %s cannot be converted to %s", src, target)
+	}
+}
+
+func widening(from, to *ast.PrimType) bool {
+	if from.Kind == to.Kind {
+		return true
+	}
+	order := map[ast.PrimKind]int{ast.Byte: 1, ast.Short: 2, ast.Char: 2, ast.Int: 3, ast.Long: 4, ast.Float: 5, ast.Double: 6}
+	if !from.IsNumeric() || !to.IsNumeric() {
+		return false
+	}
+	if from.Kind == ast.Char && to.Kind == ast.Short {
+		return false
+	}
+	if from.Kind == ast.Char && to.Kind == ast.Byte {
+		return false
+	}
+	return order[from.Kind] <= order[to.Kind]
+}
+
+func fitsConstant(cv constValue, to *ast.PrimType) bool {
+	if cv.kind == ast.LitDouble || cv.kind == ast.LitFloat {
+		return to.Kind == ast.Float || to.Kind == ast.Double
+	}
+	switch to.Kind {
+	case ast.Byte:
+		return cv.i >= -128 && cv.i <= 127
+	case ast.Char:
+		return cv.i >= 0 && cv.i <= 0xFFFF
+	case ast.Short:
+		return cv.i >= -32768 && cv.i <= 32767
+	case ast.Int:
+		return cv.i >= -2147483648 && cv.i <= 2147483647
+	case ast.Long:
+		return true
+	case ast.Float, ast.Double:
+		return true
+	}
+	return false
+}
+
+func isNullType(t ast.Type) bool { _, ok := t.(ast.NullType); return ok }
+
+func (ctx *methodCtx) checkUnary(v *ast.Unary) {
+	c := ctx.c
+	ctx.checkExpr(v.X, nil)
+	t := v.X.GetType()
+	switch v.Op {
+	case "!", "~":
+		if v.Op == "!" {
+			if t != nil && !isBooleanType(t) && !ast.IsError(t) {
+				if _, ok := c.unboxed(t); !ok {
+					ctx.errf(v.Pos, "TY-TYP-0052", "operator '!' cannot be applied to %s", t)
+					v.SetType(ast.ErrorType{})
+					return
+				}
+			}
+			v.SetType(ast.TBoolean)
+			return
+		}
+		if _, ok := t.(*ast.PrimType); !ok {
+			ctx.errf(v.Pos, "TY-TYP-0053", "operator '~' requires an integral operand")
+			v.SetType(ast.ErrorType{})
+			return
+		}
+		p := unboxOrPrim(c, t)
+		if p == nil || !p.IsIntegral() {
+			ctx.errf(v.Pos, "TY-TYP-0053", "operator '~' requires an integral operand")
+			v.SetType(ast.ErrorType{})
+			return
+		}
+		v.SetType(promoteUnary(p))
+	case "+", "-":
+		p := unboxOrPrim(c, t)
+		if p == nil || !p.IsNumeric() {
+			ctx.errf(v.Pos, "TY-TYP-0054", "operator '%s' requires a numeric operand", v.Op)
+			v.SetType(ast.ErrorType{})
+			return
+		}
+		v.SetType(promoteUnary(p))
+	case "++", "--":
+		p := unboxOrPrim(c, t)
+		if p == nil || !p.IsNumeric() {
+			ctx.errf(v.Pos, "TY-TYP-0055", "operator '%s' requires a numeric operand", v.Op)
+			v.SetType(ast.ErrorType{})
+			return
+		}
+		if !ctx.assignable(v.X) {
+			ctx.errf(v.Pos, "TY-TYP-0056", "cannot apply '%s' to a non-assignable expression", v.Op)
+		}
+		v.SetType(t)
+		ctx.checkFinalAssign(v.X)
+	}
+}
+
+func promoteUnary(p *ast.PrimType) ast.Type {
+	switch p.Kind {
+	case ast.Byte, ast.Short, ast.Char:
+		return ast.TInt
+	case ast.Long:
+		return ast.TLong
+	case ast.Float:
+		return ast.TFloat
+	case ast.Double:
+		return ast.TDouble
+	}
+	return ast.TInt
+}
+
+func unboxOrPrim(c *Checker, t ast.Type) *ast.PrimType {
+	if p, ok := t.(*ast.PrimType); ok {
+		return p
+	}
+	if p, ok := c.unboxed(t); ok {
+		return p
+	}
+	return nil
+}
+
+func (ctx *methodCtx) assignable(e ast.Expr) bool {
+	switch v := e.(type) {
+	case *ast.Ident, *ast.Index, *ast.This:
+		return true
+	case *ast.Select:
+		if _, ok := v.Ref.(*ast.Field); ok {
+			return true
+		}
+		if v.Ref == "length" {
+			return false
+		}
+		return false
+	}
+	return false
+}
+
+func (ctx *methodCtx) checkFinalAssign(target ast.Expr) {
+	id, ok := target.(*ast.Ident)
+	if !ok {
+		return
+	}
+	if lv, ok := id.Ref.(*ast.Var); ok && lv.Final && lv.Assigns > 0 {
+		ctx.errf(target.GetPos(), "TY-TYP-0057", "cannot assign a value to final variable %s", lv.Name)
+	}
+	if f, ok := id.Ref.(*ast.Field); ok && f.Mods.Has(ast.ModFinal) && f.Owner != ctx.cl {
+		ctx.errf(target.GetPos(), "TY-TYP-0058", "cannot assign a value to final field %s", f.Name)
+	}
+}
+
+func (ctx *methodCtx) checkBinary(v *ast.Binary, want ast.Type) {
+	c := ctx.c
+	ctx.checkExpr(v.X, nil)
+	ctx.checkExpr(v.Y, nil)
+	xt, yt := v.X.GetType(), v.Y.GetType()
+	switch v.Op {
+	case "&&", "||":
+		ctx.convertTo(v.X, ast.TBoolean)
+		ctx.convertTo(v.Y, ast.TBoolean)
+		v.SetType(ast.TBoolean)
+		return
+	case "==", "!=":
+		if isPrimType(xt) && isPrimType(yt) {
+			xp, yp := xt.(*ast.PrimType), yt.(*ast.PrimType)
+			if xp.Kind == ast.Boolean || yp.Kind == ast.Boolean {
+				if xp.Kind != yp.Kind {
+					ctx.errf(v.Pos, "TY-TYP-0059", "cannot compare %s and %s", xt, yt)
+				}
+				v.SetType(ast.TBoolean)
+				return
+			}
+			v.OpType = numericPromote(xp, yp)
+			v.SetType(ast.TBoolean)
+			return
+		}
+		if isPrimType(xt) != isPrimType(yt) {
+			// one primitive, one reference: unbox the reference
+			ctx.convertTo(v.Y, xt)
+			ctx.convertTo(v.X, yt)
+			if unboxOrPrim(c, xt) != nil && unboxOrPrim(c, yt) != nil {
+				v.SetType(ast.TBoolean)
+				return
+			}
+			ctx.errf(v.Pos, "TY-TYP-0059", "incompatible operand types %s and %s", xt, yt)
+			v.SetType(ast.TBoolean)
+			return
+		}
+		if !ast.IsRef(xt) || !ast.IsRef(yt) {
+			ctx.errf(v.Pos, "TY-TYP-0059", "incompatible operand types %s and %s", xt, yt)
+			v.SetType(ast.TBoolean)
+			return
+		}
+		if !c.isCastable(xt, yt) && !c.isCastable(yt, xt) && !ast.IsError(xt) && !ast.IsError(yt) {
+			ctx.errf(v.Pos, "TY-TYP-0060", "incomparable types: %s and %s", xt, yt)
+		}
+		v.SetType(ast.TBoolean)
+		return
+	case "<", ">", "<=", ">=":
+		if isRefType(xt) && isRefType(yt) {
+			if bt := unboxOrPrim(c, xt); bt != nil {
+				xt = bt
+			}
+			if bt := unboxOrPrim(c, yt); bt != nil {
+				yt = bt
+			}
+		}
+		xp, ok1 := xt.(*ast.PrimType)
+		yp, ok2 := yt.(*ast.PrimType)
+		if !ok1 || !ok2 || !xp.IsNumeric() || !yp.IsNumeric() {
+			ctx.errf(v.Pos, "TY-TYP-0061", "operator '%s' cannot be applied to %s and %s", v.Op, xt, yt)
+			v.SetType(ast.ErrorType{})
+			return
+		}
+		v.OpType = numericPromote(xp, yp)
+		v.SetType(ast.TBoolean)
+		return
+	case "&", "|", "^":
+		xp := unboxOrPrim(c, xt)
+		yp := unboxOrPrim(c, yt)
+		if xp == nil || yp == nil {
+			ctx.errf(v.Pos, "TY-TYP-0062", "operator '%s' requires integral or boolean operands", v.Op)
+			v.SetType(ast.ErrorType{})
+			return
+		}
+		if xp.Kind == ast.Boolean || yp.Kind == ast.Boolean {
+			if xp.Kind != yp.Kind {
+				ctx.errf(v.Pos, "TY-TYP-0062", "operator '%s' requires both operands to be boolean", v.Op)
+				v.SetType(ast.ErrorType{})
+				return
+			}
+			v.SetType(ast.TBoolean)
+			return
+		}
+		if !xp.IsIntegral() || !yp.IsIntegral() {
+			ctx.errf(v.Pos, "TY-TYP-0062", "operator '%s' requires integral operands", v.Op)
+			v.SetType(ast.ErrorType{})
+			return
+		}
+		v.OpType = numericPromote(xp, yp)
+		v.SetType(v.OpType)
+		return
+	case "<<", ">>", ">>>":
+		xp := unboxOrPrim(c, xt)
+		yp := unboxOrPrim(c, yt)
+		if xp == nil || !xp.IsIntegral() || yp == nil || !yp.IsIntegral() {
+			ctx.errf(v.Pos, "TY-TYP-0063", "operator '%s' requires integral operands", v.Op)
+			v.SetType(ast.ErrorType{})
+			return
+		}
+		v.OpType = promoteUnary(xp)
+		v.SetType(v.OpType)
+		return
+	case "+":
+		if c.isSubtype(xt, c.strType) || c.isSubtype(yt, c.strType) || isNullType(xt) && c.isSubtype(yt, c.strType) || isNullType(yt) && c.isSubtype(xt, c.strType) {
+			v.SetType(c.strType)
+			return
+		}
+	}
+	// arithmetic
+	xp := unboxOrPrim(c, xt)
+	yp := unboxOrPrim(c, yt)
+	if xp == nil || yp == nil || !xp.IsNumeric() || !yp.IsNumeric() {
+		if ast.IsError(xt) || ast.IsError(yt) {
+			v.SetType(ast.ErrorType{})
+			return
+		}
+		ctx.errf(v.Pos, "TY-TYP-0064", "operator '%s' cannot be applied to %s and %s", v.Op, xt, yt)
+		v.SetType(ast.ErrorType{})
+		return
+	}
+	v.OpType = numericPromote(xp, yp)
+	v.SetType(v.OpType)
+}
+
+func isRefType(t ast.Type) bool { return ast.IsRef(t) }
+
+func (ctx *methodCtx) checkAssign(v *ast.Assign) {
+	c := ctx.c
+	ctx.checkExpr(v.X, nil)
+	if !ctx.assignable(v.X) {
+		ctx.errf(v.Pos, "TY-TYP-0065", "left-hand side of an assignment must be a variable")
+	}
+	ctx.checkFinalAssign(v.X)
+	if lv, ok := v.X.(*ast.Ident); ok {
+		if vr, ok := lv.Ref.(*ast.Var); ok {
+			vr.Assigns++
+		}
+	}
+	ctx.checkExpr(v.Y, nil)
+	xt := v.X.GetType()
+	if v.Op == "=" {
+		ctx.convertTo(v.Y, xt)
+		v.SetType(xt)
+		return
+	}
+	// compound: implicit cast back to the target type
+	yt := v.Y.GetType()
+	xp := unboxOrPrim(c, xt)
+	yp := unboxOrPrim(c, yt)
+	if v.Op == "+=" && (c.isSubtype(xt, c.strType) || isNullType(xt)) {
+		v.SetType(xt)
+		return
+	}
+	if xp == nil || yp == nil || ast.IsError(xt) || ast.IsError(yt) {
+		v.SetType(ast.ErrorType{})
+		return
+	}
+	switch {
+	case xp.Kind == ast.Boolean:
+		if v.Op != "&=" && v.Op != "|=" && v.Op != "^=" {
+			ctx.errf(v.Pos, "TY-TYP-0066", "operator '%s' cannot be applied to boolean", v.Op)
+		}
+		v.SetType(xt)
+	case v.Op == "<<=" || v.Op == ">>=" || v.Op == ">>>=":
+		if !xp.IsIntegral() || !yp.IsIntegral() {
+			ctx.errf(v.Pos, "TY-TYP-0063", "operator '%s' requires integral operands", v.Op)
+		}
+		v.SetType(xt)
+	case v.Op == "&=" || v.Op == "|=" || v.Op == "^=":
+		if !xp.IsIntegral() || !yp.IsIntegral() {
+			ctx.errf(v.Pos, "TY-TYP-0062", "operator '%s' requires integral operands", v.Op)
+		}
+		v.SetType(xt)
+	default:
+		if !xp.IsNumeric() || !yp.IsNumeric() {
+			ctx.errf(v.Pos, "TY-TYP-0064", "operator '%s' cannot be applied to %s and %s", v.Op, xt, yt)
+			v.SetType(ast.ErrorType{})
+			return
+		}
+		v.OpType = numericPromote(xp, yp)
+		v.SetType(xt)
+	}
+}
+
+func (ctx *methodCtx) checkCond2(v *ast.Cond, want ast.Type) {
+	ctx.checkExpr(v.C, ast.TBoolean)
+	ctx.convertTo(v.C, ast.TBoolean)
+	ctx.checkExpr(v.X, want)
+	ctx.checkExpr(v.Y, want)
+	xt, yt := v.X.GetType(), v.Y.GetType()
+	if xt == nil || yt == nil {
+		v.SetType(ast.ErrorType{})
+		return
+	}
+	if sameType(xt, yt) {
+		v.SetType(xt)
+		return
+	}
+	ctx.convertTo(v.X, yt)
+	ctx.convertTo(v.Y, xt)
+	if isPrimType(xt) && isPrimType(yt) {
+		v.SetType(ctx.c.lub(xt, yt))
+		return
+	}
+	if isNullType(xt) {
+		v.SetType(yt)
+		return
+	}
+	if isNullType(yt) {
+		v.SetType(xt)
+		return
+	}
+	v.SetType(ctx.c.lub(xt, yt))
+}
+
+func (ctx *methodCtx) checkNewArray(v *ast.NewArray) {
+	c := ctx.c
+	elem := c.resolveType(ctx.env, v.Elem)
+	for i, d := range v.Dims {
+		ctx.checkExpr(d, ast.TInt)
+		ctx.convertTo(d, ast.TInt)
+		if cv := c.constEval(d); cv.ok && cv.i < 0 {
+			ctx.errf(d.GetPos(), "TY-TYP-0067", "array dimension must be non-negative")
+		}
+		_ = i
+	}
+	if v.Init != nil {
+		v.Init.Elem = elem
+		ctx.checkArrayInit(v.Init, nil)
+		elem = v.Init.Elem
+	}
+	t := elem
+	for i := 0; i < len(v.Dims)+v.Extra; i++ {
+		t = &ast.ArrayType{Elem: t}
+	}
+	v.SetType(t)
+}
+
+func (ctx *methodCtx) checkArrayInit(v *ast.ArrayInit, want ast.Type) {
+	var elem ast.Type
+	if want != nil {
+		if arr, ok := want.(*ast.ArrayType); ok {
+			elem = arr.Elem
+		}
+	}
+	if elem == nil {
+		elem = v.Elem
+	}
+	if elem == nil {
+		// infer from first element
+		for _, e := range v.Elems {
+			ctx.checkExpr(e, nil)
+			elem = e.GetType()
+			break
+		}
+	}
+	for _, e := range v.Elems {
+		if ai, ok := e.(*ast.ArrayInit); ok {
+			ai.Elem = elem
+			ctx.checkArrayInit(ai, elem)
+			continue
+		}
+		ctx.checkExpr(e, elem)
+		if elem != nil {
+			ctx.convertTo(e, elem)
+		}
+	}
+	v.Elem = elem
+	v.SetType(&ast.ArrayType{Elem: elem})
+}
+
+func (ctx *methodCtx) checkNew(v *ast.New, want ast.Type) {
+	c := ctx.c
+	t := c.resolveType(ctx.env, v.Type)
+	if v.Type.Args != nil && len(v.Type.Args) == 0 {
+		if dt, ok := t.(*diamondType); ok {
+			if ct, ok2 := want.(*ast.ClassType); ok2 && ct.Class == dt.Class {
+				t = ct
+				v.Type.Resolved = ct
+			} else {
+				// fall back to erasure
+				t = &ast.ClassType{Class: dt.Class}
+				for _, tv := range dt.Class.TypeParams {
+					t.(*ast.ClassType).Args = append(t.(*ast.ClassType).Args, c.erasure(tv.Bound))
+				}
+				v.Type.Resolved = t
+			}
+		}
+	}
+	ct, ok := c.erasure(t).(*ast.ClassType)
+	if !ok {
+		ctx.errf(v.Pos, "TY-TYP-0068", "cannot instantiate %s", t)
+		v.SetType(ast.ErrorType{})
+		return
+	}
+	cl := ct.Class
+	if v.Body == nil {
+		if cl.Mods.Has(ast.ModAbstract) || cl.IsInterface() {
+			ctx.errf(v.Pos, "TY-TYP-0069", "%s is abstract; cannot be instantiated", cl.Name)
+		}
+	}
+	if v.Body != nil {
+		if !cl.IsInterface() && !cl.Mods.Has(ast.ModAbstract) && cl.Mods.Has(ast.ModFinal) {
+			ctx.errf(v.Pos, "TY-TYP-0070", "cannot extend final class %s", cl.Name)
+		}
+		if cl.Kind == ast.KindEnum {
+			ctx.errf(v.Pos, "TY-TYP-0070", "cannot subclass enum %s", cl.Name)
+		}
+	}
+	ctor := c.resolveCtor(ctx, ct, v, cl)
+	_ = ctor
+	// outer instance for inner classes
+	if cl.Inner {
+		if v.Outer != nil {
+			ctx.checkExpr(v.Outer, nil)
+		} else if !ctx.inStatic() {
+			if findEnclosing(ctx.cl, cl) == nil {
+				ctx.errf(v.Pos, "TY-TYP-0071", "an enclosing instance of %s is required", cl.Name)
+			}
+		} else {
+			ctx.errf(v.Pos, "TY-TYP-0071", "an enclosing instance of %s is required", cl.Name)
+		}
+	}
+	if v.Body != nil {
+		body := v.Body
+		body.Name = cl.Name + "$" + fmt.Sprint(c.anonN[cl])
+		c.anonN[cl]++
+		sub := c.declareClass(ctx.cl.File, body, ctx.cl)
+		sub.Anon = true
+		delete(ctx.cl.Nested, body.Name)
+		sub.Mods |= ast.ModFinal
+		if cl.IsInterface() {
+			sub.Ifaces = append(sub.Ifaces, ct)
+		} else {
+			sub.Super = ct
+			cl.Subclasses = append(cl.Subclasses, sub)
+		}
+		sub.Resolved = true
+		sub.LocalOwner = ctx.m
+		c.resolveMembers(sub)
+		c.layout(sub)
+		c.checkBodies(sub)
+		t = &ast.ClassType{Class: sub}
+		v.Body = body
+	}
+	v.SetType(t)
+	v.Ctor = ctor
+}
+
+func findEnclosing(from, target *ast.Class) *ast.Class {
+	for cl := from; cl != nil; cl = cl.Outer {
+		if c := findClass(cl, target); c != nil {
+			return c
+		}
+	}
+	return nil
+}
+
+func findClass(scope, target *ast.Class) *ast.Class {
+	for cl := scope; cl != nil; cl = cl.Outer {
+		if cl == target {
+			return cl
+		}
+	}
+	// nested classes of scope
+	var found *ast.Class
+	var walk func(cl *ast.Class)
+	walk = func(cl *ast.Class) {
+		if cl == nil || found != nil {
+			return
+		}
+		for _, n := range cl.Nested {
+			if n == target {
+				found = n
+				return
+			}
+			walk(n)
+		}
+	}
+	walk(scope)
+	return found
+}
+
+// isInstanceContext reports whether the current class has an enclosing instance of target.
+func (c *Checker) isInstanceContext(ctx *methodCtx, target *ast.Class) bool {
+	if ctx.inStatic() {
+		return false
+	}
+	return findEnclosing(ctx.cl, target) != nil
+}
+
+// resolveCtor picks a constructor and checks arguments.
+func (c *Checker) resolveCtor(ctx *methodCtx, ct *ast.ClassType, v *ast.New, cl *ast.Class) *ast.Method {
+	var cands []*ast.Method
+	cands = append(cands, cl.Ctors...)
+	if len(cands) == 0 {
+		cands = append(cands, &ast.Method{Name: "<init>", IsCtor: true, Owner: cl, Mods: ast.ModPublic, Result: ast.TVoid})
+	}
+	best, score := ctx.pickOverload(ct, cands, v.Args)
+	if best == nil {
+		ctx.errf(v.Pos, "TY-TYP-0072", "no suitable constructor found for %s(%s)", cl.Name, argTypes(v.Args))
+		for _, e := range v.Args {
+			ctx.checkExpr(e, nil)
+		}
+		return nil
+	}
+	ctx.bindArgs(best, score, v.Args, ct)
+	v.Varargs = score.varargs
+	return best
+}
+
+func argTypes(args []ast.Expr) string {
+	var parts []string
+	for _, a := range args {
+		t := a.GetType()
+		if t == nil {
+			parts = append(parts, "?")
+			continue
+		}
+		parts = append(parts, t.String())
+	}
+	return strings.Join(parts, ", ")
+}
+
+type ovScore struct {
+	total    int
+	varargs  int
+	convs    []int
+	method   *ast.Method
+	instArgs []ast.Type
+}
+
+// pickOverload chooses the most specific applicable method.
+func (ctx *methodCtx) pickOverload(recv *ast.ClassType, cands []*ast.Method, args []ast.Expr) (*ast.Method, ovScore) {
+	// check arguments once with no target to obtain their types
+	for _, a := range args {
+		if a.GetType() == nil {
+			ctx.checkExpr(a, nil)
+		}
+	}
+	best := ovScore{total: 1 << 30}
+	for _, m := range cands {
+		if !ctx.accessible(m) {
+			continue
+		}
+		s, ok := ctx.applicable(recv, m, args)
+		if !ok {
+			continue
+		}
+		if best.method == nil || s.total < best.total {
+			best = s
+		}
+	}
+	if best.method == nil {
+		return nil, best
+	}
+	return best.method, best
+}
+
+func (ctx *methodCtx) accessible(m *ast.Method) bool {
+	if m.Owner == nil || m.Owner.Builtin {
+		return true
+	}
+	if m.Mods.Has(ast.ModPublic) {
+		return true
+	}
+	if m.Mods.Has(ast.ModPrivate) {
+		return m.Owner == ctx.cl
+	}
+	if m.Mods.Has(ast.ModProtected) {
+		if ctx.cl == m.Owner {
+			return true
+		}
+		return ctx.c.isSubclass(ctx.cl, m.Owner) || samePackage(ctx.cl.File, m.Owner.File)
+	}
+	// package private
+	return samePackage(ctx.cl.File, m.Owner.File)
+}
+
+func samePackage(a, b *ast.File) bool {
+	if a == nil || b == nil {
+		return false
+	}
+	return a.Package == b.Package
+}
+
+// applicable reports whether args can be passed to m together with a cost.
+func (ctx *methodCtx) applicable(recv *ast.ClassType, m *ast.Method, args []ast.Expr) (ovScore, bool) {
+	c := ctx.c
+	// substitute type variables from the receiver
+	bind := map[*ast.TypeVar]ast.Type{}
+	if m.Owner != nil && len(m.Owner.TypeParams) > 0 {
+		if recv != nil {
+			if sup := c.asSuper(recv, m.Owner); sup != nil {
+				bind = bindings(m.Owner, sup.Args)
+			} else if recv.Class == m.Owner {
+				bind = bindings(m.Owner, recv.Args)
+			}
+		}
+	}
+	params := make([]ast.Type, len(m.Params))
+	for i, p := range m.Params {
+		params[i] = c.subst(p, bind)
+	}
+	// method-level type variables: infer from arguments
+	mbind := map[*ast.TypeVar]ast.Type{}
+	for _, tv := range m.TypeParams {
+		mbind[tv] = nil
+	}
+	n := len(params)
+	if m.Varargs {
+		n--
+	}
+	if len(args) < n {
+		return ovScore{}, false
+	}
+	if !m.Varargs && len(args) != len(params) {
+		return ovScore{}, false
+	}
+	s := ovScore{method: m, instArgs: params}
+	for i, a := range args {
+		var pt ast.Type
+		switch {
+		case i < n:
+			pt = params[i]
+		case m.Varargs:
+			elem := params[len(params)-1]
+			if arr, ok := elem.(*ast.ArrayType); ok {
+				pt = arr.Elem
+			} else {
+				pt = elem
+			}
+		}
+		if len(mbind) > 0 {
+			pt = c.inferTypeArg(pt, a.GetType(), mbind)
+		}
+		cost, ok := ctx.convCost(a.GetType(), pt)
+		if !ok {
+			if m.Varargs && i >= n && cost == 0 {
+				return ovScore{}, false
+			}
+			return ovScore{}, false
+		}
+		s.total += cost
+		s.convs = append(s.convs, cost)
+	}
+	if m.Varargs {
+		s.varargs = -1
+		if m.Varargs && len(args) != len(params) {
+			s.varargs = len(args)
+		}
+	}
+	for tv, t := range mbind {
+		if t == nil {
+			_ = tv
+		}
+	}
+	return s, true
+}
+
+func (c *Checker) inferTypeArg(param, arg ast.Type, bind map[*ast.TypeVar]ast.Type) ast.Type {
+	if param == nil || arg == nil {
+		return param
+	}
+	switch p := param.(type) {
+	case *ast.TypeVarType:
+		if _, ok := bind[p.Var]; ok {
+			if bind[p.Var] == nil {
+				bind[p.Var] = c.erasure(arg)
+			}
+			return bind[p.Var]
+		}
+		return param
+	case *ast.ClassType:
+		if len(p.Args) == 0 {
+			return param
+		}
+		act, ok := arg.(*ast.ClassType)
+		if !ok {
+			if a, isArr := arg.(*ast.ArrayType); isArr {
+				_ = a
+				return p
+			}
+			return p
+		}
+		sup := c.asSuper(act, p.Class)
+		if sup == nil {
+			return p
+		}
+		nt := &ast.ClassType{Class: p.Class}
+		for i, a := range p.Args {
+			if i < len(sup.Args) {
+				nt.Args = append(nt.Args, c.inferTypeArg(a, sup.Args[i], bind))
+			} else {
+				nt.Args = append(nt.Args, a)
+			}
+		}
+		return nt
+	case *ast.ArrayType:
+		if at, ok := arg.(*ast.ArrayType); ok {
+			return &ast.ArrayType{Elem: c.inferTypeArg(p.Elem, at.Elem, bind)}
+		}
+		return param
+	}
+	return param
+}
+
+// convCost returns 0 for identity, 1 for widening/upcast, 2 for boxing, 3 for unboxing.
+func (ctx *methodCtx) convCost(src, target ast.Type) (int, bool) {
+	c := ctx.c
+	if src == nil || target == nil {
+		return 0, true
+	}
+	if ast.IsError(src) || ast.IsError(target) {
+		return 0, true
+	}
+	if _, ok := src.(ast.NullType); ok {
+		if ast.IsRef(target) {
+			return 1, true
+		}
+		return 0, false
+	}
+	if sameType(src, target) {
+		return 0, true
+	}
+	if sp, ok := src.(*ast.PrimType); ok {
+		if tp, ok2 := target.(*ast.PrimType); ok2 {
+			if widening(sp, tp) {
+				if sp.Kind == tp.Kind {
+					return 0, true
+				}
+				return 1, true
+			}
+			return 0, false
+		}
+		if _, ok2 := c.unboxed(target); ok2 {
+			return 2, true
+		}
+		if ct, ok2 := target.(*ast.ClassType); ok2 && ct.Class.Special == "Object" {
+			return 3, true
+		}
+		return 0, false
+	}
+	if tp, ok := target.(*ast.PrimType); ok {
+		if bp, ok2 := c.unboxed(src); ok2 {
+			if widening(bp, tp) {
+				return 3, true
+			}
+			return 0, false
+		}
+		return 0, false
+	}
+	if tv, ok := target.(*ast.TypeVarType); ok {
+		if tv.Var.Bound == nil || tv.Var.Bound == c.objType {
+			if ast.IsRef(src) {
+				return 1, true
+			}
+			return 0, false
+		}
+		return ctx.convCost(src, tv.Var.Bound)
+	}
+	if ast.IsRef(src) && ast.IsRef(target) {
+		if c.isSubtype(src, target) {
+			return 1, true
+		}
+		return 0, false
+	}
+	return 0, false
+}
+
+// bindArgs records conversions for the chosen overload.
+func (ctx *methodCtx) bindArgs(m *ast.Method, s ovScore, args []ast.Expr, recv *ast.ClassType) {
+	for i, a := range args {
+		var pt ast.Type
+		if i < len(m.Params) {
+			pt = m.Params[i]
+		} else if m.Varargs && len(m.Params) > 0 {
+			if arr, ok := m.Params[len(m.Params)-1].(*ast.ArrayType); ok {
+				pt = arr.Elem
+			}
+		}
+		if i < len(s.instArgs) {
+			pt = s.instArgs[i]
+		} else if m.Varargs && len(s.instArgs) > 0 {
+			if arr, ok := s.instArgs[len(s.instArgs)-1].(*ast.ArrayType); ok {
+				pt = arr.Elem
+			}
+		}
+		if pt != nil {
+			ctx.convertTo(a, pt)
+		}
+	}
+}
+
+func (ctx *methodCtx) checkCall(v *ast.Call, want ast.Type) {
+	if v.ThisCtor {
+		ctx.checkThisCtor(v)
+		return
+	}
+	var rt ast.Type
+	if v.Recv != nil {
+		ctx.checkExpr(v.Recv, nil)
+		rt = v.Recv.GetType()
+	}
+	for _, a := range v.Args {
+		ctx.checkExpr(a, nil)
+	}
+	v.RecvType = rt
+	if rt != nil {
+		if _, ok := rt.(*ast.ArrayType); ok {
+			if !ctx.checkArrayCall(v, rt) {
+				return
+			}
+		}
+	}
+	if rt == nil {
+		ctx.checkUnqualifiedCall(v, want)
+		return
+	}
+	ctx.checkMethodCall(v, rt, want)
+}
+
+func (ctx *methodCtx) checkArrayCall(v *ast.Call, rt ast.Type) bool {
+	switch v.Name {
+	case "clone":
+		if len(v.Args) != 0 {
+			ctx.errf(v.Pos, "TY-TYP-0073", "array clone takes no arguments")
+		}
+		v.SetType(rt)
+		return true
+	case "toString", "hashCode", "equals":
+		v.SetType(ast.ErrorType{})
+		return false
+	}
+	return false
+}
+
+func (ctx *methodCtx) checkThisCtor(v *ast.Call) {
+	if ctx.m == nil || !ctx.m.IsCtor {
+		ctx.errf(v.Pos, "TY-TYP-0074", "constructor call must be the first statement of a constructor")
+	}
+	if v.Super {
+		if ctx.cl.Super == nil {
+			ctx.errf(v.Pos, "TY-TYP-0044", "no superclass to call")
+			v.SetType(ast.TVoid)
+			return
+		}
+		m, s := ctx.pickOverload(ctx.cl.Super, ctx.cl.Super.Class.Ctors, v.Args)
+		if m == nil {
+			ctx.errf(v.Pos, "TY-TYP-0072", "no suitable constructor found for %s(%s)", ctx.cl.Super.Class.Name, argTypes(v.Args))
+		} else {
+			ctx.bindArgs(m, s, v.Args, ctx.cl.Super)
+			v.Method = m
+		}
+	} else {
+		m, s := ctx.pickOverload(&ast.ClassType{Class: ctx.cl}, ctx.cl.Ctors, v.Args)
+		if m == nil {
+			ctx.errf(v.Pos, "TY-TYP-0072", "no suitable constructor found for %s(%s)", ctx.cl.Name, argTypes(v.Args))
+		} else {
+			if m != ctx.m {
+				ctx.errf(v.Pos, "TY-TYP-0075", "recursive constructor invocation")
+			}
+			ctx.bindArgs(m, s, v.Args, &ast.ClassType{Class: ctx.cl})
+			v.Method = m
+		}
+	}
+	v.SetType(ast.TVoid)
+}
+
+func (ctx *methodCtx) checkUnqualifiedCall(v *ast.Call, want ast.Type) {
+	// methods of the enclosing class chain
+	recv := &ast.ClassType{Class: ctx.cl, Args: typeVarArgs(ctx.cl)}
+	if m, s := ctx.pickOverload(recv, ctx.methodsOf(ctx.cl, v.Name), v.Args); m != nil {
+		ctx.bindArgs(m, s, v.Args, recv)
+		v.Method = m
+		v.Static = m.IsStatic()
+		v.SetType(m.Result)
+		return
+	}
+	// implicit this receiver also covers superclass methods
+	if m := ctx.findInChain(v.Name, v.Args); m != nil {
+		return
+	}
+	// static imports
+	for _, m := range ctx.staticMethods[v.Name] {
+		if s, ok := ctx.applicable(recv, m, v.Args); ok {
+			ctx.bindArgs(m, s, v.Args, nil)
+			v.Method = m
+			v.Static = true
+			v.SetType(m.Result)
+			return
+		}
+	}
+	// enclosing class (inner class calling outer method)
+	for cl := ctx.cl.Outer; cl != nil; cl = cl.Outer {
+		orecv := &ast.ClassType{Class: cl, Args: typeVarArgs(cl)}
+		if m, s := ctx.pickOverload(orecv, ctx.methodsOf(cl, v.Name), v.Args); m != nil {
+			ctx.bindArgs(m, s, v.Args, orecv)
+			v.Method = m
+			v.Static = m.IsStatic()
+			v.Recv = &ast.This{ExprBase: ast.ExprBase{Pos: v.Pos, T: orecv}, Qual: cl.Full, Var: ctx.thisVar(cl)}
+			v.SetType(m.Result)
+			return
+		}
+	}
+	// a type name?  Foo.bar() handled elsewhere; here it would be an error
+	ctx.errf(v.Pos, "TY-TYP-0076", "cannot find method %s(%s)", v.Name, argTypes(v.Args))
+	v.SetType(ast.ErrorType{})
+}
+
+func (ctx *methodCtx) thisVar(cl *ast.Class) *ast.Var {
+	if ctx.m != nil && ctx.m.ThisVar == nil {
+		ctx.m.ThisVar = &ast.Var{Name: "this", Type: &ast.ClassType{Class: cl, Args: typeVarArgs(cl)}, ID: -1}
+	}
+	if ctx.m != nil {
+		return ctx.m.ThisVar
+	}
+	return nil
+}
+
+func (ctx *methodCtx) findInChain(name string, args []ast.Expr) *ast.Method {
+	for cl := ctx.cl; cl != nil; cl = cl.Outer {
+		recv := &ast.ClassType{Class: cl, Args: typeVarArgs(cl)}
+		if m, s := ctx.pickOverload(recv, ctx.methodsOf(cl, name), args); m != nil {
+			// unreachable: handled by caller
+			_ = m
+			_ = s
+			return nil
+		}
+	}
+	return nil
+}
+
+func (ctx *methodCtx) methodsOf(cl *ast.Class, name string) []*ast.Method {
+	var out []*ast.Method
+	for k := cl; k != nil; {
+		out = append(out, k.Methods[name]...)
+		if !k.Resolved || k.Super == nil {
+			break
+		}
+		k = k.Super.Class
+	}
+	ctx.c.eachInterface(cl, func(i *ast.Class) bool {
+		out = append(out, i.Methods[name]...)
+		return true
+	})
+	return out
+}
+
+func (ctx *methodCtx) checkMethodCall(v *ast.Call, rt ast.Type, want ast.Type) {
+	// A type name receiver: static call or nested class field
+	if cl := ctx.typeOf(v.Recv); cl != nil {
+		if m, s := ctx.pickOverload(&ast.ClassType{Class: cl, Args: typeVarArgs(cl)}, ctx.methodsOf(cl, v.Name), v.Args); m != nil {
+			if !m.IsStatic() {
+				ctx.errf(v.Pos, "TY-TYP-0077", "non-static method %s cannot be referenced from a type name", v.Name)
+			}
+			ctx.bindArgs(m, s, v.Args, &ast.ClassType{Class: cl})
+			v.Method = m
+			v.Static = true
+			v.SetType(m.Result)
+			return
+		}
+		ctx.errf(v.Pos, "TY-TYP-0076", "cannot find method %s(%s) in %s", v.Name, argTypes(v.Args), cl.Name)
+		v.SetType(ast.ErrorType{})
+		return
+	}
+	// auto-dereference: obj.field.m()
+	ctx.derefFields(v)
+	rt = v.Recv.GetType()
+	recvCT := ctx.recvClass(rt)
+	if recvCT == nil {
+		if arr, ok := rt.(*ast.ArrayType); ok {
+			if ctx.checkArrayObjCall(v, arr) {
+				return
+			}
+		}
+		if !ast.IsError(rt) && rt != nil {
+			ctx.errf(v.Pos, "TY-TYP-0078", "cannot invoke %s on %s", v.Name, rt)
+		}
+		v.SetType(ast.ErrorType{})
+		return
+	}
+	cands := ctx.c.methodsFor(recvCT, v.Name)
+	if len(cands) == 0 {
+		ctx.errf(v.Pos, "TY-TYP-0076", "cannot find method %s(%s) in %s", v.Name, argTypes(v.Args), recvCT.Class.Name)
+		v.SetType(ast.ErrorType{})
+		return
+	}
+	m, s := ctx.pickOverload(recvCT, cands, v.Args)
+	if m == nil {
+		ctx.errf(v.Pos, "TY-TYP-0076", "cannot find method %s(%s) in %s", v.Name, argTypes(v.Args), recvCT.Class.Name)
+		v.SetType(ast.ErrorType{})
+		return
+	}
+	ctx.bindArgs(m, s, v.Args, recvCT)
+	v.Method = m
+	v.Static = m.IsStatic()
+	if !v.Static && !ctx.accessibleInstance(m, rt) {
+		ctx.errf(v.Pos, "TY-TYP-0079", "%s has %s access in %s", m.Name, visName(m.Mods), m.Owner.Name)
+	}
+	v.SetType(m.Result)
+	ctx.rewritePropCall(v, m)
+}
+
+func (ctx *methodCtx) accessibleInstance(m *ast.Method, rt ast.Type) bool {
+	if m.Mods.Has(ast.ModPublic) || m.Owner == nil || m.Owner.Builtin {
+		return true
+	}
+	if m.Mods.Has(ast.ModPrivate) {
+		return m.Owner == ctx.cl
+	}
+	if m.Mods.Has(ast.ModProtected) {
+		return ctx.c.isSubclass(ctx.cl, m.Owner) || samePackage(ctx.cl.File, m.Owner.File) || ctx.cl == m.Owner
+	}
+	return samePackage(ctx.cl.File, m.Owner.File)
+}
+
+func visName(m ast.Mods) string {
+	switch {
+	case m.Has(ast.ModPrivate):
+		return "private"
+	case m.Has(ast.ModProtected):
+		return "protected"
+	}
+	return "package"
+}
+
+func (ctx *methodCtx) rewritePropCall(v *ast.Call, m *ast.Method) {}
+
+// recvClass unwraps a type into a receiver class type (boxing primitives).
+func (ctx *methodCtx) recvClass(t ast.Type) *ast.ClassType {
+	c := ctx.c
+	switch v := t.(type) {
+	case *ast.ClassType:
+		return v
+	case *ast.TypeVarType:
+		if v.Var.Bound != nil {
+			if ct, ok := c.erasure(v.Var.Bound).(*ast.ClassType); ok {
+				return ct
+			}
+		}
+		return c.objType
+	case *ast.PrimType:
+		if cl := c.b.Boxes[v.Kind]; cl != nil {
+			return &ast.ClassType{Class: cl}
+		}
+	case *ast.NullType:
+		return c.objType
+	case ast.ErrorType:
+		return nil
+	case *ast.ArrayType:
+		return nil
+	}
+	return nil
+}
+
+func (ctx *methodCtx) checkArrayObjCall(v *ast.Call, arr *ast.ArrayType) bool {
+	obj := &ast.ClassType{Class: ctx.c.b.Object}
+	switch v.Name {
+	case "equals":
+		if len(v.Args) == 1 {
+			ctx.checkExpr(v.Args[0], obj)
+			v.SetType(ast.TBoolean)
+			return true
+		}
+	case "hashCode":
+		if len(v.Args) == 0 {
+			v.SetType(ast.TInt)
+			return true
+		}
+	case "toString":
+		if len(v.Args) == 0 {
+			v.SetType(ctx.c.strType)
+			return true
+		}
+	case "clone":
+		if len(v.Args) == 0 {
+			v.SetType(arr)
+			return true
+		}
+	}
+	return false
+}
+
+// derefFields auto-dereferences property/field receivers: `a.b.c()` where b is a field.
+func (ctx *methodCtx) derefFields(v *ast.Call) {
+	for {
+		sel, ok := v.Recv.(*ast.Select)
+		if !ok {
+			return
+		}
+		if sel.Ref == nil {
+			return
+		}
+		return
+	}
+}
+
+// typeOf returns the class denoted by an expression used as a type name.
+func (ctx *methodCtx) typeOf(e ast.Expr) *ast.Class {
+	switch v := e.(type) {
+	case *ast.Ident:
+		if _, isVar := v.Ref.(*ast.Var); isVar {
+			return nil
+		}
+		if _, isVar := v.Ref.(*ast.Field); isVar {
+			return nil
+		}
+		return ctx.c.lookupClassName(ctx.env, v.Name)
+	case *ast.Select:
+		if v.Ref != nil {
+			return nil
+		}
+		return ctx.c.lookupClassName(ctx.env, exprTypeName(v))
+	}
+	return nil
+}
+
+func exprTypeName(e ast.Expr) string {
+	switch v := e.(type) {
+	case *ast.Ident:
+		return v.Name
+	case *ast.Select:
+		return exprTypeName(v.X) + "." + v.Name
+	}
+	return ""
+}
+
+func (ctx *methodCtx) checkSelect(v *ast.Select, want ast.Type) {
+	// type name?
+	if cl := ctx.typeOfName(v); cl != nil {
+		return
+	}
+	ctx.checkExpr(v.X, nil)
+	if q := typeQualifier(v.X); q != nil {
+		f := ctx.c.findStaticField(q, v.Name)
+		if f == nil {
+			ctx.errf(v.Pos, "TY-TYP-0080", "cannot find static symbol %s in %s", v.Name, q.Name)
+			v.SetType(ast.ErrorType{})
+			return
+		}
+		v.Ref = f
+		v.SetType(f.Type)
+		ctx.rewriteSelectProp(v, f)
+		return
+	}
+	xt := v.X.GetType()
+	if ast.IsError(xt) {
+		v.SetType(ast.ErrorType{})
+		return
+	}
+	// array length
+	if arr, ok := xt.(*ast.ArrayType); ok {
+		if v.Name == "length" {
+			v.Ref = "length"
+			v.SetType(ast.TInt)
+			return
+		}
+		if obj := ctx.objField(v, xt, v.Name); obj != nil {
+			return
+		}
+		_ = arr
+		ctx.errf(v.Pos, "TY-TYP-0080", "cannot find symbol %s on array", v.Name)
+		v.SetType(ast.ErrorType{})
+		return
+	}
+	ct := ctx.recvClass(xt)
+	if ct == nil {
+		ctx.errf(v.Pos, "TY-TYP-0080", "cannot find symbol %s on %s", v.Name, xt)
+		v.SetType(ast.ErrorType{})
+		return
+	}
+	f := ctx.c.findField(ct, v.Name)
+	if f == nil {
+		ctx.errf(v.Pos, "TY-TYP-0080", "cannot find symbol %s in %s", v.Name, ct.Class.Name)
+		v.SetType(ast.ErrorType{})
+		return
+	}
+	if f.Mods.Has(ast.ModPrivate) && f.Owner != ctx.cl {
+		ctx.errf(v.Pos, "TY-TYP-0046", "%s has private access in %s", f.Name, f.Owner.Name)
+	}
+	if !f.Mods.Has(ast.ModStatic) && ctx.inStatic() && ctx.m != nil && !isTypeReceiver(v.X) {
+		// instance access via an expression is fine even in static context
+	}
+	v.Ref = f
+	v.SetType(f.Type)
+	ctx.rewriteSelectProp(v, f)
+}
+
+// typeQualifier returns the class when e denotes a type name.
+func typeQualifier(e ast.Expr) *ast.Class {
+	switch v := e.(type) {
+	case *ast.Ident:
+		if cl, ok := v.Ref.(*ast.Class); ok {
+			return cl
+		}
+	case *ast.Select:
+		if cl, ok := v.Ref.(*ast.Class); ok {
+			return cl
+		}
+	}
+	return nil
+}
+
+// findStaticField looks up a static field, walking the superclass chain.
+func (c *Checker) findStaticField(cl *ast.Class, name string) *ast.Field {
+	for k := cl; k != nil; {
+		if f := k.FieldMap[name]; f != nil && f.Mods.Has(ast.ModStatic) {
+			return f
+		}
+		if k.Super == nil {
+			break
+		}
+		k = k.Super.Class
+	}
+	return nil
+}
+
+func isTypeReceiver(e ast.Expr) bool {
+	_, ok := e.(*ast.Ident)
+	return ok
+}
+
+func (ctx *methodCtx) rewriteSelectProp(v *ast.Select, f *ast.Field) {
+	if !f.IsProp {
+		return
+	}
+	if f.Getter == nil {
+		ctx.errf(v.Pos, "TY-PROP-0005", "property %s has no getter", f.Name)
+		if f.Setter != nil {
+			v.SetType(f.Type)
+			return
+		}
+		v.SetType(ast.ErrorType{})
+		return
+	}
+	// lowered during emission as a getter call
+	call := &ast.Call{ExprBase: ast.ExprBase{Pos: v.Pos, T: f.Type}, Recv: v.X, Name: f.Getter.Name, Args: []ast.Expr{}, Method: f.Getter}
+	ctx.props[v] = call
+}
+
+func (ctx *methodCtx) typeOfName(v *ast.Select) *ast.Class {
+	if v.Ref != nil {
+		return nil
+	}
+	if _, isVar := v.Ref.(*ast.Var); isVar {
+		return nil
+	}
+	cl := ctx.c.lookupClassName(ctx.env, exprTypeName(v))
+	if cl == nil {
+		return nil
+	}
+	v.Ref = cl
+	v.SetType(&ast.ClassType{Class: cl})
+	return cl
+}
+
+func (ctx *methodCtx) objField(v *ast.Select, arr ast.Type, name string) ast.Expr {
+	// Object methods are handled in checkMethodCall; arrays only expose `length`.
+	return nil
+}
+
+// ---------------------------------------------------------------- lambdas
+
+func (ctx *methodCtx) checkLambda(lam *ast.Lambda, want ast.Type) {
+	c := ctx.c
+	if want == nil || ast.IsError(want) {
+		ctx.errf(lam.Pos, "TY-TYP-0081", "cannot infer the functional interface for this lambda; declare the target type")
+		lam.SetType(ast.ErrorType{})
+		return
+	}
+	ct, ok := want.(*ast.ClassType)
+	if !ok || !ct.Class.IsInterface() {
+		ctx.errf(lam.Pos, "TY-TYP-0082", "lambda target type must be a functional interface, found %s", want)
+		lam.SetType(ast.ErrorType{})
+		return
+	}
+	sam := c.singleAbstract(ct)
+	if sam == nil {
+		ctx.errf(lam.Pos, "TY-TYP-0083", "%s is not a functional interface", ct.Class.Name)
+		lam.SetType(ast.ErrorType{})
+		return
+	}
+	bind := bindings(ct.Class, ct.Args)
+	params := make([]ast.Type, len(sam.Params))
+	for i, p := range sam.Params {
+		params[i] = c.subst(p, bind)
+	}
+	if len(lam.Params) != len(params) {
+		ctx.errf(lam.Pos, "TY-TYP-0084", "lambda has %d parameters but %s requires %d", len(lam.Params), sam.Name, len(params))
+	}
+	lam.Iface = sam
+	lam.SetType(ct)
+	// synthesize a class implementing ct
+	cl := c.newClass("$Lambda"+fmt.Sprint(c.anonN[nil]), "", ast.KindClass)
+	c.anonN[nil]++
+	cl.Anon = true
+	cl.Mods = ast.ModFinal
+	cl.File = ctx.cl.File
+	cl.Resolved = true
+	cl.Laidout = false
+	cl.Ifaces = []*ast.ClassType{ct}
+	cl.LocalOwner = ctx.m
+	cl.Lambda = lam
+	lam.Class = cl
+	m := &ast.Method{Name: sam.Name, Owner: cl, Mods: ast.ModPublic, Result: sam.Result, Params: params, Lambda: lam, SynthKind: "lambda"}
+	cl.Methods[m.Name] = append(cl.Methods[m.Name], m)
+	c.addCtor(cl, &ast.Method{Name: "<init>", IsCtor: true, Owner: cl, Mods: ast.ModPublic, Result: ast.TVoid, SynthKind: "lambda-ctor"})
+	// check the body in the lambda's scope
+	lctx := &methodCtx{c: c, cl: ctx.cl, m: m, env: ctx.env, lambda: lam}
+	lctx.push()
+	outerLocals := ctx.scopes
+	lctx.scopes = append(append([]map[string]*ast.Var{}, outerLocals...), map[string]*ast.Var{})
+	lam.Captures = nil
+	for i, p := range lam.Params {
+		name := p.Name
+		var t ast.Type
+		if i < len(params) {
+			t = params[i]
+		}
+		if p.Type != nil {
+			t = c.resolveType(ctx.env, p.Type)
+		}
+		p.Sym = lctx.declare(name, t, p.Pos)
+		p.Sym.Owner = ctx.m
+	}
+	if isStaticCtx(ctx.cl) || ctx.m != nil && ctx.m.IsStatic() {
+		// static context lamdbdas cannot capture this
+	}
+	switch b := lam.Body.(type) {
+	case ast.Expr:
+		lctx.checkExpr(b, m.Result)
+		lctx.convertTo(b, m.Result)
+	case *ast.Block:
+		lctx.checkBlock(b, false)
+		if m.Result != ast.TVoid && !endsWithReturn(b) {
+			lctx.errf(b.End, "TY-TYP-0020", "missing return statement")
+		}
+	}
+	// captured variables become fields of the synthetic class
+	for _, v := range lam.Captures {
+		f := &ast.Field{Name: v.Name, Type: v.Type, Mods: ast.ModPrivate | ast.ModFinal, Pos: v.Pos, Storage: true}
+		cl.Fields = append(cl.Fields, f)
+		cl.FieldMap[f.Name] = f
+		cl.CapFields[v] = f
+	}
+	c.addInstanceFields(cl)
+	c.layout(cl)
+}
+
+// singleAbstract finds the functional interface method.
+func (c *Checker) singleAbstract(ct *ast.ClassType) *ast.Method {
+	var found *ast.Method
+	c.eachInterface(ct.Class, func(i *ast.Class) bool {
+		for _, name := range sortedMethodNames(i) {
+			for _, m := range i.Methods[name] {
+				if m.IsStatic() || m.Mods.Has(ast.ModPrivate) || !m.Mods.Has(ast.ModAbstract) {
+					continue
+				}
+				if c.objectHas(m) && i.Name != ct.Class.Name {
+					continue
+				}
+				if found != nil && found.Name != m.Name {
+					return false
+				}
+				if found == nil || !sameType(c.erasure(found.Result), c.erasure(m.Result)) {
+					found = m
+				}
+			}
+		}
+		return true
+	})
+	return found
+}
+
+func (ctx *methodCtx) checkMethodRef(mr *ast.MethodRef, want ast.Type) {
+	c := ctx.c
+	if want == nil {
+		ctx.errf(mr.Pos, "TY-TYP-0081", "cannot infer the functional interface for this method reference")
+		mr.SetType(ast.ErrorType{})
+		return
+	}
+	ct, ok := want.(*ast.ClassType)
+	if !ok || !ct.Class.IsInterface() {
+		ctx.errf(mr.Pos, "TY-TYP-0082", "method reference target type must be a functional interface")
+		mr.SetType(ast.ErrorType{})
+		return
+	}
+	sam := c.singleAbstract(ct)
+	if sam == nil {
+		ctx.errf(mr.Pos, "TY-TYP-0083", "%s is not a functional interface", ct.Class.Name)
+		mr.SetType(ast.ErrorType{})
+		return
+	}
+	bind := bindings(ct.Class, ct.Args)
+	params := make([]ast.Type, len(sam.Params))
+	for i, p := range sam.Params {
+		params[i] = c.subst(p, bind)
+	}
+	res := c.subst(sam.Result, bind)
+	// build an equivalent lambda
+	lam := &ast.Lambda{ExprBase: ast.ExprBase{Pos: mr.Pos}, Iface: sam}
+	for i := range params {
+		lam.Params = append(lam.Params, &ast.Param{Pos: mr.Pos, Name: fmt.Sprintf("p%d", i)})
+	}
+	var recv ast.Expr
+	var callee string
+	switch {
+	case mr.Name == "new":
+		callee = "<new>"
+	default:
+		callee = mr.Name
+		recv = mr.X
+	}
+	// resolve the target method
+	var target *ast.Method
+	var recvType ast.Type
+	if mr.TypeX != nil {
+		recvType = c.resolveType(ctx.env, mr.TypeX)
+	} else if recv != nil {
+		ctx.checkExpr(recv, nil)
+		recvType = recv.GetType()
+	}
+	if callee == "<new>" {
+		ct2, ok := c.erasure(recvType).(*ast.ClassType)
+		if !ok {
+			ctx.errf(mr.Pos, "TY-TYP-0085", "cannot construct %s", recvType)
+			mr.SetType(ast.ErrorType{})
+			return
+		}
+		var cands []*ast.Method
+		cands = append(cands, ct2.Class.Ctors...)
+		m, s := ctx.matchRefParams(ct2, cands, params)
+		if m == nil {
+			ctx.errf(mr.Pos, "TY-TYP-0072", "no suitable constructor for %s", ct2.Class.Name)
+			mr.SetType(ast.ErrorType{})
+			return
+		}
+		_ = s
+		target = m
+		call := &ast.New{ExprBase: ast.ExprBase{Pos: mr.Pos, T: ct2}, Type: mr.TypeX, Ctor: target}
+		_ = call
+		lam.Body = &ast.New{ExprBase: ast.ExprBase{Pos: mr.Pos, T: ct2}, Type: mr.TypeX}
+		mr.Lam = lam
+		ctx.checkLambda(lam, want)
+		mr.SetType(ct)
+		return
+	}
+	// instance method on the receiver type, or a static method / unbound instance method
+	if rt := ctx.recvClassForRef(recvType); rt != nil {
+		all := c.methodsFor(rt, callee)
+		// try bound form first (params as-is)
+		if m, _ := ctx.matchRefParams(rt, all, params); m != nil && !m.IsStatic() {
+			target = m
+		}
+		if target == nil {
+			// unbound: first parameter is the receiver
+			if m, _ := ctx.matchRefParams(rt, all, params[1:]); m != nil && !m.IsStatic() {
+				target = m
+			}
+		}
+		if target == nil {
+			if m, _ := ctx.matchRefParams(rt, all, params); m != nil && m.IsStatic() {
+				target = m
+			}
+		}
+	}
+	if target == nil {
+		ctx.errf(mr.Pos, "TY-TYP-0076", "cannot find method %s for this functional interface", callee)
+		mr.SetType(ast.ErrorType{})
+		return
+	}
+	// build body: call
+	args := make([]ast.Expr, len(lam.Params))
+	for i, p := range lam.Params {
+		id := &ast.Ident{ExprBase: ast.ExprBase{Pos: mr.Pos, T: params[i]}, Name: p.Name, Ref: p.Sym}
+		args[i] = id
+	}
+	var callRecv ast.Expr
+	if target.IsStatic() {
+		callRecv = nil
+	} else if len(args) == len(target.Params) {
+		callRecv = recv
+	} else {
+		callRecv = args[0]
+		args = args[1:]
+	}
+	lam.Body = &ast.Call{ExprBase: ast.ExprBase{Pos: mr.Pos, T: res}, Recv: callRecv, Name: target.Name, Args: args}
+	mr.Lam = lam
+	ctx.checkLambda(lam, want)
+	mr.SetType(ct)
+}
+
+func (ctx *methodCtx) recvClassForRef(t ast.Type) *ast.ClassType {
+	if t == nil {
+		return nil
+	}
+	if arr, ok := t.(*ast.ArrayType); ok {
+		_ = arr
+		return ctx.c.objType
+	}
+	return ctx.recvClass(t)
+}
+
+func (ctx *methodCtx) matchRefParams(recv *ast.ClassType, cands []*ast.Method, params []ast.Type) (*ast.Method, ovScore) {
+	best := ovScore{total: 1 << 30}
+	var bestM *ast.Method
+	for _, m := range cands {
+		if !ctx.accessible(m) {
+			continue
+		}
+		n := len(m.Params)
+		varargs := m.Varargs
+		if varargs {
+			n--
+			if len(params) < n {
+				continue
+			}
+		} else if len(params) != len(m.Params) {
+			continue
+		}
+		s := ovScore{method: m}
+		ok := true
+		for i, p := range params {
+			var pt ast.Type
+			if i < len(m.Params) {
+				pt = m.Params[i]
+			} else if varargs && len(m.Params) > 0 {
+				if arr, isArr := m.Params[len(m.Params)-1].(*ast.ArrayType); isArr {
+					pt = arr.Elem
+				}
+			}
+			cost, good := ctx.convCost(p, pt)
+			if !good {
+				ok = false
+				break
+			}
+			s.total += cost
+		}
+		if ok && (bestM == nil || s.total < best.total) {
+			best = s
+			bestM = m
+		}
+	}
+	return bestM, best
+}
+
+// ---------------------------------------------------------------- helpers
+
+var _ = source.Pos{}
+
+// methodsFor returns all methods with the given name visible on ct.
+func (c *Checker) methodsFor(ct *ast.ClassType, name string) []*ast.Method {
+	var out []*ast.Method
+	seen := map[*ast.Class]bool{}
+	for k := ct.Class; k != nil; {
+		out = append(out, k.Methods[name]...)
+		if k.Super == nil {
+			break
+		}
+		k = k.Super.Class
+	}
+	c.eachInterface(ct.Class, func(i *ast.Class) bool {
+		if seen[i] {
+			return true
+		}
+		seen[i] = true
+		for _, m := range i.Methods[name] {
+			if m.Mods.Has(ast.ModAbstract) && c.Implementation(ct.Class, m) != nil {
+				continue
+			}
+			out = append(out, m)
+		}
+		return true
+	})
+	return out
+}
+
+// findField looks up a field on ct (including inherited).
+func (c *Checker) findField(ct *ast.ClassType, name string) *ast.Field {
+	bind := bindings(ct.Class, ct.Args)
+	for k := ct.Class; k != nil; {
+		if f := k.FieldMap[name]; f != nil {
+			if len(bind) > 0 {
+				nf := *f
+				nf.Type = c.subst(f.Type, bind)
+				return &nf
+			}
+			return f
+		}
+		if !k.Resolved {
+			break
+		}
+		if k.Super == nil {
+			break
+		}
+		bind = compose(bind, bindings(k.Super.Class, k.Super.Args))
+		k = k.Super.Class
+	}
+	return nil
+}
+
+func compose(inner, outer map[*ast.TypeVar]ast.Type) map[*ast.TypeVar]ast.Type {
+	if len(inner) == 0 {
+		return outer
+	}
+	out := map[*ast.TypeVar]ast.Type{}
+	for k, v := range outer {
+		out[k] = v
+	}
+	for k, v := range inner {
+		if tv, ok := v.(*ast.TypeVarType); ok {
+			if r, ok2 := outer[tv.Var]; ok2 {
+				out[k] = r
+				continue
+			}
+		}
+		out[k] = v
+	}
+	return out
+}
+
+func walkBlock(b *ast.Block, fn func(ast.Expr)) {
+	if b == nil {
+		return
+	}
+	for _, s := range b.Stmts {
+		walkStmt(s, fn)
+	}
+}
+
+func walkStmt(s ast.Stmt, fn func(ast.Expr)) {
+	switch v := s.(type) {
+	case *ast.Block:
+		walkBlock(v, fn)
+	case *ast.ExprStmt:
+		walkExpr(v.X, fn)
+	case *ast.LocalVar:
+		for _, d := range v.Vars {
+			if d.Init != nil {
+				walkExpr(d.Init, fn)
+			}
+		}
+	case *ast.If:
+		walkExpr(v.Cond, fn)
+		walkStmt(v.Then, fn)
+		if v.Else != nil {
+			walkStmt(v.Else, fn)
+		}
+	case *ast.While:
+		walkExpr(v.Cond, fn)
+		walkStmt(v.Body, fn)
+	case *ast.DoWhile:
+		walkStmt(v.Body, fn)
+		walkExpr(v.Cond, fn)
+	case *ast.For:
+		for _, i := range v.Init {
+			walkStmt(i, fn)
+		}
+		if v.Cond != nil {
+			walkExpr(v.Cond, fn)
+		}
+		for _, u := range v.Update {
+			walkExpr(u, fn)
+		}
+		walkStmt(v.Body, fn)
+	case *ast.ForEach:
+		walkExpr(v.X, fn)
+		walkStmt(v.Body, fn)
+	case *ast.Return:
+		if v.X != nil {
+			walkExpr(v.X, fn)
+		}
+	case *ast.Throw:
+		walkExpr(v.X, fn)
+	case *ast.Try:
+		for _, r := range v.Resources {
+			walkStmt(r, fn)
+		}
+		walkBlock(v.Body, fn)
+		for _, c := range v.Catches {
+			walkBlock(c.Body, fn)
+		}
+		if v.Finally != nil {
+			walkBlock(v.Finally, fn)
+		}
+	case *ast.Switch:
+		walkExpr(v.X, fn)
+		for _, cs := range v.Cases {
+			for _, l := range cs.Labels {
+				walkExpr(l, fn)
+			}
+			if cs.Guard != nil {
+				walkExpr(cs.Guard, fn)
+			}
+			if cs.ArrowX != nil {
+				walkExpr(cs.ArrowX, fn)
+			}
+			for _, st := range cs.Body {
+				walkStmt(st, fn)
+			}
+		}
+	case *ast.Yield:
+		walkExpr(v.X, fn)
+	case *ast.Labeled:
+		walkStmt(v.Body, fn)
+	case *ast.Assert:
+		walkExpr(v.Cond, fn)
+		if v.Msg != nil {
+			walkExpr(v.Msg, fn)
+		}
+	case *ast.Sync:
+		walkExpr(v.Lock, fn)
+		walkBlock(v.Body, fn)
+	}
+}
+
+func walkExpr(e ast.Expr, fn func(ast.Expr)) {
+	if e == nil {
+		return
+	}
+	fn(e)
+	switch v := e.(type) {
+	case *ast.Unary:
+		walkExpr(v.X, fn)
+	case *ast.Binary:
+		walkExpr(v.X, fn)
+		walkExpr(v.Y, fn)
+	case *ast.Assign:
+		walkExpr(v.X, fn)
+		walkExpr(v.Y, fn)
+	case *ast.Cond:
+		walkExpr(v.C, fn)
+		walkExpr(v.X, fn)
+		walkExpr(v.Y, fn)
+	case *ast.Cast:
+		walkExpr(v.X, fn)
+	case *ast.Conv:
+		walkExpr(v.X, fn)
+	case *ast.Call:
+		if v.Recv != nil {
+			walkExpr(v.Recv, fn)
+		}
+		for _, a := range v.Args {
+			walkExpr(a, fn)
+		}
+	case *ast.New:
+		if v.Outer != nil {
+			walkExpr(v.Outer, fn)
+		}
+		for _, a := range v.Args {
+			walkExpr(a, fn)
+		}
+	case *ast.NewArray:
+		for _, d := range v.Dims {
+			walkExpr(d, fn)
+		}
+	case *ast.ArrayInit:
+		for _, el := range v.Elems {
+			walkExpr(el, fn)
+		}
+	case *ast.Index:
+		walkExpr(v.X, fn)
+		walkExpr(v.Index, fn)
+	case *ast.Select:
+		walkExpr(v.X, fn)
+	case *ast.InstanceOf:
+		walkExpr(v.X, fn)
+	case *ast.Lambda:
+		if b, ok := v.Body.(*ast.Block); ok {
+			walkBlock(b, fn)
+		} else if x, ok := v.Body.(ast.Expr); ok {
+			walkExpr(x, fn)
+		}
+	case *ast.SwitchExpr:
+		if v.S != nil {
+			walkStmt(v.S, fn)
+		}
+	}
+}

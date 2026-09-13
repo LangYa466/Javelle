@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="org.javelle.compiler.core.P13LocalTypeDeclarationTest" tests="5" skipped="0" failures="0" errors="0" timestamp="2026-09-12T05:57:03.104Z" hostname="nobara-pc" time="0.003">
+  <properties/>
+  <testcase name="localClassWithFinalModifier()" classname="org.javelle.compiler.core.P13LocalTypeDeclarationTest" time="0.0"/>
+  <testcase name="localVariableNamedRecordIsUnaffected()" classname="org.javelle.compiler.core.P13LocalTypeDeclarationTest" time="0.001"/>
+  <testcase name="localInterfaceAndEnum()" classname="org.javelle.compiler.core.P13LocalTypeDeclarationTest" time="0.0"/>
+  <testcase name="localClassInsideMethodBody()" classname="org.javelle.compiler.core.P13LocalTypeDeclarationTest" time="0.0"/>
+  <testcase name="localRecord()" classname="org.javelle.compiler.core.P13LocalTypeDeclarationTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

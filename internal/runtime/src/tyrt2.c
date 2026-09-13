@@ -1,0 +1,181 @@
+/* tyrt2.c - Teyru runtime: prelude helpers, strings, math, StringBuilder. */
+#include "tyrt.h"
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <math.h>
+#include <time.h>
+
+/* ---- class initialisation --------------------------------------------- */
+
+void ty_clinit(tyclass *c) {
+  if (!c || (c->flags & 8)) return;
+  c->flags |= 8;
+  if (c->super) ty_clinit(c->super);
+  for (int32_t i = 0; i < c->niface; i++) ty_clinit(c->ifaces[i]);
+  if (c->clinit) ((void (*)(void))c->clinit)();
+}
+
+void *ty_class_of(void *o) { return o ? (void *)(((tyobj *)o)->cls) : NULL; }
+tystr *ty_class_name(void *c) { return c ? ty_str_intern(((tyclass *)c)->name) : NULL; }
+
+tystr *ty_str_ident(tystr *s) { return s; }
+
+int32_t ty_str_eq_obj(tystr *a, void *b) {
+  if (b == NULL) return a == NULL;
+  return ty_str_eq(a, (tystr *)b);
+}
+
+tystr *ty_str_sub_from(tystr *s, int32_t from) {
+  if (!s) return NULL;
+  if (from < 0 || from > s->len) ty_throw((tyobj *)ty_aioobe(from, s ? s->len : 0));
+  return ty_str_sub(s, from, (int32_t)s->len);
+}
+
+int64_t ty_str_tolong(tystr *s) { return s ? strtoll(s->data, NULL, 10) : 0; }
+double ty_str_todouble(tystr *s) { return s ? strtod(s->data, NULL) : 0; }
+float ty_str_tofloat(tystr *s) { return s ? (float)strtod(s->data, NULL) : 0; }
+int32_t ty_str_tobool(tystr *s) { return s && strcmp(s->data, "true") == 0; }
+
+/* ---- boxing helpers ---------------------------------------------------- */
+
+tystr *ty_int_tostr(void *o) { return ty_str_of_int(ty_unbox_int(o)); }
+tystr *ty_bool_tostr(void *o) { return ty_str_of_bool(ty_unbox_bool(o)); }
+tystr *ty_char_tostr(void *o) { return ty_str_of_char(ty_unbox_char(o)); }
+
+int32_t ty_int_equals(void *a, void *b) {
+  if (b == NULL) return 0;
+  return ty_unbox_int(a) == ty_unbox_int(b);
+}
+int32_t ty_long_equals(void *a, void *b) {
+  if (b == NULL) return 0;
+  return ty_unbox_long(a) == ty_unbox_long(b);
+}
+int32_t ty_double_equals(void *a, void *b) {
+  if (b == NULL) return 0;
+  return ty_unbox_double(a) == ty_unbox_double(b);
+}
+int32_t ty_bool_equals(void *a, void *b) {
+  if (b == NULL) return 0;
+  return ty_unbox_bool(a) == ty_unbox_bool(b);
+}
+int32_t ty_int_compare(void *a, void *b) {
+  int32_t x = ty_unbox_int(a), y = ty_unbox_int(b);
+  return x < y ? -1 : (x > y ? 1 : 0);
+}
+int32_t ty_long_compare(int64_t a, int64_t b) { return a < b ? -1 : (a > b ? 1 : 0); }
+int32_t ty_double_compare(double a, double b) { return a < b ? -1 : (a > b ? 1 : 0); }
+int32_t ty_long_hash(void *o) {
+  int64_t v = ty_unbox_long(o);
+  return (int32_t)(v ^ ((uint64_t)v >> 32));
+}
+int32_t ty_dhash_bits(double d) {
+  int64_t bits;
+  if (d == 0.0) bits = 0;
+  else memcpy(&bits, &d, 8);
+  return (int32_t)(bits ^ ((uint64_t)bits >> 32));
+}
+int32_t ty_double_hash(void *o) { return ty_dhash_bits(ty_unbox_double(o)); }
+int32_t ty_long_toint(void *o) { return (int32_t)ty_unbox_long(o); }
+
+int32_t ty_fhash_bits(float f) {
+  int32_t bits;
+  memcpy(&bits, &f, 4);
+  return bits;
+}
+
+/* ---- math -------------------------------------------------------------- */
+
+int32_t ty_abs_int(int32_t v) { return v < 0 ? -v : v; }
+int64_t ty_abs_long(int64_t v) { return v < 0 ? -v : v; }
+double ty_abs_double(double v) { return fabs(v); }
+int32_t ty_max_int(int32_t a, int32_t b) { return a > b ? a : b; }
+int32_t ty_min_int(int32_t a, int32_t b) { return a < b ? a : b; }
+int64_t ty_max_long(int64_t a, int64_t b) { return a > b ? a : b; }
+int64_t ty_min_long(int64_t a, int64_t b) { return a < b ? a : b; }
+double ty_max_double(double a, double b) { return a > b ? a : b; }
+double ty_min_double(double a, double b) { return a < b ? a : b; }
+int64_t ty_round(double v) { return (int64_t)floor(v + 0.5); }
+double ty_random(void) { return (double)rand() / ((double)RAND_MAX + 1.0); }
+int32_t ty_isnan(double v) { return isnan(v) ? 1 : 0; }
+int32_t ty_is_digit(uint16_t c) { return c >= '0' && c <= '9'; }
+int32_t ty_is_letter(uint16_t c) { return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z'); }
+int32_t ty_is_space(uint16_t c) { return c == ' ' || c == '\t' || c == '\n' || c == '\r'; }
+
+int64_t ty_millis(void) {
+  struct timespec ts;
+  clock_gettime(CLOCK_REALTIME, &ts);
+  return (int64_t)ts.tv_sec * 1000 + ts.tv_nsec / 1000000;
+}
+int64_t ty_nanos(void) {
+  struct timespec ts;
+  clock_gettime(CLOCK_MONOTONIC, &ts);
+  return (int64_t)ts.tv_sec * 1000000000 + ts.tv_nsec;
+}
+void ty_exit(int32_t code) { exit(code); }
+
+void ty_arraycopy(void *src, int32_t spos, void *dst, int32_t dpos, int32_t len) {
+  tyarr *a = (tyarr *)src, *b = (tyarr *)dst;
+  if (!a || !b || spos < 0 || dpos < 0 || len < 0 || spos + len > a->len || dpos + len > b->len) {
+    ty_throw((tyobj *)ty_aioobe(0, a ? a->len : 0));
+  }
+  memmove((char *)b->data + (size_t)dpos * b->esize, (char *)a->data + (size_t)spos * a->esize,
+          (size_t)len * a->esize);
+}
+
+void *ty_illarg(const char *msg) { return NULL; }
+
+/* ---- object equality --------------------------------------------------- */
+
+int32_t ty_obj_equal(tyobj *a, tyobj *b) {
+  if (a == b) return 1;
+  if (!a || !b) return 0;
+  return ((int32_t (*)(void *, void *))a->cls->vtable[2])(a, b);
+}
+
+/* ---- enums ------------------------------------------------------------- */
+
+int32_t ty_enum_ordinal(void *o) { return o ? ((tyEnumBase *)o)->ordinal : -1; }
+void *ty_enum_name(void *o) { return o ? (void *)((tyEnumBase *)o)->name : NULL; }
+int32_t ty_enum_compare(void *a, void *b) { return ty_enum_ordinal(a) - ty_enum_ordinal(b); }
+
+/* ---- StringBuilder ----------------------------------------------------- */
+
+void *ty_sb_new(void) {
+  tySB *sb = (tySB *)ty_alloc(sizeof(tySB));
+  sb->cap = 32;
+  sb->len = 0;
+  sb->buf = (char *)malloc((size_t)sb->cap);
+  return sb;
+}
+
+static void sb_ensure(tySB *sb, int64_t extra) {
+  if (sb->len + extra <= sb->cap) return;
+  while (sb->len + extra > sb->cap) sb->cap *= 2;
+  sb->buf = (char *)realloc(sb->buf, (size_t)sb->cap);
+}
+
+void *ty_sb_append_str(void *p, tystr *s) {
+  tySB *sb = (tySB *)p;
+  if (!s) return p;
+  sb_ensure(sb, s->len);
+  memcpy(sb->buf + sb->len, s->data, (size_t)s->len);
+  sb->len += s->len;
+  return p;
+}
+void *ty_sb_append_int(void *p, int64_t v) { return ty_sb_append_str(p, ty_str_of_long(v)); }
+void *ty_sb_append_long(void *p, int64_t v) { return ty_sb_append_str(p, ty_str_of_long(v)); }
+void *ty_sb_append_double(void *p, double v) { return ty_sb_append_str(p, ty_str_of_double(v)); }
+void *ty_sb_append_bool(void *p, int32_t v) { return ty_sb_append_str(p, ty_str_of_bool(v)); }
+void *ty_sb_append_char(void *p, uint16_t c) { return ty_sb_append_str(p, ty_str_of_char(c)); }
+void *ty_sb_append_obj(void *p, void *o) {
+  if (!o) return ty_sb_append_str(p, ty_str_intern("null"));
+  return ty_sb_append_str(p, ty_str_of_obj((tyobj *)o));
+}
+tystr *ty_sb_tostring(void *p) {
+  tySB *sb = (tySB *)p;
+  return ty_str_new(sb->buf, sb->len);
+}
+int32_t ty_sb_len(void *p) { return (int32_t)((tySB *)p)->len; }
+

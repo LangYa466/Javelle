@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="org.javelle.compiler.core.P14ThrowYieldAssertTest" tests="7" skipped="0" failures="0" errors="0" timestamp="2026-09-12T05:57:03.156Z" hostname="nobara-pc" time="0.003">
+  <properties/>
+  <testcase name="yieldAsAPlainVariableNameIsUnaffected()" classname="org.javelle.compiler.core.P14ThrowYieldAssertTest" time="0.0"/>
+  <testcase name="missingThrowExpressionIsADiagnosedError()" classname="org.javelle.compiler.core.P14ThrowYieldAssertTest" time="0.001"/>
+  <testcase name="throwStatement()" classname="org.javelle.compiler.core.P14ThrowYieldAssertTest" time="0.0"/>
+  <testcase name="yieldStatement()" classname="org.javelle.compiler.core.P14ThrowYieldAssertTest" time="0.001"/>
+  <testcase name="assertWithMessage()" classname="org.javelle.compiler.core.P14ThrowYieldAssertTest" time="0.0"/>
+  <testcase name="missingAssertConditionIsADiagnosedError()" classname="org.javelle.compiler.core.P14ThrowYieldAssertTest" time="0.0"/>
+  <testcase name="assertWithoutMessage()" classname="org.javelle.compiler.core.P14ThrowYieldAssertTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

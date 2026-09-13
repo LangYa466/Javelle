@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="org.javelle.gradle.workspace.P08WorkspaceIntegrationTest" tests="3" skipped="0" failures="0" errors="0" timestamp="2026-09-12T05:58:00.686Z" hostname="nobara-pc" time="1.86">
+  <properties/>
+  <testcase name="builtJarSupportsIndependentCompileAndSeparateProcessRoundTrip()" classname="org.javelle.gradle.workspace.P08WorkspaceIntegrationTest" time="0.696"/>
+  <testcase name="capturesRealGradleMainTestAndMissingJavelleRootsWithoutTaskWiring()" classname="org.javelle.gradle.workspace.P08WorkspaceIntegrationTest" time="1.151"/>
+  <testcase name="exportsPortableMultiModuleMainTestEmptyAndMissingRoots()" classname="org.javelle.gradle.workspace.P08WorkspaceIntegrationTest" time="0.008"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

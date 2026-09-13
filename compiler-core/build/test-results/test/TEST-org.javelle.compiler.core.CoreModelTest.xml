@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="org.javelle.compiler.core.CoreModelTest" tests="22" skipped="0" failures="0" errors="0" timestamp="2026-09-12T05:57:02.153Z" hostname="nobara-pc" time="0.305">
+  <properties/>
+  <testcase name="sourceMapCompositionAndLargeIndexAreFunctional()" classname="org.javelle.compiler.core.CoreModelTest" time="0.154"/>
+  <testcase name="diagnosticSerializationAndDataOrderDeterministic()" classname="org.javelle.compiler.core.CoreModelTest" time="0.006"/>
+  <testcase name="lineMapRoundTripsLfCrCrLfAndEof()" classname="org.javelle.compiler.core.CoreModelTest" time="0.006"/>
+  <testcase name="symbolPropertyAndOriginInvariants()" classname="org.javelle.compiler.core.CoreModelTest" time="0.002"/>
+  <testcase name="rangesCheckUnitsAndOverflow()" classname="org.javelle.compiler.core.CoreModelTest" time="0.002"/>
+  <testcase name="unicodeEscapeMapsRawAndTranslated()" classname="org.javelle.compiler.core.CoreModelTest" time="0.001"/>
+  <testcase name="tokenCollectionsAndNodeIndexAreImmutable()" classname="org.javelle.compiler.core.CoreModelTest" time="0.002"/>
+  <testcase name="classfileConstantPoolAndApiGoldenGate()" classname="org.javelle.compiler.core.CoreModelTest" time="0.083"/>
+  <testcase name="coordinateGoldensCoverBomTextBlocksBytesCodePointsAndEscapedSurrogates()" classname="org.javelle.compiler.core.CoreModelTest" time="0.004"/>
+  <testcase name="rejectsMiddleOfSurrogate()" classname="org.javelle.compiler.core.CoreModelTest" time="0.001"/>
+  <testcase name="publicApiDoesNotExposePlatformTypes()" classname="org.javelle.compiler.core.CoreModelTest" time="0.002"/>
+  <testcase name="missingTokenMustBeZeroWidth()" classname="org.javelle.compiler.core.CoreModelTest" time="0.001"/>
+  <testcase name="everyResourceCounterFailsClosed()" classname="org.javelle.compiler.core.CoreModelTest" time="0.004"/>
+  <testcase name="sourceMapReverseIndexZeroWidthAndCompositionIdentityFailClosed()" classname="org.javelle.compiler.core.CoreModelTest" time="0.002"/>
+  <testcase name="syntheticOriginRequiresReason()" classname="org.javelle.compiler.core.CoreModelTest" time="0.001"/>
+  <testcase name="sourceDefensivelyCopiesAndFingerprintIsStable()" classname="org.javelle.compiler.core.CoreModelTest" time="0.001"/>
+  <testcase name="uriTraversalCorpusRejected()" classname="org.javelle.compiler.core.CoreModelTest" time="0.001"/>
+  <testcase name="diagnosticJsonRoundTripsAndRejectsHostileInputs()" classname="org.javelle.compiler.core.CoreModelTest" time="0.008"/>
+  <testcase name="sourceMapOverlapOrderingIsDeterministic()" classname="org.javelle.compiler.core.CoreModelTest" time="0.002"/>
+  <testcase name="sourceMapFindsSeparatePropertyExpansions()" classname="org.javelle.compiler.core.CoreModelTest" time="0.004"/>
+  <testcase name="invalidUtf8AndBudgetFail()" classname="org.javelle.compiler.core.CoreModelTest" time="0.001"/>
+  <testcase name="cancellationAndDeadlineAreStable()" classname="org.javelle.compiler.core.CoreModelTest" time="0.001"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

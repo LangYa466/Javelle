@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="org.javelle.testkit.BrokenSourceFixtureTest" tests="1" skipped="0" failures="0" errors="0" timestamp="2026-09-12T05:58:19.917Z" hostname="nobara-pc" time="0.215">
+  <properties/>
+  <testcase name="independentlyBrokenJavaFixtureFailsJavac()" classname="org.javelle.testkit.BrokenSourceFixtureTest" time="0.207"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

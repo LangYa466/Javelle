@@ -1,0 +1,199 @@
+package codegen
+
+import (
+	"fmt"
+	"strings"
+
+	"github.com/LangYa466/Teyru/internal/ast"
+)
+
+// nativeKey identifies a native (runtime-implemented) method precisely.
+func nativeKey(m *ast.Method) string {
+	var b strings.Builder
+	b.WriteString(m.Owner.Name)
+	b.WriteByte('.')
+	b.WriteString(m.Name)
+	b.WriteByte('(')
+	for i, p := range m.Params {
+		if i > 0 {
+			b.WriteByte(',')
+		}
+		b.WriteString(descOf(p))
+	}
+	b.WriteByte(')')
+	return b.String()
+}
+
+func descOf(t ast.Type) string {
+	switch v := t.(type) {
+	case *ast.PrimType:
+		return [...]string{"V", "Z", "B", "S", "C", "I", "J", "F", "D"}[v.Kind]
+	case *ast.ArrayType:
+		return "A"
+	case *ast.ClassType:
+		return v.Class.Name
+	case *ast.TypeVarType:
+		return "O"
+	}
+	return "O"
+}
+
+// emitSynthetic writes the C body of a compiler-synthesized method.
+func (e *Emitter) emitSynthetic(cl *ast.Class, m *ast.Method) {
+	e.indent = 0
+	fmt.Fprintf(&e.code, "static %s {\n", e.signature(m))
+	e.indent++
+	switch m.SynthKind {
+	case "record-get":
+		e.line("return this->f_%s;\n", mangle(m.Prop.Name))
+	case "record-ctor":
+		e.emitRecordAssign(cl, m)
+		e.line("ty_clinit(&cls_%s);\n", mangle(e.prog.Builtins.Record.Full))
+	case "record-toString":
+		e.recordToString(cl)
+	case "record-hashCode":
+		e.recordHashCode(cl)
+	case "record-equals":
+		e.recordEquals(cl)
+	case "enum-values":
+		e.enumValues(cl, m)
+	case "enum-valueOf":
+		e.enumValueOf(cl, m)
+	case "default-ctor":
+		e.emitCtorBody(cl, m)
+	case "":
+		if m.Accessor != nil {
+			if m.Accessor.IsSet {
+				e.line("this->f_%s = a0;\n", mangle(m.Accessor.Prop.Name))
+			} else {
+				e.line("return this->f_%s;\n", mangle(m.Accessor.Prop.Name))
+			}
+		} else {
+			e.line("/* empty */\n")
+		}
+	default:
+		if strings.HasPrefix(m.SynthKind, "array-") {
+			e.arrayMethod(m)
+			break
+		}
+		e.line("/* synthetic %s */\n", m.SynthKind)
+	}
+	e.indent--
+	e.code.WriteString("}\n\n")
+}
+
+func (e *Emitter) arrayMethod(m *ast.Method) {
+	switch m.SynthKind {
+	case "array-tostring":
+		e.line("return ty_str_intern(\"[array]\");\n")
+	case "array-hashcode":
+		e.line("return 0;\n")
+	case "array-equals":
+		e.line("return (void*)this == (void*)a0;\n")
+	case "array-clone":
+		e.line("return (void*)this;\n")
+	}
+}
+
+func (e *Emitter) recordToString(cl *ast.Class) {
+	var parts []string
+	for _, rc := range cl.Decl.RecordComps {
+		f := cl.FieldMap[rc.Name]
+		v := e.stringOperand(&ast.Select{ExprBase: ast.ExprBase{Pos: rc.Pos, T: f.Type}, X: &ast.This{}, Name: rc.Name})
+		_ = v
+		parts = append(parts, fmt.Sprintf("ty_str_concat(ty_str_intern(%s), %s)", e.cstr(rc.Name+"="), e.fieldString(f)))
+	}
+	expr := "ty_str_intern(" + e.cstr(cl.Name+"[") + ")"
+	for i, p := range parts {
+		if i > 0 {
+			expr = "ty_str_concat(" + expr + ", ty_str_intern(\", \"))"
+		}
+		expr = "ty_str_concat(" + expr + ", " + p + ")"
+	}
+	e.line("return ty_str_concat(%s, ty_str_intern(\"]\"));\n", expr)
+}
+
+func (e *Emitter) fieldString(f *ast.Field) string {
+	if e.isStringType(f.Type) {
+		return "((tystr*)this->f_" + mangle(f.Name) + ")"
+	}
+	if p, ok := f.Type.(*ast.PrimType); ok {
+		switch p.Kind {
+		case ast.Boolean:
+			return "ty_str_of_bool(this->f_" + mangle(f.Name) + ")"
+		case ast.Char:
+			return "ty_str_of_char(this->f_" + mangle(f.Name) + ")"
+		case ast.Double, ast.Float:
+			return "ty_str_of_double((double)this->f_" + mangle(f.Name) + ")"
+		default:
+			return "ty_str_of_long((int64_t)this->f_" + mangle(f.Name) + ")"
+		}
+	}
+	return "ty_str_of_obj((tyobj*)this->f_" + mangle(f.Name) + ")"
+}
+
+func (e *Emitter) recordHashCode(cl *ast.Class) {
+	e.line("int32_t _h = 1;\n")
+	for _, rc := range cl.Decl.RecordComps {
+		f := cl.FieldMap[rc.Name]
+		n := "this->f_" + mangle(f.Name)
+		if p, ok := f.Type.(*ast.PrimType); ok {
+			switch p.Kind {
+			case ast.Boolean:
+				e.line("_h = 31 * _h + (%s ? 1231 : 1237);\n", n)
+			case ast.Char, ast.Byte, ast.Short, ast.Int:
+				e.line("_h = 31 * _h + (int32_t)%s;\n", n)
+			case ast.Long:
+				e.line("_h = 31 * _h + (int32_t)(%s ^ ((uint64_t)%s >> 32));\n", n, n)
+			case ast.Double:
+				e.line("_h = 31 * _h + ty_dhash_bits(%s);\n", n)
+			case ast.Float:
+				e.line("_h = 31 * _h + ty_fhash_bits(%s);\n", n)
+			}
+		} else {
+			e.line("_h = 31 * _h + ((%s) ? ((int32_t(*)(void*))((tyobj*)%s)->cls->vtable[1])((void*)%s) : 0);\n", n, n, n)
+		}
+	}
+	e.line("return _h;\n")
+}
+
+func (e *Emitter) recordEquals(cl *ast.Class) {
+	e.line("if (this == (%s*)a0) return 1;\n", cname(cl))
+	e.line("if (a0 == NULL || !ty_instanceof((tyobj*)a0, &cls_%s)) return 0;\n", mangle(cl.Full))
+	e.line("%s* _o = (%s*)a0;\n", cname(cl), cname(cl))
+	for _, rc := range cl.Decl.RecordComps {
+		f := cl.FieldMap[rc.Name]
+		n := "this->f_" + mangle(f.Name)
+		on := "_o->f_" + mangle(f.Name)
+		if _, ok := f.Type.(*ast.PrimType); ok {
+			e.line("if (%s != %s) return 0;\n", n, on)
+		} else if e.isStringType(f.Type) {
+			e.line("if (!ty_str_eq((tystr*)%s, (tystr*)%s)) return 0;\n", n, on)
+		} else {
+			e.line("if (!ty_obj_equal((tyobj*)%s, (tyobj*)%s)) return 0;\n", n, on)
+		}
+	}
+	e.line("return 1;\n")
+}
+
+func (e *Emitter) enumValues(cl *ast.Class, m *ast.Method) {
+	var vals []string
+	for _, f := range cl.EnumConsts {
+		vals = append(vals, "((void*)G_"+mangle(cl.Full)+"_"+mangle(f.Name)+")")
+	}
+	e.line("tyarr* _a = ty_array_new(%d, 8);\n", len(vals))
+	e.line("_a->refs = 1;\n")
+	for i, v := range vals {
+		e.line("((void**)_a->data)[%d] = %s;\n", i, v)
+	}
+	e.line("return _a;\n")
+}
+
+func (e *Emitter) enumValueOf(cl *ast.Class, m *ast.Method) {
+	for _, f := range cl.EnumConsts {
+		e.line("if (ty_str_eq((tystr*)a0, G_%s_%s->name)) return G_%s_%s;\n",
+			mangle(cl.Full), mangle(f.Name), mangle(cl.Full), mangle(f.Name))
+	}
+	e.line("ty_throw((tyobj*)ty_illarg(%s));\n", e.cstr("No enum constant"))
+	e.line("return NULL;\n")
+}

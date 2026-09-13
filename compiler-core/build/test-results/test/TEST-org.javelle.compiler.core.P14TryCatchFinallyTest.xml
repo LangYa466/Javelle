@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="org.javelle.compiler.core.P14TryCatchFinallyTest" tests="6" skipped="0" failures="0" errors="0" timestamp="2026-09-12T05:57:03.159Z" hostname="nobara-pc" time="0.003">
+  <properties/>
+  <testcase name="tryFinallyWithoutCatch()" classname="org.javelle.compiler.core.P14TryCatchFinallyTest" time="0.0"/>
+  <testcase name="tryWithMultipleResources()" classname="org.javelle.compiler.core.P14TryCatchFinallyTest" time="0.0"/>
+  <testcase name="tryWithExistingResource()" classname="org.javelle.compiler.core.P14TryCatchFinallyTest" time="0.0"/>
+  <testcase name="tryCatchFinallyTogether()" classname="org.javelle.compiler.core.P14TryCatchFinallyTest" time="0.001"/>
+  <testcase name="multiCatch()" classname="org.javelle.compiler.core.P14TryCatchFinallyTest" time="0.0"/>
+  <testcase name="tryCatch()" classname="org.javelle.compiler.core.P14TryCatchFinallyTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

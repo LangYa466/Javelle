@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="org.javelle.compiler.core.P13AnnotationTypeDeclarationTest" tests="6" skipped="0" failures="0" errors="0" timestamp="2026-09-12T05:57:03.078Z" hostname="nobara-pc" time="0.005">
+  <properties/>
+  <testcase name="constantFieldRequiresAnInitializer()" classname="org.javelle.compiler.core.P13AnnotationTypeDeclarationTest" time="0.001"/>
+  <testcase name="unterminatedAnnotationTypeIsADiagnosedError()" classname="org.javelle.compiler.core.P13AnnotationTypeDeclarationTest" time="0.0"/>
+  <testcase name="elementWithNoDefault()" classname="org.javelle.compiler.core.P13AnnotationTypeDeclarationTest" time="0.0"/>
+  <testcase name="emptyAnnotationTypeIsValid()" classname="org.javelle.compiler.core.P13AnnotationTypeDeclarationTest" time="0.0"/>
+  <testcase name="elementWithParametersIsADiagnosedError()" classname="org.javelle.compiler.core.P13AnnotationTypeDeclarationTest" time="0.0"/>
+  <testcase name="elementWithDefaultValue()" classname="org.javelle.compiler.core.P13AnnotationTypeDeclarationTest" time="0.001"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

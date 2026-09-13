@@ -1,0 +1,15 @@
+<idea-plugin>
+  <version>0.1.0-SNAPSHOT</version>
+  <id>org.javelle.ide</id>
+  <name>Javelle</name>
+  <vendor>Javelle</vendor>
+  <description>Editor support for the Javelle language via the javelle-lsp server.</description>
+  <idea-version since-build="261" until-build="261.*" />
+  <depends>com.intellij.modules.platform</depends>
+  <extensions defaultExtensionNs="com.intellij">
+    <fileType name="Javelle" implementationClass="org.javelle.intellij.plugin.JavelleFileType" fieldName="INSTANCE" language="TEXT" extensions="javelle" />
+  </extensions>
+  <extensions defaultExtensionNs="com.intellij.platform.lsp">
+    <serverSupportProvider implementation="org.javelle.intellij.plugin.JavelleLspServerSupportProvider" />
+  </extensions>
+</idea-plugin>
