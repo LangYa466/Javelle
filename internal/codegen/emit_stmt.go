@@ -55,24 +55,35 @@ func (e *Emitter) stmt(s ast.Stmt) {
 		e.line("}\n")
 		e.clearPatterns()
 	case *ast.While:
+		labels := e.takeLabels()
 		inner := e.capture(func() {
 			e.hoistPatterns(v.Cond)
 			e.line("while (%s) {\n", e.cond(v.Cond))
 			e.indent++
+			e.pushLoop("")
 			e.stmtAsBlock(v.Body)
+			e.popLoop()
+			e.contLabels(labels)
 			e.indent--
 			e.line("}\n")
 		})
 		// the bindings are declared once, outside the loop
 		e.code.WriteString(inner)
+		e.brkLabels(labels)
 		e.clearPatterns()
 	case *ast.DoWhile:
+		labels := e.takeLabels()
 		e.line("do {\n")
 		e.indent++
+		e.pushLoop("")
 		e.stmtAsBlock(v.Body)
+		e.popLoop()
+		e.contLabels(labels)
 		e.indent--
 		e.line("} while (%s);\n", e.cond(v.Cond))
+		e.brkLabels(labels)
 	case *ast.For:
+		labels := e.takeLabels()
 		e.line("{\n")
 		e.indent++
 		for _, init := range v.Init {
@@ -86,9 +97,16 @@ func (e *Emitter) stmt(s ast.Stmt) {
 		for _, u := range v.Update {
 			up = append(up, e.expr(u))
 		}
+		// the update lives at the end of the body, so both an unlabelled
+		// continue and a labelled one must jump over the rest of the body
+		cont := e.tmpName()
 		e.line("while (%s) {\n", cond)
 		e.indent++
+		e.pushLoop(cont)
 		e.stmtAsBlock(v.Body)
+		e.popLoop()
+		e.contLabels(labels)
+		e.line("%s: ;\n", cont)
 		if len(up) > 0 {
 			e.line("%s;\n", strings.Join(up, ", "))
 		}
@@ -96,13 +114,14 @@ func (e *Emitter) stmt(s ast.Stmt) {
 		e.line("}\n")
 		e.indent--
 		e.line("}\n")
+		e.brkLabels(labels)
 	case *ast.ForEach:
 		e.forEach(v)
 	case *ast.Return:
 		if v.X == nil {
 			e.line("return;\n")
 		} else {
-			e.line("return %s;\n", e.expr(v.X))
+			e.line("return %s;\n", e.coerce(e.expr(v.X), v.X.GetType(), e.retType))
 		}
 	case *ast.Break:
 		if v.Label != "" {
@@ -111,9 +130,12 @@ func (e *Emitter) stmt(s ast.Stmt) {
 			e.line("break;\n")
 		}
 	case *ast.Continue:
-		if v.Label != "" {
+		switch {
+		case v.Label != "":
 			e.line("goto %s;\n", e.labelName(v.Label, false))
-		} else {
+		case e.continueTarget() != "":
+			e.line("goto %s;\n", e.continueTarget())
+		default:
 			e.line("continue;\n")
 		}
 	case *ast.Throw:
@@ -125,11 +147,16 @@ func (e *Emitter) stmt(s ast.Stmt) {
 	case *ast.Yield:
 		e.line("/* yield handled by switch expression */;\n")
 	case *ast.Labeled:
-		e.line("%s: ;\n", e.labelName(v.Label, false))
-		e.stmt(v.Body)
-		if isLoop(v.Body) {
-			e.line("%s: ;\n", e.labelName(v.Label, true))
+		// a loop turns the pending labels into its continue and break targets
+		// (chained labels such as `a: b: for (...) {}` all apply to the loop);
+		// any other statement only has the break target
+		if isLoop(unwrapLabels(v.Body)) {
+			e.pendingLabels = append(e.pendingLabels, v.Label)
+			e.stmt(v.Body)
+			return
 		}
+		e.stmt(v.Body)
+		e.line("%s: ;\n", e.labelName(v.Label, true))
 	case *ast.Assert:
 		e.line("if (!(%s)) { ty_assertfail(%s); }\n", e.cond(v.Cond), e.assertMsg(v))
 	case *ast.Sync:
@@ -160,12 +187,60 @@ func isLoop(s ast.Stmt) bool {
 	return false
 }
 
+// unwrapLabels removes the labels stacked in front of a statement, so that
+// `a: b: for (...) {}` is recognised as a labelled loop.
+func unwrapLabels(s ast.Stmt) ast.Stmt {
+	for {
+		l, ok := s.(*ast.Labeled)
+		if !ok {
+			return s
+		}
+		s = l.Body
+	}
+}
+
 func (e *Emitter) labelName(l string, brk bool) string {
 	if brk {
 		return "brk_" + mangle(l)
 	}
 	return "lbl_" + mangle(l)
 }
+
+// takeLabels removes the labels pending for the current statement, so that
+// statements nested inside it do not inherit them.
+func (e *Emitter) takeLabels() []string {
+	l := e.pendingLabels
+	e.pendingLabels = nil
+	return l
+}
+
+// contLabels emits the targets of `continue label`.
+func (e *Emitter) contLabels(labels []string) {
+	for _, l := range labels {
+		e.line("%s: ;\n", e.labelName(l, false))
+	}
+}
+
+// brkLabels emits the targets of `break label`.
+func (e *Emitter) brkLabels(labels []string) {
+	for _, l := range labels {
+		e.line("%s: ;\n", e.labelName(l, true))
+	}
+}
+
+// continueTarget returns the label an unlabelled continue must jump to in the
+// innermost enclosing loop, or "" when C's continue statement already means
+// the right thing.
+func (e *Emitter) continueTarget() string {
+	if len(e.loops) == 0 {
+		return ""
+	}
+	return e.loops[len(e.loops)-1]
+}
+
+func (e *Emitter) pushLoop(target string) { e.loops = append(e.loops, target) }
+
+func (e *Emitter) popLoop() { e.loops = e.loops[:len(e.loops)-1] }
 
 func (e *Emitter) stmtAsBlock(s ast.Stmt) {
 	if b, ok := s.(*ast.Block); ok {
@@ -306,6 +381,7 @@ func boolToInt(b bool) int {
 }
 
 func (e *Emitter) forEach(v *ast.ForEach) {
+	labels := e.takeLabels()
 	e.line("{\n")
 	e.indent++
 	name := e.localName(v.Var.Sym)
@@ -323,11 +399,15 @@ func (e *Emitter) forEach(v *ast.ForEach) {
 				e.line("%s %s = ((%s*)%s->data)[%s];\n", e.ctype(v.Elem), name, e.ctype(v.Elem), ix, ix+"_i")
 			}
 		}
+		e.pushLoop("")
 		e.stmtAsBlock(v.Body)
+		e.popLoop()
+		e.contLabels(labels)
 		e.indent--
 		e.line("}\n")
 		e.indent--
 		e.line("}\n")
+		e.brkLabels(labels)
 		return
 	}
 	// Iterable protocol
@@ -341,11 +421,15 @@ func (e *Emitter) forEach(v *ast.ForEach) {
 	if v.Var.Sym != nil {
 		e.line("%s %s = (%s)((void*(*)(void*))ty_itab((tyobj*)%s, %d))(%s);\n", e.ctype(v.Elem), name, e.ctype(v.Elem), it, nxSel, it)
 	}
+	e.pushLoop("")
 	e.stmtAsBlock(v.Body)
+	e.popLoop()
+	e.contLabels(labels)
 	e.indent--
 	e.line("}\n")
 	e.indent--
 	e.line("}\n")
+	e.brkLabels(labels)
 }
 
 func (e *Emitter) selectorOf(cl *ast.Class, name string) int {

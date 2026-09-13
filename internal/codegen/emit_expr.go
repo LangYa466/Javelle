@@ -281,6 +281,9 @@ func (e *Emitter) ident(v *ast.Ident) string {
 		}
 		// a static final constant is inlined at every use site
 		if r.Mods.Has(ast.ModStatic) && r.ConstVal != nil {
+			if s, ok := e.prog.ConstantString(r); ok {
+				return e.strLit(s)
+			}
 			if lit, ok := e.prog.ConstantLiteral(r); ok {
 				return lit
 			}

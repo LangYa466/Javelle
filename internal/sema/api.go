@@ -84,6 +84,16 @@ func (p *Program) Lowered(x ast.Expr) (ast.Expr, bool) {
 	return v, ok
 }
 
+// ConstantString returns the value of a compile-time constant String field.
+// Code generation must intern it as a string object rather than inline a raw C
+// string, because a Teyru string carries its class header.
+func (p *Program) ConstantString(f *ast.Field) (string, bool) {
+	if v, ok := f.ConstVal.(constValue); ok && v.kind == ast.LitString {
+		return v.s, true
+	}
+	return "", false
+}
+
 // ConstantLiteral renders a compile-time constant field as a C literal.
 func (p *Program) ConstantLiteral(f *ast.Field) (string, bool) {
 	switch v := f.ConstVal.(type) {

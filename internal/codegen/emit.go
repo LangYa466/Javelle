@@ -32,9 +32,17 @@ type Emitter struct {
 	enumOrdinal string
 	patternVars map[*ast.InstanceOf]string
 	curClass    *ast.Class
+	retType     ast.Type // declared result type of the method being emitted
 	curLambda   *ast.Lambda
 	switchID    int
 	switchCur   int
+	// labels attached to the statement being emitted right now; a loop
+	// consumes them and turns them into its continue and break targets
+	pendingLabels []string
+	// continue target of each enclosing loop; a basic `for` is lowered to a
+	// while with its update at the end of the body, so an unlabelled
+	// continue must jump over the rest of the body to reach that update
+	loops []string
 }
 
 // Emit returns the C source for a program.
@@ -415,7 +423,10 @@ func (e *Emitter) emitMethod(cl *ast.Class, m *ast.Method, idx int) {
 	e.indent = 0
 	fmt.Fprintf(e.code, "static %s {\n", e.signature(m))
 	e.indent++
+	prevClass, prevRet := e.curClass, e.retType
 	e.curClass = cl
+	e.retType = m.Result
+	defer func() { e.curClass, e.retType = prevClass, prevRet }()
 	for i, pv := range m.ParamVars {
 		e.locals[pv] = fmt.Sprintf("a%d", i)
 	}
