@@ -41,8 +41,26 @@ func descOf(t ast.Type) string {
 // emitSynthetic writes the C body of a compiler-synthesized method.
 func (e *Emitter) emitSynthetic(cl *ast.Class, m *ast.Method) {
 	e.indent = 0
-	fmt.Fprintf(&e.code, "static %s {\n", e.signature(m))
+	fmt.Fprintf(e.code, "static %s {\n", e.signature(m))
 	e.indent++
+	if nf, ok := nativeTable[nativeKey(m)]; ok {
+		var parts []string
+		if nf.recv != "" && !m.IsStatic() {
+			parts = append(parts, "("+nf.recv+")this")
+		}
+		for i := range m.Params {
+			parts = append(parts, fmt.Sprintf("a%d", i))
+		}
+		call := nf.fn + "(" + strings.Join(parts, ", ") + ")"
+		if m.Result == ast.TVoid {
+			e.line("%s;\n", call)
+		} else {
+			e.line("return %s;\n", call)
+		}
+		e.indent--
+		e.code.WriteString("}\n\n")
+		return
+	}
 	switch m.SynthKind {
 	case "record-get":
 		e.line("return this->f_%s;\n", mangle(m.Prop.Name))
@@ -191,7 +209,7 @@ func (e *Emitter) enumValues(cl *ast.Class, m *ast.Method) {
 
 func (e *Emitter) enumValueOf(cl *ast.Class, m *ast.Method) {
 	for _, f := range cl.EnumConsts {
-		e.line("if (ty_str_eq((tystr*)a0, G_%s_%s->name)) return G_%s_%s;\n",
+		e.line("if (ty_str_eq((tystr*)a0, ((tyEnumBase*)G_%s_%s)->name)) return G_%s_%s;\n",
 			mangle(cl.Full), mangle(f.Name), mangle(cl.Full), mangle(f.Name))
 	}
 	e.line("ty_throw((tyobj*)ty_illarg(%s));\n", e.cstr("No enum constant"))

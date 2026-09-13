@@ -573,6 +573,7 @@ type Method struct {
 	Used       bool
 	Bridge     *Method
 	ThisVar    *Var
+	ParamVars  []*Var
 	Locals     []*Var
 	HasTry     bool
 	External   bool

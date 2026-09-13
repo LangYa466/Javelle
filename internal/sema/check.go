@@ -65,13 +65,9 @@ func (c *Checker) checkBodies(cl *ast.Class) {
 					continue
 				}
 				ctx := c.newCtx(cl, acc.Sym)
-				if f := acc.Sym.Prop; f != nil {
-					if acc.IsSet {
-						ctx.declare(acc.ParamName, f.Type, acc.Pos)
-					}
-					if f.Storage {
-						ctx.declare("field", f.Type, acc.Pos)
-					}
+				if f := acc.Sym.Prop; f != nil && f.Storage {
+					fv := ctx.declare("field", f.Type, acc.Pos)
+					fv.Field = f
 				}
 				ctx.checkBlock(acc.Body, false)
 			}
@@ -136,7 +132,8 @@ func (c *Checker) newCtx(cl *ast.Class, m *ast.Method) *methodCtx {
 	ctx.push()
 	if m != nil {
 		for i, p := range m.ParamNames {
-			ctx.declare(p, m.Params[i], m.Pos)
+			v := ctx.declare(p, m.Params[i], m.Pos)
+			m.ParamVars = append(m.ParamVars, v)
 		}
 	}
 	return ctx
@@ -500,6 +497,18 @@ func (ctx *methodCtx) checkSwitch(s *ast.Switch, expr bool) {
 			}
 			cs.Pattern.Sym = ctx.declare(cs.Pattern.Name, t, cs.Pattern.Pos)
 		}
+		if isEnumType(xt) {
+			if et, ok := xt.(*ast.ClassType); ok {
+				for _, l := range cs.Labels {
+					if id, ok2 := l.(*ast.Ident); ok2 && id.Ref == nil {
+						if f := et.Class.FieldMap[id.Name]; f != nil && f.Mods.Has(ast.ModStatic) {
+							id.Ref = f
+							id.SetType(f.Type)
+						}
+					}
+				}
+			}
+		}
 		for _, l := range cs.Labels {
 			ctx.checkExpr(l, nil)
 			ctx.convertTo(l, xt)
@@ -762,6 +771,9 @@ func (ctx *methodCtx) lookupOuter(name string) *ast.Class {
 
 func (ctx *methodCtx) checkIdent(v *ast.Ident, want ast.Type) {
 	c := ctx.c
+	if v.Ref != nil {
+		return
+	}
 	if lv := ctx.lookupLocal(v.Name); lv != nil {
 		v.Ref = lv
 		v.SetType(lv.Type)
@@ -826,7 +838,11 @@ func (ctx *methodCtx) rewriteProp(v ast.Expr, f *ast.Field) {
 		v.SetType(ast.ErrorType{})
 		return
 	}
-	ctx.errf(v.GetPos(), "TY-PROP-0006", "property reads are lowered during emission")
+	recv := ast.Expr(&ast.This{ExprBase: ast.ExprBase{Pos: v.GetPos(), T: &ast.ClassType{Class: ctx.cl, Args: typeVarArgs(ctx.cl)}}})
+	if f.Mods.Has(ast.ModStatic) {
+		recv = nil
+	}
+	ctx.props[v] = &ast.Call{ExprBase: ast.ExprBase{Pos: v.GetPos(), T: f.Type}, Recv: recv, Name: f.Getter.Name, Args: []ast.Expr{}, Method: f.Getter}
 }
 
 func (ctx *methodCtx) lookupStaticField(name string) *ast.Field {
@@ -857,7 +873,7 @@ func (ctx *methodCtx) captureOuter(target *ast.Class, v *ast.Var) {
 	// mark every class between ctx.cl and target as capturing v
 	for cl := ctx.cl; cl != nil; cl = cl.Outer {
 		if cl.CapFields[v] == nil {
-			f := &ast.Field{Name: "_cap$" + v.Name, Type: v.Type, Mods: ast.ModPrivate | ast.ModFinal, Pos: v.Pos, Storage: true}
+			f := &ast.Field{Name: "_cap$" + v.Name, Type: v.Type, Mods: ast.ModPrivate | ast.ModFinal, Pos: v.Pos, Storage: true, Owner: cl}
 			cl.CapFields[v] = f
 		}
 		if cl == target {
@@ -923,7 +939,6 @@ func (ctx *methodCtx) convertTo(e ast.Expr, target ast.Type) {
 		if sp.IsNumeric() && tp.IsNumeric() {
 			// narrowing needs a cast, except when the source is a constant in range
 			if widening(sp, tp) {
-				e.SetType(target)
 				return
 			}
 			if cv := c.constEval(e); cv.ok {
@@ -939,11 +954,9 @@ func (ctx *methodCtx) convertTo(e ast.Expr, target ast.Type) {
 	}
 	if isPrimType(src) && ast.IsRef(target) {
 		if _, ok := c.unboxed(target); ok {
-			e.SetType(target)
 			return
 		}
 		if ct, ok := target.(*ast.ClassType); ok && ct.Class.Special == "Object" {
-			e.SetType(target)
 			return
 		}
 		ctx.errf(e.GetPos(), "TY-TYP-0051", "incompatible types: %s cannot be converted to %s", src, target)
@@ -952,7 +965,6 @@ func (ctx *methodCtx) convertTo(e ast.Expr, target ast.Type) {
 	if ast.IsRef(src) && isPrimType(target) {
 		if bp, ok := c.unboxed(src); ok {
 			if widening(bp, target.(*ast.PrimType)) {
-				e.SetType(target)
 				return
 			}
 		}
@@ -1249,6 +1261,10 @@ func isRefType(t ast.Type) bool { return ast.IsRef(t) }
 func (ctx *methodCtx) checkAssign(v *ast.Assign) {
 	c := ctx.c
 	ctx.checkExpr(v.X, nil)
+	if f := ctx.propertyOf(v.X); f != nil {
+		ctx.lowerPropAssign(v, f)
+		return
+	}
 	if !ctx.assignable(v.X) {
 		ctx.errf(v.Pos, "TY-TYP-0065", "left-hand side of an assignment must be a variable")
 	}
@@ -1302,6 +1318,58 @@ func (ctx *methodCtx) checkAssign(v *ast.Assign) {
 		v.OpType = numericPromote(xp, yp)
 		v.SetType(xt)
 	}
+}
+
+// propertyOf returns the property behind an assignable expression.
+func (ctx *methodCtx) propertyOf(x ast.Expr) *ast.Field {
+	var ref any
+	switch v := x.(type) {
+	case *ast.Ident:
+		ref = v.Ref
+	case *ast.Select:
+		ref = v.Ref
+	}
+	if f, ok := ref.(*ast.Field); ok && f.IsProp {
+		return f
+	}
+	return nil
+}
+
+// lowerPropAssign rewrites `x.p = v` (and compound forms) into setter calls.
+func (ctx *methodCtx) lowerPropAssign(v *ast.Assign, f *ast.Field) {
+	if f.Setter == nil {
+		ctx.errf(v.Pos, "TY-PROP-0007", "property %s has no setter", f.Name)
+		v.SetType(f.Type)
+		return
+	}
+	ctx.checkExpr(v.Y, f.Type)
+	if v.Op != "=" {
+		if f.Getter == nil {
+			ctx.errf(v.Pos, "TY-PROP-0008", "property %s needs a getter for compound assignment", f.Name)
+			v.SetType(f.Type)
+			return
+		}
+		getCall := ctx.getterCall(v.X, f)
+		bin := &ast.Binary{ExprBase: ast.ExprBase{Pos: v.Pos}, Op: v.Op[:len(v.Op)-1], X: getCall, Y: v.Y}
+		bin.SetType(f.Type)
+		v.Y = bin
+	}
+	recv := ctx.propReceiver(v.X, f)
+	ctx.props[v] = &ast.Call{ExprBase: ast.ExprBase{Pos: v.Pos, T: f.Type}, Recv: recv, Name: f.Setter.Name, Args: []ast.Expr{v.Y}, Method: f.Setter}
+	v.SetType(f.Type)
+}
+
+func (ctx *methodCtx) propReceiver(x ast.Expr, f *ast.Field) ast.Expr {
+	if !f.Mods.Has(ast.ModStatic) {
+		if sel, ok := x.(*ast.Select); ok {
+			return sel.X
+		}
+	}
+	return nil
+}
+
+func (ctx *methodCtx) getterCall(x ast.Expr, f *ast.Field) ast.Expr {
+	return &ast.Call{ExprBase: ast.ExprBase{Pos: x.GetPos(), T: f.Type}, Recv: ctx.propReceiver(x, f), Name: f.Getter.Name, Args: []ast.Expr{}, Method: f.Getter}
 }
 
 func (ctx *methodCtx) checkCond2(v *ast.Cond, want ast.Type) {
@@ -2017,6 +2085,13 @@ func (ctx *methodCtx) checkMethodCall(v *ast.Call, rt ast.Type, want ast.Type) {
 	ctx.bindArgs(m, s, v.Args, recvCT)
 	v.Method = m
 	v.Static = m.IsStatic()
+	if len(m.Owner.TypeParams) > 0 {
+		if sup := ctx.c.asSuper(recvCT, m.Owner); sup != nil {
+			res := ctx.c.subst(m.Result, bindings(m.Owner, sup.Args))
+			v.SetType(res)
+			return
+		}
+	}
 	if !v.Static && !ctx.accessibleInstance(m, rt) {
 		ctx.errf(v.Pos, "TY-TYP-0079", "%s has %s access in %s", m.Name, visName(m.Mods), m.Owner.Name)
 	}
@@ -2149,6 +2224,9 @@ func exprTypeName(e ast.Expr) string {
 }
 
 func (ctx *methodCtx) checkSelect(v *ast.Select, want ast.Type) {
+	if v.Ref != nil {
+		return
+	}
 	// type name?
 	if cl := ctx.typeOfName(v); cl != nil {
 		return
@@ -2198,7 +2276,7 @@ func (ctx *methodCtx) checkSelect(v *ast.Select, want ast.Type) {
 		v.SetType(ast.ErrorType{})
 		return
 	}
-	if f.Mods.Has(ast.ModPrivate) && f.Owner != ctx.cl {
+	if f.Mods.Has(ast.ModPrivate) && f.Owner != ctx.cl && !f.IsProp {
 		ctx.errf(v.Pos, "TY-TYP-0046", "%s has private access in %s", f.Name, f.Owner.Name)
 	}
 	if !f.Mods.Has(ast.ModStatic) && ctx.inStatic() && ctx.m != nil && !isTypeReceiver(v.X) {
@@ -2256,9 +2334,11 @@ func (ctx *methodCtx) rewriteSelectProp(v *ast.Select, f *ast.Field) {
 		v.SetType(ast.ErrorType{})
 		return
 	}
-	// lowered during emission as a getter call
-	call := &ast.Call{ExprBase: ast.ExprBase{Pos: v.Pos, T: f.Type}, Recv: v.X, Name: f.Getter.Name, Args: []ast.Expr{}, Method: f.Getter}
-	ctx.props[v] = call
+	recv := v.X
+	if f.Mods.Has(ast.ModStatic) {
+		recv = nil
+	}
+	ctx.props[v] = &ast.Call{ExprBase: ast.ExprBase{Pos: v.Pos, T: f.Type}, Recv: recv, Name: f.Getter.Name, Args: []ast.Expr{}, Method: f.Getter}
 }
 
 func (ctx *methodCtx) typeOfName(v *ast.Select) *ast.Class {
@@ -2314,7 +2394,8 @@ func (ctx *methodCtx) checkLambda(lam *ast.Lambda, want ast.Type) {
 	lam.Iface = sam
 	lam.SetType(ct)
 	// synthesize a class implementing ct
-	cl := c.newClass("$Lambda"+fmt.Sprint(c.anonN[nil]), "", ast.KindClass)
+	lamID := c.anonN[nil]
+	cl := c.newClass("$Lambda"+fmt.Sprint(lamID), "teyru.Lambda$"+fmt.Sprint(lamID), ast.KindClass)
 	c.anonN[nil]++
 	cl.Anon = true
 	cl.Mods = ast.ModFinal
@@ -2325,7 +2406,7 @@ func (ctx *methodCtx) checkLambda(lam *ast.Lambda, want ast.Type) {
 	cl.LocalOwner = ctx.m
 	cl.Lambda = lam
 	lam.Class = cl
-	m := &ast.Method{Name: sam.Name, Owner: cl, Mods: ast.ModPublic, Result: sam.Result, Params: params, Lambda: lam, SynthKind: "lambda"}
+	m := &ast.Method{Name: sam.Name, Owner: cl, Mods: ast.ModPublic, Result: c.subst(sam.Result, bind), Params: params, Lambda: lam, SynthKind: "lambda"}
 	cl.Methods[m.Name] = append(cl.Methods[m.Name], m)
 	c.addCtor(cl, &ast.Method{Name: "<init>", IsCtor: true, Owner: cl, Mods: ast.ModPublic, Result: ast.TVoid, SynthKind: "lambda-ctor"})
 	// check the body in the lambda's scope
@@ -2345,6 +2426,7 @@ func (ctx *methodCtx) checkLambda(lam *ast.Lambda, want ast.Type) {
 		}
 		p.Sym = lctx.declare(name, t, p.Pos)
 		p.Sym.Owner = ctx.m
+		m.ParamVars = append(m.ParamVars, p.Sym)
 	}
 	if isStaticCtx(ctx.cl) || ctx.m != nil && ctx.m.IsStatic() {
 		// static context lamdbdas cannot capture this
@@ -2361,7 +2443,7 @@ func (ctx *methodCtx) checkLambda(lam *ast.Lambda, want ast.Type) {
 	}
 	// captured variables become fields of the synthetic class
 	for _, v := range lam.Captures {
-		f := &ast.Field{Name: v.Name, Type: v.Type, Mods: ast.ModPrivate | ast.ModFinal, Pos: v.Pos, Storage: true}
+		f := &ast.Field{Name: v.Name, Type: v.Type, Mods: ast.ModPrivate | ast.ModFinal, Pos: v.Pos, Storage: true, Owner: cl}
 		cl.Fields = append(cl.Fields, f)
 		cl.FieldMap[f.Name] = f
 		cl.CapFields[v] = f
@@ -2495,8 +2577,7 @@ func (ctx *methodCtx) checkMethodRef(mr *ast.MethodRef, want ast.Type) {
 	// build body: call
 	args := make([]ast.Expr, len(lam.Params))
 	for i, p := range lam.Params {
-		id := &ast.Ident{ExprBase: ast.ExprBase{Pos: mr.Pos, T: params[i]}, Name: p.Name, Ref: p.Sym}
-		args[i] = id
+		args[i] = &ast.Ident{ExprBase: ast.ExprBase{Pos: mr.Pos, T: params[i]}, Name: p.Name}
 	}
 	var callRecv ast.Expr
 	if target.IsStatic() {

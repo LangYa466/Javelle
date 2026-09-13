@@ -56,11 +56,12 @@ func (e *Emitter) coerce(v string, src, dst ast.Type) string {
 	if src == nil || dst == nil || dst == ast.TVoid || ast.IsError(src) || ast.IsError(dst) {
 		return v
 	}
+	// generics are erased at runtime
 	if _, ok := dst.(*ast.TypeVarType); ok {
-		return v
+		dst = e.prog.Erased(dst)
 	}
 	if _, ok := src.(*ast.TypeVarType); ok {
-		return v
+		src = e.prog.Erased(src)
 	}
 	_, sp := src.(*ast.PrimType)
 	_, dp := dst.(*ast.PrimType)
@@ -206,13 +207,12 @@ func (e *Emitter) expr(x ast.Expr) string {
 		return "NULL"
 	case *ast.SwitchExpr:
 		n := e.tmpName()
-		e.line("{\n")
-		e.indent++
-		e.line("%s %s = %s;\n", e.ctype(v.GetType()), n, zeroOf(e.ctype(v.GetType())))
-		e.switchStmt(v.S, n)
-		e.indent--
-		e.line("}\n")
-		return n
+		ct := e.ctype(v.GetType())
+		inner := e.capture(func() {
+			e.line("%s %s = %s;\n", ct, n, zeroOf(ct))
+			e.switchStmt(v.S, n)
+		})
+		return "({ " + inner + " " + n + "; })"
 	}
 	return "0"
 }
@@ -266,8 +266,17 @@ func (e *Emitter) stringGlobals() string { return "" }
 func (e *Emitter) ident(v *ast.Ident) string {
 	switch r := v.Ref.(type) {
 	case *ast.Var:
+		if r == nil {
+			return "0"
+		}
+		if r.Field != nil {
+			return "this->f_" + mangle(r.Field.Name)
+		}
 		return e.localName(r)
 	case *ast.Field:
+		if r == nil {
+			return "0"
+		}
 		return e.fieldAccess(r, "this")
 	}
 	return "0"
@@ -275,6 +284,9 @@ func (e *Emitter) ident(v *ast.Ident) string {
 
 // fieldAccess renders a field read through a receiver expression.
 func (e *Emitter) fieldAccess(f *ast.Field, recv string) string {
+	if f.Owner == nil {
+		return "0"
+	}
 	name := "f_" + mangle(f.Name)
 	if f.Mods.Has(ast.ModStatic) {
 		return "G_" + mangle(f.Owner.Full) + "_" + mangle(f.Name)
@@ -582,16 +594,17 @@ func (e *Emitter) callExpr(v *ast.Call) string {
 	if m.External {
 		return m.Native + "(" + a + ")"
 	}
-	if v.Static || m.IsStatic() {
+	if v.Static || m.IsStatic() || v.Super {
+		// super calls bind statically to the superclass implementation
 		return name + "(" + a + ")"
 	}
 	if v.Recv == nil {
-		if m.VIndex >= 0 {
+		if m.Selector >= 0 || m.VIndex >= 0 {
 			return e.virtCall(m, cname(m.Owner)+"*", "this", v.Args)
 		}
 		return name + "(" + a + ")"
 	}
-	if m.VIndex >= 0 && !m.Mods.Has(ast.ModPrivate) {
+	if (m.Selector >= 0 || m.VIndex >= 0) && !m.Mods.Has(ast.ModPrivate) {
 		return e.virtCall(m, cname(m.Owner)+"*", recv, v.Args)
 	}
 	return name + "(" + a + ")"
@@ -689,7 +702,19 @@ func (e *Emitter) newArray(v *ast.NewArray) string {
 		return "({ tyarr* _a = ty_array_new(0, " + es + "); _a->refs = " + refs + "; _a; })"
 	}
 	dim := e.expr(v.Dims[0])
-	return "({ tyarr* _a = ty_array_new(" + dim + ", " + es + "); _a->refs = " + refs + "; _a; })"
+	if len(v.Dims) == 1 {
+		return "({ tyarr* _a = ty_array_new(" + dim + ", " + es + "); _a->refs = " + refs + "; _a; })"
+	}
+	// multi-dimensional creation allocates the inner arrays as well
+	elemDims := &ast.NewArray{ExprBase: ast.ExprBase{Pos: v.Pos, T: v.GetType()}, Elem: v.Elem, Dims: v.Dims[1:], Extra: v.Extra}
+	inner := e.newArray(elemDims)
+	n := e.tmpName()
+	i := e.tmpName()
+	var b strings.Builder
+	fmt.Fprintf(&b, "({ tyarr* %s = ty_array_new(%s, 8); %s->refs = 1;", n, dim, n)
+	fmt.Fprintf(&b, " for (int64_t %s = 0; %s < %s->len; %s++) ((void**)%s->data)[%s] = (void*)(%s);", i, i, n, i, n, i, inner)
+	fmt.Fprintf(&b, " %s; })", n)
+	return b.String()
 }
 
 func (e *Emitter) arrayInit(v *ast.ArrayInit) string {
@@ -708,7 +733,7 @@ func (e *Emitter) arrayInitOf(v *ast.ArrayInit, elem ast.Type) string {
 	for i, el := range v.Elems {
 		val := e.arrayElemValue(el, elem)
 		if e.isRefElem(elem) {
-			fmt.Fprintf(&b, " ((void*)%s->data)[%d] = (void*)%s;", n, i, val)
+			fmt.Fprintf(&b, " ((void**)%s->data)[%d] = (void*)%s;", n, i, val)
 		} else {
 			fmt.Fprintf(&b, " ((%s*)%s->data)[%d] = %s;", e.ctype(elem), n, i, val)
 		}
@@ -752,8 +777,11 @@ func (e *Emitter) emitLambdaMethod(cl *ast.Class, m *ast.Method) {
 	}
 	fmt.Fprintf(&e.fns, "static %s;\n", e.signature(m))
 	e.indent = 0
-	fmt.Fprintf(&e.code, "static %s {\n", e.signature(m))
+	fmt.Fprintf(e.code, "static %s {\n", e.signature(m))
 	e.indent++
+	for i, pv := range m.ParamVars {
+		e.locals[pv] = fmt.Sprintf("a%d", i)
+	}
 	switch b := lam.Body.(type) {
 	case ast.Expr:
 		e.line("return %s;\n", e.coerce(e.expr(b), b.GetType(), m.Result))

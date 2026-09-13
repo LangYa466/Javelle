@@ -23,7 +23,7 @@ var specialNew = map[string]string{
 var nativeTable = map[string]nativeFn{
 	// ---- Object
 	"Object.toString()":     {fn: "ty_object_tostring", recv: "void*"},
-	"Object.hashCode()":     {fn: "ty_object_hash", recv: "void*"},
+	"Object.hashCode()":     {fn: "ty_obj_hash", recv: "void*"},
 	"Object.equals(Object)": {fn: "ty_obj_eq", recv: "void*"},
 	"Object.getClass()":     {fn: "ty_class_of", recv: "void*"},
 	"Class.getName()":       {fn: "ty_class_name", recv: "void*"},
@@ -65,7 +65,7 @@ var nativeTable = map[string]nativeFn{
 	"Integer.hashCode()":         {fn: "ty_unbox_int", recv: "void*"},
 	"Integer.equals(Object)":     {fn: "ty_int_equals", recv: "void*"},
 	"Integer.compareTo(Integer)": {fn: "ty_int_compare", recv: "void*"},
-	"Integer.compare(I,I)":       {fn: "ty_int_compare"},
+	"Integer.compare(I,I)":       {fn: "ty_prim_cmp_int"},
 	"Integer.max(I,I)":           {fn: "ty_max_int"},
 	"Integer.min(I,I)":           {fn: "ty_min_int"},
 
@@ -73,11 +73,11 @@ var nativeTable = map[string]nativeFn{
 	"Long.intValue()":        {fn: "ty_long_toint", recv: "void*"},
 	"Long.valueOf(J)":        {fn: "ty_box_long"},
 	"Long.parseLong(String)": {fn: "ty_str_tolong", recv: "tystr*"},
-	"Long.toString()":        {fn: "ty_str_of_long", recv: "tylongbox*"},
+	"Long.toString()":        {fn: "ty_long_tostr", recv: "void*"},
 	"Long.toString(J)":       {fn: "ty_str_of_long"},
 	"Long.hashCode()":        {fn: "ty_long_hash", recv: "void*"},
 	"Long.equals(Object)":    {fn: "ty_long_equals", recv: "void*"},
-	"Long.compare(J,J)":      {fn: "ty_long_compare"},
+	"Long.compare(J,J)":      {fn: "ty_prim_cmp_long"},
 	"Long.max(J,J)":          {fn: "ty_max_long"},
 	"Long.min(J,J)":          {fn: "ty_min_long"},
 
@@ -85,7 +85,7 @@ var nativeTable = map[string]nativeFn{
 	"Double.valueOf(D)":          {fn: "ty_box_double"},
 	"Double.valueOf(F)":          {fn: "ty_box_double"},
 	"Double.parseDouble(String)": {fn: "ty_str_todouble", recv: "tystr*"},
-	"Double.toString()":          {fn: "ty_str_of_double", recv: "tydoublebox*"},
+	"Double.toString()":          {fn: "ty_double_tostr", recv: "void*"},
 	"Double.toString(D)":         {fn: "ty_str_of_double"},
 	"Double.hashCode()":          {fn: "ty_double_hash", recv: "void*"},
 	"Double.equals(Object)":      {fn: "ty_double_equals", recv: "void*"},
@@ -94,7 +94,7 @@ var nativeTable = map[string]nativeFn{
 
 	"Float.floatValue()":       {fn: "ty_unbox_float", recv: "void*"},
 	"Float.valueOf(F)":         {fn: "ty_box_float"},
-	"Float.toString()":         {fn: "ty_str_of_float", recv: "tyfloatbox*"},
+	"Float.toString()":         {fn: "ty_float_tostr", recv: "void*"},
 	"Float.parseFloat(String)": {fn: "ty_str_tofloat", recv: "tystr*"},
 
 	"Boolean.booleanValue()":       {fn: "ty_unbox_bool", recv: "void*"},

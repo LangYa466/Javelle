@@ -516,7 +516,7 @@ func (p *parser) parseMemberAfterMods(cd *ast.ClassDecl, pos source.Pos, mods as
 		if p.accept("throws") {
 			md.Throws = p.parseTypeList()
 		}
-		if p.accept("default") { // annotation element default
+		if cd.Kind == ast.KindAnnotation && p.accept("default") {
 			p.parseExpr()
 		}
 		if p.is("{") {

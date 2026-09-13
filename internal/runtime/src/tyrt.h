@@ -51,6 +51,11 @@ struct tyclass {
   int32_t *refoffs; /* byte offsets of reference fields */
 };
 
+/* Class handles installed by generated startup code. */
+extern tyclass *TY_STRING;
+extern tyclass *TY_BOX[9];
+extern tyclass *TY_OBJECT;
+
 /* ---- exceptions ------------------------------------------------------- */
 typedef struct tycatch {
   jmp_buf buf;
@@ -60,8 +65,8 @@ typedef struct tycatch {
 
 extern tycatch *ty_cur_catch;
 
-void ty_throw(tyobj *e) __attribute__((noreturn));
-void ty_uncaught(tyobj *e) __attribute__((noreturn));
+void ty_throw(void *e) __attribute__((noreturn));
+void ty_uncaught(void *e) __attribute__((noreturn));
 
 /* Preallocated exception classes (filled by generated code at startup). */
 extern tyclass *TY_NPE, *TY_AIOOBE, *TY_ARITH, *TY_CCE, *TY_NEGARR, *TY_ASSERT,
@@ -101,9 +106,9 @@ tystr *ty_str_of_char(uint16_t c);
 tystr *ty_str_of_double(double v);
 tystr *ty_str_of_float(float v);
 tystr *ty_str_of_long(int64_t v);
-tystr *ty_str_of_obj(tyobj *o);
-int32_t ty_obj_hash(tyobj *o);
-int32_t ty_obj_eq(tyobj *a, tyobj *b);
+tystr *ty_str_of_obj(void *o);
+int32_t ty_obj_hash(void *o);
+int32_t ty_obj_eq(void *a, void *b);
 tystr *ty_str_upper(tystr *s);
 tystr *ty_str_lower(tystr *s);
 tystr *ty_str_trim(tystr *s);
@@ -121,12 +126,15 @@ int32_t ty_str_toint(tystr *s);
 tyarr *ty_array_new(int64_t len, int64_t elemsize);
 int64_t ty_array_len(tyarr *a);
 tyarr *ty_array_clone(tyarr *a, int64_t elemsize);
-void ty_array_store_ref(tyarr *a, int64_t i, tyobj *v);
+void ty_array_store_ref(tyarr *a, int64_t i, void *v);
+void *ty_arr_ptr(tyarr *a, int64_t i);
+void *ty_arr_slot_ref(tyarr *a, int64_t i);
+void *ty_arr_ref(tyarr *a, int64_t i);
 
 /* ---- interfaces / casts ---------------------------------------------- */
-void *ty_itab(tyobj *o, int32_t sel);
-int32_t ty_instanceof(tyobj *o, tyclass *c);
-void *ty_checkcast(tyobj *o, tyclass *c);
+void *ty_itab(void *o, int32_t sel);
+int32_t ty_instanceof(void *o, tyclass *c);
+void *ty_checkcast(void *o, tyclass *c);
 
 /* ---- boxing ----------------------------------------------------------- */
 void *ty_box_int(int32_t v);
@@ -159,8 +167,8 @@ void ty_print_char(uint16_t c);
 void ty_println_char(uint16_t c);
 void ty_print_bool(int32_t v);
 void ty_println_bool(int32_t v);
-void ty_print_obj(tyobj *o);
-void ty_println_obj(tyobj *o);
+void ty_print_obj(void *o);
+void ty_println_obj(void *o);
 void ty_println_void(void);
 void ty_init(void);
 
@@ -178,12 +186,18 @@ int32_t ty_str_tobool(tystr *s);
 tystr *ty_int_tostr(void *o);
 tystr *ty_bool_tostr(void *o);
 tystr *ty_char_tostr(void *o);
+tystr *ty_long_tostr(void *o);
+tystr *ty_double_tostr(void *o);
+tystr *ty_float_tostr(void *o);
 int32_t ty_int_equals(void *a, void *b);
 int32_t ty_long_equals(void *a, void *b);
 int32_t ty_double_equals(void *a, void *b);
 int32_t ty_bool_equals(void *a, void *b);
 int32_t ty_int_compare(void *a, void *b);
 int32_t ty_long_compare(int64_t a, int64_t b);
+int32_t ty_prim_cmp_int(int32_t a, int32_t b);
+int32_t ty_prim_cmp_long(int64_t a, int64_t b);
+int32_t ty_prim_cmp_double(double a, double b);
 int32_t ty_double_compare(double a, double b);
 int32_t ty_long_hash(void *o);
 int32_t ty_double_hash(void *o);
@@ -210,7 +224,7 @@ int64_t ty_nanos(void);
 void ty_exit(int32_t code);
 void ty_arraycopy(void *src, int32_t spos, void *dst, int32_t dpos, int32_t len);
 void *ty_illarg(const char *msg);
-int32_t ty_obj_equal(tyobj *a, tyobj *b);
+int32_t ty_obj_equal(void *a, void *b);
 int32_t ty_enum_ordinal(void *o);
 void *ty_enum_name(void *o);
 int32_t ty_enum_compare(void *a, void *b);
@@ -238,7 +252,7 @@ tystr *ty_sb_tostring(void *sb);
 int32_t ty_sb_len(void *sb);
 
 /* Object methods dispatched from generated code */
-tystr *ty_object_tostring(tyobj *o);
+tystr *ty_object_tostring(void *o);
 int32_t ty_object_hash(tyobj *o);
 int32_t ty_object_equals(tyobj *a, tyobj *b);
 

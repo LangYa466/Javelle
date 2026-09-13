@@ -49,7 +49,7 @@ func (e *Emitter) emitClInit(cl *ast.Class) {
 	m := cl.ClInit
 	fmt.Fprintf(&e.fns, "static %s;\n", e.signature(m))
 	e.indent = 0
-	fmt.Fprintf(&e.code, "static %s {\n", e.signature(m))
+	fmt.Fprintf(e.code, "static %s {\n", e.signature(m))
 	e.indent++
 	if cl.Super != nil {
 		e.line("ty_clinit(&cls_%s);\n", mangle(cl.Super.Class.Full))
@@ -74,6 +74,34 @@ func (e *Emitter) emitClInit(cl *ast.Class) {
 			}
 		}
 	}
+	e.emitEnumInit(cl)
 	e.indent--
 	e.code.WriteString("}\n\n")
+}
+
+// emitEnumInit materialises the enum constants.
+func (e *Emitter) emitEnumInit(cl *ast.Class) {
+	if cl.Kind != ast.KindEnum {
+		return
+	}
+	for _, ec := range cl.Decl.EnumConsts {
+		f := cl.FieldMap[ec.Name]
+		if f == nil {
+			continue
+		}
+		cls := cl
+		for _, sub := range cl.Subclasses {
+			if sub.Name == cl.Name+"$"+ec.Name {
+				cls = sub
+			}
+		}
+		g := staticName(cl, f)
+		e.line("%s = (%s*)ty_alloc(sizeof(%s));\n", g, cname(cls), cname(cls))
+		e.line("%s->obj.cls = &cls_%s;\n", g, mangle(cls.Full))
+		e.line("((tyEnumBase*)%s)->ordinal = %d;\n", g, f.EnumOrd)
+		e.line("((tyEnumBase*)%s)->name = ty_str_intern(%s);\n", g, e.cstr(ec.Name))
+		if len(ec.Args) > 0 || ec.Body != nil {
+			e.line("/* enum constant arguments are evaluated in the enum constructor */\n")
+		}
+	}
 }

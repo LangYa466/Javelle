@@ -266,6 +266,9 @@ func (c *Checker) resolveMembers(cl *ast.Class) {
 			cl.Fields[0] = f
 		}
 	}
+	if cd.Kind == ast.KindEnum && cl.ClInit == nil && len(cd.EnumConsts) > 0 {
+		cl.ClInit = &ast.Method{Name: "<clinit>", Owner: cl, Mods: ast.ModStatic, Result: ast.TVoid, Pos: cd.EnumConsts[0].Pos, SynthKind: "clinit"}
+	}
 	for _, mem := range cd.Members {
 		if ib, ok := mem.(*ast.InitBlock); ok && ib.Static && cl.ClInit == nil {
 			cl.ClInit = &ast.Method{Name: "<clinit>", Owner: cl, Mods: ast.ModStatic, Result: ast.TVoid, Pos: ib.Pos, SynthKind: "clinit"}

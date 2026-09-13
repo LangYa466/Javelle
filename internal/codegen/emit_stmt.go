@@ -254,7 +254,7 @@ func (e *Emitter) packVarargs(parts *[]string, list []ast.Expr, m *ast.Method) {
 	}
 	for i, t := range tail {
 		if e.isRef(elem) {
-			fmt.Fprintf(&b, " ((void*)_va->data)[%d] = (void*)%s;", i, t)
+			fmt.Fprintf(&b, " ((void**)_va->data)[%d] = (void*)%s;", i, t)
 		} else {
 			fmt.Fprintf(&b, " ((%s*)_va->data)[%d] = %s;", e.ctype(elem), i, t)
 		}
@@ -283,7 +283,7 @@ func (e *Emitter) forEach(v *ast.ForEach) {
 			e.line("for (%s = 0; %s < %s->len; %s++) {\n", ix+"_i", ix+"_i", ix, ix+"_i")
 			e.indent++
 			if e.isRefElem(v.Elem) {
-				e.line("%s %s = (%s)((void**)%s->data)[%s];\n", e.ctype(v.Elem), name, e.ctype(v.Elem), ix, ix+"_i")
+				e.line("%s %s = (%s)((void**)%s->data)[%s];\n", e.ctype(v.Elem)+"*", name, e.ctype(v.Elem)+"*", ix, ix+"_i")
 			} else {
 				e.line("%s %s = ((%s*)%s->data)[%s];\n", e.ctype(v.Elem), name, e.ctype(v.Elem), ix, ix+"_i")
 			}
@@ -304,7 +304,7 @@ func (e *Emitter) forEach(v *ast.ForEach) {
 	e.line("while (((int32_t(*)(void*))ty_itab((tyobj*)%s, %d))(%s)) {\n", it, hnSel, it)
 	e.indent++
 	if v.Var.Sym != nil {
-		e.line("%s %s = (%s)((void*(*)(void*))ty_itab((tyobj*)%s, %d))(%s);\n", e.ctype(v.Elem), name, e.ctype(v.Elem), it, nxSel, it)
+		e.line("%s %s = (%s)((void*(*)(void*))ty_itab((tyobj*)%s, %d))(%s);\n", e.ctype(v.Elem)+"*", name, e.ctype(v.Elem)+"*", it, nxSel, it)
 	}
 	e.stmtAsBlock(v.Body)
 	e.indent--
@@ -393,7 +393,7 @@ func (e *Emitter) emitTryCore(v *ast.Try) {
 				e.line("else if (%s) {\n", cond)
 			}
 			e.indent++
-			e.line("v%d_%s = (%s)(void*)_ex;\n", cat.Sym.ID, mangle(cat.Sym.Name), e.ctype(cat.Sym.Type))
+			e.line("%s %s = (%s)(void*)_ex;\n", e.ctype(cat.Sym.Type), e.localName(cat.Sym), e.ctype(cat.Sym.Type))
 			e.emitBlockInner(cat.Body)
 			e.indent--
 			e.line("}\n")
@@ -461,7 +461,7 @@ func (e *Emitter) switchStmt(s *ast.Switch, resultTmp string) {
 	} else {
 		e.line("%s _s = %s;\n", selT, e.expr(s.X))
 		if s.Kind == ast.SwitchEnum {
-			e.line("int32_t _e = ((int32_t(*)(void*))%s)((void*)_s);\n", e.enumOrdinalFn())
+			e.line("int32_t _e = %s((void*)_s);\n", e.enumOrdinalFn())
 			e.line("switch (_e) {\n")
 		} else {
 			e.line("switch ((int64_t)_s) {\n")
@@ -553,19 +553,6 @@ func (e *Emitter) emitYieldBlock(b *ast.Block, resultTmp string) {
 	}
 }
 
-func (e *Emitter) enumOrdinalFn() string {
-	if e.enumOrdinal != "" {
-		return e.enumOrdinal
-	}
-	cl := e.prog.Builtins.Enum
-	for _, m := range cl.Methods["ordinal"] {
-		if m.VIndex >= 0 {
-			e.enumOrdinal = "((void*)this)->obj.cls->vtable[" + fmt.Sprint(m.VIndex) + "]"
-			return e.enumOrdinal
-		}
-	}
-	e.enumOrdinal = "(void*)0"
-	return e.enumOrdinal
-}
+func (e *Emitter) enumOrdinalFn() string { return "ty_enum_ordinal" }
 
 var _ = ast.ModPublic

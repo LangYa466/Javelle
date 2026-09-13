@@ -449,13 +449,19 @@ func (c *Checker) constEval(e ast.Expr) constValue {
 			return constValue{i: a.i >> uint(b.i&63), kind: ast.LitInt, ok: true}
 		}
 	case *ast.Ident:
-		if f, ok := v.Ref.(*ast.Field); ok && f.ConstVal != nil {
+		if f, ok := v.Ref.(*ast.Field); ok {
+			if f.EnumOrd >= 0 && f.Owner != nil && f.Owner.Kind == ast.KindEnum {
+				return constValue{i: int64(f.EnumOrd), kind: ast.LitInt, ok: true}
+			}
 			if cv, ok := f.ConstVal.(constValue); ok {
 				return cv
 			}
 		}
 	case *ast.Select:
-		if f, ok := v.Ref.(*ast.Field); ok && f.ConstVal != nil {
+		if f, ok := v.Ref.(*ast.Field); ok {
+			if f.EnumOrd >= 0 && f.Owner != nil && f.Owner.Kind == ast.KindEnum {
+				return constValue{i: int64(f.EnumOrd), kind: ast.LitInt, ok: true}
+			}
 			if cv, ok := f.ConstVal.(constValue); ok {
 				return cv
 			}

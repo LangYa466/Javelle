@@ -1,3 +1,4 @@
+#define _GNU_SOURCE 1
 /* tyrt.c - Teyru native runtime. */
 #include "tyrt.h"
 
@@ -6,8 +7,19 @@
 #include <string.h>
 #include <math.h>
 #include <stdarg.h>
+#include <pthread.h>
+
+#if defined(__has_feature)
+#if __has_feature(address_sanitizer)
+#define TY_ASAN 1
+void __asan_unpoison_memory_region(void *, size_t);
+#endif
+#endif
 
 tycatch *ty_cur_catch = NULL;
+tyclass *TY_STRING = NULL;
+tyclass *TY_BOX[9] = {0};
+tyclass *TY_OBJECT = NULL;
 
 tyclass *TY_NPE, *TY_AIOOBE, *TY_ARITH, *TY_CCE, *TY_NEGARR, *TY_ASSERT;
 tyclass *TY_ILLARG, *TY_ILLSTATE, *TY_NOSUCHELEM, *TY_UNSUP;
@@ -27,7 +39,7 @@ typedef struct tychunk {
 static tychunk *chunks = NULL;
 static void **roots_static = NULL; /* addresses of global slots */
 static size_t nroots_static = 0, caproots_static = 0;
-static char *stack_bottom = NULL;
+static char *stack_top = NULL;   /* highest address of the current thread stack */
 static int64_t alloc_since_gc = 0;
 static int gc_disabled = 0;
 
@@ -108,8 +120,11 @@ void ty_gc(void) {
   jmp_buf regs;
   setjmp(regs);
   char *sp = (char *)&regs;
-  char *lo = sp < stack_bottom ? sp : stack_bottom;
-  char *hi = sp < stack_bottom ? stack_bottom : sp;
+  char *hi = stack_top ? stack_top : sp + 0x10000;
+  char *lo = sp;
+#ifdef TY_ASAN
+  if (hi > lo) __asan_unpoison_memory_region(lo, (size_t)(hi - lo));
+#endif
   for (char *q = lo; q + sizeof(void *) <= hi; q += sizeof(void *)) {
     void *v = *(void **)q;
     mark_value(v);
@@ -214,8 +229,15 @@ done:;
 }
 
 void ty_gc_init(void) {
-  char here;
-  stack_bottom = &here;
+  pthread_attr_t attr;
+  if (pthread_getattr_np(pthread_self(), &attr) == 0) {
+    void *base = NULL;
+    size_t size = 0;
+    if (pthread_attr_getstack(&attr, &base, &size) == 0) {
+      stack_top = (char *)base + size;
+    }
+    pthread_attr_destroy(&attr);
+  }
   for (int i = 0; i < TY_NCLASS; i++) freelist[i] = NULL;
 }
 
@@ -233,16 +255,17 @@ void *ty_alloc_arr(int64_t len, size_t elemsize) {
 
 /* ------------------------------------------------------------------ exceptions */
 
-void ty_uncaught(tyobj *e) {
+void ty_uncaught(void *p) {
+  tyobj *e = (tyobj*)p;
   tystr *s = ((tystr *(*)(void *))e->cls->vtable[0])(e);
   char *msg = s ? s->data : (char *)"?";
   fprintf(stderr, "Exception in thread \"main\" %s: %.*s\n", e->cls->name, (int)(s ? s->len : 1), msg);
   exit(1);
 }
 
-void ty_throw(tyobj *e) {
+void ty_throw(void *e) {
   if (!ty_cur_catch) ty_uncaught(e);
-  ty_cur_catch->ex = e;
+  ty_cur_catch->ex = (tyobj*)e;
   longjmp(ty_cur_catch->buf, 1);
 }
 
@@ -285,7 +308,8 @@ void *ty_assertfail(const char *msg) {
   return NULL;
 }
 
-int32_t ty_instanceof(tyobj *o, tyclass *c) {
+int32_t ty_instanceof(void *p, tyclass *c) {
+  tyobj *o = (tyobj *)p;
   if (!o) return 0;
   tyclass *k = o->cls;
   if (!k) return 0;
@@ -300,13 +324,14 @@ int32_t ty_instanceof(tyobj *o, tyclass *c) {
   return 0;
 }
 
-void *ty_checkcast(tyobj *o, tyclass *c) {
+void *ty_checkcast(void *o, tyclass *c) {
   if (!o) return NULL;
   if (ty_instanceof(o, c)) return o;
-  return ty_cce(o->cls, c);
+  return ty_cce(((tyobj *)o)->cls, c);
 }
 
-void *ty_itab(tyobj *o, int32_t sel) {
+void *ty_itab(void *p, int32_t sel) {
+  tyobj *o = (tyobj *)p;
   if (!o) ty_npe();
   tyclass *c = o->cls;
   if (sel < c->isel && c->imap[sel].fn) return c->imap[sel].fn;
@@ -321,6 +346,7 @@ void *ty_itab(tyobj *o, int32_t sel) {
 
 tystr *ty_str_new(const char *data, int64_t len) {
   tystr *s = (tystr *)ty_alloc(sizeof(tystr) + (size_t)len + 1);
+  s->obj.cls = TY_STRING;
   s->len = len;
   s->data = (char *)s + sizeof(tystr);
   if (data) memcpy(s->data, data, (size_t)len);
@@ -336,6 +362,7 @@ tystr *ty_str_concat(tystr *a, tystr *b) {
   if (!a) a = ty_str_intern("null");
   if (!b) b = ty_str_intern("null");
   tystr *r = (tystr *)ty_alloc(sizeof(tystr) + (size_t)(a->len + b->len) + 1);
+  r->obj.cls = TY_STRING;
   r->len = a->len + b->len;
   r->data = (char *)r + sizeof(tystr);
   memcpy(r->data, a->data, (size_t)a->len);
@@ -368,12 +395,12 @@ int32_t ty_str_hash(tystr *s) {
   return h;
 }
 
-int32_t ty_obj_hash(tyobj *o) {
+int32_t ty_obj_hash(void *o) {
   if (!o) return 0;
-  return ((int32_t (*)(void *))o->cls->vtable[1])(o);
+  return ((int32_t (*)(void *))((tyobj *)o)->cls->vtable[1])(o);
 }
 
-int32_t ty_obj_eq(tyobj *a, tyobj *b) { return a == b; }
+int32_t ty_obj_eq(void *a, void *b) { return a == b; }
 
 tystr *ty_str_of_long(int64_t v) {
   char buf[32];
@@ -416,16 +443,16 @@ tystr *ty_str_of_float(float v) {
   return ty_str_new(buf, n);
 }
 
-tystr *ty_object_tostring(tyobj *o) {
+tystr *ty_object_tostring(void *o) {
   if (!o) return ty_str_intern("null");
   char buf[128];
-  int n = snprintf(buf, sizeof buf, "%s@%llx", o->cls->name, (unsigned long long)(uintptr_t)o);
+  int n = snprintf(buf, sizeof buf, "%s@%llx", ((tyobj *)o)->cls->name, (unsigned long long)(uintptr_t)o);
   return ty_str_new(buf, n);
 }
 
-tystr *ty_str_of_obj(tyobj *o) {
+tystr *ty_str_of_obj(void *o) {
   if (!o) return ty_str_intern("null");
-  return ((tystr *(*)(void *))o->cls->vtable[0])(o);
+  return ((tystr *(*)(void *))((tyobj *)o)->cls->vtable[0])(o);
 }
 
 tystr *ty_str_upper(tystr *s) {
@@ -495,17 +522,28 @@ tyarr *ty_array_clone(tyarr *a, int64_t elemsize) {
   memcpy(r->data, a->data, (size_t)(a->len * elemsize));
   return r;
 }
-void ty_array_store_ref(tyarr *a, int64_t i, tyobj *v) {
+void *ty_arr_ptr(tyarr *a, int64_t i) {
+  if (!a || i < 0 || i >= a->len) ty_throw((tyobj *)ty_aioobe(i, a ? a->len : 0));
+  return (char *)a->data + (size_t)i * a->esize;
+}
+void *ty_arr_slot_ref(tyarr *a, int64_t i) {
+  if (!a || i < 0 || i >= a->len) ty_throw((tyobj *)ty_aioobe(i, a ? a->len : 0));
+  return (char *)a->data + (size_t)i * 8;
+}
+void *ty_arr_ref(tyarr *a, int64_t i) { return *(void **)ty_arr_slot_ref(a, i); }
+
+void ty_array_store_ref(tyarr *a, int64_t i, void *v) {
   if (!a || i < 0 || i >= a->len) ty_throw((tyobj *)ty_aioobe(i, a ? a->len : 0));
   ((void **)a->data)[i] = v;
 }
 
 /* ------------------------------------------------------------------ boxing */
 
-#define DEFBOX(NAME, CT, JT, CONV)                                     \
+#define DEFBOX(NAME, IDX, CT, JT, CONV)                                     \
   typedef struct NAME##Box { tyobj obj; JT v; } NAME##Box;             \
   void *ty_box_##NAME(JT v) {                                          \
     NAME##Box *b = (NAME##Box *)ty_alloc(sizeof(NAME##Box));           \
+    b->obj.cls = TY_BOX[IDX];                                          \
     b->v = v;                                                          \
     return b;                                                          \
   }                                                                    \
@@ -514,32 +552,32 @@ void ty_array_store_ref(tyarr *a, int64_t i, tyobj *v) {
     return ((NAME##Box *)o)->v;                                        \
   }
 
-DEFBOX(int, tyint, int32_t, )
-DEFBOX(long, tylong, int64_t, )
-DEFBOX(short, tyshort, int16_t, )
-DEFBOX(byte, tybyte, int8_t, )
-DEFBOX(char, tychar, uint16_t, )
-DEFBOX(bool, tybool, int32_t, )
+DEFBOX(int, 5, tyint, int32_t, )
+DEFBOX(long, 6, tylong, int64_t, )
+DEFBOX(short, 3, tyshort, int16_t, )
+DEFBOX(byte, 2, tybyte, int8_t, )
+DEFBOX(char, 4, tychar, uint16_t, )
+DEFBOX(bool, 1, tybool, int32_t, )
 
 void *ty_box_double(double v) {
-  typedef struct { tyobj obj; double v; } B;
-  B *b = (B *)ty_alloc(sizeof(B));
+  tydoublebox *b = (tydoublebox *)ty_alloc(sizeof(tydoublebox));
+  b->obj.cls = TY_BOX[8];
   b->v = v;
   return b;
 }
 double ty_unbox_double(void *o) {
   if (!o) ty_npe();
-  return ((struct { tyobj obj; double v; } *)o)->v;
+  return ((tydoublebox *)o)->v;
 }
 void *ty_box_float(float v) {
-  typedef struct { tyobj obj; float v; } B;
-  B *b = (B *)ty_alloc(sizeof(B));
+  tyfloatbox *b = (tyfloatbox *)ty_alloc(sizeof(tyfloatbox));
+  b->obj.cls = TY_BOX[7];
   b->v = v;
   return b;
 }
 float ty_unbox_float(void *o) {
   if (!o) ty_npe();
-  return ((struct { tyobj obj; float v; } *)o)->v;
+  return ((tyfloatbox *)o)->v;
 }
 
 /* ------------------------------------------------------------------ output */
@@ -557,8 +595,8 @@ void ty_print_char(uint16_t c) {
 void ty_println_char(uint16_t c) { ty_print_char(c); putchar('\n'); }
 void ty_print_bool(int32_t v) { fputs(v ? "true" : "false", stdout); }
 void ty_println_bool(int32_t v) { fputs(v ? "true\n" : "false\n", stdout); }
-void ty_print_obj(tyobj *o) { ty_print_str(ty_str_of_obj(o)); }
-void ty_println_obj(tyobj *o) { ty_print_obj(o); putchar('\n'); }
+void ty_print_obj(void *o) { ty_print_str(ty_str_of_obj(o)); }
+void ty_println_obj(void *o) { ty_print_obj(o); putchar('\n'); }
 void ty_println_void(void) { putchar('\n'); }
 
 /* ------------------------------------------------------------------ sync */

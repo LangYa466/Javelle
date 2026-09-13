@@ -43,6 +43,9 @@ int32_t ty_str_tobool(tystr *s) { return s && strcmp(s->data, "true") == 0; }
 tystr *ty_int_tostr(void *o) { return ty_str_of_int(ty_unbox_int(o)); }
 tystr *ty_bool_tostr(void *o) { return ty_str_of_bool(ty_unbox_bool(o)); }
 tystr *ty_char_tostr(void *o) { return ty_str_of_char(ty_unbox_char(o)); }
+tystr *ty_long_tostr(void *o) { return ty_str_of_long(ty_unbox_long(o)); }
+tystr *ty_double_tostr(void *o) { return ty_str_of_double(ty_unbox_double(o)); }
+tystr *ty_float_tostr(void *o) { return ty_str_of_float(ty_unbox_float(o)); }
 
 int32_t ty_int_equals(void *a, void *b) {
   if (b == NULL) return 0;
@@ -65,6 +68,9 @@ int32_t ty_int_compare(void *a, void *b) {
   return x < y ? -1 : (x > y ? 1 : 0);
 }
 int32_t ty_long_compare(int64_t a, int64_t b) { return a < b ? -1 : (a > b ? 1 : 0); }
+int32_t ty_prim_cmp_int(int32_t a, int32_t b) { return a < b ? -1 : (a > b ? 1 : 0); }
+int32_t ty_prim_cmp_long(int64_t a, int64_t b) { return a < b ? -1 : (a > b ? 1 : 0); }
+int32_t ty_prim_cmp_double(double a, double b) { return a < b ? -1 : (a > b ? 1 : 0); }
 int32_t ty_double_compare(double a, double b) { return a < b ? -1 : (a > b ? 1 : 0); }
 int32_t ty_long_hash(void *o) {
   int64_t v = ty_unbox_long(o);
@@ -128,10 +134,10 @@ void *ty_illarg(const char *msg) { return NULL; }
 
 /* ---- object equality --------------------------------------------------- */
 
-int32_t ty_obj_equal(tyobj *a, tyobj *b) {
+int32_t ty_obj_equal(void *a, void *b) {
   if (a == b) return 1;
   if (!a || !b) return 0;
-  return ((int32_t (*)(void *, void *))a->cls->vtable[2])(a, b);
+  return ((int32_t (*)(void *, void *))((tyobj *)a)->cls->vtable[2])(a, b);
 }
 
 /* ---- enums ------------------------------------------------------------- */

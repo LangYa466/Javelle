@@ -25,6 +25,7 @@ type Program struct {
 type Builtins struct {
 	Object, String, Enum, Record, Throwable, Iterable, Iterator, StringBuilder *ast.Class
 	AutoCloseable, Cloneable, Comparable                                     *ast.Class
+	IllArg, IllState, NoSuchElem, Unsup                                      *ast.Class
 	NPE, AIOOBE, Arith, CCE, NegArr, Assertion                                 *ast.Class
 	Boxes                                                                      map[ast.PrimKind]*ast.Class
 	Unbox                                                                      map[*ast.Class]ast.PrimKind
@@ -306,6 +307,8 @@ func (c *Checker) initBuiltins() {
 		Throwable: get("Throwable"), Iterable: get("Iterable"), Iterator: get("Iterator"),
 		StringBuilder: get("StringBuilder"), AutoCloseable: get("AutoCloseable"),
 		Cloneable: get("Cloneable"), Comparable: get("Comparable"),
+		IllArg: get("IllegalArgumentException"), IllState: get("IllegalStateException"),
+		NoSuchElem: get("NoSuchElementException"), Unsup: get("UnsupportedOperationException"),
 		NPE:           get("NullPointerException"), AIOOBE: get("ArrayIndexOutOfBoundsException"),
 		Arith: get("ArithmeticException"), CCE: get("ClassCastException"),
 		NegArr: get("NegativeArraySizeException"), Assertion: get("AssertionError"),
