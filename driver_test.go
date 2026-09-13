@@ -40,6 +40,11 @@ func TestPrograms(t *testing.T) {
 				t.Fatalf("compile failed: %v\n%s", err, res.Diags)
 			}
 			cmd := exec.Command(res.Exe)
+			if raw, err := os.ReadFile(filepath.Join(dir, name+".args")); err == nil {
+				for _, a := range strings.Fields(string(raw)) {
+					cmd.Args = append(cmd.Args, a)
+				}
+			}
 			got, err := cmd.CombinedOutput()
 			if err != nil {
 				if ee, ok := err.(*exec.ExitError); !ok || ee.ExitCode() != 0 {
