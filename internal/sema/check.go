@@ -125,19 +125,24 @@ func endsWithReturn(b *ast.Block) bool {
 			return true
 		}
 	case *ast.Try:
-		// A try always exits if its body does and every catch does too.
-		if s.Finally != nil && endsWithReturn(s.Finally) {
+		// A finally block that never completes normally decides the outcome
+		// on its own; otherwise the statement exits when the body does and
+		// every catch does too (JLS 14.21).
+		if s.Finally != nil && exitsAlways(s.Finally) {
 			return true
 		}
-		if !endsWithReturn(s.Body) {
+		if !exitsAlways(s.Body) {
 			return false
 		}
+		if len(s.Catches) == 0 {
+			return true
+		}
 		for _, cat := range s.Catches {
-			if !endsWithReturn(cat.Body) && !endsWithThrow(cat.Body) {
+			if !exitsAlways(cat.Body) {
 				return false
 			}
 		}
-		return len(s.Catches) > 0
+		return true
 	case *ast.ExprStmt:
 		if _, ok := s.X.(*ast.Call); ok {
 			return false
@@ -157,10 +162,33 @@ func endsWithThrow(b *ast.Block) bool {
 	case *ast.Block:
 		return endsWithThrow(s)
 	case *ast.If:
-		return s.Else != nil && (endsWithReturn(fromStmt(s.Then)) || endsWithThrow(fromStmt(s.Then))) &&
-			(endsWithReturn(fromStmt(s.Else)) || endsWithThrow(fromStmt(s.Else)))
+		if s.Else != nil && exitsAlways(fromStmt(s.Then)) && exitsAlways(fromStmt(s.Else)) {
+			return true
+		}
+	case *ast.Try:
+		if s.Finally != nil && exitsAlways(s.Finally) {
+			return true
+		}
+		if !exitsAlways(s.Body) {
+			return false
+		}
+		if len(s.Catches) == 0 {
+			return true
+		}
+		for _, cat := range s.Catches {
+			if !exitsAlways(cat.Body) {
+				return false
+			}
+		}
+		return true
 	}
 	return false
+}
+
+// exitsAlways reports whether a block always leaves through a return or a
+// throw, so that code after it is unreachable.
+func exitsAlways(b *ast.Block) bool {
+	return endsWithReturn(b) || endsWithThrow(b)
 }
 
 func fromStmt(s ast.Stmt) *ast.Block {
@@ -172,6 +200,14 @@ func fromStmt(s ast.Stmt) *ast.Block {
 
 func (c *Checker) newCtx(cl *ast.Class, m *ast.Method) *methodCtx {
 	ctx := &methodCtx{c: c, cl: cl, m: m, env: c.classEnv(cl)}
+	if m != nil && len(m.TypeParams) > 0 {
+		// the body of a generic method sees its own type parameters
+		env := &typeEnv{cls: cl, tvars: map[string]*ast.TypeVar{}, parent: ctx.env, file: cl.File}
+		for _, tv := range m.TypeParams {
+			env.tvars[tv.Name] = tv
+		}
+		ctx.env = env
+	}
 	if cl.File != nil {
 		ctx.staticImports = cl.File.StaticImports
 		ctx.staticMethods = cl.File.StaticMethods

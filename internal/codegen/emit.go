@@ -43,6 +43,18 @@ type Emitter struct {
 	// while with its update at the end of the body, so an unlabelled
 	// continue must jump over the rest of the body to reach that update
 	loops []string
+	// finally blocks of the try statements being emitted, innermost last; an
+	// abrupt exit has to run them before it leaves
+	finallys []finFrame
+	// nesting depth of each labelled loop, for a labelled break or continue
+	labelDepth map[string]int
+}
+
+// finFrame is one try statement whose finally action must still run.
+type finFrame struct {
+	emit  func() // writes the finally action
+	depth int    // len(loops) when the try was entered
+	name  string // C name of the frame's exception handler
 }
 
 // Emit returns the C source for a program.

@@ -119,17 +119,35 @@ func (e *Emitter) stmt(s ast.Stmt) {
 		e.forEach(v)
 	case *ast.Return:
 		if v.X == nil {
+			e.leaveFinallys(-1)
 			e.line("return;\n")
-		} else {
+		} else if len(e.finallys) == 0 {
 			e.line("return %s;\n", e.coerce(e.expr(v.X), v.X.GetType(), e.retType))
+		} else {
+			// the value is computed first, then every pending finally action
+			// runs, and only then does the method return
+			tmp := e.tmpName()
+			e.line("%s %s = %s;\n", e.ctype(e.retType), tmp, e.coerce(e.expr(v.X), v.X.GetType(), e.retType))
+			e.leaveFinallys(-1)
+			e.line("return %s;\n", tmp)
 		}
 	case *ast.Break:
+		target := len(e.loops) - 1
+		if v.Label != "" {
+			target = e.labelDepth[v.Label]
+		}
+		e.leaveFinallys(target)
 		if v.Label != "" {
 			e.line("goto %s;\n", e.labelName(v.Label, true))
 		} else {
 			e.line("break;\n")
 		}
 	case *ast.Continue:
+		target := len(e.loops) - 1
+		if v.Label != "" {
+			target = e.labelDepth[v.Label]
+		}
+		e.leaveFinallys(target)
 		switch {
 		case v.Label != "":
 			e.line("goto %s;\n", e.labelName(v.Label, false))
@@ -226,6 +244,32 @@ func (e *Emitter) brkLabels(labels []string) {
 	for _, l := range labels {
 		e.line("%s: ;\n", e.labelName(l, true))
 	}
+}
+
+// leaveFinallys runs the finally actions of every try statement that a jump out
+// of the loop at loopDepth abandons, innermost first. A depth of -1 means the
+// whole method is being left.
+func (e *Emitter) leaveFinallys(loopDepth int) {
+	if len(e.finallys) == 0 {
+		return
+	}
+	saved := e.finallys
+	for i := len(saved) - 1; i >= 0; i-- {
+		f := saved[i]
+		if f.depth <= loopDepth {
+			continue
+		}
+		// the block itself must not see its own frame, or a return inside it
+		// would run the same finally twice
+		e.finallys = saved[:i]
+		e.line("ty_cur_catch = %s.prev;\n", f.name)
+		e.line("{\n")
+		e.indent++
+		f.emit()
+		e.indent--
+		e.line("}\n")
+	}
+	e.finallys = saved
 }
 
 // continueTarget returns the label an unlabelled continue must jump to in the
@@ -448,47 +492,60 @@ func (e *Emitter) tryStmt(v *ast.Try) {
 		e.tryWithResources(v)
 		return
 	}
-	e.emitTryCore(v)
+	e.emitTryCore(v, nil)
 }
 
+// tryWithResources opens the resources in the enclosing block and closes them
+// in reverse order on every exit, including a return or a throw.
 func (e *Emitter) tryWithResources(v *ast.Try) {
-	// resources are allocated in the enclosing block and closed at the end
 	e.line("{\n")
 	e.indent++
 	for _, r := range v.Resources {
 		e.stmt(r)
 	}
-	closure := &ast.Try{Pos: v.Pos, Body: v.Body, Catches: v.Catches, Finally: nil}
-	e.emitTryCore(closure)
-	// close in reverse order
-	for i := len(v.Resources) - 1; i >= 0; i-- {
-		var name string
-		switch r := v.Resources[i].(type) {
-		case *ast.LocalVar:
-			name = e.localName(r.Vars[0].Sym)
-		case *ast.ExprStmt:
-			name = e.tmpRef(e.expr(r.X))
-		}
-		if name != "" {
-			e.line("if (%s) ((void(*)(void*))ty_itab((tyobj*)%s, %d))((tyobj*)%s);\n",
-				name, name, e.selectorOf(e.prog.Builtins.AutoCloseable, "close"), name)
+	closeFn := func() {
+		for i := len(v.Resources) - 1; i >= 0; i-- {
+			var name string
+			switch r := v.Resources[i].(type) {
+			case *ast.LocalVar:
+				name = e.localName(r.Vars[0].Sym)
+			case *ast.ExprStmt:
+				name = e.tmpRef(e.expr(r.X))
+			}
+			if name != "" {
+				e.line("if (%s) ((void(*)(void*))ty_itab((tyobj*)%s, %d))((tyobj*)%s);\n",
+					name, name, e.selectorOf(e.prog.Builtins.AutoCloseable, "close"), name)
+			}
 		}
 	}
-	if v.Finally != nil {
-		e.emitBlockInner(v.Finally)
-	}
+	e.emitTryCore(v, closeFn)
 	e.indent--
 	e.line("}\n")
 }
 
-func (e *Emitter) emitTryCore(v *ast.Try) {
-	hasFinally := v.Finally != nil
-	if hasFinally {
-		e.line("{ tycatch _fin; tyobj* _finex = NULL; int _finok = 0;\n")
+// emitTryCore lowers a try statement. closeFn, when set, is the implicit
+// finally action of a try-with-resources: it runs before the explicit finally
+// block (JLS 14.20.3).
+func (e *Emitter) emitTryCore(v *ast.Try, closeFn func()) {
+	frame := finFrame{depth: len(e.loops)}
+	if v.Finally != nil || closeFn != nil {
+		frame.emit = func() {
+			if closeFn != nil {
+				closeFn()
+			}
+			if v.Finally != nil {
+				e.emitBlockInner(v.Finally)
+			}
+		}
+	}
+	if frame.emit != nil {
+		frame.name = e.tmpName()
+		e.line("{ tycatch %s; tyobj* %s_ex = NULL;\n", frame.name, frame.name)
 		e.indent++
-		e.line("_fin.prev = ty_cur_catch; _fin.ex = NULL; ty_cur_catch = &_fin;\n")
-		e.line("if (setjmp(_fin.buf) == 0) {\n")
+		e.line("%s.prev = ty_cur_catch; %s.ex = NULL; ty_cur_catch = &%s;\n", frame.name, frame.name, frame.name)
+		e.line("if (setjmp(%s.buf) == 0) {\n", frame.name)
 		e.indent++
+		e.finallys = append(e.finallys, frame)
 	}
 	if len(v.Catches) > 0 {
 		c := e.tmpName()
@@ -527,19 +584,17 @@ func (e *Emitter) emitTryCore(v *ast.Try) {
 	} else {
 		e.emitBlockInner(v.Body)
 	}
-	if hasFinally {
+	if frame.emit != nil {
+		e.finallys = e.finallys[:len(e.finallys)-1]
 		e.indent--
-		e.line("} else { _finex = _fin.ex; }\n")
-		e.line("ty_cur_catch = _fin.prev;\n")
-		e.emitBlockInner(v.Finally)
-		e.line("if (_finex) ty_throw(_finex);\n")
+		e.line("} else { %s_ex = %s.ex; }\n", frame.name, frame.name)
+		e.line("ty_cur_catch = %s.prev;\n", frame.name)
+		frame.emit()
+		e.line("if (%s_ex) ty_throw(%s_ex);\n", frame.name, frame.name)
 		e.indent--
 		e.line("}\n")
-		_ = _finokUnused
 	}
 }
-
-var _finokUnused = 0
 
 func (e *Emitter) catchCond(cat *ast.Catch) string {
 	var parts []string

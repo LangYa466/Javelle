@@ -1,5 +1,8 @@
+finally for 5
 ok:5
+finally for -1
 illegal:negative
+finally for 0
 arith:zero
 caught deep: bottom
 bounds
