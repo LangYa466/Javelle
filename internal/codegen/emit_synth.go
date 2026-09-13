@@ -20,12 +20,18 @@ func (e *Emitter) emitSynthetic(cl *ast.Class, m *ast.Method) {
 	e.indent++
 	if nf, ok := nativeTable[nativeKey(m)]; ok {
 		var parts []string
-		if nf.recv != "" && !m.IsStatic() {
+		args := make([]string, 0, len(m.Params))
+		for i := range m.Params {
+			args = append(args, fmt.Sprintf("a%d", i))
+		}
+		if m.IsStatic() {
+			if nf.recv != "" && len(args) > 0 {
+				args[0] = "(" + nf.recv + ")" + args[0]
+			}
+		} else if nf.recv != "" {
 			parts = append(parts, "("+nf.recv+")this")
 		}
-		for i := range m.Params {
-			parts = append(parts, fmt.Sprintf("a%d", i))
-		}
+		parts = append(parts, args...)
 		call := nf.fn + "(" + strings.Join(parts, ", ") + ")"
 		if m.Result == ast.TVoid {
 			e.line("%s;\n", call)

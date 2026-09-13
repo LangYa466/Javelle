@@ -197,6 +197,7 @@ type Param struct {
 	Type    *TypeExpr // nil for implicitly typed lambda parameters
 	Name    string
 	Varargs bool
+	Annos   []*Annotation
 	Sym     *Var
 	// Decomp holds the component patterns of a record pattern (JEP 440).
 	Decomp []*Param
@@ -260,10 +261,11 @@ type (
 		Stmts []Stmt
 	}
 	LocalVar struct {
-		Pos  source.Pos
-		Mods Mods
-		Type *TypeExpr // Name "var"/"val" for inference
-		Vars []*VarDeclarator
+		Pos   source.Pos
+		Mods  Mods
+		Annos []*Annotation
+		Type  *TypeExpr // Name "var"/"val" for inference
+		Vars  []*VarDeclarator
 	}
 	LocalClass struct {
 		Decl *ClassDecl
@@ -613,6 +615,12 @@ type Field struct {
 	Storage  bool // has backing storage
 	ConstVal any  // compile-time constant for static finals
 	EnumOrd  int
+	// annotation-driven members (Lombok compatibility)
+	NonNull     bool
+	Include     bool // @ToString.Include / @EqualsAndHashCode.Include
+	DefaultExpr Expr // @Builder.Default initializer
+	InitExpr    Expr // synthesized static initializer run from <clinit>
+	Anno        string
 }
 
 // Method is a method, constructor or accessor.
@@ -638,6 +646,14 @@ type Method struct {
 	Native     string // native C symbol when implemented in the runtime
 	Synthetic  func() // body generator marker
 	SynthKind  string
+	// Body is a compiler-synthesized body (annotation processing). It is
+	// type-checked like an ordinary method body.
+	Body       *Block
+	Anno       string // the annotation that generated this member
+	Checked    bool   // sema has already checked this synthesized body
+	Tolerate   bool   // @Tolerate: allow a generated duplicate
+	SyncOn     *Field // @Synchronized lock field for static methods
+	ParamNonNull []bool
 	Lambda     *Lambda
 	Used       bool
 	Bridge     *Method
@@ -652,6 +668,8 @@ type Method struct {
 // IsStatic reports whether the method is static.
 func (m *Method) IsStatic() bool { return m.Mods.Has(ModStatic) }
 
+
+
 // Class is a resolved class, interface, enum or record.
 type Class struct {
 	Name         string // simple name
@@ -661,6 +679,7 @@ type Class struct {
 	Decl         *ClassDecl
 	File         *File
 	Outer        *Class
+	Owner      *Class // enclosing class for synthesized nested types
 	TypeParams   []*TypeVar
 	Super        *ClassType
 	Ifaces       []*ClassType
@@ -686,6 +705,7 @@ type Class struct {
 	ClInit       *Method
 	Anon         bool
 	Instantiable bool
+	Utility      bool // @UtilityClass
 	Lambda       *Lambda
 }
 

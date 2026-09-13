@@ -76,6 +76,18 @@ func (c *Checker) checkBodies(cl *ast.Class) {
 			ctx.checkBlock(d.Body, false)
 		}
 	}
+	// compiler-synthesized bodies (annotation processing, records, enums)
+	for _, m := range sortedSynthMethods(cl) {
+		if m.Body == nil || m.Checked {
+			continue
+		}
+		m.Checked = true
+		ctx := c.newCtx(cl, m)
+		ctx.checkBlock(m.Body, false)
+		if m.Result != ast.TVoid && !m.IsCtor && !endsWithReturn(m.Body) {
+			ctx.errf(m.Body.End, "TY-TYP-0020", "missing return statement")
+		}
+	}
 	c.checkAbstracts(cl)
 }
 
@@ -107,10 +119,41 @@ func endsWithReturn(b *ast.Block) bool {
 		if s.Kind == ast.SwitchType {
 			return true
 		}
+	case *ast.Try:
+		// A try always exits if its body does and every catch does too.
+		if s.Finally != nil && endsWithReturn(s.Finally) {
+			return true
+		}
+		if !endsWithReturn(s.Body) {
+			return false
+		}
+		for _, cat := range s.Catches {
+			if !endsWithReturn(cat.Body) && !endsWithThrow(cat.Body) {
+				return false
+			}
+		}
+		return len(s.Catches) > 0
 	case *ast.ExprStmt:
 		if _, ok := s.X.(*ast.Call); ok {
 			return false
 		}
+	}
+	return false
+}
+
+// endsWithThrow reports whether the block always exits by throwing.
+func endsWithThrow(b *ast.Block) bool {
+	if len(b.Stmts) == 0 {
+		return false
+	}
+	switch s := b.Stmts[len(b.Stmts)-1].(type) {
+	case *ast.Throw:
+		return true
+	case *ast.Block:
+		return endsWithThrow(s)
+	case *ast.If:
+		return s.Else != nil && (endsWithReturn(fromStmt(s.Then)) || endsWithThrow(fromStmt(s.Then))) &&
+			(endsWithReturn(fromStmt(s.Else)) || endsWithThrow(fromStmt(s.Else)))
 	}
 	return false
 }
@@ -225,8 +268,19 @@ func (ctx *methodCtx) checkBlock(b *ast.Block, scoped bool) {
 		ctx.push()
 		defer ctx.pop()
 	}
-	for _, s := range b.Stmts {
-		ctx.checkStmt(s)
+	for i := 0; i < len(b.Stmts); i++ {
+		// @Cleanup turns the rest of the block into a try-with-resources so the
+		// resource is closed on every exit path.
+		if lv, ok := b.Stmts[i].(*ast.LocalVar); ok && hasAnno(lv.Annos, "Cleanup") != nil {
+			rest := append([]ast.Stmt(nil), b.Stmts[i+1:]...)
+			t := &ast.Try{Pos: lv.Pos, Resources: []ast.Stmt{lv}, Body: &ast.Block{Stmts: rest}}
+			// the transformation is reflected in the tree so code generation
+			// emits the try-with-resources
+			b.Stmts = append(b.Stmts[:i], t)
+			ctx.checkTry(t)
+			return
+		}
+		ctx.checkStmt(b.Stmts[i])
 	}
 }
 
@@ -799,6 +853,7 @@ func (ctx *methodCtx) lookupOuter(name string) *ast.Class {
 func (ctx *methodCtx) checkIdent(v *ast.Ident, want ast.Type) {
 	c := ctx.c
 	if v.Ref != nil {
+		ctx.setRefType(v, v.Ref)
 		return
 	}
 	if lv := ctx.lookupLocal(v.Name); lv != nil {
@@ -2180,6 +2235,9 @@ func (ctx *methodCtx) checkMethodCall(v *ast.Call, rt ast.Type, want ast.Type) {
 	}
 	cands := ctx.c.methodsFor(recvCT, v.Name)
 	if len(cands) == 0 {
+		if ctx.tryExtensionMethod(v, rt) {
+			return
+		}
 		ctx.errf(v.Pos, "TY-TYP-0076", "cannot find method %s(%s) in %s", v.Name, argTypes(v.Args), recvCT.Class.Name)
 		v.SetType(ast.ErrorType{})
 		return
@@ -2205,6 +2263,30 @@ func (ctx *methodCtx) checkMethodCall(v *ast.Call, rt ast.Type, want ast.Type) {
 	}
 	v.SetType(m.Result)
 	ctx.rewritePropCall(v, m)
+}
+
+// tryExtensionMethod rewrites `a.foo(b)` into `Extensions.foo(a, b)` for
+// classes named in @ExtensionMethod on the enclosing class.
+func (ctx *methodCtx) tryExtensionMethod(v *ast.Call, rt ast.Type) bool {
+	c := ctx.c
+	exts := c.extensions[ctx.cl]
+	if len(exts) == 0 || rt == nil {
+		return false
+	}
+	for _, ext := range exts {
+		recv := &ast.ClassType{Class: ext}
+		args := append([]ast.Expr{v.Recv}, v.Args...)
+		if m, s := ctx.pickOverload(recv, ctx.methodsOf(ext, v.Name), args); m != nil {
+			ctx.bindArgs(m, s, args, recv)
+			v.Static = true
+			v.Method = m
+			v.Args = args
+			v.Recv = nil
+			v.SetType(m.Result)
+			return true
+		}
+	}
+	return false
 }
 
 func (ctx *methodCtx) accessibleInstance(m *ast.Method, rt ast.Type) bool {
@@ -2333,6 +2415,7 @@ func exprTypeName(e ast.Expr) string {
 
 func (ctx *methodCtx) checkSelect(v *ast.Select, want ast.Type) {
 	if v.Ref != nil {
+		ctx.setRefType(v, v.Ref)
 		return
 	}
 	// type name?
@@ -2393,6 +2476,21 @@ func (ctx *methodCtx) checkSelect(v *ast.Select, want ast.Type) {
 	v.Ref = f
 	v.SetType(f.Type)
 	ctx.rewriteSelectProp(v, f)
+}
+
+// setRefType records the type of an expression whose symbol was resolved
+// before the checker reached it (synthesized bodies carry resolved references).
+func (ctx *methodCtx) setRefType(e ast.Expr, ref any) {
+	switch r := ref.(type) {
+	case *ast.Var:
+		e.SetType(r.Type)
+	case *ast.Field:
+		e.SetType(r.Type)
+	case *ast.Class:
+		e.SetType(&ast.ClassType{Class: r, Args: typeVarArgs(r)})
+	case string:
+		e.SetType(ast.TInt) // array length
+	}
 }
 
 // typeQualifier returns the class when e denotes a type name.

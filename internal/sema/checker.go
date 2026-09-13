@@ -49,6 +49,7 @@ type Checker struct {
 	objType  *ast.ClassType
 	strType  *ast.ClassType
 	arrCls   *ast.Class
+	extensions map[*ast.Class][]*ast.Class
 }
 
 // c keeps a back pointer for the exported helpers used by code generation.
@@ -81,6 +82,7 @@ func Check(files []*ast.File, diags *source.Diagnostics) *Program {
 	for _, cl := range append([]*ast.Class(nil), c.classes...) {
 		c.resolveMembers(cl)
 	}
+	c.applyLombokToProgram()
 	for _, cl := range append([]*ast.Class(nil), c.classes...) {
 		c.layout(cl)
 	}

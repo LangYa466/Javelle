@@ -22,7 +22,7 @@ Teyru ソース (.teyru)
 バックエンドは **LLVM** です。`./teyru emit-llvm` で IR モジュールを出力できるので、
 そのまま `opt` や `llc`、独自パスに渡せます。C を見たいときは `./teyru emit` です。
 
-**ドキュメント：**[言語リファレンス](docs/language.md) · [診断コード一覧](docs/diagnostics.md) · [コンパイラ構成](docs/architecture.md) · [開発ルール](AGENTS.md)
+**ドキュメント：**[言語リファレンス](docs/language.md) · [Lombok 互換レイヤー](docs/lombok.md) · [診断コード一覧](docs/diagnostics.md) · [コンパイラ構成](docs/architecture.md) · [開発ルール](AGENTS.md)
 
 ---
 
@@ -223,6 +223,41 @@ class Main {
   }
 }
 ```
+
+### Lombok 互換レイヤー
+
+コンパイラに Lombok を内蔵しています。注釈は意味解析の段階で通常の Teyru メンバーに
+展開され、手書きのコードと同じ型検査・コード生成の経路を通ります。
+annotation processor は不要です。
+
+```teyru
+@Data
+@AllArgsConstructor
+@Builder
+class Person {
+  private String name
+  private int age
+}
+
+Person p = Person.builder().name("ada").age(36).build()
+System.out.println(p.getName() + " " + p.getAge())
+```
+
+完全な一覧と差異は **[docs/lombok.md](docs/lombok.md)** にあります
+（`@Getter`／`@Setter`／`@ToString`／`@EqualsAndHashCode`／`@Data`／`@Value`／
+`@Builder`／`@NonNull`／`@Cleanup`／`@SneakyThrows`／`@Synchronized`／`@With`／
+`@Accessors`／`@FieldDefaults`／`@UtilityClass`／`@StandardException`／`@Log` 系／
+`@ExtensionMethod`／`@FieldNameConstants`／`@Delegate`／`@Helper`／`@Tolerate`／
+`@Locked`／`@NonFinal`／`@PackagePrivate` に対応）。
+
+### Java 25 構文への対応
+
+Teyru は Java SE 25 の確定した構文（プレビューを除く）を基準にしています：
+JEP 512 コンパクトソースファイルとインスタンス `main`（暗黙の `println`／`print`／
+`readln` を含む）、JEP 511 モジュールインポート、JEP 513 柔軟なコンストラクタ本体、
+JEP 440 レコードパターン、JEP 441 switch のパターンと `when` ガード、
+JEP 456 未使用変数 `_`、JEP 395 record、JEP 394 `instanceof` パターン、
+JEP 378 テキストブロック、JEP 361 switch 式、JEP 286 `var`。
 
 ### 対応している言語機能
 

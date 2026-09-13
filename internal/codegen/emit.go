@@ -360,6 +360,9 @@ func mangleOrder(cl *ast.Class) []string {
 
 // bodyOf returns the syntax body of a method, if any.
 func bodyOf(m *ast.Method) *ast.Block {
+	if m.Body != nil {
+		return m.Body
+	}
 	if m.Decl != nil && m.Decl.Body != nil {
 		return m.Decl.Body
 	}

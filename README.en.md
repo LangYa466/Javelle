@@ -22,7 +22,7 @@ Teyru source (.teyru)
 The back end **is LLVM**: `./teyru emit-llvm` prints the IR module so it can go straight
 into `opt`, `llc` or a custom pass; `./teyru emit` prints the generated C.
 
-**Docs:** [Language reference](docs/language.md) · [Diagnostics](docs/diagnostics.md) · [Compiler architecture](docs/architecture.md) · [Contributor rules](AGENTS.md)
+**Docs:** [Language reference](docs/language.md) · [Lombok layer](docs/lombok.md) · [Diagnostics](docs/diagnostics.md) · [Compiler architecture](docs/architecture.md) · [Contributor rules](AGENTS.md)
 
 ---
 
@@ -224,6 +224,57 @@ class Main {
   }
 }
 ```
+
+### Java 25 syntax coverage
+
+Teyru tracks the final (non-preview) Java SE 25 syntax and keeps Java semantics,
+dropping only semicolons and adding native properties:
+
+| JEP | Feature | Status |
+|---|---|---|
+| 512 | Compact source files, instance `main`, implicit `java.io.IO` (`println`/`print`/`readln`) | ✅ |
+| 511 | `import module java.base` (parsed and ignored; no module system at run time) | ✅ parsed |
+| 513 | Flexible constructor bodies (statements before `super()`) | ✅ |
+| 440 | Record patterns (including nested and in `instanceof`) | ✅ |
+| 441 | Pattern matching for switch with `when` guards | ✅ |
+| 456 | Unnamed variables and patterns `_` | ✅ |
+| 395 | Records (including compact constructors) | ✅ |
+| 394 | `instanceof` patterns | ✅ |
+| 409 | Sealed classes (`sealed`/`permits`/`non-sealed`) | ✅ parsed |
+| 378 | Text blocks | ✅ |
+| 361 | Switch expressions | ✅ |
+| 286 | `var` local type inference | ✅ |
+
+### Lombok compatibility
+
+The compiler has Lombok built in. Annotations are expanded during semantic analysis
+into ordinary Teyru members, which then take the same type-checking and code
+generation path as hand-written code — no annotation processor is involved.
+
+```teyru
+import lombok.Data
+import lombok.AllArgsConstructor
+import lombok.Builder
+
+@Data
+@AllArgsConstructor
+@Builder
+class Person {
+  private String name
+  private int age
+}
+
+Person p = Person.builder().name("ada").age(36).build()
+System.out.println(p.getName() + " " + p.getAge())
+System.out.println(p)
+```
+
+The full list and the differences are in **[docs/lombok.md](docs/lombok.md)**:
+`@Getter`/`@Setter`/`@ToString`/`@EqualsAndHashCode`/`@Data`/`@Value`/`@Builder`/
+`@NonNull`/`@Cleanup`/`@SneakyThrows`/`@Synchronized`/`@With`/`@Accessors`/
+`@FieldDefaults`/`@UtilityClass`/`@StandardException`/the `@Log` family/
+`@ExtensionMethod`/`@FieldNameConstants`/`@Delegate`/`@Helper`/`@Tolerate`/`@Locked`/
+`@NonFinal`/`@PackagePrivate` are all supported.
 
 ### Language features
 

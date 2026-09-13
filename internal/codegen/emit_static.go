@@ -74,6 +74,12 @@ func (e *Emitter) emitClInit(cl *ast.Class) {
 			}
 		}
 	}
+	// synthesized static initializers (@Log and friends)
+	for _, f := range cl.Fields {
+		if f.InitExpr != nil && f.Mods.Has(ast.ModStatic) && (f.Decl == nil || f.Decl.Init == nil) {
+			e.line("%s = %s;\n", staticName(cl, f), e.coerce(e.expr(f.InitExpr), f.InitExpr.GetType(), f.Type))
+		}
+	}
 	e.emitEnumInit(cl)
 	e.indent--
 	e.code.WriteString("}\n\n")

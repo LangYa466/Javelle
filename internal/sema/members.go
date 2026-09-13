@@ -18,11 +18,25 @@ func (c *Checker) addField(cl *ast.Class, f *ast.Field) {
 	cl.Fields = append(cl.Fields, f)
 }
 
+// sortedSynthMethods lists a class's synthesized methods deterministically.
+func sortedSynthMethods(cl *ast.Class) []*ast.Method {
+	var out []*ast.Method
+	for _, name := range sortedMethodNames(cl) {
+		out = append(out, cl.Methods[name]...)
+	}
+	out = append(out, cl.Ctors...)
+	return out
+}
+
 func (c *Checker) addMethod(cl *ast.Class, m *ast.Method) {
 	m.Owner = cl
 	m.VIndex = -1
 	m.Selector = -1
+	tolerate := m.Decl != nil && hasAnno(m.Decl.Annos, "Tolerate") != nil
 	for _, prev := range cl.Methods[m.Name] {
+		if tolerate || prev.Tolerate {
+			continue
+		}
 		if sameErasedParams(c, prev, m) {
 			c.errf(m.Pos, "TY-TYP-0011", "duplicate method %s in %s", describeMethod(m), cl.Name)
 			return

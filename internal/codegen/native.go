@@ -197,16 +197,23 @@ func (e *Emitter) nativeCall(m *ast.Method, recv string, args []ast.Expr) string
 		return "0"
 	}
 	var parts []string
-	if nf.recv != "" {
-		parts = append(parts, "("+nf.recv+")"+recv)
-	}
+	vals := make([]string, 0, len(args))
 	for i, a := range args {
 		var want ast.Type
 		if i < len(m.Params) {
 			want = m.Params[i]
 		}
-		parts = append(parts, e.coerce(e.expr(a), a.GetType(), want))
+		vals = append(vals, e.coerce(e.expr(a), a.GetType(), want))
 	}
+	if m.IsStatic() {
+		// for static natives the cast describes the first argument
+		if nf.recv != "" && len(vals) > 0 {
+			vals[0] = "(" + nf.recv + ")" + vals[0]
+		}
+	} else if nf.recv != "" {
+		parts = append(parts, "("+nf.recv+")"+recv)
+	}
+	parts = append(parts, vals...)
 	call := nf.fn + "(" + strings.Join(parts, ", ") + ")"
 	if e.isRef(m.Result) {
 		return "(" + e.ctype(m.Result) + ")" + call

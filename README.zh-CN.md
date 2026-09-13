@@ -20,7 +20,7 @@ Teyru 源码 (.teyru)
 后端是 **LLVM**：`./teyru emit-llvm` 可以直接打印 IR 模块，接 `opt`／`llc`／自定义 pass
 都没有问题；只想看 C 也可以用 `./teyru emit`。
 
-**文档**：[语言参考](docs/language.md) · [诊断码一览](docs/diagnostics.md) · [编译器架构](docs/architecture.md) · [工作规范](AGENTS.md)
+**文档**：[语言参考](docs/language.md) · [Lombok 兼容层](docs/lombok.md) · [诊断码一览](docs/diagnostics.md) · [编译器架构](docs/architecture.md) · [工作规范](AGENTS.md)
 
 ---
 
@@ -217,6 +217,40 @@ class Main {
   }
 }
 ```
+
+### Lombok 兼容层
+
+编译器内置 Lombok：注解在语义分析阶段展开成普通的 Teyru 成员，与手写代码走同一条
+类型检查与代码生成路径，不需要 annotation processor。
+
+```teyru
+@Data
+@AllArgsConstructor
+@Builder
+class Person {
+  private String name
+  private int age
+}
+
+Person p = Person.builder().name("ada").age(36).build()
+System.out.println(p.getName() + " " + p.getAge())
+```
+
+完整清单与差异见 **[docs/lombok.md](docs/lombok.md)**：`@Getter`／`@Setter`／`@ToString`／
+`@EqualsAndHashCode`／`@Data`／`@Value`／`@Builder`／`@NonNull`／`@Cleanup`／
+`@SneakyThrows`／`@Synchronized`／`@With`／`@Accessors`／`@FieldDefaults`／
+`@UtilityClass`／`@StandardException`／`@Log` 系列／`@ExtensionMethod`／
+`@FieldNameConstants`／`@Delegate`／`@Helper`／`@Tolerate`／`@Locked`／
+`@NonFinal`／`@PackagePrivate` 全部支持。
+
+### Java 25 语法对照
+
+Teyru 以 Java SE 25 最终定案的语法为基准（不含预览功能），保留 Java 语义，
+只去掉分号并加入原生 property：JEP 512 紧凑源文件与实例 `main`（含隐式
+`println`／`print`／`readln`）、JEP 511 模块导入、JEP 513 弹性构造器本体、
+JEP 440 record 模式、JEP 441 switch 模式与 `when` 守卫、JEP 456 未命名变量 `_`、
+JEP 395 record、JEP 394 `instanceof` 模式、JEP 378 文本块、JEP 361 switch 表达式、
+JEP 286 `var`。
 
 ### 支持的语言特性
 

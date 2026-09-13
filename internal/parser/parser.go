@@ -371,10 +371,11 @@ func (p *parser) parseAnnoValue() (ast.Expr, *ast.Annotation) {
 		}
 		return v, nil
 	case p.tok().Kind == lexer.Ident && p.isAt(1, ".") && p.isAt(2, "class"):
+		name := p.tok().Text
 		p.next()
 		p.next()
 		p.next()
-		cl := &ast.ClassLit{ExprBase: base, Type: &ast.TypeExpr{Pos: pos, Name: p.tok().Text}}
+		cl := &ast.ClassLit{ExprBase: base, Type: &ast.TypeExpr{Pos: pos, Name: name}}
 		cl.SetType(&ast.ClassType{})
 		return cl, nil
 	case p.tok().Kind == lexer.IntLit:
@@ -786,8 +787,8 @@ func (p *parser) parseParams() []*ast.Param {
 }
 
 func (p *parser) parseParam() *ast.Param {
-	p.parseAnnotations()
-	pr := &ast.Param{Mods: p.parseModifiers()}
+	annos := p.parseAnnotations()
+	pr := &ast.Param{Annos: annos, Mods: p.parseModifiers()}
 	pr.Type = p.parseType()
 	if p.accept("...") {
 		pr.Varargs = true
@@ -1004,8 +1005,9 @@ func (p *parser) isLocalClassAhead() bool {
 func (p *parser) tryLocalVar(allowMulti bool) *ast.LocalVar {
 	pos := p.pos()
 	var lv *ast.LocalVar
+	var annos []*ast.Annotation
 	ok := p.speculate(func() bool {
-		p.parseAnnotations()
+		annos = p.parseAnnotations()
 		mods := p.parseModifiers()
 		t := p.tok()
 		if t.Kind != lexer.Ident && !(t.Kind == lexer.Keyword && primNames[t.Text] && t.Text != "void") {
@@ -1018,7 +1020,7 @@ func (p *parser) tryLocalVar(allowMulti bool) *ast.LocalVar {
 		if !(p.isAt(1, "=") || p.isAt(1, ",") || p.isAt(1, "[") || p.isAt(1, ":") || p.isAt(1, ")") || p.peekN(1).NL || p.isAt(1, "}") || p.peekN(1).Kind == lexer.EOF) {
 			return false
 		}
-		lv = &ast.LocalVar{Pos: pos, Mods: mods, Type: typ}
+		lv = &ast.LocalVar{Pos: pos, Mods: mods, Type: typ, Annos: annos}
 		return true
 	})
 	if !ok {
@@ -1026,7 +1028,7 @@ func (p *parser) tryLocalVar(allowMulti bool) *ast.LocalVar {
 	}
 	// re-parse for real (types are cheap) so positions and nested errors are reported
 	p.restoreTo(pos)
-	p.parseAnnotations()
+	lv.Annos = p.parseAnnotations()
 	lv.Mods = p.parseModifiers()
 	lv.Type = p.parseType()
 	np := p.pos()

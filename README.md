@@ -20,7 +20,7 @@ Teyru 原始碼 (.teyru)
 後端是 **LLVM**：`./teyru emit-llvm` 可以直接印出 IR 模組，要接 `opt`／`llc`／自訂 pass
 都沒問題；只想看 C 也可以用 `./teyru emit`。
 
-**文件**：[語言參考](docs/language.md) · [診斷碼一覽](docs/diagnostics.md) · [編譯器架構](docs/architecture.md) · [工作規範](AGENTS.md)
+**文件**：[語言參考](docs/language.md) · [Lombok 相容層](docs/lombok.md) · [診斷碼一覽](docs/diagnostics.md) · [編譯器架構](docs/architecture.md) · [工作規範](AGENTS.md)
 
 ---
 
@@ -217,6 +217,76 @@ class Main {
   }
 }
 ```
+
+### Java 25 語法對照
+
+Teyru 以 Java SE 25 的最終定案語法為基準（預覽功能不算），保留 Java 的語意，
+只拿掉分號並加上原生 property。已實作並有測試的 Java 25 項目：
+
+| JEP | 功能 | 狀態 |
+|---|---|---|
+| 512 | 精簡原始檔、實例 `main`、隱式 `java.io.IO`（`println`／`print`／`readln`） | ✅ |
+| 511 | `import module java.base`（解析後忽略，執行期沒有模組系統） | ✅ 解析 |
+| 513 | 彈性建構子本體（`super()` 之前可以有敘述） | ✅ |
+| 440 | Record 模式（含巢狀解構、`instanceof` 版本） | ✅ |
+| 441 | switch 的模式比對與 `when` 守衛 | ✅ |
+| 456 | 未命名變數與模式 `_` | ✅ |
+| 395 | record（含精簡建構子） | ✅ |
+| 394 | `instanceof` 型別模式 | ✅ |
+| 409 | sealed 類別（`sealed`／`permits`／`non-sealed`） | ✅ 解析 |
+| 378 | 文字區塊 | ✅ |
+| 361 | switch 運算式 | ✅ |
+| 286 | `var` 區域變數推斷 | ✅ |
+
+### Lombok 相容層
+
+編譯器內建 Lombok：標註會在語意分析階段展開成一般的 Teyru 成員，與手寫程式碼走同一條
+型別檢查與程式碼產生路徑，不需要 annotation processor。
+
+```teyru
+import lombok.Data
+import lombok.AllArgsConstructor
+import lombok.Builder
+
+@Data
+@AllArgsConstructor
+@Builder
+class Person {
+  private String name
+  private int age
+}
+
+Person p = Person.builder().name("ada").age(36).build()
+System.out.println(p.getName() + " " + p.getAge())
+System.out.println(p)
+```
+
+完整清單與差異見 **[docs/lombok.md](docs/lombok.md)**：`@Getter`／`@Setter`／`@ToString`／
+`@EqualsAndHashCode`／`@Data`／`@Value`／`@Builder`／`@NonNull`／`@Cleanup`／
+`@SneakyThrows`／`@Synchronized`／`@With`／`@Accessors`／`@FieldDefaults`／
+`@UtilityClass`／`@StandardException`／`@Log` 家族／`@ExtensionMethod`／
+`@FieldNameConstants`／`@Delegate`／`@Helper`／`@Tolerate`／`@Locked`／
+`@NonFinal`／`@PackagePrivate` 全部支援。
+
+### Java 25 語法對照
+
+Teyru 以 Java SE 25 最終定案的語法為基準（不含預覽功能），保留 Java 語意，
+只拿掉分號並加上原生 property：
+
+| JEP | 功能 | 狀態 |
+|---|---|---|
+| 512 | 精簡原始檔、實例 `main`、隱式 `java.io.IO`（`println`／`print`／`readln`） | ✅ |
+| 511 | `import module java.base`（解析後忽略） | ✅ 解析 |
+| 513 | 彈性建構子本體（`super()` 前可有敘述） | ✅ |
+| 440 | Record 模式（含巢狀解構與 `instanceof` 版本） | ✅ |
+| 441 | switch 模式比對與 `when` 守衛 | ✅ |
+| 456 | 未命名變數與模式 `_` | ✅ |
+| 395 | record（含精簡建構子） | ✅ |
+| 394 | `instanceof` 型別模式 | ✅ |
+| 409 | sealed 類別 | ✅ 解析 |
+| 378 | 文字區塊 | ✅ |
+| 361 | switch 運算式 | ✅ |
+| 286 | `var` 區域變數推斷 | ✅ |
 
 ### 支援的語言特性
 

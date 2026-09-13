@@ -227,6 +227,28 @@ class Short extends Object {
   public native String toString()
 }
 
+class Logger {
+  private String name
+  public Logger(String name) {
+    this.name = name
+  }
+  public void trace(String msg) {
+    System.out.println("TRACE " + name + " - " + msg)
+  }
+  public void debug(String msg) {
+    System.out.println("DEBUG " + name + " - " + msg)
+  }
+  public void info(String msg) {
+    System.out.println("INFO " + name + " - " + msg)
+  }
+  public void warn(String msg) {
+    System.out.println("WARN " + name + " - " + msg)
+  }
+  public void error(String msg) {
+    System.out.println("ERROR " + name + " - " + msg)
+  }
+}
+
 class Throwable extends Object {
   public String message
   public Throwable cause
