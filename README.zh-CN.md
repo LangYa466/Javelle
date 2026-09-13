@@ -1,0 +1,349 @@
+# Teyru
+
+[繁體中文](README.md) · **简体中文** · [English](README.en.md) · [日本語](README.ja.md)
+
+**Teyru 是一门独立实现的编程语言：编译器完全用 Go 编写，直接生成原生可执行文件——不依赖 JVM、不依赖 javac、不产生任何 bytecode。**
+
+Teyru 的语法对 Java 开发者非常熟悉（类、接口、泛型、lambda、异常、record、enum、annotation），
+但去掉了分号、加入了原生 property，并且以**原生机器码**运行：编译器把整个程序降级为 C，
+再交给 clang/LLVM（或 gcc）编译成可执行文件。运行时只有大约两千行 C，其中包含自己的垃圾回收器
+（conservative mark-and-sweep）、字符串、数组与异常实现，没有任何虚拟机。
+
+```
+Teyru 源码 (.teyru)
+      │  用 Go 写的编译器：lexer → parser → 语义分析 → C 生成器
+      ▼
+  generated C  ──clang（Clang 前端 + LLVM 中后端）──▶  LLVM IR  ──▶  原生可执行文件
+                                                          （无 JVM、无 bytecode）
+```
+
+后端是 **LLVM**：`./teyru emit-llvm` 可以直接打印 IR 模块，接 `opt`／`llc`／自定义 pass
+都没有问题；只想看 C 也可以用 `./teyru emit`。
+
+**文档**：[语言参考](docs/language.md) · [诊断码一览](docs/diagnostics.md) · [编译器架构](docs/architecture.md) · [工作规范](AGENTS.md)
+
+---
+
+## 目录
+
+- [为什么比 JVM 快](#为什么比-jvm-快)
+- [快速开始](#快速开始)
+- [语言速览](#语言速览)
+- [支持的语言特性](#支持的语言特性)
+- [标准库](#标准库)
+- [项目结构](#项目结构)
+- [运行时模型](#运行时模型)
+- [与 Java 的差异](#与-java-的差异)
+- [命令行接口](#命令行接口)
+- [开发](#开发)
+- [许可](#许可)
+
+---
+
+## 为什么比 JVM 快
+
+同一个 `Hello` 程序，在同一台机器上实测（Linux x86-64、clang 22、OpenJDK 21、各执行 100 次）：
+
+| 指标 | Teyru（原生） | Java（HotSpot） | 差距 |
+|---|---|---|---|
+| 启动 100 次总时间 | **0.075 s**（0.75 ms/次） | 2.00 s（20 ms/次） | **约 27 倍快** |
+| 可执行文件／运行时大小 | **56 KB** | JDK 运行时约 200 MB | 约 3600 倍小 |
+| 峰值内存 | **4.4 MB** | 50.9 MB | **约 11 倍省** |
+| `fib(32)` 递归 | **6 ms** | 27 ms | 约 4.5 倍快 |
+| 编译时间 | 数十毫秒 | javac 较慢且需 JIT 预热 | — |
+
+**为什么快：**
+
+1. **没有 JVM 启动成本。** 没有 class loading、没有 JIT 预热、没有 GC 线程启动。
+   适合 CLI 工具、短命进程、容器启动、serverless。
+2. **编译期做完的事不留到运行期。** 泛型在编译期擦除、方法调用在编译期定址、
+   字符串常量静态分配、`static final` 常量直接折叠、vtable 与接口表由编译器填好。
+3. **没有 bytecode 解释阶段。** clang/LLVM 直接优化整个程序（跨方法 inline、
+   常量传播、循环向量化），不需要等 JIT 观察热点。
+4. **可预测的性能。** 没有 deopt、没有预热曲线、没有 GC 调参，
+   第一次执行就是最快速度。
+
+**诚实的边界。** 在“大量短命对象”的 microbenchmark 上，HotSpot 的逃逸分析可能直接
+把对象消除（scalar replacement），此时 JVM 反而更快（实测 20M 次分配：Teyru 0.13 s
+vs JVM 0.03 s）。Teyru 当前的 GC 是保守式标记清除，不是分代复制；这是后续优化的
+重点，也是我们**不**宣称“所有场景都更快”的原因。所有数字都可以用 `sh bench/bench.sh`
+重现，或自行用 `tests/programs/bench_*.teyru` 对照。
+
+---
+
+## 快速开始
+
+需要 **Go 1.24+** 与 **clang**（或 gcc）。
+
+```sh
+# 构建编译器
+go build -o teyru ./cmd/teyru
+
+# 编译并运行
+./teyru run hello.teyru
+
+# 生成可执行文件
+./teyru build -O2 -o hello hello.teyru
+./hello
+
+# 查看编译器生成的 C 代码
+./teyru emit hello.teyru
+
+# 查看交给 LLVM 的 IR（后端是 clang/LLVM，可交给 opt/llc）
+./teyru emit-llvm hello.teyru
+
+# 版本
+./teyru version
+```
+
+`hello.teyru`：
+
+```teyru
+class Hello {
+  public static void main(String[] args) {
+    System.out.println("Hello, Teyru!")
+  }
+}
+```
+
+注意：**Teyru 不用分号**。每条语句以换行结束；`for` 头部用两个冒号分隔三段。
+
+---
+
+## 语言速览
+
+```teyru
+interface Shape {
+  double area()
+  default String describe() {
+    return "area=" + area()
+  }
+}
+
+class Rect implements Shape {
+  public double w
+  public double h
+  public Rect(double w, double h) {
+    this.w = w
+    this.h = h
+  }
+  public double area() {
+    return w * h
+  }
+}
+
+class Circle implements Shape {
+  private double r
+  public double radius {      // 原生 property
+    get {
+      return field            // field = 底层存储
+    }
+    set {
+      field = value < 0 ? 0 : value
+    }
+  }
+  public Circle(double r) {
+    radius = r
+  }
+  public double area() {
+    return Math.PI * r * r
+  }
+}
+
+record Point(int x, int y) {
+}
+
+enum Color {
+  RED, GREEN, BLUE
+}
+
+interface Fn<R> {
+  R apply(int v)
+}
+
+class Main {
+  static int twice(int v) {
+    return v * 2
+  }
+
+  public static void main(String[] args) {
+    Shape s = new Rect(3, 4)
+    System.out.println(s.describe())
+
+    // for ( init : condition : update )
+    for (int i = 0 : i < 3 : i++) {
+      System.out.println(i)
+    }
+
+    int[] xs = {1, 2, 3}
+    for (int x : xs) {
+      System.out.print(x)
+    }
+    System.out.println()
+
+    // lambda 与方法引用
+    Fn<Integer> f = (v) -> v + 1
+    Fn<Integer> g = Main::twice
+    System.out.println(f.apply(41))
+    System.out.println(g.apply(21))
+
+    // switch 表达式与类型 pattern
+    Color c = Color.GREEN
+    String name = switch (c) {
+      case RED -> "red"
+      case GREEN -> "green"
+      default -> "other"
+    }
+    System.out.println(name)
+    System.out.println(describe(c))
+
+    // 异常
+    try {
+      System.out.println(10 / 0)
+    } catch (ArithmeticException e) {
+      System.out.println("除以零")
+    } finally {
+      System.out.println("cleanup")
+    }
+  }
+
+  static String describe(Object o) {
+    return switch (o) {
+      case String s -> "string of length " + s.length()
+      case Integer i when i.intValue() > 10 -> "big int"
+      case Integer i -> "small int"
+      default -> "other"
+    }
+  }
+}
+```
+
+### 支持的语言特性
+
+| 类别 | 内容 |
+|---|---|
+| 类型 | 原生类型、类、接口、enum、record、annotation type、泛型（bound／wildcard／diamond／泛型方法）、多维数组 |
+| 成员 | 字段、方法、构造器、可变参数、静态与实例初始化块、嵌套／内部／局部／匿名类、`sealed`／`permits` |
+| 语句 | `if`、`while`、`do-while`、基本 `for`（冒号头部）、增强 `for`、`switch`（语句／表达式、箭头／冒号、多标签、enum、字符串、类型 pattern + `when` 守卫）、`try`／`catch`／`finally`、try-with-resources、多类型 catch、`throw`、`yield`、`assert`、`synchronized`、标签与 `break`／`continue` |
+| 表达式 | 完整运算符与优先级、三元、cast、`instanceof`（含 pattern）、lambda、方法引用（静态／绑定／未绑定／构造器）、匿名类、对象初始化列表、字符串拼接、自动 boxing／unboxing |
+| 原生扩展 | 无分号语法、`val`（推断类型的不可重绑定局部变量）、`var`、原生 property（`get`／`set`／`field`）、`for` 的双冒号头部、try-with-resources 以换行分隔 |
+
+完整的语法与语义写在 **[docs/language.md](docs/language.md)**。
+
+---
+
+## 标准库
+
+标准库以 **Teyru 本身**编写（`internal/prelude/prelude.go`），每次编译都与用户程序
+一起被编译与检查：
+
+`Object`、`String`、`StringBuilder`、`Math`、`System`、`PrintStream`、
+`Iterable`／`Iterator`、`Comparable`、`AutoCloseable`、`Cloneable`、`Enum`、`Record`、
+八种原生包装类（`Byte`／`Short`／`Integer`／`Long`／`Float`／`Double`／`Character`／`Boolean`），
+以及 `Throwable` 家族（`Exception`、`RuntimeException`、`NullPointerException`、
+`ArrayIndexOutOfBoundsException`、`ArithmeticException`、`ClassCastException`、
+`IllegalArgumentException`、`IllegalStateException`、`NoSuchElementException`、
+`NegativeArraySizeException`、`AssertionError`、`UnsupportedOperationException`）。
+
+没有 `java.util` 集合、没有 `printf`、没有文件 I/O——这些都是刻意的范围限制。
+
+---
+
+## 项目结构
+
+| 路径 | 说明 |
+|---|---|
+| `cmd/teyru` | CLI 入口（`build`／`run`／`emit`／`emit-llvm`／`version`） |
+| `internal/source` | 文件、位置换算、诊断容器 |
+| `internal/lexer` | 词法分析；换行不产生 token，只在 token 上标记“前面有换行” |
+| `internal/parser` | 递归下降解析器，用显著性与前缀完整性判断语句是否结束 |
+| `internal/ast` | 语法树、符号（类／方法／字段／变量）、类型 |
+| `internal/sema` | 名称解析、类型检查、泛型擦除与推断、重载解析、vtable／selector 分配、property 降级 |
+| `internal/codegen` | 生成 C：类→struct、虚调用→vtable、接口调用→itable、switch 降级、GC 根信息 |
+| `internal/util` | 前后端共用的工具：名称修饰、类型描述、C 内存布局 |
+| `internal/runtime/src` | C 运行时：GC、字符串、数组、异常、boxing、Math／System／StringBuilder |
+| `internal/prelude` | 用 Teyru 编写的标准库 |
+| `tests/programs` | 端到端测试程序与期望输出（`go test` 会逐一编译并比对） |
+| `bench` | 与 JVM 对照的性能脚本 |
+| `docs` | 语言参考、诊断码、架构 |
+
+---
+
+## 运行时模型
+
+- **对象**：C struct，第一栏是 `tyobj { tyclass* cls }`。每个类一张 `tyclass`，
+  记录父类、接口、vtable、接口表、GC 需要追踪的引用字段偏移。
+- **虚调用**：`obj->cls->vtable[slot]`；**接口调用**：`ty_itab(obj, selector)`。
+  每个接口方法有全局唯一的 selector，每个类的接口表由编译期填好。
+- **泛型**：编译期擦除，运行期没有泛型信息（与 Java 相同）。
+- **异常**：以 `setjmp`／`longjmp` 实现的 handler 链；`finally` 以嵌套 handler
+  保证在任何路径（含 catch 内再抛出）都执行。
+- **GC**：保守式标记清除。根包含原生栈（保守扫描）、静态字段注册表与寄存器
+  （`setjmp` 溢出）。对象不移动，所以 C 端的临时指针永远有效。
+- **字符串**：UTF-8 `tystr { tyobj obj; int64 len; char* data }`；字面量是静态对象，
+  不经过 GC。
+- **数组**：`tyarr { tyobj; len; data; esize; refs }`，元素内嵌在对象后方。
+
+---
+
+## 与 Java 的差异
+
+Teyru 不是 Java 的子集，而是“Java 开发者一看就懂”的独立语言。主要差异：
+
+1. **没有分号。** 分号会被编译器拒绝（`TY-SYN-0001`）。
+2. **`for` 头部用冒号**：`for (int i = 0 : i < n : i++)`。
+3. **try-with-resources 用换行分隔**，不用分号。
+4. **enum 常量区与成员区用一个冒号**分隔（没有成员时可省略）。
+5. **原生 property**：字段后面接 accessor 块即成 property；`field` 代表底层存储。
+   没有 accessor 块的字段就是普通 Java 字段。
+6. **`val`**：推断类型的不可重绑定局部变量（不是深度不可变）。
+7. **没有 checked exception 检查**；`throws` 会被解析但不强制。
+8. **没有 `System.out.printf`、没有运行期反射、没有 annotation processor**。
+9. **不是 bytecode 平台**：没有 `.class`、没有 `java.lang`、没有 JNI，
+   目前也**无法**与既有 Java 库互通——这是刻意的取舍。
+
+完整清单见 [docs/language.md](docs/language.md)。
+
+---
+
+## 命令行接口
+
+```
+teyru build [flags] <files...>                 编译成原生可执行文件
+teyru run   [flags] <files...> [-- args...]    编译后直接运行
+teyru emit  [flags] <files...>                 打印生成的 C
+teyru emit-llvm [flags] <files...>             打印交给 LLVM 的 IR
+teyru version                                  版本
+teyru help                                     帮助
+```
+
+| 旗标 | 说明 |
+|---|---|
+| `-o <path>` | 输出文件名（默认 `a.out`） |
+| `-c <path>` | 保留生成的 C 文件到指定路径 |
+| `--cc <name>` | 使用的 C 编译器（默认依次查找 `clang`、`gcc`、`cc`） |
+| `-O0`…`-O3` | 优化等级（默认 `-O2`） |
+| `--llvm-ir <path>` | 额外输出 LLVM IR 模块 |
+| `-v` | 显示实际执行的编译命令 |
+
+---
+
+## 开发
+
+```sh
+go build ./...          # 构建
+go test ./...           # 端到端测试（会编译 tests/programs 下每个程序并比对输出）
+go vet ./...
+sh bench/bench.sh       # 与 JVM 对照的性能测试（需要 java 才会跑 JVM 那一半）
+```
+
+新增测试只需在 `tests/programs/` 放 `xxx.teyru` 与 `xxx.expected`；
+若程序需要命令行参数，再放 `xxx.args`（每行一个参数）。`go test` 会自动处理。
+
+贡献前请读 [AGENTS.md](AGENTS.md)。
+
+---
+
+## 许可
+
+见 [LICENSE](LICENSE) 与 [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md)。

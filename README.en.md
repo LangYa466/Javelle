@@ -1,0 +1,365 @@
+# Teyru
+
+[繁體中文](README.md) · [简体中文](README.zh-CN.md) · **English** · [日本語](README.ja.md)
+
+**Teyru is an independently implemented programming language whose compiler is written entirely in Go and emits native executables directly — no JVM, no javac, no bytecode.**
+
+The syntax will feel familiar to Java developers (classes, interfaces, generics, lambdas,
+exceptions, records, enums, annotations), but Teyru drops semicolons, adds native
+properties, and runs as **native machine code**: the compiler lowers the whole program to
+C and hands it to clang/LLVM (or gcc). The runtime is about two thousand lines of C — a
+conservative mark-and-sweep collector, strings, arrays and exceptions — with no virtual
+machine of any kind.
+
+```
+Teyru source (.teyru)
+      │  Go compiler: lexer → parser → semantic analysis → C generator
+      ▼
+  generated C  ──clang (Clang front end + LLVM middle/back end)──▶  LLVM IR  ──▶  native executable
+                                                                        (no JVM, no bytecode)
+```
+
+The back end **is LLVM**: `./teyru emit-llvm` prints the IR module so it can go straight
+into `opt`, `llc` or a custom pass; `./teyru emit` prints the generated C.
+
+**Docs:** [Language reference](docs/language.md) · [Diagnostics](docs/diagnostics.md) · [Compiler architecture](docs/architecture.md) · [Contributor rules](AGENTS.md)
+
+---
+
+## Contents
+
+- [Why it is faster than the JVM](#why-it-is-faster-than-the-jvm)
+- [Quick start](#quick-start)
+- [Language tour](#language-tour)
+- [Language features](#language-features)
+- [Standard library](#standard-library)
+- [Project layout](#project-layout)
+- [Runtime model](#runtime-model)
+- [Differences from Java](#differences-from-java)
+- [Command line interface](#command-line-interface)
+- [Development](#development)
+- [License](#license)
+
+---
+
+## Why it is faster than the JVM
+
+Same `Hello` program, measured on one machine (Linux x86-64, clang 22, OpenJDK 21, 100 runs each):
+
+| Metric | Teyru (native) | Java (HotSpot) | Difference |
+|---|---|---|---|
+| 100 startups | **0.075 s** (0.75 ms each) | 2.00 s (20 ms each) | **~27x faster** |
+| Executable / runtime size | **56 KB** | ~200 MB JDK runtime | ~3600x smaller |
+| Peak memory | **4.4 MB** | 50.9 MB | **~11x less** |
+| `fib(32)` recursion | **6 ms** | 27 ms | ~4.5x faster |
+| Compile time | tens of milliseconds | javac is slower and needs JIT warm-up | — |
+
+**Why it is fast:**
+
+1. **No JVM startup.** No class loading, no JIT warm-up, no GC threads spinning up.
+   Good for CLI tools, short-lived processes, container start-up and serverless.
+2. **Work happens at compile time, not at run time.** Generics are erased, calls are
+   bound to addresses, string literals are static objects, `static final` constants are
+   folded, and vtables plus interface tables are filled in by the compiler.
+3. **No bytecode interpretation stage.** clang/LLVM optimises the whole program at once
+   (cross-method inlining, constant propagation, loop vectorisation) instead of waiting
+   for a JIT to find hot spots.
+4. **Predictable performance.** No deoptimisation, no warm-up curve, no GC tuning knobs;
+   the first run is the fastest run.
+
+**The honest boundary.** On microbenchmarks dominated by short-lived objects, HotSpot's
+escape analysis can eliminate the allocation entirely (scalar replacement) and the JVM
+wins — measured at 20M allocations: Teyru 0.13 s vs JVM 0.03 s. Teyru's collector is a
+conservative mark-and-sweep, not a generational copying collector; that is the next
+optimisation target, and it is why we do **not** claim to be faster in every scenario.
+Every number above is reproducible with `sh bench/bench.sh` or by comparing
+`tests/programs/bench_*.teyru`.
+
+---
+
+## Quick start
+
+You need **Go 1.24+** and **clang** (or gcc).
+
+```sh
+# Build the compiler
+go build -o teyru ./cmd/teyru
+
+# Compile and run
+./teyru run hello.teyru
+
+# Produce an executable
+./teyru build -O2 -o hello hello.teyru
+./hello
+
+# Inspect the generated C
+./teyru emit hello.teyru
+
+# Inspect the LLVM IR the back end feeds to LLVM (works with opt/llc)
+./teyru emit-llvm hello.teyru
+
+# Version
+./teyru version
+```
+
+`hello.teyru`:
+
+```teyru
+class Hello {
+  public static void main(String[] args) {
+    System.out.println("Hello, Teyru!")
+  }
+}
+```
+
+Note: **Teyru has no semicolons.** Statements end at a newline, and a `for` header uses
+two colons to separate its three parts.
+
+---
+
+## Language tour
+
+```teyru
+interface Shape {
+  double area()
+  default String describe() {
+    return "area=" + area()
+  }
+}
+
+class Rect implements Shape {
+  public double w
+  public double h
+  public Rect(double w, double h) {
+    this.w = w
+    this.h = h
+  }
+  public double area() {
+    return w * h
+  }
+}
+
+class Circle implements Shape {
+  private double r
+  public double radius {      // native property
+    get {
+      return field            // field = backing storage
+    }
+    set {
+      field = value < 0 ? 0 : value
+    }
+  }
+  public Circle(double r) {
+    radius = r
+  }
+  public double area() {
+    return Math.PI * r * r
+  }
+}
+
+record Point(int x, int y) {
+}
+
+enum Color {
+  RED, GREEN, BLUE
+}
+
+interface Fn<R> {
+  R apply(int v)
+}
+
+class Main {
+  static int twice(int v) {
+    return v * 2
+  }
+
+  public static void main(String[] args) {
+    Shape s = new Rect(3, 4)
+    System.out.println(s.describe())
+
+    // for ( init : condition : update )
+    for (int i = 0 : i < 3 : i++) {
+      System.out.println(i)
+    }
+
+    int[] xs = {1, 2, 3}
+    for (int x : xs) {
+      System.out.print(x)
+    }
+    System.out.println()
+
+    // lambdas and method references
+    Fn<Integer> f = (v) -> v + 1
+    Fn<Integer> g = Main::twice
+    System.out.println(f.apply(41))
+    System.out.println(g.apply(21))
+
+    // switch expressions and type patterns
+    Color c = Color.GREEN
+    String name = switch (c) {
+      case RED -> "red"
+      case GREEN -> "green"
+      default -> "other"
+    }
+    System.out.println(name)
+    System.out.println(describe(c))
+
+    // exceptions
+    try {
+      System.out.println(10 / 0)
+    } catch (ArithmeticException e) {
+      System.out.println("division by zero")
+    } finally {
+      System.out.println("cleanup")
+    }
+  }
+
+  static String describe(Object o) {
+    return switch (o) {
+      case String s -> "string of length " + s.length()
+      case Integer i when i.intValue() > 10 -> "big int"
+      case Integer i -> "small int"
+      default -> "other"
+    }
+  }
+}
+```
+
+### Language features
+
+| Area | What is supported |
+|---|---|
+| Types | Primitives, classes, interfaces, enums, records, annotation types, generics (bounds, wildcards, diamond, generic methods), multi-dimensional arrays |
+| Members | Fields, methods, constructors, varargs, static and instance initialiser blocks, nested/inner/local/anonymous classes, `sealed`/`permits` |
+| Statements | `if`, `while`, `do-while`, basic `for` (colon header), enhanced `for`, `switch` (statement and expression, arrow and colon form, multi-label, enum, string, type patterns with `when` guards), `try`/`catch`/`finally`, try-with-resources, multi-catch, `throw`, `yield`, `assert`, `synchronized`, labels with `break`/`continue` |
+| Expressions | Full operator set and precedence, conditional, casts, `instanceof` (including patterns), lambdas, method references (static, bound, unbound, constructor), anonymous classes, array initialisers, string concatenation, automatic boxing/unboxing |
+| Native extensions | Semicolon-free syntax, `val` (inferred, non-reassignable local), `var`, native properties (`get`/`set`/`field`), colon-separated `for` header, newline-separated try-with-resources |
+
+The complete syntax and semantics live in **[docs/language.md](docs/language.md)**.
+
+---
+
+## Standard library
+
+The standard library is written **in Teyru itself** (`internal/prelude/prelude.go`) and is
+compiled and checked together with every user program:
+
+`Object`, `String`, `StringBuilder`, `Math`, `System`, `PrintStream`,
+`Iterable`/`Iterator`, `Comparable`, `AutoCloseable`, `Cloneable`, `Enum`, `Record`,
+the eight primitive wrappers (`Byte`, `Short`, `Integer`, `Long`, `Float`, `Double`,
+`Character`, `Boolean`), and the `Throwable` family (`Exception`, `RuntimeException`,
+`NullPointerException`, `ArrayIndexOutOfBoundsException`, `ArithmeticException`,
+`ClassCastException`, `IllegalArgumentException`, `IllegalStateException`,
+`NoSuchElementException`, `NegativeArraySizeException`, `AssertionError`,
+`UnsupportedOperationException`).
+
+There is no `java.util`, no `printf` and no file I/O — those are deliberate scope limits.
+
+---
+
+## Project layout
+
+| Path | Purpose |
+|---|---|
+| `cmd/teyru` | CLI entry point (`build`/`run`/`emit`/`emit-llvm`/`version`) |
+| `internal/source` | Files, position mapping, diagnostics |
+| `internal/lexer` | Tokeniser; newlines are not tokens, each token carries a "newline before" flag |
+| `internal/parser` | Recursive descent; statement termination uses newline significance plus prefix completeness |
+| `internal/ast` | Syntax tree, symbols (class/method/field/variable), types |
+| `internal/sema` | Name resolution, type checking, erasure and inference, overload resolution, vtable/selector layout, property lowering |
+| `internal/codegen` | C generation: classes to structs, virtual calls to vtables, interface calls to itables, switch lowering, GC root info |
+| `internal/util` | Shared helpers: name mangling, type descriptors, C layout |
+| `internal/runtime/src` | C runtime: GC, strings, arrays, exceptions, boxing, Math/System/StringBuilder |
+| `internal/prelude` | Standard library written in Teyru |
+| `tests/programs` | End-to-end programs plus expected output (`go test` compiles and diffs each one) |
+| `bench` | JVM comparison script |
+| `docs` | Language reference, diagnostics, architecture |
+
+---
+
+## Runtime model
+
+- **Objects** are C structs whose first member is `tyobj { tyclass* cls }`. Each class
+  has a `tyclass` record with its superclass, interfaces, vtable, interface table and the
+  offsets of the reference fields the collector must trace.
+- **Virtual calls** go through `obj->cls->vtable[slot]`; **interface calls** through
+  `ty_itab(obj, selector)`. Every interface method has a globally unique selector and each
+  class's interface table is filled in at compile time.
+- **Generics** are erased at compile time; no generic information exists at run time
+  (exactly like Java).
+- **Exceptions** use a handler chain built on `setjmp`/`longjmp`; `finally` is implemented
+  with a nested handler so it runs on every path, including a throw from inside a catch.
+- **GC** is conservative mark-and-sweep. Roots are the native stack (scanned
+  conservatively), a registry of static field addresses, and registers spilled by
+  `setjmp`. Objects never move, so C-level temporaries stay valid across a collection.
+- **Strings** are UTF-8 `tystr { tyobj obj; int64 len; char* data }`; literals are static
+  objects that never enter the heap.
+- **Arrays** are `tyarr { tyobj; len; data; esize; refs }` with the elements stored inline.
+
+---
+
+## Differences from Java
+
+Teyru is not a subset of Java; it is a separate language designed to feel immediately
+familiar to Java developers. The main differences:
+
+1. **No semicolons.** A semicolon is rejected by the compiler (`TY-SYN-0001`).
+2. **`for` headers use colons**: `for (int i = 0 : i < n : i++)`.
+3. **try-with-resources separates resources with newlines**, not semicolons.
+4. **Enum constants are separated from members by a single colon** (omitted when there are
+   no members).
+5. **Native properties**: a field followed by an accessor block becomes a property;
+   `field` refers to the backing storage. A field with no accessor block is an ordinary
+   Java field.
+6. **`val`** declares an inferred, non-reassignable local (not deep immutability).
+7. **No checked exception checking**; `throws` is parsed but not enforced.
+8. **No `System.out.printf`, no runtime reflection, no annotation processors.**
+9. **Not a bytecode platform**: no `.class` files, no `java.lang`, no JNI, and no
+   interoperability with existing Java libraries — a deliberate trade-off.
+
+The full list is in [docs/language.md](docs/language.md).
+
+---
+
+## Command line interface
+
+```
+teyru build [flags] <files...>                 compile to a native executable
+teyru run   [flags] <files...> [-- args...]    compile and run
+teyru emit  [flags] <files...>                 print the generated C
+teyru emit-llvm [flags] <files...>             print the LLVM IR
+teyru version                                  print the version
+teyru help                                     print usage
+```
+
+| Flag | Meaning |
+|---|---|
+| `-o <path>` | Output path (default `a.out`) |
+| `-c <path>` | Keep the generated C at this path |
+| `--cc <name>` | C compiler to use (defaults to `clang`, then `gcc`, then `cc`) |
+| `-O0`…`-O3` | Optimisation level (default `-O2`) |
+| `--llvm-ir <path>` | Also write the LLVM IR module here |
+| `-v` | Print the compiler command being run |
+
+---
+
+## Development
+
+```sh
+go build ./...          # build
+go test ./...           # end-to-end tests (compiles every program under tests/programs)
+go vet ./...
+sh bench/bench.sh       # JVM comparison (the JVM half runs only if java is installed)
+```
+
+To add a test, drop `xxx.teyru` and `xxx.expected` into `tests/programs/`; if the program
+takes command line arguments, add `xxx.args` (one argument per line). `go test` handles
+the rest.
+
+Please read [AGENTS.md](AGENTS.md) before contributing.
+
+---
+
+## License
+
+See [LICENSE](LICENSE) and [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md).
