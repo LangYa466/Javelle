@@ -886,7 +886,7 @@ func (ctx *methodCtx) checkIdent(v *ast.Ident, want ast.Type) {
 		if ctx.inStatic() && !f.Mods.Has(ast.ModStatic) && ctx.m != nil {
 			ctx.errf(v.Pos, "TY-TYP-0045", "cannot access instance field %s from a static context", v.Name)
 		}
-		if f.Mods.Has(ast.ModPrivate) && f.Owner != ctx.cl {
+		if f.Mods.Has(ast.ModPrivate) && !sameNest(f.Owner, ctx.cl) {
 			ctx.errf(v.Pos, "TY-TYP-0046", "%s has private access in %s", f.Name, f.Owner.Name)
 		}
 		v.Ref = f
@@ -1621,6 +1621,16 @@ func (ctx *methodCtx) checkArrayInit(v *ast.ArrayInit, want ast.Type) {
 
 func (ctx *methodCtx) checkNew(v *ast.New, want ast.Type) {
 	c := ctx.c
+	if v.Outer != nil && v.Type != nil && !strings.Contains(v.Type.Name, ".") {
+		// `outer.new Inner()`: the simple name is a member type of the
+		// qualifier's class, not a name in the lexical scope
+		ctx.checkExpr(v.Outer, nil)
+		if qct, ok := c.erasure(v.Outer.GetType()).(*ast.ClassType); ok {
+			if nested := qct.Class.Nested[v.Type.Name]; nested != nil {
+				v.Type.Name = qct.Class.Full + "." + v.Type.Name
+			}
+		}
+	}
 	t := c.resolveType(ctx.env, v.Type)
 	if v.Type.Args != nil && len(v.Type.Args) == 0 {
 		if dt, ok := t.(*diamondType); ok {
@@ -1731,6 +1741,24 @@ func (ctx *methodCtx) checkNew(v *ast.New, want ast.Type) {
 		v.Ctor = ctor
 	}
 	v.SetType(t)
+}
+
+// sameNest reports whether two classes belong to the same nest, that is, they
+// are declared within the same top level class. Java grants access to private
+// members across a whole nest (JLS 8.8.10).
+func sameNest(a, b *ast.Class) bool {
+	if a == nil || b == nil {
+		return false
+	}
+	return nestHost(a) == nestHost(b)
+}
+
+// nestHost walks up to the outermost enclosing class.
+func nestHost(cl *ast.Class) *ast.Class {
+	for cl.Outer != nil {
+		cl = cl.Outer
+	}
+	return cl
 }
 
 func findEnclosing(from, target *ast.Class) *ast.Class {
@@ -1864,7 +1892,7 @@ func (ctx *methodCtx) accessible(m *ast.Method) bool {
 		return true
 	}
 	if m.Mods.Has(ast.ModPrivate) {
-		return m.Owner == ctx.cl
+		return sameNest(m.Owner, ctx.cl)
 	}
 	if m.Mods.Has(ast.ModProtected) {
 		if ctx.cl == m.Owner {
@@ -2516,7 +2544,7 @@ func (ctx *methodCtx) accessibleInstance(m *ast.Method, rt ast.Type) bool {
 		return true
 	}
 	if m.Mods.Has(ast.ModPrivate) {
-		return m.Owner == ctx.cl
+		return sameNest(m.Owner, ctx.cl)
 	}
 	if m.Mods.Has(ast.ModProtected) {
 		return ctx.c.isSubclass(ctx.cl, m.Owner) || samePackage(ctx.cl.File, m.Owner.File) || ctx.cl == m.Owner
@@ -2689,7 +2717,7 @@ func (ctx *methodCtx) checkSelect(v *ast.Select, want ast.Type) {
 		v.SetType(ast.ErrorType{})
 		return
 	}
-	if f.Mods.Has(ast.ModPrivate) && f.Owner != ctx.cl && !f.IsProp {
+	if f.Mods.Has(ast.ModPrivate) && !sameNest(f.Owner, ctx.cl) && !f.IsProp {
 		ctx.errf(v.Pos, "TY-TYP-0046", "%s has private access in %s", f.Name, f.Owner.Name)
 	}
 	if !f.Mods.Has(ast.ModStatic) && ctx.inStatic() && ctx.m != nil && !isTypeReceiver(v.X) {

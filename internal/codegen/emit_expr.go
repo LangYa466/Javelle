@@ -1040,6 +1040,11 @@ func (e *Emitter) arrayInitOf(v *ast.ArrayInit, elem ast.Type) string {
 
 func (e *Emitter) arrayElemValue(el ast.Expr, elem ast.Type) string {
 	if ai, ok := el.(*ast.ArrayInit); ok {
+		// a nested initializer builds an array of the element type one level
+		// deeper, which is the type of the initializer itself
+		if at, ok2 := el.GetType().(*ast.ArrayType); ok2 {
+			return e.arrayInitOf(ai, at.Elem)
+		}
 		return e.arrayInitOf(ai, elem)
 	}
 	return e.coerce(e.expr(el), el.GetType(), elem)
