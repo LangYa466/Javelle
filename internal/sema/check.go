@@ -2871,7 +2871,7 @@ func (ctx *methodCtx) checkMethodRef(mr *ast.MethodRef, want ast.Type) {
 	// build body: call
 	args := make([]ast.Expr, len(lam.Params))
 	for i, p := range lam.Params {
-		args[i] = &ast.Ident{ExprBase: ast.ExprBase{Pos: mr.Pos, T: params[i]}, Name: p.Name}
+		args[i] = &ast.Ident{ExprBase: ast.ExprBase{Pos: mr.Pos}, Name: p.Name}
 	}
 	var callRecv ast.Expr
 	if target.IsStatic() {
