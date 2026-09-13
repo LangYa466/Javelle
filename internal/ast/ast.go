@@ -671,33 +671,37 @@ func (m *Method) IsStatic() bool { return m.Mods.Has(ModStatic) }
 
 // Class is a resolved class, interface, enum or record.
 type Class struct {
-	Name         string // simple name
-	Full         string // qualified name
-	Kind         ClassKind
-	Mods         Mods
-	Decl         *ClassDecl
-	File         *File
-	Outer        *Class
-	Owner        *Class // enclosing class for synthesized nested types
-	TypeParams   []*TypeVar
-	Super        *ClassType
-	Ifaces       []*ClassType
-	Fields       []*Field
-	FieldMap     map[string]*Field
-	Methods      map[string][]*Method
-	Ctors        []*Method
-	Nested       map[string]*Class
-	VTable       []*Method
-	InstFields   []*Field // full layout including inherited
-	ID           int
-	Resolved     bool
-	Laidout      bool
-	Builtin      bool // prelude class
-	Inner        bool // has outer instance
-	OuterField   *Field
-	Captures     []*Var
-	CapFields    map[*Var]*Field
-	LocalOwner   *Method
+	Name       string // simple name
+	Full       string // qualified name
+	Kind       ClassKind
+	Mods       Mods
+	Decl       *ClassDecl
+	File       *File
+	Outer      *Class
+	Owner      *Class // enclosing class for synthesized nested types
+	TypeParams []*TypeVar
+	Super      *ClassType
+	Ifaces     []*ClassType
+	Fields     []*Field
+	FieldMap   map[string]*Field
+	Methods    map[string][]*Method
+	Ctors      []*Method
+	Nested     map[string]*Class
+	VTable     []*Method
+	InstFields []*Field // full layout including inherited
+	ID         int
+	Resolved   bool
+	Laidout    bool
+	Builtin    bool // prelude class
+	Inner      bool // has outer instance
+	OuterField *Field
+	Captures   []*Var
+	CapFields  map[*Var]*Field
+	LocalOwner *Method
+	// LocalScopes is the scope chain of the enclosing method at the point a
+	// local or anonymous class is declared, so that its body can see the
+	// variables that are in scope there (JLS 6.3).
+	LocalScopes  []map[string]*Var
 	Special      string // "String", "array", "Object", box names
 	Subclasses   []*Class
 	EnumConsts   []*Field

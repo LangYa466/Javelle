@@ -60,6 +60,7 @@ class String extends Object implements Comparable<String> {
   public native String replace(char a, char b)
   public native int compareTo(String s)
   public native String concat(String s)
+  public native String[] split(String sep)
   public native String toString()
   public static native String valueOf(int v)
   public static native String valueOf(long v)

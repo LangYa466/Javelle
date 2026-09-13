@@ -6,6 +6,7 @@
 package util
 
 import (
+	"strconv"
 	"strings"
 	"unicode"
 	"unicode/utf8"
@@ -85,4 +86,22 @@ func Signature(name string, params []ast.Type) string {
 	}
 	b.WriteByte(')')
 	return b.String()
+}
+
+// FloatLiteral renders a floating point value as a C literal of the right
+// width. The value must keep a fractional or exponent part, because an
+// integral spelling such as 10 would turn the surrounding expression into
+// integer arithmetic.
+func FloatLiteral(f float64, single bool) string {
+	s := strconv.FormatFloat(f, 'g', -1, 64)
+	if single {
+		s = strconv.FormatFloat(f, 'g', -1, 32)
+	}
+	if !strings.ContainsAny(s, ".eEn") {
+		s += ".0"
+	}
+	if single {
+		s += "f"
+	}
+	return s
 }

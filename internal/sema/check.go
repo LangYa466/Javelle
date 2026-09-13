@@ -2,6 +2,7 @@ package sema
 
 import (
 	"fmt"
+	"sort"
 	"strings"
 
 	"github.com/LangYa466/Teyru/internal/ast"
@@ -872,6 +873,7 @@ func (ctx *methodCtx) checkIdent(v *ast.Ident, want ast.Type) {
 			continue
 		}
 		oc := c.newCtx(cl.Outer, cl.LocalOwner)
+		oc.scopes = append(append([]map[string]*ast.Var{}, cl.LocalScopes...), oc.scopes...)
 		if lv := oc.lookupLocal(v.Name); lv != nil {
 			v.Ref = lv
 			v.SetType(lv.Type)
@@ -938,6 +940,27 @@ func (ctx *methodCtx) lookupStaticField(name string) *ast.Field {
 		}
 	}
 	return nil
+}
+
+// addCaptureParams appends one constructor parameter per variable captured by
+// an anonymous class body. The parameters come after the forwarded ones so the
+// superclass call keeps its argument positions.
+func (c *Checker) addCaptureParams(sub *ast.Class, ctor *ast.Method) {
+	for _, v := range capturedVars(sub) {
+		ctor.Params = append(ctor.Params, v.Type)
+		ctor.ParamNames = append(ctor.ParamNames, v.Name)
+	}
+}
+
+// CapturedVars lists the variables an anonymous class captures, in a stable
+// order shared by the checker and code generation.
+func capturedVars(cl *ast.Class) []*ast.Var {
+	var out []*ast.Var
+	for v := range cl.CapFields {
+		out = append(out, v)
+	}
+	sort.Slice(out, func(i, j int) bool { return out[i].ID < out[j].ID })
+	return out
 }
 
 // noteCapture marks a local as captured when referenced from a lambda or inner class.
@@ -1673,6 +1696,9 @@ func (ctx *methodCtx) checkNew(v *ast.New, want ast.Type) {
 		}
 		sub.Resolved = true
 		sub.LocalOwner = ctx.m
+		// the body of an anonymous class sees the locals in scope where it is
+		// written; the ones it actually uses become captured fields
+		sub.LocalScopes = ctx.scopes
 		c.resolveMembers(sub)
 		// The constructor of the anonymous class mirrors the target's
 		// signature and forwards to it; drop the synthesized default ctor.
@@ -1695,6 +1721,9 @@ func (ctx *methodCtx) checkNew(v *ast.New, want ast.Type) {
 		c.addCtor(sub, anonCtor)
 		c.layout(sub)
 		c.checkBodies(sub)
+		// captured locals become extra constructor parameters, passed by the
+		// `new` expression that created the class
+		c.addCaptureParams(sub, anonCtor)
 		t = &ast.ClassType{Class: sub}
 		v.Body = body
 		v.Ctor = anonCtor

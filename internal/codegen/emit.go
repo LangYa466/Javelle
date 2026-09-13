@@ -213,7 +213,7 @@ func (e *Emitter) structOf(cl *ast.Class) string {
 	for _, f := range cl.InstFields {
 		fmt.Fprintf(&b, "  %s f_%s;\n", e.ctype(f.Type), mangle(f.Name))
 	}
-	for _, v := range cl.CapFields {
+	for _, v := range e.prog.CapturedVars(cl) {
 		fmt.Fprintf(&b, "  %s cap_%s;\n", e.ctype(v.Type), mangle(v.Name))
 	}
 	b.WriteString("};\n")
@@ -278,7 +278,7 @@ func (e *Emitter) emitClassMeta(cl *ast.Class) {
 	fmt.Fprintf(&e.data, "static tyclass* if_%s[] = {%s};\n", mangle(cl.Full), strings.Join(ifs, ", "))
 	// reference field offsets, following the C struct layout with alignment
 	var capTypes []ast.Type
-	for _, v := range sortedCaps(cl) {
+	for _, v := range e.prog.CapturedVars(cl) {
 		capTypes = append(capTypes, v.Type)
 	}
 	refOffsets, isize := util.FieldLayout(cl.InstFields, capTypes)
@@ -335,13 +335,22 @@ func boxStruct(cl *ast.Class) string {
 	return "tyintbox"
 }
 
-func sortedCaps(cl *ast.Class) []*ast.Var {
-	var out []*ast.Var
-	for v := range cl.CapFields {
-		out = append(out, v)
+// bindCaptures points the captured variables of an anonymous class at the
+// fields its constructor filled, and returns a function restoring the previous
+// bindings.
+func (e *Emitter) bindCaptures(cl *ast.Class) func() {
+	var saved []*ast.Var
+	var prev []string
+	for _, v := range e.prog.CapturedVars(cl) {
+		saved = append(saved, v)
+		prev = append(prev, e.locals[v])
+		e.locals[v] = "this->cap_" + mangle(v.Name)
 	}
-	sort.Slice(out, func(i, j int) bool { return out[i].ID < out[j].ID })
-	return out
+	return func() {
+		for i, v := range saved {
+			e.locals[v] = prev[i]
+		}
+	}
 }
 
 func (e *Emitter) sizeOf(t ast.Type) int64 { return util.SizeOf(t) }
@@ -426,7 +435,11 @@ func (e *Emitter) emitMethod(cl *ast.Class, m *ast.Method, idx int) {
 	prevClass, prevRet := e.curClass, e.retType
 	e.curClass = cl
 	e.retType = m.Result
-	defer func() { e.curClass, e.retType = prevClass, prevRet }()
+	restore := e.bindCaptures(cl)
+	defer func() {
+		e.curClass, e.retType = prevClass, prevRet
+		restore()
+	}()
 	for i, pv := range m.ParamVars {
 		e.locals[pv] = fmt.Sprintf("a%d", i)
 	}
@@ -497,6 +510,16 @@ func (e *Emitter) emitCtorBody(cl *ast.Class, m *ast.Method) {
 	default:
 		if sup := e.findSuperCtor(cl); sup != nil {
 			e.line("%s(%s);\n", e.cfunc(sup), e.args("this", nil, sup))
+		}
+	}
+	// captured locals arrive as parameters trailing the forwarded ones
+	if m.SynthKind == "anon-ctor" {
+		base := 0
+		if m.Forward != nil {
+			base = len(m.Forward.Params)
+		}
+		for i, cv := range e.prog.CapturedVars(cl) {
+			e.line("this->cap_%s = a%d;\n", mangle(cv.Name), base+i)
 		}
 	}
 	// 3. instance field initializers run after the superclass constructor

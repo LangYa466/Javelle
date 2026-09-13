@@ -5,6 +5,7 @@ import (
 	"strconv"
 
 	"github.com/LangYa466/Teyru/internal/ast"
+	"github.com/LangYa466/Teyru/internal/util"
 )
 
 // Erased returns the runtime type of t (generics are erased at code generation).
@@ -103,8 +104,10 @@ func (p *Program) ConstantLiteral(f *ast.Field) (string, bool) {
 			return `"` + escapeC(v.s) + `"`, true
 		case ast.LitInt, ast.LitLong:
 			return strconv.FormatInt(v.i, 10), true
-		case ast.LitDouble, ast.LitFloat:
-			return strconv.FormatFloat(v.f, 'g', -1, 64), true
+		case ast.LitDouble:
+			return util.FloatLiteral(v.f, false), true
+		case ast.LitFloat:
+			return util.FloatLiteral(v.f, true), true
 		}
 	}
 	return "", false
@@ -165,6 +168,10 @@ func (p *Program) ArrayClass() *ast.Class {
 
 // ObjectClass returns the root class of the hierarchy.
 func (p *Program) ObjectClass() *ast.Class { return p.Builtins.Object }
+
+// CapturedVars lists the variables a lambda or anonymous class captures, in a
+// stable order shared by the checker and code generation.
+func (p *Program) CapturedVars(cl *ast.Class) []*ast.Var { return capturedVars(cl) }
 
 // WrapInOuter records that cl is an inner class holding an outer instance.
 func (p *Program) OuterFieldOf(cl *ast.Class) *ast.Field { return cl.OuterField }

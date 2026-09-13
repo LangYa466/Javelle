@@ -623,6 +623,42 @@ int32_t ty_str_charat(tystr *s, int32_t i) {
   return (unsigned char)s->data[i];
 }
 int32_t ty_str_contains(tystr *s, tystr *sub) { return ty_str_indexof(s, sub) >= 0; }
+/* Java semantics: trailing empty fields are dropped, and an empty separator
+   returns the whole string as the single element. */
+tyarr *ty_str_split(tystr *s, tystr *sep) {
+  if (!s || !sep) ty_npe();
+  if (sep->len == 0) {
+    tyarr *one = ty_array_new(1, 8);
+    one->refs = 1;
+    ((void **)one->data)[0] = ty_str_new(s->data, s->len);
+    return one;
+  }
+  int64_t count = 1, i = 0;
+  while (i + sep->len <= s->len) {
+    if (memcmp(s->data + i, sep->data, (size_t)sep->len) == 0) {
+      count++;
+      i += sep->len;
+    } else {
+      i++;
+    }
+  }
+  tyarr *out = ty_array_new(count, 8);
+  out->refs = 1;
+  int64_t start = 0, field = 0;
+  i = 0;
+  while (i + sep->len <= s->len) {
+    if (memcmp(s->data + i, sep->data, (size_t)sep->len) == 0) {
+      ((void **)out->data)[field++] = ty_str_new(s->data + start, i - start);
+      i += sep->len;
+      start = i;
+    } else {
+      i++;
+    }
+  }
+  ((void **)out->data)[field] = ty_str_new(s->data + start, s->len - start);
+  while (out->len > 0 && ((tystr **)out->data)[out->len - 1]->len == 0) out->len--;
+  return out;
+}
 int32_t ty_str_starts(tystr *s, tystr *p) {
   if (!s || !p) return 0;
   return p->len <= s->len && memcmp(s->data, p->data, (size_t)p->len) == 0;

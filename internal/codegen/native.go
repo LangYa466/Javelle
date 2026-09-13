@@ -42,6 +42,7 @@ var nativeTable = map[string]nativeFn{
 	"String.toLowerCase()":      {fn: "ty_str_lower", recv: "tystr*"},
 	"String.trim()":             {fn: "ty_str_trim", recv: "tystr*"},
 	"String.contains(String)":   {fn: "ty_str_contains", recv: "tystr*"},
+	"String.split(String)":      {fn: "ty_str_split", recv: "tystr*"},
 	"String.startsWith(String)": {fn: "ty_str_starts", recv: "tystr*"},
 	"String.endsWith(String)":   {fn: "ty_str_ends", recv: "tystr*"},
 	"String.replace(C,C)":       {fn: "ty_str_replace", recv: "tystr*"},

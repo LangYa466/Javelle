@@ -292,6 +292,7 @@ int32_t ty_object_equals(tyobj *a, tyobj *b);
 /* enum helpers */
 
 int32_t ty_div_int(int32_t a, int32_t b);
+tyarr *ty_str_split(tystr *s, tystr *sep);
 int64_t ty_div_long(int64_t a, int64_t b);
 int32_t ty_rem_int(int32_t a, int32_t b);
 int64_t ty_rem_long(int64_t a, int64_t b);

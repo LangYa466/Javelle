@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/LangYa466/Teyru/internal/ast"
+	"github.com/LangYa466/Teyru/internal/util"
 )
 
 // cstr returns a C string literal for s.
@@ -238,9 +239,9 @@ func (e *Emitter) literal(v *ast.Literal) string {
 	case ast.LitLong:
 		return fmt.Sprintf("%dLL", int64(v.Int))
 	case ast.LitFloat:
-		return fmt.Sprintf("%vf", v.Flt)
+		return util.FloatLiteral(v.Flt, true)
 	case ast.LitDouble:
-		return fmt.Sprintf("%v", v.Flt)
+		return util.FloatLiteral(v.Flt, false)
 	case ast.LitChar:
 		return fmt.Sprintf("((uint16_t)%d)", uint16(v.Int))
 	case ast.LitString:
@@ -663,20 +664,34 @@ func (e *Emitter) equality(v *ast.Binary, lt, rt ast.Type) string {
 	return "(" + e.expr(v.X) + " " + v.Op + " " + e.expr(v.Y) + ")"
 }
 
+// divExpr uses a runtime helper for integral division, which throws on a zero
+// divisor; floating point division follows IEEE 754 and yields an infinity or
+// NaN instead.
 func (e *Emitter) divExpr(v *ast.Binary) string {
 	x, y := e.operand(v.X, v.OpType), e.operand(v.Y, v.OpType)
-	if ast.IsPrim(v.OpType, ast.Long) {
+	switch {
+	case ast.IsPrim(v.OpType, ast.Long):
 		return "ty_div_long(" + x + ", " + y + ")"
+	case isFloating(v.OpType):
+		return "((" + x + ") / (" + y + "))"
 	}
 	return "ty_div_int(" + x + ", " + y + ")"
 }
 
 func (e *Emitter) remExpr(v *ast.Binary) string {
 	x, y := e.operand(v.X, v.OpType), e.operand(v.Y, v.OpType)
-	if ast.IsPrim(v.OpType, ast.Long) {
+	switch {
+	case ast.IsPrim(v.OpType, ast.Long):
 		return "ty_rem_long(" + x + ", " + y + ")"
+	case isFloating(v.OpType):
+		return "fmod(" + x + ", " + y + ")"
 	}
 	return "ty_rem_int(" + x + ", " + y + ")"
+}
+
+// isFloating reports whether a type is float or double.
+func isFloating(t ast.Type) bool {
+	return ast.IsPrim(t, ast.Double) || ast.IsPrim(t, ast.Float)
 }
 
 // concat renders Java string concatenation.
@@ -765,6 +780,14 @@ func (e *Emitter) assignInner(v *ast.Assign, lv string) string {
 	}
 	if op == "/" || op == "%" {
 		xt := v.X.GetType()
+		if isFloating(v.OpType) {
+			// floating point division and remainder never throw
+			call := "((" + lv + ") " + op + " (" + e.expr(v.Y) + "))"
+			if op == "%" {
+				call = "fmod(" + lv + ", " + e.expr(v.Y) + ")"
+			}
+			return "(" + lv + " = (" + e.ctype(xt) + ")" + call + ")"
+		}
 		fn := "ty_div_int"
 		if op == "%" {
 			fn = "ty_rem_int"
@@ -931,10 +954,27 @@ func (e *Emitter) newExpr(v *ast.New) string {
 	}
 	fmt.Fprintf(&b, " ty_clinit(&cls_%s);", mangle(cl.Full))
 	if v.Ctor != nil {
-		fmt.Fprintf(&b, " %s(%s);", e.cfunc(v.Ctor), e.args(n, v.Args, v.Ctor))
+		fmt.Fprintf(&b, " %s(%s);", e.cfunc(v.Ctor), e.argsWithCaptures(n, v, cl))
 	}
 	fmt.Fprintf(&b, " %s; })", n)
 	return b.String()
+}
+
+// argsWithCaptures builds the argument list of a constructor call. An
+// anonymous class captures the locals its body uses, and receives them as
+// trailing parameters after the ones forwarded to the superclass constructor.
+func (e *Emitter) argsWithCaptures(n string, v *ast.New, cl *ast.Class) string {
+	a := e.args(n, v.Args, v.Ctor)
+	if !cl.Anon {
+		return a
+	}
+	for _, cv := range e.prog.CapturedVars(cl) {
+		if a != "" {
+			a += ", "
+		}
+		a += e.coerce(e.localName(cv), cv.Type, cv.Type)
+	}
+	return a
 }
 
 func (e *Emitter) outerArg(v *ast.New) string {
@@ -1016,7 +1056,7 @@ func (e *Emitter) lambdaExpr(lam *ast.Lambda) string {
 	var b strings.Builder
 	fmt.Fprintf(&b, "({ %s %s = (%s)ty_alloc(sizeof(%s)); %s->obj.cls = &cls_%s;",
 		cname(cl)+"*", n, cname(cl)+"*", cname(cl), n, mangle(cl.Full))
-	for _, v := range sortedCaps(cl) {
+	for _, v := range e.prog.CapturedVars(cl) {
 		fmt.Fprintf(&b, " %s->cap_%s = %s;", n, mangle(v.Name), e.localName(v))
 	}
 	if lam.CapThis {
