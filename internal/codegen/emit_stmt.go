@@ -706,27 +706,85 @@ func (e *Emitter) bindExprPattern(v *ast.InstanceOf) string {
 	return n
 }
 
+// compBind is one variable of a record pattern and the expression that reads
+// its value out of the enclosing record.
+type compBind struct {
+	ct       string
+	name     string
+	accessor string
+}
+
+// planComponents walks a record pattern and returns the variables it binds,
+// with the accessor for each. Nested patterns get a temporary for the inner
+// record, declared before the variables read out of it.
+func (e *Emitter) planComponents(p *ast.Param, recv string) []compBind {
+	var out []compBind
+	var walk func(p *ast.Param, recv string)
+	walk = func(p *ast.Param, recv string) {
+		for i, sub := range p.Decomp {
+			if i >= len(p.Comps) {
+				return
+			}
+			comp := p.Comps[i]
+			accessor := fmt.Sprintf("(%s)->f_%s", recv, mangle(comp.Name))
+			if len(sub.Decomp) > 0 {
+				inner := e.tmpName()
+				out = append(out, compBind{e.ctype(comp.Type), inner, accessor})
+				walk(sub, inner)
+				continue
+			}
+			if sub.Sym == nil || sub.Unnamed {
+				continue
+			}
+			out = append(out, compBind{e.ctype(comp.Type), e.localName(sub.Sym), accessor})
+		}
+	}
+	walk(p, recv)
+	return out
+}
+
 // bindComponents extracts the record components of a record pattern.
 func (e *Emitter) bindComponents(p *ast.Param, recv string) {
-	for i, sub := range p.Decomp {
-		if i >= len(p.Comps) {
-			return
-		}
-		comp := p.Comps[i]
-		if len(sub.Decomp) > 0 {
-			inner := e.tmpName()
-			ct := e.ctype(comp.Type)
-			e.line("%s %s = (%s)(%s)->f_%s;\n", ct, inner, ct, recv, mangle(comp.Name))
-			e.bindComponents(sub, inner)
-			continue
-		}
-		if sub.Sym == nil || sub.Unnamed {
-			continue
-		}
-		ct := e.ctype(comp.Type)
-		e.locals[sub.Sym] = e.tmpName()
-		e.line("%s %s = (%s)(%s)->f_%s;\n", ct, e.locals[sub.Sym], ct, recv, mangle(comp.Name))
+	for _, b := range e.planComponents(p, recv) {
+		e.line("%s %s = %s;\n", b.ct, b.name, b.accessor)
 	}
+}
+
+// patternBind declares the variables of a case pattern with zero values, reads
+// them inside the type test, and returns the condition that says the pattern
+// matched. The caller must only use the variables under that condition: a value
+// that is not of the tested type is never read.
+func (e *Emitter) patternBind(cs *ast.Case, id int) string {
+	pat := cs.Pattern
+	src := fmt.Sprintf("((void*)_s%d)", id)
+	pred := fmt.Sprintf("ty_instanceof((void*)_s%d, %s)", id, e.classOf(pat.Type.Resolved))
+	ct := e.ctype(pat.Type.Resolved)
+	recv := e.tmpName()
+	e.line("%s %s = NULL;\n", ct, recv)
+	var binds []compBind
+	if len(pat.Decomp) > 0 {
+		binds = e.planComponents(pat, recv)
+	}
+	varName := ""
+	if len(pat.Decomp) == 0 && pat.Sym != nil && !pat.Unnamed {
+		varName = e.localName(pat.Sym)
+		e.line("%s %s = NULL;\n", ct, varName)
+	}
+	for _, b := range binds {
+		e.line("%s %s = %s;\n", b.ct, b.name, zeroOf(b.ct))
+	}
+	e.line("if (%s) {\n", pred)
+	e.indent++
+	e.line("%s = (%s)%s;\n", recv, ct, src)
+	if varName != "" {
+		e.line("%s = %s;\n", varName, recv)
+	}
+	for _, b := range binds {
+		e.line("%s = %s;\n", b.name, b.accessor)
+	}
+	e.indent--
+	e.line("}\n")
+	return fmt.Sprintf("(%s != NULL)", recv)
 }
 
 // clearPatterns drops the substitutions recorded for one controlling expression.
@@ -932,12 +990,20 @@ func (e *Emitter) caseCond(s *ast.Switch, cs *ast.Case, id int) string {
 	if cs.Guard == nil {
 		return cond
 	}
-	guard := e.expr(cs.Guard)
 	if cs.Pattern != nil {
-		inner := e.capture(func() { e.emitPatternBinding(cs, id) })
-		return fmt.Sprintf("({ %s (%s) && (%s); })", inner, cond, guard)
+		// The guard reads the pattern variables, so they have to exist before
+		// it runs. They are read inside the type test and the whole thing
+		// becomes the condition, which keeps a value of the wrong type from
+		// ever being dereferenced.
+		var guard string
+		var bound string
+		inner := e.capture(func() {
+			bound = e.patternBind(cs, id)
+			guard = e.expr(cs.Guard)
+		})
+		return fmt.Sprintf("({ %s (%s) && (%s); })", inner, bound, guard)
 	}
-	return "(" + cond + " && " + guard + ")"
+	return "(" + cond + " && " + e.expr(cs.Guard) + ")"
 }
 
 // classOf renders the class descriptor of a resolved type.
