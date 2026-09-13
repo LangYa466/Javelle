@@ -49,10 +49,17 @@ func superCall(name string, args ...ast.Expr) *ast.Call {
 		ExprBase: ast.ExprBase{Pos: pos()},
 		Recv:     &ast.SuperExpr{ExprBase: ast.ExprBase{Pos: pos()}},
 		Name:     name, Args: args, Super: true,
+		// `super(...)` chains a constructor; `super.m(...)` does not
+		ThisCtor: name == "<init>",
 	}
 }
 
 // callNew builds an unqualified resolved call: the checker fills in the target.
+// callNamed builds `recv.name(args...)` for the checker to resolve.
+func callNamed(recv ast.Expr, name string, args ...ast.Expr) *ast.Call {
+	return &ast.Call{ExprBase: ast.ExprBase{Pos: pos()}, Recv: recv, Name: name, Args: args}
+}
+
 func callNew(recv ast.Expr, name string, args ...ast.Expr) *ast.Call {
 	return &ast.Call{ExprBase: ast.ExprBase{Pos: pos()}, Recv: recv, Name: name, Args: args}
 }

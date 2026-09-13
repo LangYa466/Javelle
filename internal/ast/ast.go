@@ -627,11 +627,19 @@ type Field struct {
 	ConstVal any  // compile-time constant for static finals
 	EnumOrd  int
 	// annotation-driven members (Lombok compatibility)
-	NonNull     bool
-	Include     bool // @ToString.Include / @EqualsAndHashCode.Include
-	DefaultExpr Expr // @Builder.Default initializer
-	InitExpr    Expr // synthesized static initializer run from <clinit>
-	Anno        string
+	NonNull bool
+	// Singular marks a @Singular builder field: the builder accumulates into a
+	// collection instead of replacing it.
+	Singular     bool
+	SingularName string
+	// ObtainViaField and ObtainViaMethod let @Builder.ObtainVia tell the builder
+	// to read the value from somewhere other than the field itself.
+	ObtainViaField  string
+	ObtainViaMethod string
+	Include         bool // @ToString.Include / @EqualsAndHashCode.Include
+	DefaultExpr     Expr // @Builder.Default initializer
+	InitExpr        Expr // synthesized static initializer run from <clinit>
+	Anno            string
 }
 
 // Method is a method, constructor or accessor.

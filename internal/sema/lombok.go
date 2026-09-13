@@ -104,6 +104,22 @@ func annoString(a *ast.Annotation, name string) string {
 	return ""
 }
 
+// annoValueString reads the value-form argument of an annotation, as in
+// @Singular("fruit").
+func annoValueString(a *ast.Annotation) string {
+	if a == nil {
+		return ""
+	}
+	v := a.Value()
+	if v == nil {
+		return ""
+	}
+	if lit, ok := v.Value.(*ast.Literal); ok && lit.Kind == ast.LitString {
+		return lit.Str
+	}
+	return ""
+}
+
 // annoStringList reads a `String[]` argument such as `of = {"a", "b"}`.
 func annoStringList(a *ast.Annotation, name string) []string {
 	if a == nil {
@@ -263,15 +279,14 @@ func (c *Checker) applyLombok(cl *ast.Class) {
 		c.lombokCtor(cl, a, "none")
 	}
 	if a := hasAnno(classAnnos, "Builder", "SuperBuilder"); a != nil {
-		if a.Is("SuperBuilder") && cl.Super != nil && len(c.instanceAndStaticFields(cl.Super.Class)) > 0 {
-			c.errf(cl.Decl.Pos, "TY-INT-0003",
-				"@SuperBuilder cannot inherit builder fields from %s: declare them in a builder of the subclass or use a fieldless base class",
-				cl.Super.Class.Name)
+		if a.Is("SuperBuilder") {
+			c.lombokSuperBuilder(cl, a, classAnnos)
+		} else {
+			c.lombokBuilder(cl, a, classAnnos)
 		}
-		c.lombokBuilder(cl, a, classAnnos)
 	}
 	if a := hasAnno(classAnnos, "Singular"); a != nil {
-		c.errf(cl.Decl.Pos, "TY-INT-0004", "@Singular requires a collection type; the Teyru standard library provides none")
+		c.errf(cl.Decl.Pos, "TY-INT-0004", "@Singular goes on a builder field, not on the class")
 	}
 	if a := hasAnno(classAnnos, "StandardException"); a != nil && cl.Kind == ast.KindClass {
 		c.lombokStandardException(cl)
@@ -286,6 +301,13 @@ func (c *Checker) applyLombok(cl *ast.Class) {
 		c.lombokLog(cl, a)
 	}
 	c.lombokDelegates(cl)
+	if a := hasAnno(classAnnos, "CustomLog"); a != nil {
+		// Lombok reads lombok.log.custom.declaration for this one, and Teyru
+		// does not read lombok.config: say so instead of producing nothing.
+		c.errf(cl.Decl.Pos, "TY-INT-0006",
+			"@CustomLog needs lombok.config, which Teyru does not read; name a logger with @Log or declare the field yourself")
+		_ = a
+	}
 	if hasAnno(classAnnos, "Jacksonized") != nil {
 		// No Jackson serialization exists in Teyru; the annotation is accepted
 		// and has no effect (documented in docs/lombok.md).
@@ -429,6 +451,17 @@ func (c *Checker) lombokMembers(cl *ast.Class, accessors accessorsOptions, class
 				}
 				if hasAnno(d.Annos, "NonNull") != nil {
 					f.NonNull = true
+				}
+				if a := hasAnno(d.Annos, "ObtainVia"); a != nil {
+					f.ObtainViaField = annoString(a, "field")
+					f.ObtainViaMethod = annoString(a, "method")
+				}
+				if a := hasAnno(d.Annos, "Singular"); a != nil {
+					f.Singular = true
+					f.SingularName = annoValueString(a)
+					if f.SingularName == "" {
+						f.SingularName = annoString(a, "value")
+					}
 				}
 				if a := hasAnno(d.Annos, "With"); a != nil {
 					c.lombokWith(cl, f, a)
@@ -939,7 +972,16 @@ func (c *Checker) lombokFieldDefaults(cl *ast.Class, a *ast.Annotation) {
 
 // lombokBuilder generates a nested Builder class for @Builder.
 func (c *Checker) lombokBuilder(cl *ast.Class, a *ast.Annotation, classAnnos []*ast.Annotation) {
-	fields := c.ctorFields(cl, "all")
+	c.lombokBuilderFor(cl, a, classAnnos, nil)
+}
+
+// lombokBuilderFor generates a builder; fields overrides the set of fields the
+// builder covers, which @SuperBuilder uses to include the inherited ones.
+func (c *Checker) lombokBuilderFor(cl *ast.Class, a *ast.Annotation, classAnnos []*ast.Annotation, given []*ast.Field) {
+	fields := given
+	if fields == nil {
+		fields = c.ctorFields(cl, "all")
+	}
 	if len(fields) == 0 {
 		fields = c.instanceAndStaticFields(cl)
 	}
@@ -975,25 +1017,34 @@ func (c *Checker) lombokBuilder(cl *ast.Class, a *ast.Annotation, classAnnos []*
 
 	// the builder class itself
 	b := c.newBuilderClass(cl, builderName)
+	builderType := &ast.ClassType{Class: b}
 	for _, f := range fields {
 		bf := &ast.Field{Name: f.Name, Type: f.Type, Mods: ast.ModPrivate, Pos: pos(), Storage: true, Owner: b}
 		if f.Decl != nil && f.Decl.Init != nil {
 			bf.DefaultExpr = f.Decl.Init // @Builder.Default
 		}
 		c.addSynthField(b, bf)
+		if f.Singular {
+			c.lombokSingular(b, builderType, f, setterPrefix)
+			continue
+		}
 		// Builder field(T value) { this.f = value; return this }
 		body := blockOf(
 			exprStmtOf(assignTo(sel(&ast.This{ExprBase: ast.ExprBase{Pos: pos()}}, f.Name), id("value"))),
-			returnOf(&ast.This{ExprBase: ast.ExprBase{Pos: pos(), T: &ast.ClassType{Class: b}}}),
+			returnOf(&ast.This{ExprBase: ast.ExprBase{Pos: pos(), T: builderType}}),
 		)
-		bm := c.newSynthMethod(b, setterPrefix+f.Name, ast.ModPublic, &ast.ClassType{Class: b}, []ast.Type{f.Type}, []string{"value"}, body, "")
+		bm := c.newSynthMethod(b, setterPrefix+f.Name, ast.ModPublic, builderType, []ast.Type{f.Type}, []string{"value"}, body, "")
 		bm.Anno = "@Builder"
 		c.addSynthMethod(b, bm)
 	}
 	// build()
 	args := make([]ast.Expr, len(fields))
 	for i, f := range fields {
-		args[i] = sel(&ast.This{ExprBase: ast.ExprBase{Pos: pos()}}, f.Name)
+		args[i] = c.obtainExpr(f)
+		if f.Singular {
+			// @Singular: the built object gets its own copy, and never null
+			args[i] = callNamed(&ast.This{ExprBase: ast.ExprBase{Pos: pos()}}, c.singularCopyName(f))
+		}
 	}
 	build := c.newSynthMethod(b, buildName, ast.ModPublic, &ast.ClassType{Class: cl, Args: typeVarArgs(cl)}, nil, nil,
 		blockOf(returnOf(newObj(cl, args...))), "")
@@ -1024,6 +1075,293 @@ func (c *Checker) lombokBuilder(cl *ast.Class, a *ast.Annotation, classAnnos []*
 		}
 	}
 	c.layout(b)
+}
+
+// obtainExpr is how the builder reads a field for the object it builds:
+// normally the builder's own field, but @Builder.ObtainVia can redirect it to
+// another field or to a method.
+func (c *Checker) obtainExpr(f *ast.Field) ast.Expr {
+	this := &ast.This{ExprBase: ast.ExprBase{Pos: pos()}}
+	switch {
+	case f.ObtainViaMethod != "":
+		return callNamed(this, f.ObtainViaMethod)
+	case f.ObtainViaField != "":
+		return sel(this, f.ObtainViaField)
+	}
+	return sel(this, f.Name)
+}
+
+// singularKind reports how a @Singular field accumulates: it must be a List or
+// a Map the standard library knows how to build.
+func singularKind(t ast.Type) (elem []ast.Type, kind string) {
+	ct, ok := t.(*ast.ClassType)
+	if !ok || ct.Class == nil {
+		return nil, ""
+	}
+	name := ct.Class.Name
+	switch name {
+	case "List", "ArrayList", "Collection", "Iterable", "Set", "HashSet", "LinkedList":
+		if len(ct.Args) == 1 {
+			return ct.Args, "list"
+		}
+	case "Map", "HashMap", "SortedMap", "TreeMap", "LinkedHashMap":
+		if len(ct.Args) == 2 {
+			return ct.Args, "map"
+		}
+	}
+	return nil, ""
+}
+
+// lombokSingular generates the accumulating builder methods of a @Singular
+// field: one value at a time, a whole collection, and a clear.
+func (c *Checker) lombokSingular(b *ast.Class, builderType *ast.ClassType, f *ast.Field, setterPrefix string) {
+	elems, kind := singularKind(f.Type)
+	if kind == "" {
+		c.errf(pos(), "TY-INT-0005", "@Singular needs a List or Map field, found %s", f.Type)
+		return
+	}
+	this := func() ast.Expr { return &ast.This{ExprBase: ast.ExprBase{Pos: pos(), T: builderType}} }
+	field := func() ast.Expr { return sel(this(), f.Name) }
+	adder := f.SingularName
+	if adder == "" {
+		adder = "add" + strings.ToUpper(f.Name[:1]) + f.Name[1:]
+	}
+	if kind == "map" {
+		adder = f.Name
+	}
+	adder = setterPrefix + adder
+	clear := "clear" + strings.ToUpper(f.Name[:1]) + f.Name[1:]
+
+	// the collection is created on first use, so an untouched builder passes an
+	// empty one to the built object
+	var mkElem ast.Expr
+	if kind == "map" {
+		mkElem = newObj(c.b.Boxes[ast.Int], nil) // placeholder, replaced below
+		mkElem = c.newHashMapOf(elems)
+	} else {
+		mkElem = c.newArrayListOf(elems)
+	}
+	lazy := ifOf(isNull(field()), exprStmtOf(assignTo(field(), mkElem)), nil)
+
+	if kind == "map" {
+		// Builder key(K key, V value) { ...; this.f.put(key, value); return this }
+		body := blockOf(
+			lazy,
+			exprStmtOf(callNamed(field(), "put", id("key"), id("value"))),
+			returnOf(this()),
+		)
+		m := c.newSynthMethod(b, adder, ast.ModPublic, builderType, elems, []string{"key", "value"}, body, "")
+		m.Anno = "@Singular"
+		c.addSynthMethod(b, m)
+	} else {
+		// Builder value(E value) { ...; this.f.add(value); return this }
+		body := blockOf(
+			lazy,
+			exprStmtOf(callNamed(field(), "add", id("value"))),
+			returnOf(this()),
+		)
+		m := c.newSynthMethod(b, adder, ast.ModPublic, builderType, elems[:1], []string{"value"}, body, "")
+		m.Anno = "@Singular"
+		c.addSynthMethod(b, m)
+	}
+	// Builder addAllF(Collection<E> values) { ...; this.f.addAll(values); return this }
+	pushName := "addAll"
+	if kind == "map" {
+		pushName = "putAll"
+	}
+	all := c.newSynthMethod(b, adder+"All", ast.ModPublic, builderType, []ast.Type{f.Type}, []string{"values"},
+		blockOf(
+			lazy,
+			exprStmtOf(callNamed(field(), pushName, id("values"))),
+			returnOf(this()),
+		), "")
+	all.Anno = "@Singular"
+	c.addSynthMethod(b, all)
+	c.lombokSingularCopy(b, builderType, f)
+	// Builder clearF() { this.f = null; return this }
+	clr := c.newSynthMethod(b, clear, ast.ModPublic, builderType, nil, nil,
+		blockOf(
+			exprStmtOf(assignTo(field(), nullLit())),
+			returnOf(this()),
+		), "")
+	clr.Anno = "@Singular"
+	c.addSynthMethod(b, clr)
+}
+
+// singularCopyName is the builder helper that hands build() the collection of a
+// @Singular field: its own copy, and never null.
+func (c *Checker) singularCopyName(f *ast.Field) string {
+	return "$" + f.Name
+}
+
+// lombokSingularCopy generates that helper on the builder.
+func (c *Checker) lombokSingularCopy(b *ast.Class, builderType *ast.ClassType, f *ast.Field) {
+	elems, kind := singularKind(f.Type)
+	this := func() ast.Expr { return &ast.This{ExprBase: ast.ExprBase{Pos: pos(), T: builderType}} }
+	field := func() ast.Expr { return sel(this(), f.Name) }
+	var empty, copy ast.Expr
+	if kind == "map" {
+		empty, copy = c.newHashMapOf(elems), c.newMapCopy(elems, field())
+	} else {
+		empty, copy = c.newArrayListOf(elems), c.newListCopy(elems, field())
+	}
+	body := blockOf(
+		ifOf(isNull(field()), blockOf(returnOf(empty)), nil),
+		returnOf(copy),
+	)
+	m := c.newSynthMethod(b, c.singularCopyName(f), ast.ModPrivate, f.Type, nil, nil, body, "")
+	m.Anno = "@Singular"
+	c.addSynthMethod(b, m)
+}
+
+// newArrayListOf renders `new ArrayList<E>()`.
+func (c *Checker) newArrayListOf(elems []ast.Type) ast.Expr {
+	return c.newGenericOf(c.arrayListClass(), elems)
+}
+
+// newListCopy renders `new ArrayList<E>(source)`.
+func (c *Checker) newListCopy(elems []ast.Type, source ast.Expr) ast.Expr {
+	n := c.newGenericOf(c.arrayListClass(), elems).(*ast.New)
+	n.Args = []ast.Expr{source}
+	return n
+}
+
+// newHashMapOf renders `new HashMap<K, V>()`.
+func (c *Checker) newHashMapOf(elems []ast.Type) ast.Expr {
+	return c.newGenericOf(c.hashMapClass(), elems)
+}
+
+// newMapCopy renders `new HashMap<K, V>(source)`.
+func (c *Checker) newMapCopy(elems []ast.Type, source ast.Expr) ast.Expr {
+	n := c.newGenericOf(c.hashMapClass(), elems).(*ast.New)
+	n.Args = []ast.Expr{source}
+	return n
+}
+
+// newGenericOf renders `new Cls<A, B>(...)` for a class the standard library
+// provides.
+func (c *Checker) newGenericOf(cl *ast.Class, elems []ast.Type) ast.Expr {
+	if cl == nil {
+		return nullLit()
+	}
+	te := &ast.TypeExpr{Pos: pos(), Name: cl.Name, Resolved: &ast.ClassType{Class: cl, Args: elems}}
+	return &ast.New{
+		ExprBase: ast.ExprBase{Pos: pos(), T: &ast.ClassType{Class: cl, Args: elems}},
+		Type:     te,
+	}
+}
+
+// arrayListClass and hashMapClass find the standard library collections.
+func (c *Checker) arrayListClass() *ast.Class { return c.global["teyru.ArrayList"] }
+func (c *Checker) hashMapClass() *ast.Class   { return c.global["teyru.HashMap"] }
+
+// lombokSuperBuilder supports @SuperBuilder: the builder of a subclass covers
+// every field of the hierarchy, so a chain written against the subclass builds
+// a complete object.
+//
+// Lombok does this with a builder hierarchy whose methods are typed by a
+// self-referential type parameter. Teyru builds one flat builder instead: the
+// subclass builder takes the inherited fields too and hands them to the
+// subclass constructor, which passes the parent's share to the parent's
+// constructor. The chain reads the same, and no generics are involved.
+func (c *Checker) lombokSuperBuilder(cl *ast.Class, a *ast.Annotation, classAnnos []*ast.Annotation) {
+	chain := c.superChain(cl)
+	if len(chain) > 1 && !chain[0].Mods.Has(ast.ModAbstract) {
+		// the root has to accept the fields the subclass builder passes up
+		c.ensureAllArgsCtor(chain[0], true)
+	}
+	for i := 1; i < len(chain); i++ {
+		c.ensureAllArgsCtor(chain[i-1], true)
+	}
+	c.ensureAllArgsCtor(cl, false)
+	var own []*ast.Field
+	for _, f := range c.hierarchyFields(cl) {
+		if f.Decl != nil && f.Decl.Init != nil && f.Mods.Has(ast.ModFinal) {
+			continue
+		}
+		own = append(own, f)
+	}
+	c.lombokBuilderFor(cl, a, classAnnos, own)
+}
+
+// superChain lists the classes from the root of the hierarchy down to cl.
+func (c *Checker) superChain(cl *ast.Class) []*ast.Class {
+	var chain []*ast.Class
+	for k := cl; k != nil; k = astSuper(k) {
+		chain = append([]*ast.Class{k}, chain...)
+	}
+	return chain
+}
+
+func astSuper(cl *ast.Class) *ast.Class {
+	if cl.Super == nil || cl.Super.Class == nil || cl.Super.Class.Builtin {
+		return nil
+	}
+	return cl.Super.Class
+}
+
+// ensureAllArgsCtor gives a class the constructor a subclass builder needs: one
+// parameter per field of the whole hierarchy up to that class.
+func (c *Checker) ensureAllArgsCtor(cl *ast.Class, protected bool) {
+	fields := c.hierarchyFields(cl)
+	for _, ctor := range cl.Ctors {
+		if len(ctor.Params) == len(fields) {
+			return
+		}
+	}
+	mods := ast.ModPublic
+	if protected {
+		mods = ast.ModProtected
+	}
+	m := &ast.Method{Name: "<init>", Owner: cl, IsCtor: true, Mods: mods, Result: ast.TVoid, Pos: pos()}
+	var stmts []ast.Stmt
+	sup := astSuper(cl)
+	// chain to the parent with its share of the parameters
+	if sup != nil {
+		var args []ast.Expr
+		for _, f := range c.hierarchyFields(sup) {
+			args = append(args, id(f.Name))
+		}
+		if len(args) > 0 {
+			stmts = append(stmts, exprStmtOf(superCall("<init>", args...)))
+		}
+	}
+	for _, f := range fields {
+		m.Params = append(m.Params, f.Type)
+		m.ParamNames = append(m.ParamNames, f.Name)
+		if !c.hierarchyFieldOf(sup, f) {
+			stmts = append(stmts, exprStmtOf(assignTo(thisField(f), id(f.Name))))
+		}
+	}
+	m.Body = blockOf(stmts...)
+	c.addSynthCtor(cl, m)
+}
+
+// hierarchyFields lists the instance fields of a class and its ancestors, in the
+// order a constructor takes them.
+func (c *Checker) hierarchyFields(cl *ast.Class) []*ast.Field {
+	var out []*ast.Field
+	for _, k := range c.superChain(cl) {
+		for _, f := range c.instanceAndStaticFields(k) {
+			if f.Mods.Has(ast.ModStatic) || f.IsProp {
+				continue
+			}
+			out = append(out, f)
+		}
+	}
+	return out
+}
+
+func (c *Checker) hierarchyFieldOf(cl *ast.Class, f *ast.Field) bool {
+	if cl == nil {
+		return false
+	}
+	for _, k := range c.hierarchyFields(cl) {
+		if k == f {
+			return true
+		}
+	}
+	return false
 }
 
 func stmtsFrom(b *ast.Block) []ast.Stmt {
