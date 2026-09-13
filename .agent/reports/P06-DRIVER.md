@@ -21,7 +21,7 @@
 2. `./gradlew --no-daemon --dependency-verification=strict verifyQuick`
    - Exit 0; `VERIFY_QUICK_PASS`; 79 tasks.
 
-The tests compile generated Javelle Java jointly with a handwritten Java consumer, launch the consumer in a separate JVM (`Ada`, exit 0), compile a direct-private-field Java negative, map a generated javac error back to its Javelle origin, exercise releases 21 and 25, compare repeated Java/manifest bytes, reject processors/future releases/cancelled requests, remove stale owned files, preserve foreign files, reject foreign collisions/nested roots, and assert staging cleanup.
+The tests compile generated Teyru Java jointly with a handwritten Java consumer, launch the consumer in a separate JVM (`Ada`, exit 0), compile a direct-private-field Java negative, map a generated javac error back to its Teyru origin, exercise releases 21 and 25, compare repeated Java/manifest bytes, reject processors/future releases/cancelled requests, remove stale owned files, preserve foreign files, reject foreign collisions/nested roots, and assert staging cleanup.
 
 ## Review risks
 

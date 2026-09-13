@@ -23,7 +23,7 @@
       },
       "applicability": {
         "status": "APPLICABLE",
-        "reason": "Protocol method remains subject to Javelle implementation and capability negotiation."
+        "reason": "Protocol method remains subject to Teyru implementation and capability negotiation."
       },
       "source": "LSP-3.18.2-metaModel+LSP4J-1.0.0-sources"
     },
@@ -40,7 +40,7 @@
       },
       "applicability": {
         "status": "APPLICABLE",
-        "reason": "Protocol method remains subject to Javelle implementation and capability negotiation."
+        "reason": "Protocol method remains subject to Teyru implementation and capability negotiation."
       },
       "source": "LSP-3.18.2-metaModel+LSP4J-1.0.0-sources"
     },
@@ -57,7 +57,7 @@
       },
       "applicability": {
         "status": "APPLICABLE",
-        "reason": "Protocol method remains subject to Javelle implementation and capability negotiation."
+        "reason": "Protocol method remains subject to Teyru implementation and capability negotiation."
       },
       "source": "LSP-3.18.2-metaModel+LSP4J-1.0.0-sources"
     },
@@ -74,7 +74,7 @@
       },
       "applicability": {
         "status": "APPLICABLE",
-        "reason": "Protocol method remains subject to Javelle implementation and capability negotiation."
+        "reason": "Protocol method remains subject to Teyru implementation and capability negotiation."
       },
       "source": "LSP-3.18.2-metaModel+LSP4J-1.0.0-sources"
     },
@@ -91,7 +91,7 @@
       },
       "applicability": {
         "status": "APPLICABLE",
-        "reason": "Protocol method remains subject to Javelle implementation and capability negotiation."
+        "reason": "Protocol method remains subject to Teyru implementation and capability negotiation."
       },
       "source": "LSP-3.18.2-metaModel+LSP4J-1.0.0-sources"
     },
@@ -108,7 +108,7 @@
       },
       "applicability": {
         "status": "APPLICABLE",
-        "reason": "Protocol method remains subject to Javelle implementation and capability negotiation."
+        "reason": "Protocol method remains subject to Teyru implementation and capability negotiation."
       },
       "source": "LSP-3.18.2-metaModel+LSP4J-1.0.0-sources"
     },
@@ -125,7 +125,7 @@
       },
       "applicability": {
         "status": "APPLICABLE",
-        "reason": "Protocol method remains subject to Javelle implementation and capability negotiation."
+        "reason": "Protocol method remains subject to Teyru implementation and capability negotiation."
       },
       "source": "LSP-3.18.2-metaModel+LSP4J-1.0.0-sources"
     },
@@ -142,7 +142,7 @@
       },
       "applicability": {
         "status": "APPLICABLE",
-        "reason": "Protocol method remains subject to Javelle implementation and capability negotiation."
+        "reason": "Protocol method remains subject to Teyru implementation and capability negotiation."
       },
       "source": "LSP-3.18.2-metaModel+LSP4J-1.0.0-sources"
     },
@@ -159,7 +159,7 @@
       },
       "applicability": {
         "status": "APPLICABLE",
-        "reason": "Protocol method remains subject to Javelle implementation and capability negotiation."
+        "reason": "Protocol method remains subject to Teyru implementation and capability negotiation."
       },
       "source": "LSP-3.18.2-metaModel+LSP4J-1.0.0-sources"
     },
@@ -176,7 +176,7 @@
       },
       "applicability": {
         "status": "APPLICABLE",
-        "reason": "Protocol method remains subject to Javelle implementation and capability negotiation."
+        "reason": "Protocol method remains subject to Teyru implementation and capability negotiation."
       },
       "source": "LSP-3.18.2-metaModel+LSP4J-1.0.0-sources"
     },
@@ -193,7 +193,7 @@
       },
       "applicability": {
         "status": "APPLICABLE",
-        "reason": "Protocol method remains subject to Javelle implementation and capability negotiation."
+        "reason": "Protocol method remains subject to Teyru implementation and capability negotiation."
       },
       "source": "LSP-3.18.2-metaModel+LSP4J-1.0.0-sources"
     },
@@ -210,7 +210,7 @@
       },
       "applicability": {
         "status": "APPLICABLE",
-        "reason": "Protocol method remains subject to Javelle implementation and capability negotiation."
+        "reason": "Protocol method remains subject to Teyru implementation and capability negotiation."
       },
       "source": "LSP-3.18.2-metaModel+LSP4J-1.0.0-sources"
     },
@@ -227,7 +227,7 @@
       },
       "applicability": {
         "status": "APPLICABLE",
-        "reason": "Protocol method remains subject to Javelle implementation and capability negotiation."
+        "reason": "Protocol method remains subject to Teyru implementation and capability negotiation."
       },
       "source": "LSP-3.18.2-metaModel+LSP4J-1.0.0-sources"
     },
@@ -244,7 +244,7 @@
       },
       "applicability": {
         "status": "APPLICABLE",
-        "reason": "Protocol method remains subject to Javelle implementation and capability negotiation."
+        "reason": "Protocol method remains subject to Teyru implementation and capability negotiation."
       },
       "source": "LSP-3.18.2-metaModel+LSP4J-1.0.0-sources"
     },
@@ -261,7 +261,7 @@
       },
       "applicability": {
         "status": "APPLICABLE",
-        "reason": "Protocol method remains subject to Javelle implementation and capability negotiation."
+        "reason": "Protocol method remains subject to Teyru implementation and capability negotiation."
       },
       "source": "LSP-3.18.2-metaModel+LSP4J-1.0.0-sources"
     },
@@ -278,7 +278,7 @@
       },
       "applicability": {
         "status": "APPLICABLE",
-        "reason": "Protocol method remains subject to Javelle implementation and capability negotiation."
+        "reason": "Protocol method remains subject to Teyru implementation and capability negotiation."
       },
       "source": "LSP-3.18.2-metaModel+LSP4J-1.0.0-sources"
     },
@@ -295,7 +295,7 @@
       },
       "applicability": {
         "status": "N/A_WITH_REASON",
-        "reason": "Javelle has no notebook document host; do not register notebook sync."
+        "reason": "Teyru has no notebook document host; do not register notebook sync."
       },
       "source": "LSP-3.18.2-metaModel+LSP4J-1.0.0-sources"
     },
@@ -312,7 +312,7 @@
       },
       "applicability": {
         "status": "N/A_WITH_REASON",
-        "reason": "Javelle has no notebook document host; do not register notebook sync."
+        "reason": "Teyru has no notebook document host; do not register notebook sync."
       },
       "source": "LSP-3.18.2-metaModel+LSP4J-1.0.0-sources"
     },
@@ -329,7 +329,7 @@
       },
       "applicability": {
         "status": "N/A_WITH_REASON",
-        "reason": "Javelle has no notebook document host; do not register notebook sync."
+        "reason": "Teyru has no notebook document host; do not register notebook sync."
       },
       "source": "LSP-3.18.2-metaModel+LSP4J-1.0.0-sources"
     },
@@ -346,7 +346,7 @@
       },
       "applicability": {
         "status": "N/A_WITH_REASON",
-        "reason": "Javelle has no notebook document host; do not register notebook sync."
+        "reason": "Teyru has no notebook document host; do not register notebook sync."
       },
       "source": "LSP-3.18.2-metaModel+LSP4J-1.0.0-sources"
     },
@@ -363,7 +363,7 @@
       },
       "applicability": {
         "status": "APPLICABLE",
-        "reason": "Protocol method remains subject to Javelle implementation and capability negotiation."
+        "reason": "Protocol method remains subject to Teyru implementation and capability negotiation."
       },
       "source": "LSP-3.18.2-metaModel+LSP4J-1.0.0-sources"
     },
@@ -380,7 +380,7 @@
       },
       "applicability": {
         "status": "APPLICABLE",
-        "reason": "Protocol method remains subject to Javelle implementation and capability negotiation."
+        "reason": "Protocol method remains subject to Teyru implementation and capability negotiation."
       },
       "source": "LSP-3.18.2-metaModel+LSP4J-1.0.0-sources"
     },
@@ -397,7 +397,7 @@
       },
       "applicability": {
         "status": "APPLICABLE",
-        "reason": "Protocol method remains subject to Javelle implementation and capability negotiation."
+        "reason": "Protocol method remains subject to Teyru implementation and capability negotiation."
       },
       "source": "LSP-3.18.2-metaModel+LSP4J-1.0.0-sources"
     },
@@ -414,7 +414,7 @@
       },
       "applicability": {
         "status": "APPLICABLE",
-        "reason": "Protocol method remains subject to Javelle implementation and capability negotiation."
+        "reason": "Protocol method remains subject to Teyru implementation and capability negotiation."
       },
       "source": "LSP-3.18.2-metaModel+LSP4J-1.0.0-sources"
     },
@@ -431,7 +431,7 @@
       },
       "applicability": {
         "status": "N/A_WITH_REASON",
-        "reason": "Javelle defines no color literal/editor color provider semantics; do not advertise documentColorProvider."
+        "reason": "Teyru defines no color literal/editor color provider semantics; do not advertise documentColorProvider."
       },
       "source": "LSP-3.18.2-metaModel+LSP4J-1.0.0-sources"
     },
@@ -448,7 +448,7 @@
       },
       "applicability": {
         "status": "APPLICABLE",
-        "reason": "Protocol method remains subject to Javelle implementation and capability negotiation."
+        "reason": "Protocol method remains subject to Teyru implementation and capability negotiation."
       },
       "source": "LSP-3.18.2-metaModel+LSP4J-1.0.0-sources"
     },
@@ -465,7 +465,7 @@
       },
       "applicability": {
         "status": "APPLICABLE",
-        "reason": "Protocol method remains subject to Javelle implementation and capability negotiation."
+        "reason": "Protocol method remains subject to Teyru implementation and capability negotiation."
       },
       "source": "LSP-3.18.2-metaModel+LSP4J-1.0.0-sources"
     },
@@ -482,7 +482,7 @@
       },
       "applicability": {
         "status": "APPLICABLE",
-        "reason": "Protocol method remains subject to Javelle implementation and capability negotiation."
+        "reason": "Protocol method remains subject to Teyru implementation and capability negotiation."
       },
       "source": "LSP-3.18.2-metaModel+LSP4J-1.0.0-sources"
     },
@@ -499,7 +499,7 @@
       },
       "applicability": {
         "status": "APPLICABLE",
-        "reason": "Protocol method remains subject to Javelle implementation and capability negotiation."
+        "reason": "Protocol method remains subject to Teyru implementation and capability negotiation."
       },
       "source": "LSP-3.18.2-metaModel+LSP4J-1.0.0-sources"
     },
@@ -516,7 +516,7 @@
       },
       "applicability": {
         "status": "APPLICABLE",
-        "reason": "Protocol method remains subject to Javelle implementation and capability negotiation."
+        "reason": "Protocol method remains subject to Teyru implementation and capability negotiation."
       },
       "source": "LSP-3.18.2-metaModel+LSP4J-1.0.0-sources"
     },
@@ -533,7 +533,7 @@
       },
       "applicability": {
         "status": "APPLICABLE",
-        "reason": "Protocol method remains subject to Javelle implementation and capability negotiation."
+        "reason": "Protocol method remains subject to Teyru implementation and capability negotiation."
       },
       "source": "LSP-3.18.2-metaModel+LSP4J-1.0.0-sources"
     },
@@ -550,7 +550,7 @@
       },
       "applicability": {
         "status": "APPLICABLE",
-        "reason": "Protocol method remains subject to Javelle implementation and capability negotiation."
+        "reason": "Protocol method remains subject to Teyru implementation and capability negotiation."
       },
       "source": "LSP-3.18.2-metaModel+LSP4J-1.0.0-sources"
     },
@@ -567,7 +567,7 @@
       },
       "applicability": {
         "status": "APPLICABLE",
-        "reason": "Protocol method remains subject to Javelle implementation and capability negotiation."
+        "reason": "Protocol method remains subject to Teyru implementation and capability negotiation."
       },
       "source": "LSP-3.18.2-metaModel+LSP4J-1.0.0-sources"
     },
@@ -584,7 +584,7 @@
       },
       "applicability": {
         "status": "N/A_WITH_REASON",
-        "reason": "Javelle defines no color literal/editor color provider semantics; do not advertise documentColorProvider."
+        "reason": "Teyru defines no color literal/editor color provider semantics; do not advertise documentColorProvider."
       },
       "source": "LSP-3.18.2-metaModel+LSP4J-1.0.0-sources"
     },
@@ -601,7 +601,7 @@
       },
       "applicability": {
         "status": "APPLICABLE",
-        "reason": "Protocol method remains subject to Javelle implementation and capability negotiation."
+        "reason": "Protocol method remains subject to Teyru implementation and capability negotiation."
       },
       "source": "LSP-3.18.2-metaModel+LSP4J-1.0.0-sources"
     },
@@ -618,7 +618,7 @@
       },
       "applicability": {
         "status": "APPLICABLE",
-        "reason": "Protocol method remains subject to Javelle implementation and capability negotiation."
+        "reason": "Protocol method remains subject to Teyru implementation and capability negotiation."
       },
       "source": "LSP-3.18.2-metaModel+LSP4J-1.0.0-sources"
     },
@@ -635,7 +635,7 @@
       },
       "applicability": {
         "status": "APPLICABLE",
-        "reason": "Protocol method remains subject to Javelle implementation and capability negotiation."
+        "reason": "Protocol method remains subject to Teyru implementation and capability negotiation."
       },
       "source": "LSP-3.18.2-metaModel+LSP4J-1.0.0-sources"
     },
@@ -652,7 +652,7 @@
       },
       "applicability": {
         "status": "APPLICABLE",
-        "reason": "Protocol method remains subject to Javelle implementation and capability negotiation."
+        "reason": "Protocol method remains subject to Teyru implementation and capability negotiation."
       },
       "source": "LSP-3.18.2-metaModel+LSP4J-1.0.0-sources"
     },
@@ -669,7 +669,7 @@
       },
       "applicability": {
         "status": "APPLICABLE",
-        "reason": "Protocol method remains subject to Javelle implementation and capability negotiation."
+        "reason": "Protocol method remains subject to Teyru implementation and capability negotiation."
       },
       "source": "LSP-3.18.2-metaModel+LSP4J-1.0.0-sources"
     },
@@ -686,7 +686,7 @@
       },
       "applicability": {
         "status": "APPLICABLE",
-        "reason": "Protocol method remains subject to Javelle implementation and capability negotiation."
+        "reason": "Protocol method remains subject to Teyru implementation and capability negotiation."
       },
       "source": "LSP-3.18.2-metaModel+LSP4J-1.0.0-sources"
     },
@@ -703,7 +703,7 @@
       },
       "applicability": {
         "status": "APPLICABLE",
-        "reason": "Protocol method remains subject to Javelle implementation and capability negotiation."
+        "reason": "Protocol method remains subject to Teyru implementation and capability negotiation."
       },
       "source": "LSP-3.18.2-metaModel+LSP4J-1.0.0-sources"
     },
@@ -720,7 +720,7 @@
       },
       "applicability": {
         "status": "APPLICABLE",
-        "reason": "Protocol method remains subject to Javelle implementation and capability negotiation."
+        "reason": "Protocol method remains subject to Teyru implementation and capability negotiation."
       },
       "source": "LSP-3.18.2-metaModel+LSP4J-1.0.0-sources"
     },
@@ -737,7 +737,7 @@
       },
       "applicability": {
         "status": "APPLICABLE",
-        "reason": "Protocol method remains subject to Javelle implementation and capability negotiation."
+        "reason": "Protocol method remains subject to Teyru implementation and capability negotiation."
       },
       "source": "LSP-3.18.2-metaModel+LSP4J-1.0.0-sources"
     },
@@ -771,7 +771,7 @@
       },
       "applicability": {
         "status": "APPLICABLE",
-        "reason": "Protocol method remains subject to Javelle implementation and capability negotiation."
+        "reason": "Protocol method remains subject to Teyru implementation and capability negotiation."
       },
       "source": "LSP-3.18.2-metaModel+LSP4J-1.0.0-sources"
     },
@@ -788,7 +788,7 @@
       },
       "applicability": {
         "status": "APPLICABLE",
-        "reason": "Protocol method remains subject to Javelle implementation and capability negotiation."
+        "reason": "Protocol method remains subject to Teyru implementation and capability negotiation."
       },
       "source": "LSP-3.18.2-metaModel+LSP4J-1.0.0-sources"
     },
@@ -805,7 +805,7 @@
       },
       "applicability": {
         "status": "APPLICABLE",
-        "reason": "Protocol method remains subject to Javelle implementation and capability negotiation."
+        "reason": "Protocol method remains subject to Teyru implementation and capability negotiation."
       },
       "source": "LSP-3.18.2-metaModel+LSP4J-1.0.0-sources"
     },
@@ -822,7 +822,7 @@
       },
       "applicability": {
         "status": "APPLICABLE",
-        "reason": "Protocol method remains subject to Javelle implementation and capability negotiation."
+        "reason": "Protocol method remains subject to Teyru implementation and capability negotiation."
       },
       "source": "LSP-3.18.2-metaModel+LSP4J-1.0.0-sources"
     },
@@ -839,7 +839,7 @@
       },
       "applicability": {
         "status": "APPLICABLE",
-        "reason": "Protocol method remains subject to Javelle implementation and capability negotiation."
+        "reason": "Protocol method remains subject to Teyru implementation and capability negotiation."
       },
       "source": "LSP-3.18.2-metaModel+LSP4J-1.0.0-sources"
     },
@@ -856,7 +856,7 @@
       },
       "applicability": {
         "status": "APPLICABLE",
-        "reason": "Protocol method remains subject to Javelle implementation and capability negotiation."
+        "reason": "Protocol method remains subject to Teyru implementation and capability negotiation."
       },
       "source": "LSP-3.18.2-metaModel+LSP4J-1.0.0-sources"
     },
@@ -873,7 +873,7 @@
       },
       "applicability": {
         "status": "APPLICABLE",
-        "reason": "Protocol method remains subject to Javelle implementation and capability negotiation."
+        "reason": "Protocol method remains subject to Teyru implementation and capability negotiation."
       },
       "source": "LSP-3.18.2-metaModel+LSP4J-1.0.0-sources"
     },
@@ -890,7 +890,7 @@
       },
       "applicability": {
         "status": "APPLICABLE",
-        "reason": "Protocol method remains subject to Javelle implementation and capability negotiation."
+        "reason": "Protocol method remains subject to Teyru implementation and capability negotiation."
       },
       "source": "LSP-3.18.2-metaModel+LSP4J-1.0.0-sources"
     },
@@ -907,7 +907,7 @@
       },
       "applicability": {
         "status": "APPLICABLE",
-        "reason": "Protocol method remains subject to Javelle implementation and capability negotiation."
+        "reason": "Protocol method remains subject to Teyru implementation and capability negotiation."
       },
       "source": "LSP-3.18.2-metaModel+LSP4J-1.0.0-sources"
     },
@@ -924,7 +924,7 @@
       },
       "applicability": {
         "status": "APPLICABLE",
-        "reason": "Protocol method remains subject to Javelle implementation and capability negotiation."
+        "reason": "Protocol method remains subject to Teyru implementation and capability negotiation."
       },
       "source": "LSP-3.18.2-metaModel+LSP4J-1.0.0-sources"
     },
@@ -941,7 +941,7 @@
       },
       "applicability": {
         "status": "APPLICABLE",
-        "reason": "Protocol method remains subject to Javelle implementation and capability negotiation."
+        "reason": "Protocol method remains subject to Teyru implementation and capability negotiation."
       },
       "source": "LSP-3.18.2-metaModel+LSP4J-1.0.0-sources"
     },
@@ -958,7 +958,7 @@
       },
       "applicability": {
         "status": "APPLICABLE",
-        "reason": "Protocol method remains subject to Javelle implementation and capability negotiation."
+        "reason": "Protocol method remains subject to Teyru implementation and capability negotiation."
       },
       "source": "LSP-3.18.2-metaModel+LSP4J-1.0.0-sources"
     },
@@ -975,7 +975,7 @@
       },
       "applicability": {
         "status": "APPLICABLE",
-        "reason": "Protocol method remains subject to Javelle implementation and capability negotiation."
+        "reason": "Protocol method remains subject to Teyru implementation and capability negotiation."
       },
       "source": "LSP-3.18.2-metaModel+LSP4J-1.0.0-sources"
     },
@@ -992,7 +992,7 @@
       },
       "applicability": {
         "status": "APPLICABLE",
-        "reason": "Protocol method remains subject to Javelle implementation and capability negotiation."
+        "reason": "Protocol method remains subject to Teyru implementation and capability negotiation."
       },
       "source": "LSP-3.18.2-metaModel+LSP4J-1.0.0-sources"
     },
@@ -1009,7 +1009,7 @@
       },
       "applicability": {
         "status": "APPLICABLE",
-        "reason": "Protocol method remains subject to Javelle implementation and capability negotiation."
+        "reason": "Protocol method remains subject to Teyru implementation and capability negotiation."
       },
       "source": "LSP-3.18.2-metaModel+LSP4J-1.0.0-sources"
     },
@@ -1026,7 +1026,7 @@
       },
       "applicability": {
         "status": "APPLICABLE",
-        "reason": "Protocol method remains subject to Javelle implementation and capability negotiation."
+        "reason": "Protocol method remains subject to Teyru implementation and capability negotiation."
       },
       "source": "LSP-3.18.2-metaModel+LSP4J-1.0.0-sources"
     },
@@ -1043,7 +1043,7 @@
       },
       "applicability": {
         "status": "APPLICABLE",
-        "reason": "Protocol method remains subject to Javelle implementation and capability negotiation."
+        "reason": "Protocol method remains subject to Teyru implementation and capability negotiation."
       },
       "source": "LSP-3.18.2-metaModel+LSP4J-1.0.0-sources"
     },
@@ -1060,7 +1060,7 @@
       },
       "applicability": {
         "status": "APPLICABLE",
-        "reason": "Protocol method remains subject to Javelle implementation and capability negotiation."
+        "reason": "Protocol method remains subject to Teyru implementation and capability negotiation."
       },
       "source": "LSP-3.18.2-metaModel+LSP4J-1.0.0-sources"
     },
@@ -1077,7 +1077,7 @@
       },
       "applicability": {
         "status": "APPLICABLE",
-        "reason": "Protocol method remains subject to Javelle implementation and capability negotiation."
+        "reason": "Protocol method remains subject to Teyru implementation and capability negotiation."
       },
       "source": "LSP-3.18.2-metaModel+LSP4J-1.0.0-sources"
     },
@@ -1094,7 +1094,7 @@
       },
       "applicability": {
         "status": "APPLICABLE",
-        "reason": "Protocol method remains subject to Javelle implementation and capability negotiation."
+        "reason": "Protocol method remains subject to Teyru implementation and capability negotiation."
       },
       "source": "LSP-3.18.2-metaModel+LSP4J-1.0.0-sources"
     },
@@ -1111,7 +1111,7 @@
       },
       "applicability": {
         "status": "APPLICABLE",
-        "reason": "Protocol method remains subject to Javelle implementation and capability negotiation."
+        "reason": "Protocol method remains subject to Teyru implementation and capability negotiation."
       },
       "source": "LSP-3.18.2-metaModel+LSP4J-1.0.0-sources"
     },
@@ -1128,7 +1128,7 @@
       },
       "applicability": {
         "status": "APPLICABLE",
-        "reason": "Protocol method remains subject to Javelle implementation and capability negotiation."
+        "reason": "Protocol method remains subject to Teyru implementation and capability negotiation."
       },
       "source": "LSP-3.18.2-metaModel+LSP4J-1.0.0-sources"
     },
@@ -1145,7 +1145,7 @@
       },
       "applicability": {
         "status": "APPLICABLE",
-        "reason": "Protocol method remains subject to Javelle implementation and capability negotiation."
+        "reason": "Protocol method remains subject to Teyru implementation and capability negotiation."
       },
       "source": "LSP-3.18.2-metaModel+LSP4J-1.0.0-sources"
     },
@@ -1162,7 +1162,7 @@
       },
       "applicability": {
         "status": "APPLICABLE",
-        "reason": "Protocol method remains subject to Javelle implementation and capability negotiation."
+        "reason": "Protocol method remains subject to Teyru implementation and capability negotiation."
       },
       "source": "LSP-3.18.2-metaModel+LSP4J-1.0.0-sources"
     },
@@ -1179,7 +1179,7 @@
       },
       "applicability": {
         "status": "APPLICABLE",
-        "reason": "Protocol method remains subject to Javelle implementation and capability negotiation."
+        "reason": "Protocol method remains subject to Teyru implementation and capability negotiation."
       },
       "source": "LSP-3.18.2-metaModel+LSP4J-1.0.0-sources"
     },
@@ -1196,7 +1196,7 @@
       },
       "applicability": {
         "status": "APPLICABLE",
-        "reason": "Protocol method remains subject to Javelle implementation and capability negotiation."
+        "reason": "Protocol method remains subject to Teyru implementation and capability negotiation."
       },
       "source": "LSP-3.18.2-metaModel+LSP4J-1.0.0-sources"
     },
@@ -1213,7 +1213,7 @@
       },
       "applicability": {
         "status": "APPLICABLE",
-        "reason": "Protocol method remains subject to Javelle implementation and capability negotiation."
+        "reason": "Protocol method remains subject to Teyru implementation and capability negotiation."
       },
       "source": "LSP-3.18.2-metaModel+LSP4J-1.0.0-sources"
     },
@@ -1230,7 +1230,7 @@
       },
       "applicability": {
         "status": "APPLICABLE",
-        "reason": "Protocol method remains subject to Javelle implementation and capability negotiation."
+        "reason": "Protocol method remains subject to Teyru implementation and capability negotiation."
       },
       "source": "LSP-3.18.2-metaModel+LSP4J-1.0.0-sources"
     },
@@ -1247,7 +1247,7 @@
       },
       "applicability": {
         "status": "APPLICABLE",
-        "reason": "Protocol method remains subject to Javelle implementation and capability negotiation."
+        "reason": "Protocol method remains subject to Teyru implementation and capability negotiation."
       },
       "source": "LSP-3.18.2-metaModel+LSP4J-1.0.0-sources"
     },
@@ -1264,7 +1264,7 @@
       },
       "applicability": {
         "status": "APPLICABLE",
-        "reason": "Protocol method remains subject to Javelle implementation and capability negotiation."
+        "reason": "Protocol method remains subject to Teyru implementation and capability negotiation."
       },
       "source": "LSP-3.18.2-metaModel+LSP4J-1.0.0-sources"
     },
@@ -1281,7 +1281,7 @@
       },
       "applicability": {
         "status": "APPLICABLE",
-        "reason": "Protocol method remains subject to Javelle implementation and capability negotiation."
+        "reason": "Protocol method remains subject to Teyru implementation and capability negotiation."
       },
       "source": "LSP-3.18.2-metaModel+LSP4J-1.0.0-sources"
     },
@@ -1298,7 +1298,7 @@
       },
       "applicability": {
         "status": "APPLICABLE",
-        "reason": "Protocol method remains subject to Javelle implementation and capability negotiation."
+        "reason": "Protocol method remains subject to Teyru implementation and capability negotiation."
       },
       "source": "LSP-3.18.2-metaModel+LSP4J-1.0.0-sources"
     },
@@ -1315,7 +1315,7 @@
       },
       "applicability": {
         "status": "APPLICABLE",
-        "reason": "Protocol method remains subject to Javelle implementation and capability negotiation."
+        "reason": "Protocol method remains subject to Teyru implementation and capability negotiation."
       },
       "source": "LSP-3.18.2-metaModel+LSP4J-1.0.0-sources"
     },
@@ -1332,7 +1332,7 @@
       },
       "applicability": {
         "status": "APPLICABLE",
-        "reason": "Protocol method remains subject to Javelle implementation and capability negotiation."
+        "reason": "Protocol method remains subject to Teyru implementation and capability negotiation."
       },
       "source": "LSP-3.18.2-metaModel+LSP4J-1.0.0-sources"
     },
@@ -1349,7 +1349,7 @@
       },
       "applicability": {
         "status": "APPLICABLE",
-        "reason": "Protocol method remains subject to Javelle implementation and capability negotiation."
+        "reason": "Protocol method remains subject to Teyru implementation and capability negotiation."
       },
       "source": "LSP-3.18.2-metaModel+LSP4J-1.0.0-sources"
     },
@@ -1366,7 +1366,7 @@
       },
       "applicability": {
         "status": "APPLICABLE",
-        "reason": "Protocol method remains subject to Javelle implementation and capability negotiation."
+        "reason": "Protocol method remains subject to Teyru implementation and capability negotiation."
       },
       "source": "LSP-3.18.2-metaModel+LSP4J-1.0.0-sources"
     },
@@ -1383,7 +1383,7 @@
       },
       "applicability": {
         "status": "APPLICABLE",
-        "reason": "Protocol method remains subject to Javelle implementation and capability negotiation."
+        "reason": "Protocol method remains subject to Teyru implementation and capability negotiation."
       },
       "source": "LSP-3.18.2-metaModel+LSP4J-1.0.0-sources"
     },
@@ -1400,7 +1400,7 @@
       },
       "applicability": {
         "status": "APPLICABLE",
-        "reason": "Protocol method remains subject to Javelle implementation and capability negotiation."
+        "reason": "Protocol method remains subject to Teyru implementation and capability negotiation."
       },
       "source": "LSP-3.18.2-metaModel+LSP4J-1.0.0-sources"
     },
@@ -1417,7 +1417,7 @@
       },
       "applicability": {
         "status": "APPLICABLE",
-        "reason": "Protocol method remains subject to Javelle implementation and capability negotiation."
+        "reason": "Protocol method remains subject to Teyru implementation and capability negotiation."
       },
       "source": "LSP-3.18.2-metaModel+LSP4J-1.0.0-sources"
     },
@@ -1434,7 +1434,7 @@
       },
       "applicability": {
         "status": "APPLICABLE",
-        "reason": "Protocol method remains subject to Javelle implementation and capability negotiation."
+        "reason": "Protocol method remains subject to Teyru implementation and capability negotiation."
       },
       "source": "LSP-3.18.2-metaModel+LSP4J-1.0.0-sources"
     },
@@ -1451,7 +1451,7 @@
       },
       "applicability": {
         "status": "APPLICABLE",
-        "reason": "Protocol method remains subject to Javelle implementation and capability negotiation."
+        "reason": "Protocol method remains subject to Teyru implementation and capability negotiation."
       },
       "source": "LSP-3.18.2-metaModel+LSP4J-1.0.0-sources"
     },
@@ -1468,7 +1468,7 @@
       },
       "applicability": {
         "status": "APPLICABLE",
-        "reason": "Protocol method remains subject to Javelle implementation and capability negotiation."
+        "reason": "Protocol method remains subject to Teyru implementation and capability negotiation."
       },
       "source": "LSP-3.18.2-metaModel+LSP4J-1.0.0-sources"
     },
@@ -1485,7 +1485,7 @@
       },
       "applicability": {
         "status": "APPLICABLE",
-        "reason": "Protocol method remains subject to Javelle implementation and capability negotiation."
+        "reason": "Protocol method remains subject to Teyru implementation and capability negotiation."
       },
       "source": "LSP-3.18.2-metaModel+LSP4J-1.0.0-sources"
     },
@@ -1502,7 +1502,7 @@
       },
       "applicability": {
         "status": "APPLICABLE",
-        "reason": "Protocol method remains subject to Javelle implementation and capability negotiation."
+        "reason": "Protocol method remains subject to Teyru implementation and capability negotiation."
       },
       "source": "LSP-3.18.2-metaModel+LSP4J-1.0.0-sources"
     },
@@ -1519,7 +1519,7 @@
       },
       "applicability": {
         "status": "APPLICABLE",
-        "reason": "Protocol method remains subject to Javelle implementation and capability negotiation."
+        "reason": "Protocol method remains subject to Teyru implementation and capability negotiation."
       },
       "source": "LSP-3.18.2-metaModel+LSP4J-1.0.0-sources"
     },
@@ -1536,7 +1536,7 @@
       },
       "applicability": {
         "status": "APPLICABLE",
-        "reason": "Protocol method remains subject to Javelle implementation and capability negotiation."
+        "reason": "Protocol method remains subject to Teyru implementation and capability negotiation."
       },
       "source": "LSP-3.18.2-metaModel+LSP4J-1.0.0-sources"
     },
@@ -1553,7 +1553,7 @@
       },
       "applicability": {
         "status": "APPLICABLE",
-        "reason": "Protocol method remains subject to Javelle implementation and capability negotiation."
+        "reason": "Protocol method remains subject to Teyru implementation and capability negotiation."
       },
       "source": "LSP-3.18.2-metaModel+LSP4J-1.0.0-sources"
     },
@@ -1570,7 +1570,7 @@
       },
       "applicability": {
         "status": "APPLICABLE",
-        "reason": "Protocol method remains subject to Javelle implementation and capability negotiation."
+        "reason": "Protocol method remains subject to Teyru implementation and capability negotiation."
       },
       "source": "LSP-3.18.2-metaModel+LSP4J-1.0.0-sources"
     },
@@ -1587,7 +1587,7 @@
       },
       "applicability": {
         "status": "APPLICABLE",
-        "reason": "Protocol method remains subject to Javelle implementation and capability negotiation."
+        "reason": "Protocol method remains subject to Teyru implementation and capability negotiation."
       },
       "source": "LSP-3.18.2-metaModel+LSP4J-1.0.0-sources"
     },
@@ -1604,7 +1604,7 @@
       },
       "applicability": {
         "status": "APPLICABLE",
-        "reason": "Protocol method remains subject to Javelle implementation and capability negotiation."
+        "reason": "Protocol method remains subject to Teyru implementation and capability negotiation."
       },
       "source": "LSP-3.18.2-metaModel+LSP4J-1.0.0-sources"
     },
@@ -1621,7 +1621,7 @@
       },
       "applicability": {
         "status": "APPLICABLE",
-        "reason": "Protocol method remains subject to Javelle implementation and capability negotiation."
+        "reason": "Protocol method remains subject to Teyru implementation and capability negotiation."
       },
       "source": "LSP-3.18.2-metaModel+LSP4J-1.0.0-sources"
     }

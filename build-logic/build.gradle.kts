@@ -5,8 +5,8 @@ plugins {
 gradlePlugin {
     plugins {
         create("javaConventions") {
-            id = "org.javelle.java-conventions"
-            implementationClass = "org.javelle.buildlogic.JavaConventionsPlugin"
+            id = "dev.teyru.java-conventions"
+            implementationClass = "dev.teyru.buildlogic.JavaConventionsPlugin"
         }
     }
 }
@@ -25,5 +25,5 @@ tasks.register<JavaExec>("architectureBoundaryTest") {
     group = "verification"
     dependsOn(tasks.testClasses)
     classpath = sourceSets.test.get().runtimeClasspath
-    mainClass.set("org.javelle.buildlogic.architecture.ArchitectureBoundaryCheckerTest")
+    mainClass.set("dev.teyru.buildlogic.architecture.ArchitectureBoundaryCheckerTest")
 }

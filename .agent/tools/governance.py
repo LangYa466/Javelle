@@ -63,10 +63,10 @@ def validate_requirements(d,plan):
 
 def validate_all(root):
  validate_tasks(load(root/'.agent/TASKS.json')); validate_ownership(load(root/'.agent/OWNERSHIP.json'))
- validate_requirements(load(root/'compatibility/requirements.json'),root/'prompts/JAVELLE_IMPLEMENTATION_PLAN.md')
+ validate_requirements(load(root/'compatibility/requirements.json'),root/'prompts/TEYRU_IMPLEMENTATION_PLAN.md')
  c=tomllib.loads((root/'.codex/config.toml').read_text()); a=c.get('agents',{})
  if a!={'enabled':True,'max_concurrent_threads_per_session':4}: fail('unsafe/unknown codex agent config')
- role=tomllib.loads((root/'.codex/agents/javelle-reviewer.toml').read_text())
+ role=tomllib.loads((root/'.codex/agents/teyru-reviewer.toml').read_text())
  if set(role)!={'name','description','developer_instructions'} or any(k in role for k in ('model','sandbox','approval_policy')): fail('unsafe reviewer role config')
  pol=load(root/'.agent/schema/worktree-policy.json')
  if pol.get('sharedWorktree',{}).get('allowedGitMutators')!=['integration']: fail('integration-only commit policy missing')
@@ -75,9 +75,9 @@ def atomic_update(path,input_path,expected_sha):
  path=path.resolve(); path.parent.mkdir(parents=True,exist_ok=True); lock=path.with_name('.'+path.name+'.lock')
  with lock.open('a+b') as lf:
   fcntl.flock(lf,fcntl.LOCK_EX)
-  marker=os.environ.get('JAVELLE_ATOMIC_LOCK_MARKER')
+  marker=os.environ.get('TEYRU_ATOMIC_LOCK_MARKER')
   if marker: pathlib.Path(marker).write_text('locked\n',encoding='utf-8')
-  hold=float(os.environ.get('JAVELLE_ATOMIC_HOLD_SECONDS','0'))
+  hold=float(os.environ.get('TEYRU_ATOMIC_HOLD_SECONDS','0'))
   if hold: time.sleep(hold)
   old=path.read_bytes(); actual=hashlib.sha256(old).hexdigest()
   if actual!=expected_sha: fail('fingerprint collision')
@@ -85,7 +85,7 @@ def atomic_update(path,input_path,expected_sha):
   fd,tmp=tempfile.mkstemp(prefix='.'+path.name+'.',dir=path.parent)
   try:
    with os.fdopen(fd,'wb') as f: f.write(data); f.flush(); os.fsync(f.fileno())
-   if os.environ.get('JAVELLE_ATOMIC_FAIL_AFTER_FILE_FSYNC')=='1': raise OSError('injected post-fsync failure')
+   if os.environ.get('TEYRU_ATOMIC_FAIL_AFTER_FILE_FSYNC')=='1': raise OSError('injected post-fsync failure')
    os.replace(tmp,path)
    dfd=os.open(path.parent,os.O_RDONLY); os.fsync(dfd); os.close(dfd)
   except BaseException:
@@ -149,12 +149,12 @@ def selftest(root):
   try: atomic_update(p,n,'0'*64); fail('collision update passed')
   except ValueError: pass
   if p.read_bytes()!=before: fail('failed update changed prior state')
-  expected=hashlib.sha256(before).hexdigest(); os.environ['JAVELLE_ATOMIC_FAIL_AFTER_FILE_FSYNC']='1'
+  expected=hashlib.sha256(before).hexdigest(); os.environ['TEYRU_ATOMIC_FAIL_AFTER_FILE_FSYNC']='1'
   try: atomic_update(p,n,expected); fail('injected fsync failure passed')
   except OSError: pass
-  finally: os.environ.pop('JAVELLE_ATOMIC_FAIL_AFTER_FILE_FSYNC',None)
+  finally: os.environ.pop('TEYRU_ATOMIC_FAIL_AFTER_FILE_FSYNC',None)
   if p.read_bytes()!=before: fail('post-fsync failure changed prior state')
-  marker=pathlib.Path(d)/'locked'; env=os.environ.copy(); env['JAVELLE_ATOMIC_LOCK_MARKER']=str(marker); env['JAVELLE_ATOMIC_HOLD_SECONDS']='0.25'
+  marker=pathlib.Path(d)/'locked'; env=os.environ.copy(); env['TEYRU_ATOMIC_LOCK_MARKER']=str(marker); env['TEYRU_ATOMIC_HOLD_SECONDS']='0.25'
   cmd=[sys.executable,str(pathlib.Path(__file__).resolve()),'atomic-update',str(p),str(n),'--expected-sha256',expected]
   first=subprocess.Popen(cmd,stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True,env=env)
   for _ in range(100):

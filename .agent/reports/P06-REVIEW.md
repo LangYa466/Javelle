@@ -101,7 +101,7 @@ STATUS: **VERIFIED — ACCEPT P06**
 - Native Temurin 21.0.11 (`JAVA_HOME=/opt/jdk21/jdk-21.0.11+10`) documented strict `:compiler-driver:p06Release21 --rerun-tasks`: exit 0; configuration succeeded, 13 tasks executed, one tagged runtime-21 test passed with no skips. Logs: `.agent/logs/P06-REVIEW/r5-jdk21-java.log`, `r5-release21.log`.
 - Java 25 strict `:compiler-driver:test :compiler-driver:p06EndToEnd --rerun-tasks`: exit 0; 13 tests in each task, zero failures/errors/skips. This includes the five-phase rollback loop and all ownership/resource/path negatives.
 - Java 25 strict `verifyQuick`: exit 0; 79 tasks, `VERIFY_QUICK_PASS`.
-- `build-logic/build/classes/java/main/org/javelle/buildlogic/JavaConventionsPlugin.class` is classfile major 65 (Java 21). `build-logic` retains the pinned Java 25 compiler toolchain with `options.release=21`; the successful native-21 run proves this configuration no longer blocks the daemon.
+- `build-logic/build/classes/java/main/dev/teyru/buildlogic/JavaConventionsPlugin.class` is classfile major 65 (Java 21). `build-logic` retains the pinned Java 25 compiler toolchain with `options.release=21`; the successful native-21 run proves this configuration no longer blocks the daemon.
 - Public API golden remains `entries=938`, semantic digest `6d379fa60affd679ead4dc07a4bcc509c77e832a208d3f60de699c364b0e620f`; prior strict core 64-test run exercised its bidirectional gate with zero failures.
 
 Final result: PASS `P06-01..12`; **ACCEPT P06**. This accepts the P06 executable property→Java→javac vertical slice only; it does not claim later full language, joint compilation, hard process-isolated cancellation, or debugger support.

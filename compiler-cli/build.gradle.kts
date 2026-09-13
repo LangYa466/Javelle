@@ -1,5 +1,5 @@
 plugins {
-    id("org.javelle.java-conventions")
+    id("dev.teyru.java-conventions")
     application
 }
 
@@ -11,8 +11,8 @@ dependencies {
 }
 
 application {
-    mainClass.set("org.javelle.compiler.cli.JavelleCli")
-    applicationName = "javelle"
+    mainClass.set("dev.teyru.compiler.cli.TeyruCli")
+    applicationName = "teyru"
 }
 
 sourceSets.main {
@@ -23,7 +23,7 @@ sourceSets.test { resources.srcDir(rootProject.file("workspace-model/src/test/re
 
 tasks.test {
     dependsOn(tasks.installDist)
-    systemProperty("javelle.launcher", layout.buildDirectory.file("install/javelle/bin/javelle").get().asFile.absolutePath)
+    systemProperty("teyru.launcher", layout.buildDirectory.file("install/teyru/bin/teyru").get().asFile.absolutePath)
 }
 
 tasks.register("p07BlackBox") {

@@ -16,7 +16,7 @@
 - 125 `CUSTOM_DTO_REQUIRED`: no same-named source type was found. This is deliberately conservative; a later reviewer may replace it only with a verified alternate Java symbol and serialization test.
 - 0 `NOT_REVIEWED`.
 
-This field/type inventory removes the former blanket “LSP4J supports 3.18” inference. A library binding still does not mean Javelle implemented a handler or may advertise it.
+This field/type inventory removes the former blanket “LSP4J supports 3.18” inference. A library binding still does not mean Teyru implemented a handler or may advertise it.
 
 ## Endpoint evidence model
 

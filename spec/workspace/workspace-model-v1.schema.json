@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://javelle.dev/schema/workspace/workspace-model-v1.schema.json",
-  "title": "Javelle Workspace Model",
+  "$id": "https://teyru.dev/schema/workspace/workspace-model-v1.schema.json",
+  "title": "Teyru Workspace Model",
   "description": "Editor/build-neutral immutable workspace snapshot shared by Gradle, CLI and LSP.",
   "type": "object",
   "required": ["schemaVersion", "serializationKind", "workspace", "modules", "overlays", "fingerprints", "limits"],
@@ -115,11 +115,11 @@
     },
     "sourceSet": {
       "type": "object",
-      "required": ["name", "javaRoots", "javelleRoots", "generatedJavaRoots", "generatedClassRoots", "paths", "releases", "compilerOptions", "encoding", "trust"],
+      "required": ["name", "javaRoots", "teyruRoots", "generatedJavaRoots", "generatedClassRoots", "paths", "releases", "compilerOptions", "encoding", "trust"],
       "properties": {
         "name": { "type": "string", "pattern": "^[A-Za-z0-9_.-]{1,128}$" },
         "javaRoots": { "$ref": "#/$defs/pathList" },
-        "javelleRoots": { "$ref": "#/$defs/pathList" },
+        "teyruRoots": { "$ref": "#/$defs/pathList" },
         "generatedJavaRoots": { "$ref": "#/$defs/pathList" },
         "generatedClassRoots": { "$ref": "#/$defs/pathList" },
         "paths": { "$ref": "#/$defs/compilationPaths" },

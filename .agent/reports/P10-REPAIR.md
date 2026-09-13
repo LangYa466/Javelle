@@ -17,7 +17,7 @@
 - Restart/resource rerun `:language-server:test --rerun-tasks`: exit 0, 12/12; `.agent/logs/P10-R01-restart-evidence.txt`.
 - Inventory jq gate: exit 0; 95 rows, 12 VERIFIED, six advertised, zero advertised NOT_IMPLEMENTED; `.agent/logs/P10-R01-inventory.txt`.
 - `./gradlew --no-daemon --dependency-verification=strict verifyQuick`: exit 0; `.agent/logs/P10-R01-verifyQuick.txt`.
-- `:language-server:distZip`: exit 0; `language-server/build/distributions/javelle-lsp-0.1.0-SNAPSHOT.zip`; `.agent/logs/P10-R01-archive.txt`.
+- `:language-server:distZip`: exit 0; `language-server/build/distributions/teyru-lsp-0.1.0-SNAPSHOT.zip`; `.agent/logs/P10-R01-archive.txt`.
 
 ## Limits / next dependency
 

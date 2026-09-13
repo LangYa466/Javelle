@@ -22,7 +22,7 @@ The actual parse→bind→emit→driver fixture now contains `field = value.trim
 
 ## P06-07 result and ownership blocker
 
-The driver converts javac UTF-16 positions to Unicode code points, uses exact source-map overlap and does not guess an original location. A real generated `void` property javac error maps to its Javelle source origin. The requested complete returned-expression/missing-symbol/synthetic-conflict/CRLF+emoji/Unicode-escape matrix cannot be completed inside this package: the accepted compiler-core emitter currently creates broad member segments, while a CRLF+emoji source fails during core emission with `source-map locations require UNICODE_CODE_POINT` before javac. Fixing this requires compiler-core P06-04 ownership, explicitly excluded from P06-R02. Evidence was reproduced with the proposed matrix test, then the failing out-of-contract test was not retained.
+The driver converts javac UTF-16 positions to Unicode code points, uses exact source-map overlap and does not guess an original location. A real generated `void` property javac error maps to its Teyru source origin. The requested complete returned-expression/missing-symbol/synthetic-conflict/CRLF+emoji/Unicode-escape matrix cannot be completed inside this package: the accepted compiler-core emitter currently creates broad member segments, while a CRLF+emoji source fails during core emission with `source-map locations require UNICODE_CODE_POINT` before javac. Fixing this requires compiler-core P06-04 ownership, explicitly excluded from P06-R02. Evidence was reproduced with the proposed matrix test, then the failing out-of-contract test was not retained.
 
 ## Verification
 

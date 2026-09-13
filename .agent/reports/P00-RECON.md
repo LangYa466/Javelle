@@ -19,7 +19,7 @@ Official loading behavior is global `AGENTS.override.md` else `AGENTS.md`, follo
 Observed chain relevant to this app session:
 
 - `/home/langya/.codex/AGENTS.md`: 1,064 bytes; no global override.
-- `/home/langya/IdeaProjects/Javelle/AGENTS.md`: 20,098 bytes; no root override and no nested instruction file below the repository root.
+- `/home/langya/IdeaProjects/Teyru/AGENTS.md`: 20,098 bytes; no root override and no nested instruction file below the repository root.
 - Combined file bytes: 21,162, below 32 KiB by 11,606 bytes. `/home/langya/.codex/config.toml` has no `project_doc_max_bytes` or fallback override, so the documented default applies.
 - Runtime evidence: this session received the root file as project instructions through its final directive and follows both distinctive rules (Traditional Chinese communication and `sudo su` shell entry). Therefore no truncation is observed. The 160,543-byte implementation plan is a contract read as a normal repository file, not an automatically loaded AGENTS document.
 

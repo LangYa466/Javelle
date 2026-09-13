@@ -64,6 +64,6 @@ Primary metadata and constraints:
 
 ## Remaining verifier boundary
 
-The fixed platform and LSP API are now artifact-probed, not documentation-only. JetBrains Plugin Verifier cannot meaningfully verify Javelle yet because no IDEA plugin ZIP or plugin descriptor exists in this stage. Running it against a fabricated empty plugin would not prove API compatibility. P11 must run the pinned verifier against the first real plugin ZIP on IU 2026.1.4; until then, plugin binary compatibility is `NOT_VERIFIED`, not a successful P01-04 claim.
+The fixed platform and LSP API are now artifact-probed, not documentation-only. JetBrains Plugin Verifier cannot meaningfully verify Teyru yet because no IDEA plugin ZIP or plugin descriptor exists in this stage. Running it against a fabricated empty plugin would not prove API compatibility. P11 must run the pinned verifier against the first real plugin ZIP on IU 2026.1.4; until then, plugin binary compatibility is `NOT_VERIFIED`, not a successful P01-04 claim.
 
 No configuration, product source, ledger, or release state was changed.

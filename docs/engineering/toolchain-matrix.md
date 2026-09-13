@@ -6,7 +6,7 @@ Checked 2026-09-11 (Asia/Taipei). These axes are independent; one version does n
 |---|---|---|
 | Compiler runtime JDK | Red Hat OpenJDK 25.0.3+9, Fedora RPM build `25.0.3.0.9-2.fc44` | Locally executed; RPM header SHA-256 `be0eb1a95dc82a47a990af3dc0255dfda1e009ad0197b13a5fa27387515ef360` |
 | Gradle daemon JDK | JDK 25 for current local build; Gradle 9.6.0 | Gradle 9.6.0 official distribution and regenerated wrapper executed locally |
-| Javelle target releases | Java 25 non-preview and Java 21 via `--release 21` | Temurin 21.0.12.1+1 and system JDK 25 compiled and cross-ran Java 21 classes; Java 25-only syntax was rejected under release 21 |
+| Teyru target releases | Java 25 non-preview and Java 21 via `--release 21` | Temurin 21.0.12.1+1 and system JDK 25 compiled and cross-ran Java 21 classes; Java 25-only syntax was rejected under release 21 |
 | IDEA client platform | IU 2026.1.4, build `IU-261.26222.65`, branch 261 only | Fixed archive SHA-256 `3104d85d9507ff882065e3f8eb9506402b4a8129092d2682662bb6e9c4f063fc`; product metadata, bundled JBR, and LSP classes were artifact-probed |
 | IDEA bundled runtime | `JBR-25.0.3+9-329.124-jcef` | Executed from the fixed IU archive; this corrects the earlier documentation-derived Java 21 assumption |
 | IDEA plugin binary compatibility | branch 261, exact first target IU 2026.1.4 | **NOT_VERIFIED** until P11 produces a real plugin ZIP and runs Plugin Verifier; no empty/fabricated plugin is accepted as evidence |

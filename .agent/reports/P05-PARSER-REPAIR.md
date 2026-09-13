@@ -4,7 +4,7 @@ Agent `/root/p00_repair`. Owned: recursive parser, frontend AST/orchestrator, P0
 
 Status: IMPLEMENTED; independent review pending.
 
-Repairs: IfStatement now retains parsed condition plus then/else Block children; typed parameter declarations are structural; AccessorNode preserves explicit/inherited visibility and body/value; inferred missing RHS emits a primary syntax diagnostic and ErrorNode; computed getter `field` emits `JV-PROP-0006`; record/interface/enum/for and text-block dispatch use balanced `UnsupportedSyntaxNode` with `JV-DEV-0001`; bare return at newline remains valid. Diagnostic emission deduplicates `(code,range)`.
+Repairs: IfStatement now retains parsed condition plus then/else Block children; typed parameter declarations are structural; AccessorNode preserves explicit/inherited visibility and body/value; inferred missing RHS emits a primary syntax diagnostic and ErrorNode; computed getter `field` emits `TY-PROP-0006`; record/interface/enum/for and text-block dispatch use balanced `UnsupportedSyntaxNode` with `TY-DEV-0001`; bare return at newline remains valid. Diagnostic emission deduplicates `(code,range)`.
 
 The test harness actually loads `p05/cases.json` through the existing bounded recursive JSON parser, requires exactly eleven cases, executes every source, compares ordered preorder anchors, exact diagnostic code arrays and independently located raw spans. Truncation executes every non-complete cut under a three-second preemptive timeout and asserts recovery, error evidence, ceiling and deduplication. Additional tests assert accessor visibility, parameter/if branch structure, computed-field semantics and missing RHS.
 

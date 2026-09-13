@@ -42,7 +42,7 @@ Missing roots are represented with `exists=false`; they are not silently removed
 
 ## 3. Toolchain, compilation and trust
 
-Every module has an explicit toolchain executable path reference, Java version/vendor/runtime fingerprint. Every source set separately records Java/Javelle/generated roots, compile/runtime/processor classpaths, module path, source JARs, source/target/release, exact ordered compiler options, UTF-8 encoding, on-disk snapshot fingerprint and trust.
+Every module has an explicit toolchain executable path reference, Java version/vendor/runtime fingerprint. Every source set separately records Java/Teyru/generated roots, compile/runtime/processor classpaths, module path, source JARs, source/target/release, exact ordered compiler options, UTF-8 encoding, on-disk snapshot fingerprint and trust.
 
 `release` is 21 or 25 and must be consistent with source/target and not exceed the resolved toolchain. Processor path presence does not authorize execution. `UNTRUSTED` requires all execution/network flags false. Unknown trust levels, permission enums or security-critical enum values fail closed even when a newer minor version is otherwise readable. No reader runs Gradle, processors, downloaded tools, user programs or network operations as a side effect of decoding/validation.
 
@@ -50,7 +50,7 @@ Every module has an explicit toolchain executable path reference, Java version/v
 
 Module IDs and `(moduleId, sourceSetName)` pairs are unique. Dependency targets must exist. `BUILD_ORDER` edges must form a DAG and a cycle reports the complete stable cycle path. `SOURCE_VISIBILITY` strongly connected components are reported separately and may be supplied to a later joint-compilation planner; they are never mislabeled as a build-order cycle. Runtime-only edges do not affect compile ordering.
 
-Property metadata is explicit and versioned: owner binary name, property name, JVM descriptor, getter/setter names, readable/writable flags, metadata version and source/artifact fingerprint. Consumers never infer Javelle properties from JavaBeans naming alone. Duplicate `(owner, property)` entries with differing ABI are errors.
+Property metadata is explicit and versioned: owner binary name, property name, JVM descriptor, getter/setter names, readable/writable flags, metadata version and source/artifact fingerprint. Consumers never infer Teyru properties from JavaBeans naming alone. Duplicate `(owner, property)` entries with differing ABI are errors.
 
 ## 5. Overlay and snapshot separation
 
@@ -72,7 +72,7 @@ Readers reject an unknown major. They accept a newer minor only when all require
 6. Validate dependency targets/cycles and property ABI uniqueness.
 7. Recompute all fingerprints and return success only on exact match.
 
-Diagnostics contain stable code, JSON Pointer, module/source-set identity and a bounded message. Required families: `JV-WS-SCHEMA-*`, `JV-WS-LIMIT-*`, `JV-WS-PATH-*`, `JV-WS-DUPLICATE-*`, `JV-WS-CYCLE-*`, `JV-WS-TRUST-*`, `JV-WS-FINGERPRINT-*`, `JV-WS-STALE-*`.
+Diagnostics contain stable code, JSON Pointer, module/source-set identity and a bounded message. Required families: `TY-WS-SCHEMA-*`, `TY-WS-LIMIT-*`, `TY-WS-PATH-*`, `TY-WS-DUPLICATE-*`, `TY-WS-CYCLE-*`, `TY-WS-TRUST-*`, `TY-WS-FINGERPRINT-*`, `TY-WS-STALE-*`.
 
 ## 8. P08 acceptance and ownership
 

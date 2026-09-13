@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "contractId": "javelle-lsp-p10-minimal",
+  "contractId": "teyru-lsp-p10-minimal",
   "protocolBaseline": {
     "lsp": "3.18",
     "inventory": "compatibility/lsp-methods.json",
@@ -8,7 +8,7 @@
     "javaBinding": "org.eclipse.lsp4j:org.eclipse.lsp4j:1.0.0"
   },
   "process": {
-    "command": ["javelle-lsp", "--stdio"],
+    "command": ["teyru-lsp", "--stdio"],
     "stdout": "JSON_RPC_FRAMES_ONLY",
     "logs": "STDERR_OR_BOUNDED_LOCAL_LOG",
     "normalExitCode": 0,
@@ -83,7 +83,7 @@
   },
   "diagnostics": {
     "mode": "PUSH_TEXT_DOCUMENT_PUBLISH_DIAGNOSTICS",
-    "source": "javelle",
+    "source": "teyru",
     "uri": "ORIGINAL_DOCUMENT_URI",
     "range": "UTF16_FROM_COMPILER_RAW_OR_CODEPOINT_BOUNDARY_CONVERSION",
     "includeVersion": true,
@@ -91,13 +91,13 @@
     "noGeneratedJavaUriForMappedSyntaxErrors": true
   },
   "minimalLanguageFeatures": {
-    "hover": ["Javelle declaration", "local", "String", "native property"],
-    "completion": ["contextual Javelle keywords", "String members from trusted workspace/JDK model", "current-type native property"],
+    "hover": ["Teyru declaration", "local", "String", "native property"],
+    "completion": ["contextual Teyru keywords", "String members from trusted workspace/JDK model", "current-type native property"],
     "definition": "NOT_ADVERTISED_IN_P10",
     "emptyOrFixedFakeResultsForbidden": true
   },
   "workspace": {
-    "initializeOption": "initializationOptions.javelle.workspaceModelUri",
+    "initializeOption": "initializationOptions.teyru.workspaceModelUri",
     "acceptedScheme": "file",
     "modelSchema": "spec/workspace/workspace-model-v1.schema.json",
     "loadSideEffects": "NONE",

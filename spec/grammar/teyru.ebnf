@@ -1,0 +1,71 @@
+(* Teyru 0.1 normative grammar delta over Java SE 25 non-preview.
+   JAVA_* nonterminals are imported from the versioned Java grammar inventory;
+   they are not regex or arbitrary text. NEWLINE is emitted by the lexer. *)
+
+compilationUnit = spacing, [ JAVA_packageDeclaration, terminator ],
+                  { JAVA_importDeclaration, terminator },
+                  { JAVA_typeDeclaration, { NEWLINE } }, EOF ;
+
+terminator = NEWLINE, { NEWLINE }
+           | blockBoundary ;
+blockBoundary = ? position immediately before "}" after a complete construct ? ;
+
+statement = JAVA_block | JAVA_ifStatement | JAVA_whileStatement | JAVA_doStatement | forStatement
+          | tryStatement | JAVA_switchStatement | JAVA_synchronizedStatement
+          | returnStatement | throwStatement | yieldStatement
+          | JAVA_breakStatement | JAVA_continueStatement | JAVA_assertStatement
+          | localVariableDeclaration, terminator
+          | JAVA_statementExpression, terminator
+          | JAVA_labeledStatement | emptyBlock ;
+emptyBlock = "{", spacing, "}" ;
+
+returnStatement = "return", ( sameLineExpression | sameLineOpenExpression ), terminator
+                | "return", terminator ;
+throwStatement = "throw", ( sameLineExpression | sameLineOpenExpression ), terminator ;
+yieldStatement = "yield", ( sameLineExpression | sameLineOpenExpression ), terminator ;
+sameLineExpression = ? JAVA_expression whose first token precedes NEWLINE ? ;
+sameLineOpenExpression = "(", JAVA_expression, ")" ;
+
+forStatement = "for", spacing, "(", spacing,
+               ( basicForHeader | enhancedForHeader ), spacing, ")", spacing, statement ;
+basicForHeader = [ JAVA_forInit ], topLevelColon,
+                 [ JAVA_expression ], topLevelColon, [ JAVA_statementExpressionList ] ;
+enhancedForHeader = { JAVA_variableModifier }, ( JAVA_type | "var" | "val" ),
+                    identifier, topLevelColon, JAVA_expression ;
+topLevelColon = ":" (* only at header delimiter nesting depth; conditional ':' is consumed by expression *) ;
+
+tryStatement = "try", spacing, resourceSpecification, spacing, JAVA_block,
+               { JAVA_catchClause }, [ JAVA_finallyClause ]
+             | "try", spacing, JAVA_block, { JAVA_catchClause }, [ JAVA_finallyClause ] ;
+resourceSpecification = "(", { NEWLINE }, resource,
+                        { resourceTerminator, resource },
+                        [ resourceTerminator ], ")" ;
+resourceTerminator = NEWLINE, { NEWLINE } ;
+resource = JAVA_localVariableResource | JAVA_variableAccess ;
+
+enumBody = "{", spacing, [ enumConstants ],
+           [ enumMemberSeparator, { JAVA_classBodyDeclaration } ], spacing, "}" ;
+enumConstants = JAVA_enumConstant, { ",", JAVA_enumConstant }, [ "," ] ;
+enumMemberSeparator = ":" ;
+
+fieldOrPropertyDeclaration = { JAVA_fieldModifier }, JAVA_type, variableDeclarator,
+                             ( propertyAccessorBlock | terminator ) ;
+propertyAccessorBlock = "{", spacing, accessorDeclaration,
+                        { spacing, accessorDeclaration }, spacing, "}" ;
+accessorDeclaration = { JAVA_annotation }, [ JAVA_visibility ],
+                      ( getterDeclaration | setterDeclaration ) ;
+getterDeclaration = "get", ( accessorBody | terminator ) ;
+setterDeclaration = "set", [ "(", "value", ")" ], ( accessorBody | terminator ) ;
+accessorBody = JAVA_block ;
+
+localVariableDeclaration = ( JAVA_type | "var" | "val" ),
+                           variableDeclarator, { ",", variableDeclarator } ;
+variableDeclarator = identifier, [ JAVA_dims ], [ "=", JAVA_variableInitializer ] ;
+
+continuation = ? parser state requires an operand/closing delimiter ?
+             | NEWLINE, ( "." | "::" | JAVA_leadingContinuationOperator ) ;
+
+spacing = { JAVA_whitespaceExceptLineTerminator | JAVA_comment | NEWLINE } ;
+identifier = JAVA_identifier ;
+
+(* SEMICOLON is lexed after Unicode translation but appears in no production. *)

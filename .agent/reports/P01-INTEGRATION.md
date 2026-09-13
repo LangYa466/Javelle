@@ -53,7 +53,7 @@ Integrated the verified W05/W06/W07 pins without creating P02 modules or a websi
 
 - machine-readable JDK 21/JDK 25/Gradle/IU/JBR/Node locks in `config/toolchains.json`;
 - machine-readable frontend reproducibility and license-review boundary in `config/frontend-baseline.json`;
-- all 151 Lombok public-surface class entries and 82 config keys in `compatibility/lombok-baseline.json`, each explicitly `NOT_IMPLEMENTED` and `NOT_VERIFIED` for Javelle compatibility;
+- all 151 Lombok public-surface class entries and 82 config keys in `compatibility/lombok-baseline.json`, each explicitly `NOT_IMPLEMENTED` and `NOT_VERIFIED` for Teyru compatibility;
 - all 95 LSP 3.18 methods in `compatibility/lsp-methods.json`, each non-advertised with per-method DTO/support review still required;
 - corrected toolchain matrix: IU 2026.1.4 bundles executed `JBR-25.0.3+9-329.124-jcef`, not Java 21;
 - fixed Temurin 21.0.12.1+1, IU/JBR/LSP, Node/npm, Astro/Starlight, Spotless, google-java-format, and CycloneDX pins recorded in catalogs/manifests.

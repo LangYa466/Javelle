@@ -1,4 +1,4 @@
-plugins { id("org.javelle.java-conventions") }
+plugins { id("dev.teyru.java-conventions") }
 
 dependencies {
     testImplementation(platform(libs.junit.bom))

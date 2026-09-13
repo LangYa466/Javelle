@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://javelle.dev/schema/cli/diagnostics-v1.schema.json",
-  "title": "Javelle CLI diagnostic envelope v1",
+  "$id": "https://teyru.dev/schema/cli/diagnostics-v1.schema.json",
+  "title": "Teyru CLI diagnostic envelope v1",
   "type": "object",
   "required": ["schemaVersion", "command", "status", "diagnostics", "summary"],
   "properties": {
@@ -57,7 +57,7 @@
       "type":"object",
       "required":["code","severity","source","range","message","relatedInformation","fixes","data"],
       "properties": {
-        "code":{"type":"string","pattern":"^JV-[A-Z0-9-]+$"},
+        "code":{"type":"string","pattern":"^TY-[A-Z0-9-]+$"},
         "severity":{"enum":["ERROR","WARNING","INFORMATION","HINT"]},
         "source":{"$ref":"#/$defs/source"},
         "range":{"$ref":"#/$defs/range"},

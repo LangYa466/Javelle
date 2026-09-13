@@ -1,5 +1,5 @@
 plugins {
-    id("org.javelle.java-conventions")
+    id("dev.teyru.java-conventions")
     application
 }
 
@@ -13,11 +13,11 @@ dependencies {
 }
 
 application {
-    mainClass = "org.javelle.language.server.JavelleLanguageServerMain"
-    applicationName = "javelle-lsp"
+    mainClass = "dev.teyru.language.server.TeyruLanguageServerMain"
+    applicationName = "teyru-lsp"
 }
 
 tasks.test {
     dependsOn(tasks.installDist)
-    doFirst { systemProperty("javelleLsp", layout.buildDirectory.file("install/javelle-lsp/bin/javelle-lsp").get().asFile.absolutePath) }
+    doFirst { systemProperty("teyruLsp", layout.buildDirectory.file("install/teyru-lsp/bin/teyru-lsp").get().asFile.absolutePath) }
 }

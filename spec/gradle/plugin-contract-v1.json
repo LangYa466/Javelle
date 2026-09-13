@@ -1,24 +1,24 @@
 {
   "schemaVersion": 1,
-  "pluginId": "org.javelle",
+  "pluginId": "dev.teyru",
   "contractVersion": 1,
   "localImplementationVersion": "0.1.0-SNAPSHOT",
   "publicationStatus": "NOT_AUTHORIZED",
-  "extension": "javelle",
+  "extension": "teyru",
   "defaultSourceDirectories": {
-    "main": "src/main/javelle",
-    "test": "src/test/javelle"
+    "main": "src/main/teyru",
+    "test": "src/test/teyru"
   },
-  "generatedSourceDirectoryPattern": "build/generated/sources/javelle/<sourceSet>",
-  "workspaceModelPattern": "build/javelle/workspace/<sourceSet>.json",
-  "sourceMapPattern": "build/javelle/source-maps/<sourceSet>/<relative-source>.json",
+  "generatedSourceDirectoryPattern": "build/generated/sources/teyru/<sourceSet>",
+  "workspaceModelPattern": "build/teyru/workspace/<sourceSet>.json",
+  "sourceMapPattern": "build/teyru/source-maps/<sourceSet>/<relative-source>.json",
   "taskPattern": {
-    "mainGenerate": "generateJavelleJava",
-    "testGenerate": "generateTestJavelleJava",
-    "customGenerate": "generate<SourceSet>JavelleJava",
-    "mainModel": "exportJavelleWorkspaceModel",
-    "testModel": "exportTestJavelleWorkspaceModel",
-    "customModel": "export<SourceSet>JavelleWorkspaceModel"
+    "mainGenerate": "generateTeyruJava",
+    "testGenerate": "generateTestTeyruJava",
+    "customGenerate": "generate<SourceSet>TeyruJava",
+    "mainModel": "exportTeyruWorkspaceModel",
+    "testModel": "exportTestTeyruWorkspaceModel",
+    "customModel": "export<SourceSet>TeyruWorkspaceModel"
   },
   "supportedTargetReleases": [21, 25],
   "compilerIsolation": "PROCESS_OR_CLASSLOADER_ISOLATED_WORKER",

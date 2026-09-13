@@ -16,7 +16,7 @@
 
 ## Tests
 
-- `./gradlew --dependency-verification=strict :compiler-core:test`: exit 0; 14 tests, 0 failed/errors/skipped. Evidence `.agent/logs/P04-CORE-test-3.txt` and `compiler-core/build/test-results/test/TEST-org.javelle.compiler.core.CoreModelTest.xml`.
+- `./gradlew --dependency-verification=strict :compiler-core:test`: exit 0; 14 tests, 0 failed/errors/skipped. Evidence `.agent/logs/P04-CORE-test-3.txt` and `compiler-core/build/test-results/test/TEST-dev.teyru.compiler.core.CoreModelTest.xml`.
 - `./gradlew --dependency-verification=strict verifyQuick`: exit 0; 76 tasks (11 executed, 65 up-to-date). Evidence `.agent/logs/P04-CORE-verifyQuick.txt`.
 - Covered: Chinese/emoji, LF/CR/CRLF/EOF, surrogate and CRLF invalid boundaries, Unicode-created newline and many-to-one bias, invalid UTF-8, byte/deadline limits, URI traversal corpus, range unit/reversal negatives, defensive collections, missing tokens, schema-major rejection and canonical data ordering, property invariants, one-to-many source lookup, synthetic-origin and cancellation negatives.
 

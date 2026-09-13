@@ -4,7 +4,7 @@ Agent `/root/p00_repair`. Owned parser/frontend AST, P05 tests/snapshot resource
 
 Status: IMPLEMENTED; independent review pending.
 
-The parser routes while/do, basic for, switch, try/catch/finally-shaped input, synchronized, assert, enum, record, interface/annotation-shaped declarations, modules, lambda, method reference, varargs and text blocks through balanced `UnsupportedSyntaxNode` paths with one `JV-DEV-0001`, preserving surrounding class/method boundaries and progress. No unsupported representative is silently accepted or cascades generic syntax diagnostics. Nested brace/parenthesis scanning is bounded by EOF/resource checkpoints.
+The parser routes while/do, basic for, switch, try/catch/finally-shaped input, synchronized, assert, enum, record, interface/annotation-shaped declarations, modules, lambda, method reference, varargs and text blocks through balanced `UnsupportedSyntaxNode` paths with one `TY-DEV-0001`, preserving surrounding class/method boundaries and progress. No unsupported representative is silently accepted or cascades generic syntax diagnostics. Nested brace/parenthesis scanning is bounded by EOF/resource checkpoints.
 
 `FrontendSnapshot.canonical` emits deterministic complete preorder records with node kind/name, exact raw range, stable ordinal, parent ordinal, accessor visibility and exact diagnostic code/range/message. `p05/ast-snapshots.txt` contains the full reviewable output for all eleven manifest cases; the manifest harness compares it byte-for-byte after separately checking expected ordered anchors and diagnostic spans. Any added/reordered node, payload, parent, span or diagnostic mutates the golden test.
 

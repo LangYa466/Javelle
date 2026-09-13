@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "normativeSource": "prompts/JAVELLE_IMPLEMENTATION_PLAN.md",
+  "normativeSource": "prompts/TEYRU_IMPLEMENTATION_PLAN.md",
   "requirements": [
     {
       "id": "B1",
@@ -993,7 +993,7 @@
       "implementationStatus": "IMPLEMENTED",
       "verificationStatus": "VERIFIED",
       "implementationPaths": [
-        "compiler-core/src/main/java/org/javelle/compiler/core/frontend"
+        "compiler-core/src/main/java/dev/teyru/compiler/core/frontend"
       ],
       "testIds": [
         "P05FrontendTest",
@@ -1011,7 +1011,7 @@
       "implementationStatus": "IMPLEMENTED",
       "verificationStatus": "VERIFIED",
       "implementationPaths": [
-        "compiler-core/src/main/java/org/javelle/compiler/core/frontend"
+        "compiler-core/src/main/java/dev/teyru/compiler/core/frontend"
       ],
       "testIds": [
         "P05FrontendTest",
@@ -1029,7 +1029,7 @@
       "implementationStatus": "IMPLEMENTED",
       "verificationStatus": "VERIFIED",
       "implementationPaths": [
-        "compiler-core/src/main/java/org/javelle/compiler/core/frontend"
+        "compiler-core/src/main/java/dev/teyru/compiler/core/frontend"
       ],
       "testIds": [
         "P05FrontendTest",
@@ -1047,7 +1047,7 @@
       "implementationStatus": "IMPLEMENTED",
       "verificationStatus": "VERIFIED",
       "implementationPaths": [
-        "compiler-core/src/main/java/org/javelle/compiler/core/frontend"
+        "compiler-core/src/main/java/dev/teyru/compiler/core/frontend"
       ],
       "testIds": [
         "P05FrontendTest",
@@ -1065,7 +1065,7 @@
       "implementationStatus": "IMPLEMENTED",
       "verificationStatus": "VERIFIED",
       "implementationPaths": [
-        "compiler-core/src/main/java/org/javelle/compiler/core/frontend"
+        "compiler-core/src/main/java/dev/teyru/compiler/core/frontend"
       ],
       "testIds": [
         "P05FrontendTest",
@@ -1083,7 +1083,7 @@
       "implementationStatus": "IMPLEMENTED",
       "verificationStatus": "VERIFIED",
       "implementationPaths": [
-        "compiler-core/src/main/java/org/javelle/compiler/core/frontend"
+        "compiler-core/src/main/java/dev/teyru/compiler/core/frontend"
       ],
       "testIds": [
         "P05FrontendTest",
@@ -1101,7 +1101,7 @@
       "implementationStatus": "IMPLEMENTED",
       "verificationStatus": "VERIFIED",
       "implementationPaths": [
-        "compiler-core/src/main/java/org/javelle/compiler/core/frontend"
+        "compiler-core/src/main/java/dev/teyru/compiler/core/frontend"
       ],
       "testIds": [
         "P05FrontendTest",
@@ -1119,7 +1119,7 @@
       "implementationStatus": "IMPLEMENTED",
       "verificationStatus": "VERIFIED",
       "implementationPaths": [
-        "compiler-core/src/main/java/org/javelle/compiler/core/frontend"
+        "compiler-core/src/main/java/dev/teyru/compiler/core/frontend"
       ],
       "testIds": [
         "P05FrontendTest",
@@ -1137,7 +1137,7 @@
       "implementationStatus": "IMPLEMENTED",
       "verificationStatus": "VERIFIED",
       "implementationPaths": [
-        "compiler-core/src/main/java/org/javelle/compiler/core/frontend"
+        "compiler-core/src/main/java/dev/teyru/compiler/core/frontend"
       ],
       "testIds": [
         "P05FrontendTest",
@@ -1155,7 +1155,7 @@
       "implementationStatus": "IMPLEMENTED",
       "verificationStatus": "VERIFIED",
       "implementationPaths": [
-        "compiler-core/src/main/java/org/javelle/compiler/core/frontend"
+        "compiler-core/src/main/java/dev/teyru/compiler/core/frontend"
       ],
       "testIds": [
         "P05FrontendTest",
@@ -1173,7 +1173,7 @@
       "implementationStatus": "IMPLEMENTED",
       "verificationStatus": "VERIFIED",
       "implementationPaths": [
-        "compiler-core/src/main/java/org/javelle/compiler/core/frontend"
+        "compiler-core/src/main/java/dev/teyru/compiler/core/frontend"
       ],
       "testIds": [
         "P05FrontendTest",
@@ -1191,7 +1191,7 @@
       "implementationStatus": "IMPLEMENTED",
       "verificationStatus": "VERIFIED",
       "implementationPaths": [
-        "compiler-core/src/main/java/org/javelle/compiler/core/frontend"
+        "compiler-core/src/main/java/dev/teyru/compiler/core/frontend"
       ],
       "testIds": [
         "P05FrontendTest",
@@ -1209,9 +1209,9 @@
       "implementationStatus": "IMPLEMENTED",
       "verificationStatus": "VERIFIED",
       "implementationPaths": [
-        "compiler-core/src/main/java/org/javelle/compiler/core/emitter",
-        "compiler-core/src/main/java/org/javelle/compiler/core/lowering/EarlyLowerer.java",
-        "compiler-core/src/main/java/org/javelle/compiler/core/semantic",
+        "compiler-core/src/main/java/dev/teyru/compiler/core/emitter",
+        "compiler-core/src/main/java/dev/teyru/compiler/core/lowering/EarlyLowerer.java",
+        "compiler-core/src/main/java/dev/teyru/compiler/core/semantic",
         "compiler-driver/src/main/java"
       ],
       "testIds": [
@@ -1232,9 +1232,9 @@
       "implementationStatus": "IMPLEMENTED",
       "verificationStatus": "VERIFIED",
       "implementationPaths": [
-        "compiler-core/src/main/java/org/javelle/compiler/core/emitter",
-        "compiler-core/src/main/java/org/javelle/compiler/core/lowering/EarlyLowerer.java",
-        "compiler-core/src/main/java/org/javelle/compiler/core/semantic",
+        "compiler-core/src/main/java/dev/teyru/compiler/core/emitter",
+        "compiler-core/src/main/java/dev/teyru/compiler/core/lowering/EarlyLowerer.java",
+        "compiler-core/src/main/java/dev/teyru/compiler/core/semantic",
         "compiler-driver/src/main/java"
       ],
       "testIds": [
@@ -1255,9 +1255,9 @@
       "implementationStatus": "IMPLEMENTED",
       "verificationStatus": "VERIFIED",
       "implementationPaths": [
-        "compiler-core/src/main/java/org/javelle/compiler/core/emitter",
-        "compiler-core/src/main/java/org/javelle/compiler/core/lowering/EarlyLowerer.java",
-        "compiler-core/src/main/java/org/javelle/compiler/core/semantic",
+        "compiler-core/src/main/java/dev/teyru/compiler/core/emitter",
+        "compiler-core/src/main/java/dev/teyru/compiler/core/lowering/EarlyLowerer.java",
+        "compiler-core/src/main/java/dev/teyru/compiler/core/semantic",
         "compiler-driver/src/main/java"
       ],
       "testIds": [
@@ -1278,9 +1278,9 @@
       "implementationStatus": "IMPLEMENTED",
       "verificationStatus": "VERIFIED",
       "implementationPaths": [
-        "compiler-core/src/main/java/org/javelle/compiler/core/emitter",
-        "compiler-core/src/main/java/org/javelle/compiler/core/lowering/EarlyLowerer.java",
-        "compiler-core/src/main/java/org/javelle/compiler/core/semantic",
+        "compiler-core/src/main/java/dev/teyru/compiler/core/emitter",
+        "compiler-core/src/main/java/dev/teyru/compiler/core/lowering/EarlyLowerer.java",
+        "compiler-core/src/main/java/dev/teyru/compiler/core/semantic",
         "compiler-driver/src/main/java"
       ],
       "testIds": [
@@ -1301,9 +1301,9 @@
       "implementationStatus": "IMPLEMENTED",
       "verificationStatus": "VERIFIED",
       "implementationPaths": [
-        "compiler-core/src/main/java/org/javelle/compiler/core/emitter",
-        "compiler-core/src/main/java/org/javelle/compiler/core/lowering/EarlyLowerer.java",
-        "compiler-core/src/main/java/org/javelle/compiler/core/semantic",
+        "compiler-core/src/main/java/dev/teyru/compiler/core/emitter",
+        "compiler-core/src/main/java/dev/teyru/compiler/core/lowering/EarlyLowerer.java",
+        "compiler-core/src/main/java/dev/teyru/compiler/core/semantic",
         "compiler-driver/src/main/java"
       ],
       "testIds": [
@@ -1324,9 +1324,9 @@
       "implementationStatus": "IMPLEMENTED",
       "verificationStatus": "VERIFIED",
       "implementationPaths": [
-        "compiler-core/src/main/java/org/javelle/compiler/core/emitter",
-        "compiler-core/src/main/java/org/javelle/compiler/core/lowering/EarlyLowerer.java",
-        "compiler-core/src/main/java/org/javelle/compiler/core/semantic",
+        "compiler-core/src/main/java/dev/teyru/compiler/core/emitter",
+        "compiler-core/src/main/java/dev/teyru/compiler/core/lowering/EarlyLowerer.java",
+        "compiler-core/src/main/java/dev/teyru/compiler/core/semantic",
         "compiler-driver/src/main/java"
       ],
       "testIds": [
@@ -1347,9 +1347,9 @@
       "implementationStatus": "IMPLEMENTED",
       "verificationStatus": "VERIFIED",
       "implementationPaths": [
-        "compiler-core/src/main/java/org/javelle/compiler/core/emitter",
-        "compiler-core/src/main/java/org/javelle/compiler/core/lowering/EarlyLowerer.java",
-        "compiler-core/src/main/java/org/javelle/compiler/core/semantic",
+        "compiler-core/src/main/java/dev/teyru/compiler/core/emitter",
+        "compiler-core/src/main/java/dev/teyru/compiler/core/lowering/EarlyLowerer.java",
+        "compiler-core/src/main/java/dev/teyru/compiler/core/semantic",
         "compiler-driver/src/main/java"
       ],
       "testIds": [
@@ -1370,9 +1370,9 @@
       "implementationStatus": "IMPLEMENTED",
       "verificationStatus": "VERIFIED",
       "implementationPaths": [
-        "compiler-core/src/main/java/org/javelle/compiler/core/emitter",
-        "compiler-core/src/main/java/org/javelle/compiler/core/lowering/EarlyLowerer.java",
-        "compiler-core/src/main/java/org/javelle/compiler/core/semantic",
+        "compiler-core/src/main/java/dev/teyru/compiler/core/emitter",
+        "compiler-core/src/main/java/dev/teyru/compiler/core/lowering/EarlyLowerer.java",
+        "compiler-core/src/main/java/dev/teyru/compiler/core/semantic",
         "compiler-driver/src/main/java"
       ],
       "testIds": [
@@ -1393,9 +1393,9 @@
       "implementationStatus": "IMPLEMENTED",
       "verificationStatus": "VERIFIED",
       "implementationPaths": [
-        "compiler-core/src/main/java/org/javelle/compiler/core/emitter",
-        "compiler-core/src/main/java/org/javelle/compiler/core/lowering/EarlyLowerer.java",
-        "compiler-core/src/main/java/org/javelle/compiler/core/semantic",
+        "compiler-core/src/main/java/dev/teyru/compiler/core/emitter",
+        "compiler-core/src/main/java/dev/teyru/compiler/core/lowering/EarlyLowerer.java",
+        "compiler-core/src/main/java/dev/teyru/compiler/core/semantic",
         "compiler-driver/src/main/java"
       ],
       "testIds": [
@@ -1416,9 +1416,9 @@
       "implementationStatus": "IMPLEMENTED",
       "verificationStatus": "VERIFIED",
       "implementationPaths": [
-        "compiler-core/src/main/java/org/javelle/compiler/core/emitter",
-        "compiler-core/src/main/java/org/javelle/compiler/core/lowering/EarlyLowerer.java",
-        "compiler-core/src/main/java/org/javelle/compiler/core/semantic",
+        "compiler-core/src/main/java/dev/teyru/compiler/core/emitter",
+        "compiler-core/src/main/java/dev/teyru/compiler/core/lowering/EarlyLowerer.java",
+        "compiler-core/src/main/java/dev/teyru/compiler/core/semantic",
         "compiler-driver/src/main/java"
       ],
       "testIds": [
@@ -1439,9 +1439,9 @@
       "implementationStatus": "IMPLEMENTED",
       "verificationStatus": "VERIFIED",
       "implementationPaths": [
-        "compiler-core/src/main/java/org/javelle/compiler/core/emitter",
-        "compiler-core/src/main/java/org/javelle/compiler/core/lowering/EarlyLowerer.java",
-        "compiler-core/src/main/java/org/javelle/compiler/core/semantic",
+        "compiler-core/src/main/java/dev/teyru/compiler/core/emitter",
+        "compiler-core/src/main/java/dev/teyru/compiler/core/lowering/EarlyLowerer.java",
+        "compiler-core/src/main/java/dev/teyru/compiler/core/semantic",
         "compiler-driver/src/main/java"
       ],
       "testIds": [
@@ -1462,9 +1462,9 @@
       "implementationStatus": "IMPLEMENTED",
       "verificationStatus": "VERIFIED",
       "implementationPaths": [
-        "compiler-core/src/main/java/org/javelle/compiler/core/emitter",
-        "compiler-core/src/main/java/org/javelle/compiler/core/lowering/EarlyLowerer.java",
-        "compiler-core/src/main/java/org/javelle/compiler/core/semantic",
+        "compiler-core/src/main/java/dev/teyru/compiler/core/emitter",
+        "compiler-core/src/main/java/dev/teyru/compiler/core/lowering/EarlyLowerer.java",
+        "compiler-core/src/main/java/dev/teyru/compiler/core/semantic",
         "compiler-driver/src/main/java"
       ],
       "testIds": [
@@ -1490,7 +1490,7 @@
         "spec/cli"
       ],
       "testIds": [
-        "JavelleCliTest",
+        "TeyruCliTest",
         "CliBlackBoxTest"
       ],
       "evidencePaths": [
@@ -1510,7 +1510,7 @@
         "spec/cli"
       ],
       "testIds": [
-        "JavelleCliTest",
+        "TeyruCliTest",
         "CliBlackBoxTest"
       ],
       "evidencePaths": [
@@ -1530,7 +1530,7 @@
         "spec/cli"
       ],
       "testIds": [
-        "JavelleCliTest",
+        "TeyruCliTest",
         "CliBlackBoxTest"
       ],
       "evidencePaths": [
@@ -1550,7 +1550,7 @@
         "spec/cli"
       ],
       "testIds": [
-        "JavelleCliTest",
+        "TeyruCliTest",
         "CliBlackBoxTest"
       ],
       "evidencePaths": [
@@ -1570,7 +1570,7 @@
         "spec/cli"
       ],
       "testIds": [
-        "JavelleCliTest",
+        "TeyruCliTest",
         "CliBlackBoxTest"
       ],
       "evidencePaths": [
@@ -1590,7 +1590,7 @@
         "spec/cli"
       ],
       "testIds": [
-        "JavelleCliTest",
+        "TeyruCliTest",
         "CliBlackBoxTest"
       ],
       "evidencePaths": [
@@ -1610,7 +1610,7 @@
         "spec/cli"
       ],
       "testIds": [
-        "JavelleCliTest",
+        "TeyruCliTest",
         "CliBlackBoxTest"
       ],
       "evidencePaths": [
@@ -1630,7 +1630,7 @@
         "spec/cli"
       ],
       "testIds": [
-        "JavelleCliTest",
+        "TeyruCliTest",
         "CliBlackBoxTest"
       ],
       "evidencePaths": [
@@ -1650,7 +1650,7 @@
         "spec/cli"
       ],
       "testIds": [
-        "JavelleCliTest",
+        "TeyruCliTest",
         "CliBlackBoxTest"
       ],
       "evidencePaths": [
@@ -1670,7 +1670,7 @@
         "spec/cli"
       ],
       "testIds": [
-        "JavelleCliTest",
+        "TeyruCliTest",
         "CliBlackBoxTest"
       ],
       "evidencePaths": [
@@ -1690,7 +1690,7 @@
         "spec/cli"
       ],
       "testIds": [
-        "JavelleCliTest",
+        "TeyruCliTest",
         "CliBlackBoxTest"
       ],
       "evidencePaths": [
@@ -1710,7 +1710,7 @@
         "spec/cli"
       ],
       "testIds": [
-        "JavelleCliTest",
+        "TeyruCliTest",
         "CliBlackBoxTest"
       ],
       "evidencePaths": [
@@ -1726,7 +1726,7 @@
       "verificationStatus": "VERIFIED",
       "implementationPaths": [
         "workspace-model/src/main/java",
-        "gradle-plugin/src/main/java/org/javelle/gradle/workspace",
+        "gradle-plugin/src/main/java/dev/teyru/gradle/workspace",
         "spec/workspace"
       ],
       "testIds": [
@@ -1746,7 +1746,7 @@
       "verificationStatus": "VERIFIED",
       "implementationPaths": [
         "workspace-model/src/main/java",
-        "gradle-plugin/src/main/java/org/javelle/gradle/workspace",
+        "gradle-plugin/src/main/java/dev/teyru/gradle/workspace",
         "spec/workspace"
       ],
       "testIds": [
@@ -1766,7 +1766,7 @@
       "verificationStatus": "VERIFIED",
       "implementationPaths": [
         "workspace-model/src/main/java",
-        "gradle-plugin/src/main/java/org/javelle/gradle/workspace",
+        "gradle-plugin/src/main/java/dev/teyru/gradle/workspace",
         "spec/workspace"
       ],
       "testIds": [
@@ -1786,7 +1786,7 @@
       "verificationStatus": "VERIFIED",
       "implementationPaths": [
         "workspace-model/src/main/java",
-        "gradle-plugin/src/main/java/org/javelle/gradle/workspace",
+        "gradle-plugin/src/main/java/dev/teyru/gradle/workspace",
         "spec/workspace"
       ],
       "testIds": [
@@ -1806,7 +1806,7 @@
       "verificationStatus": "VERIFIED",
       "implementationPaths": [
         "workspace-model/src/main/java",
-        "gradle-plugin/src/main/java/org/javelle/gradle/workspace",
+        "gradle-plugin/src/main/java/dev/teyru/gradle/workspace",
         "spec/workspace"
       ],
       "testIds": [
@@ -1826,7 +1826,7 @@
       "verificationStatus": "VERIFIED",
       "implementationPaths": [
         "workspace-model/src/main/java",
-        "gradle-plugin/src/main/java/org/javelle/gradle/workspace",
+        "gradle-plugin/src/main/java/dev/teyru/gradle/workspace",
         "spec/workspace"
       ],
       "testIds": [
@@ -1846,7 +1846,7 @@
       "verificationStatus": "VERIFIED",
       "implementationPaths": [
         "workspace-model/src/main/java",
-        "gradle-plugin/src/main/java/org/javelle/gradle/workspace",
+        "gradle-plugin/src/main/java/dev/teyru/gradle/workspace",
         "spec/workspace"
       ],
       "testIds": [
@@ -1866,7 +1866,7 @@
       "verificationStatus": "VERIFIED",
       "implementationPaths": [
         "workspace-model/src/main/java",
-        "gradle-plugin/src/main/java/org/javelle/gradle/workspace",
+        "gradle-plugin/src/main/java/dev/teyru/gradle/workspace",
         "spec/workspace"
       ],
       "testIds": [
@@ -1886,7 +1886,7 @@
       "verificationStatus": "VERIFIED",
       "implementationPaths": [
         "workspace-model/src/main/java",
-        "gradle-plugin/src/main/java/org/javelle/gradle/workspace",
+        "gradle-plugin/src/main/java/dev/teyru/gradle/workspace",
         "spec/workspace"
       ],
       "testIds": [
@@ -1906,7 +1906,7 @@
       "verificationStatus": "VERIFIED",
       "implementationPaths": [
         "workspace-model/src/main/java",
-        "gradle-plugin/src/main/java/org/javelle/gradle/workspace",
+        "gradle-plugin/src/main/java/dev/teyru/gradle/workspace",
         "spec/workspace"
       ],
       "testIds": [
@@ -1926,7 +1926,7 @@
       "verificationStatus": "VERIFIED",
       "implementationPaths": [
         "workspace-model/src/main/java",
-        "gradle-plugin/src/main/java/org/javelle/gradle/workspace",
+        "gradle-plugin/src/main/java/dev/teyru/gradle/workspace",
         "spec/workspace"
       ],
       "testIds": [
@@ -1946,7 +1946,7 @@
       "verificationStatus": "VERIFIED",
       "implementationPaths": [
         "workspace-model/src/main/java",
-        "gradle-plugin/src/main/java/org/javelle/gradle/workspace",
+        "gradle-plugin/src/main/java/dev/teyru/gradle/workspace",
         "spec/workspace"
       ],
       "testIds": [

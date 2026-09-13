@@ -15,7 +15,7 @@
       "normativeFixtureId": "SYN-SEMICOLON-TOKEN",
       "kind": "negative",
       "source": "class C {\n  int x = 1;\n}\n",
-      "expectedDiagnostics": [{"code":"JV-SYN-0001","anchor":";","length":1,"fixReplacement":""}],
+      "expectedDiagnostics": [{"code":"TY-SYN-0001","anchor":";","length":1,"fixReplacement":""}],
       "expectedAst": ["CompilationUnit", "ClassDeclaration:C", "FieldDeclaration:x", "ErrorNode"]
     },
     {
@@ -31,7 +31,7 @@
       "normativeFixtureId": "TYP-VAR-NULL",
       "kind": "negative",
       "source": "class C {\n  Object m() {\n    var x = null\n    return x\n  }\n}\n",
-      "expectedDiagnostics": [{"code":"JV-TYP-0002","anchor":"null","length":4}],
+      "expectedDiagnostics": [{"code":"TY-TYP-0002","anchor":"null","length":4}],
       "expectedAst": ["CompilationUnit", "ClassDeclaration:C", "MethodDeclaration:m", "LocalVariableDeclaration:x", "NullLiteral"]
     },
     {
@@ -39,7 +39,7 @@
       "normativeFixtureId": "TYP-FIELD-INFERENCE",
       "kind": "negative",
       "source": "class C {\n  private var x = 1\n}\n",
-      "expectedDiagnostics": [{"code":"JV-TYP-0003","anchor":"var","length":3}],
+      "expectedDiagnostics": [{"code":"TY-TYP-0003","anchor":"var","length":3}],
       "expectedAst": ["CompilationUnit", "ClassDeclaration:C", "ErrorNode"]
     },
     {
@@ -71,7 +71,7 @@
       "normativeFixtureId": "RECOVERY-INCOMPLETE-ACCESSOR",
       "kind": "recovery",
       "source": "class C { String x { get { return",
-      "expectedDiagnostics": [{"code":"JV-SYN-0002","anchor":"return","length":6}],
+      "expectedDiagnostics": [{"code":"TY-SYN-0002","anchor":"return","length":6}],
       "maxPrimaryDiagnostics": 3,
       "mustTerminate": true,
       "expectedAst": ["CompilationUnit", "ClassDeclaration:C", "PropertyDeclaration:x", "GetterDeclaration", "ErrorNode"]

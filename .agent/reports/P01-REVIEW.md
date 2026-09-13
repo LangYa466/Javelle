@@ -15,14 +15,14 @@ The unowned `.idea/vcs.xml` was explicitly excluded and not read, modified, stag
 | Requirement | Decision | Independent basis |
 |---|---|---|
 | `P01-01` | **FAIL** | JDK 25 pin/checksum and `--release 21` approach are recorded, but the report itself requires a fixed native JDK 21 distribution/checksum and cross-runtime probe. `/usr/lib/jvm/java-21-openjdk/bin/java` is not executable (probe exit 1) |
-| `P01-02` | PASS | Compiler runtime JDK, Gradle daemon JDK, Javelle targets, and IDEA bytecode level are recorded as four distinct axes; unverified axes are not presented as working |
+| `P01-02` | PASS | Compiler runtime JDK, Gradle daemon JDK, Teyru targets, and IDEA bytecode level are recorded as four distinct axes; unverified axes are not presented as working |
 | `P01-03` | PASS | Gradle 9.6.0 is fixed against official compatibility/checksum sources; official distribution and wrapper hashes matched; isolated wrapper execution succeeded |
 | `P01-04` | **FAIL** | Plugin marker `2.18.1` is pinned and hashed, but IU 2026.1.4/JBR were not resolved. Minimum/current IDEA execution, LSP module availability, unsupported artifact behavior, and Plugin Verifier remain untested |
 | `P01-05` | **FAIL** | Lombok 1.18.48 artifact/tag/JAR SHA are pinned, but no actual public API, feature, annotation, or configuration-key export exists. Both VERSIONS and SOURCES explicitly defer the required complete inventory to P20 |
 | `P01-06` | **FAIL** | LSP 3.18 and LSP4J/JSON-RPC 1.0.0 artifacts are pinned and hash-verified, but there is no official method inventory mapped to library support and no explicit DTO-gap inventory |
 | `P01-07` | **FAIL** | Current manifest covers Gradle/JUnit/Lombok/LSP4J only. Parser choice, JSON boundary, IntelliJ artifacts, website dependency graph/transitives, formatter/lint, SBOM and license tools remain unresolved rather than selected as a complete minimal set |
 | `P01-08` | PASS | GPLv2+Classpath, third-party source/binary/bundling, annotations, emitted helpers, runtime, wrapper, docs and release artifacts have explicit review boundaries and blockers; no legal compatibility guarantee is fabricated |
-| `P01-09` | PASS | `org.javelle` is limited to internal package use; `io.langya` and public Maven/Plugin IDs are explicitly not claimed as verified namespaces |
+| `P01-09` | PASS | `dev.teyru` is limited to internal package use; `io.langya` and public Maven/Plugin IDs are explicitly not claimed as verified namespaces |
 | `P01-10` | PASS | Concise SOURCES register records immutable commits/hashes for copied license bytes and fixed artifact references; mutable documentation is citation-only and no website content was vendored |
 | `P01-11` | **FAIL** | Node/npm and Astro/Starlight top-level pins are proposed, but there is no Node distribution checksum/CI image pin, frontend manifest/lockfile, complete transitive dependency lock, reproducible install command, or explicit supported OS matrix |
 | `P01-12` | **FAIL** | Independent Gradle wrapper/verification probes pass, but the required minimum toolchain/API probe cannot pass without native JDK 21 and the selected IU/JBR/LSP module. Documentation-only compatibility is explicitly forbidden |
@@ -73,7 +73,7 @@ STATUS: **FAILED — REJECT P01**
 | `P01-03` | PASS | Gradle 9.6.0 distribution/JAR hashes match official endpoints; isolated wrapper positive and tampered-hash negative passed in round one; strict verification rerun exit 0 in round two |
 | `P01-04` | PASS | IU 2026.1.4 archive SHA `3104d85…63fc` matched; archive `product-info.json` independently reports IU build `261.26222.65`; extracted LSP API JAR contains Manager/Descriptor/SupportProvider classes. Minimum=current=261 and unsupported IC/Android boundary are recorded |
 | `P01-05` | PASS | Fixed Lombok 1.18.48 JAR/tag/hash; actual jar-derived public surface has 151 entries and executable verbose config export has 82 unique keys. Machine baseline preserves all entries as NOT_IMPLEMENTED/NOT_VERIFIED |
-| `P01-06` | **FAIL** | Official meta-model inventory has 95 methods and LSP4J service APIs were exported, but all 95 machine entries still have `dtoGapStatus: NOT_REVIEWED`. This records an unknown state, not the required confirmation of binding support and identification of DTOs Javelle must supplement |
+| `P01-06` | **FAIL** | Official meta-model inventory has 95 methods and LSP4J service APIs were exported, but all 95 machine entries still have `dtoGapStatus: NOT_REVIEWED`. This records an unknown state, not the required confirmation of binding support and identification of DTOs Teyru must supplement |
 | `P01-07` | PASS | Parser=JDK-only implementation, JSON=LSP4J boundary, JUnit/Lombok/IntelliJ/format/lint/SBOM/license choices and dependency-admission rules form an explicit minimal set with licenses and future resolved-graph gates |
 | `P01-08` | PASS | GPL+Classpath and all source/binary/runtime/helper/annotation/packaging boundaries and review items remain explicit; full release legal review is not falsely claimed |
 | `P01-09` | PASS | Internal package root and unverified external namespaces remain separated |
@@ -83,7 +83,7 @@ STATUS: **FAILED — REJECT P01**
 
 ### Plugin Verifier disposition
 
-Deferring Plugin Verifier to P11 is compatible with the exact P01 text. `P01-04` requires choosing/verifying the Platform Gradle Plugin, supported IDEA build, and available LSP module; those artifact-level facts are now verified. P01 has no real Javelle plugin ZIP, so running the verifier on a fabricated empty plugin would not validate compatibility. No Plugin Verifier success or complete IDEA plugin compatibility is claimed here.
+Deferring Plugin Verifier to P11 is compatible with the exact P01 text. `P01-04` requires choosing/verifying the Platform Gradle Plugin, supported IDEA build, and available LSP module; those artifact-level facts are now verified. P01 has no real Teyru plugin ZIP, so running the verifier on a fabricated empty plugin would not validate compatibility. No Plugin Verifier success or complete IDEA plugin compatibility is claimed here.
 
 ### Reproduced commands and outcomes
 
@@ -123,7 +123,7 @@ The binding conclusion is not yet supported:
 - Per-method `libraryBinding.evidence` is a category-level assertion such as `TextDocumentService + protocol DTOs`, not an observed method annotation/signature or a generated type comparison.
 - `P01-LSP-GAPS.md` explicitly says the 3.18.2 meta-model postdates LSP4J's draft 3.18.0 claim and leaves the field/type-level meta-model-to-LSP4J DTO diff as remaining work.
 
-P01-06 requires confirming library protocol support and recording DTO differences that Javelle must supply. A blanket `SUPPORTED_LIBRARY` status cannot replace the acknowledged field/type/signature comparison, especially where the captured service-annotation evidence says `UNBOUND`. Required fix: reconcile every `UNBOUND` method with an actual interface/default/annotation or custom JSON-RPC binding, and complete the field/type DTO diff with explicit `SUPPORTED_LIBRARY` or `CUSTOM_DTO_REQUIRED` evidence.
+P01-06 requires confirming library protocol support and recording DTO differences that Teyru must supply. A blanket `SUPPORTED_LIBRARY` status cannot replace the acknowledged field/type/signature comparison, especially where the captured service-annotation evidence says `UNBOUND`. Required fix: reconcile every `UNBOUND` method with an actual interface/default/annotation or custom JSON-RPC binding, and complete the field/type DTO diff with explicit `SUPPORTED_LIBRARY` or `CUSTOM_DTO_REQUIRED` evidence.
 
 ### P01-11 — PASS
 
@@ -162,7 +162,7 @@ STATUS: **VERIFIED — ACCEPT P01**
 - DTO inventory is exactly 450 unique official types: 309 `SUPPORTED_LIBRARY`, 16 `PROTOCOL_DELTA_WITH_REASON`, 125 conservative `CUSTOM_DTO_REQUIRED`, and zero `NOT_REVIEWED`. Delta/custom entries carry explicit reasons.
 - The seven application N/A entries retain bounded reasons: notebook lifecycle (4), document color (2), and debugger-context inline value (1). Their protocol bindings are still inventoried.
 
-The P01 contract requires confirming method binding support and recording DTO differences that require Javelle-owned work. The new source-annotation bindings plus complete field/type classification meet that baseline. Focused serialization/alternate-symbol tests for the 141 non-supported/delta types remain mandatory before those DTOs are implemented or advertised, but do not invalidate the truthful P01 inventory.
+The P01 contract requires confirming method binding support and recording DTO differences that require Teyru-owned work. The new source-annotation bindings plus complete field/type classification meet that baseline. Focused serialization/alternate-symbol tests for the 141 non-supported/delta types remain mandatory before those DTOs are implemented or advertised, but do not invalidate the truthful P01 inventory.
 
 ### P01-11 and regression checks
 

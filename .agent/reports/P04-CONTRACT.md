@@ -6,7 +6,7 @@
 
 ## Package and version boundary
 
-Public packages are `org.javelle.compiler.core.source`, `.syntax`, `.diagnostic`, `.symbol`, `.lowering`, `.sourcemap`, `.analysis`, `.budget`. Public types are final classes, records, sealed interfaces or enums. Collections are immutable defensive copies in stable order; no nullable collections/elements. Schema/API major is `1`; JSON has explicit `schemaVersion: 1` and canonical UTF-8 encoding.
+Public packages are `dev.teyru.compiler.core.source`, `.syntax`, `.diagnostic`, `.symbol`, `.lowering`, `.sourcemap`, `.analysis`, `.budget`. Public types are final classes, records, sealed interfaces or enums. Collections are immutable defensive copies in stable order; no nullable collections/elements. Schema/API major is `1`; JSON has explicit `schemaVersion: 1` and canonical UTF-8 encoding.
 
 Equality is structural for value records. `SourceId`, `NodeId`, `SymbolId` equality uses documented stable content, never object identity, process counters, absolute machine paths or `hashCode()`. Builder/internal caches are excluded from equality/serialization. Offset arithmetic uses checked `long` during decoding/composition and rejects values beyond the public non-negative `int` coordinate range before narrowing.
 
@@ -75,7 +75,7 @@ record Diagnostic(int schemaVersion, DiagnosticCode code, Severity severity,
 
 Codes match the versioned P03 catalog. Primary and related ranges are original-source half-open ranges. Fix edits are sorted by source/start, non-overlapping, in-bounds, version/fingerprint-bound and applied from end to start; cross-file fixes are explicit. JSON property order is schema-defined; arrays retain semantic order; map keys sort lexicographically. No ANSI, throwable text, absolute path, locale/timezone-dependent formatting or unordered map output. Duplicate diagnostics use `(code, source, range, normalized data identity)`, not message text.
 
-Schema v1 readers ignore unknown additive fields but reject wrong type/missing required field. A higher major rejects with `JV-SCHEMA-UNSUPPORTED`; it never guesses. Writers always emit current fields. Serialization twice and across working directories must be byte-identical.
+Schema v1 readers ignore unknown additive fields but reject wrong type/missing required field. A higher major rejects with `TY-SCHEMA-UNSUPPORTED`; it never guesses. Writers always emit current fields. Serialization twice and across working directories must be byte-identical.
 
 ## Symbols, properties and ABI projection (P04-05)
 
@@ -178,7 +178,7 @@ Diagnostic source maps remain separate from LSP position conversion and JVM SMAP
 
 ## Implementation ownership and commands
 
-Implementation paths: `compiler-core/src/main/java/org/javelle/compiler/core/{source,syntax,diagnostic,symbol,lowering,sourcemap,analysis,budget}/`. Tests mirror packages under `src/test`. `workspace-model` may reference stable core-neutral identifiers only through an accepted dependency/API decision; core must not depend on workspace-model.
+Implementation paths: `compiler-core/src/main/java/dev/teyru/compiler/core/{source,syntax,diagnostic,symbol,lowering,sourcemap,analysis,budget}/`. Tests mirror packages under `src/test`. `workspace-model` may reference stable core-neutral identifiers only through an accepted dependency/API decision; core must not depend on workspace-model.
 
 Minimum owner commands after implementation:
 

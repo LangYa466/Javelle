@@ -74,7 +74,7 @@ STATUS: **FAILED — REJECT P00**
 
 | Requirement | Decision | Independently reproduced basis |
 |---|---|---|
-| `P00-01` | PASS | CWD/Git root are `/home/langya/IdeaProjects/Javelle`; branch/status, existing root AGENTS, absence of overrides, and current untracked repair artifacts were observed without modifying user files outside this review scope |
+| `P00-01` | PASS | CWD/Git root are `/home/langya/IdeaProjects/Teyru`; branch/status, existing root AGENTS, absence of overrides, and current untracked repair artifacts were observed without modifying user files outside this review scope |
 | `P00-02` | PASS | `P00-SPEC-COVERAGE.md` records complete A–I, P00–P55, and UAT ownership/index coverage from canonical agent `/root/p00_spec` |
 | `P00-03` | PASS | `/usr/lib/chatgpt/resources/codex --version` exit 0 reports `codex-cli 0.147.0-alpha.6.6`; `rpm -q chatgpt` exit 0 reports `26.803.81509`; current collaboration registry exposes canonical agents and spawn/list/message/follow-up/wait/interrupt behavior. UI-internal UUID is not required by this ID |
 | `P00-04` | **FAIL** | `/root/p00_probe` is genuinely read-only but its returned scope was lifecycle probing, not the required environment recon; the environment/read-scope artifact is authored by `/root/p00_repair`, which had write ownership. The original `/root/p00_recon` still has no attributable report. No single read-only recon return satisfies unique ID + read scope + environment short summary as written |

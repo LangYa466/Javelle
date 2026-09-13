@@ -1,5 +1,5 @@
 plugins {
-    id("org.javelle.java-conventions")
+    id("dev.teyru.java-conventions")
     id("org.jetbrains.intellij.platform")
 }
 
@@ -19,8 +19,8 @@ dependencies {
 
 intellijPlatform {
     pluginConfiguration {
-        id.set("org.javelle.ide")
-        name.set("Javelle")
+        id.set("dev.teyru.ide")
+        name.set("Teyru")
         version.set(project.version.toString())
         ideaVersion {
             sinceBuild.set("261")
@@ -31,7 +31,7 @@ intellijPlatform {
 
 val bundledLsp = tasks.register<Sync>("syncBundledLsp") {
     dependsOn(":language-server:installDist")
-    from(project(":language-server").layout.buildDirectory.dir("install/javelle-lsp"))
+    from(project(":language-server").layout.buildDirectory.dir("install/teyru-lsp"))
     into(layout.buildDirectory.dir("bundled-lsp"))
     filesMatching("**/bin/*") { permissions { unix("0755") } }
 }
@@ -46,7 +46,7 @@ tasks.withType<org.jetbrains.intellij.platform.gradle.tasks.PrepareSandboxTask>(
 val buildPlugin = tasks.named<Zip>("buildPlugin") {
     dependsOn(bundledLsp)
     from(bundledLsp) {
-        into("javelle-lsp")
+        into("teyru-lsp")
         filesMatching("**/bin/*") { permissions { unix("0755") } }
     }
 }
@@ -55,6 +55,6 @@ tasks.test {
     dependsOn(buildPlugin)
     systemProperty("java.awt.headless", "true")
     doFirst {
-        systemProperty("javelleIntellijPluginZip", buildPlugin.get().archiveFile.get().asFile.absolutePath)
+        systemProperty("teyruIntellijPluginZip", buildPlugin.get().archiveFile.get().asFile.absolutePath)
     }
 }

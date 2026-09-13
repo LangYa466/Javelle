@@ -7,11 +7,11 @@
 ## Delivered
 
 - Gradle application distribution with POSIX/Windows launchers and fixed
-  `Javelle 0.1.0 (language 1, Java 21-25)` version.
+  `Teyru 0.1.0 (language 1, Java 21-25)` version.
 - Stable root/subcommand help, `doctor`, `check`, `compile`, `emit-java`, and catalog-backed
   `explain`; roadmap commands and stdin exit 6.
 - Explicit files use the real P06 pipeline. P08 `--project` is decoded behind the driver facade and
-  reads only declared Javelle roots; it never evaluates a build, processor, network resource or
+  reads only declared Teyru roots; it never evaluates a build, processor, network resource or
   user program. CLI has no compiler-core dependency/import.
 - JSON diagnostics preserve related/fixes/data, convert source-map code points back to raw UTF-16,
   and remain one LF-terminated uncolored stdout document. A separate Python lightweight validator
@@ -44,7 +44,7 @@ failure preservation, launcher relocation, Windows argument script inspection an
 
 ## P07-R01 review repairs
 
-- Fresh `installDist` is named `javelle` and produces `javelle`/`javelle.bat` launchers.
+- Fresh `installDist` is named `teyru` and produces `teyru`/`teyru.bat` launchers.
 - JSON-mode `emit-java` emits exactly one envelope and no artifact path. Human mode alone prints
   paths.
 - `emit-java` publishes Java, deterministic source-map JSON and an ownership manifest. Replacement
@@ -65,7 +65,7 @@ failure preservation, launcher relocation, Windows argument script inspection an
 
 ## P07-R02 final repairs
 
-- The generated `javelle.bat` is inspected as a Windows launcher artifact: quoted classpath,
+- The generated `teyru.bat` is inspected as a Windows launcher artifact: quoted classpath,
   `%*` original argument forwarding and no delayed expansion. The Linux host has no claim of a
   native Windows execution; the content fixture covers spaces/Unicode and documents `% ! ^ & | < >`
   handling through the standard Gradle script contract.

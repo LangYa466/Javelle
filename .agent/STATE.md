@@ -1,10 +1,10 @@
-# Javelle execution state
+# Teyru execution state
 
 - Phase: P14 (in progress, PAUSED at user's request after round 10)
 - localStatus: P00-P13 ACCEPTED. P14 ("完整表達式、控制流程與多行 lambda") has 10 implementation rounds landed, committed, pushed, and merged to `main`. Session paused here by explicit user request — do not resume autonomous implementation without the user asking again.
 - publicationStatus: PUBLISHED
-- Git: public `origin` is `https://github.com/LangYa466/Javelle.git`; `main`/`dev` both track the same history through P14 round 10.
-- This session is executing `prompts/JAVELLE_IMPLEMENTATION_PLAN.md`, the full 56-phase (P00-P55) master spec.
+- Git: public `origin` is `https://github.com/LangYa466/Teyru.git`; `main`/`dev` both track the same history through P14 round 10.
+- This session is executing `prompts/TEYRU_IMPLEMENTATION_PLAN.md`, the full 56-phase (P00-P55) master spec.
 - P14 progress so far (see `.agent/reports/P14-CONTRACT.md` sections 3-3j for full per-round detail): round 1 full operator precedence table (bitwise/shift/compound-assignment/instanceof/prefix-postfix ++/--), round 2 expression-bodied lambdas, round 3 while/do-while/break/continue, round 4 throw/yield/assert, round 5 enhanced for, round 6 basic colon-separated for, round 7 switch statement (arrow+colon cases), round 8 method references, round 9 try/catch/finally/multi-catch/resource headers, round 10 synchronized statement.
 - P14 known architecture gap affecting two features (documented in round 2 and round 10's write-ups): block-bodied lambdas and switch *expressions* both need the expression parser (`ExpressionCursor`) to see tokens beyond its current single-line pre-sliced window. Worth fixing once as its own round to unblock both.
 - P14 other known gaps for whoever resumes: labeled statements, pattern/guard matching, record deconstruction patterns, array indexing/literals, generics in expressions, compact constructors, receiver parameters, type-use annotations, resource initializers spanning multiple physical lines, P14-08 through P14-12 (empty-block/value-less-return audit, expression-continuation lookahead robustness, partial-expression AST recovery for LSP, precedence tests with execution-result cross-checks, independent review — not yet requested since P14 itself isn't frozen/complete).

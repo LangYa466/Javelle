@@ -7,7 +7,7 @@
 ## Changed contracts
 
 - `spec/language-spec.md`: normative Java-first semantics, Unicode translation and original span mapping, trivia/CST/AST contract, progress-guaranteed recovery, zero syntax semicolons, newline continuation and return/throw/yield/++/-- rules.
-- `spec/grammar/javelle.ebnf`: formal Java-25-delta EBNF for statement termination, basic/enhanced for disambiguation, newline resources, enum colon, local inference and property accessors. `JAVA_*` symbols are explicit imports from the forthcoming Java SE 25 grammar inventory, not regex/text placeholders.
+- `spec/grammar/teyru.ebnf`: formal Java-25-delta EBNF for statement termination, basic/enhanced for disambiguation, newline resources, enum colon, local inference and property accessors. `JAVA_*` symbols are explicit imports from the forthcoming Java SE 25 grammar inventory, not regex/text placeholders.
 - `spec/grammar/grammar-contract.json`: machine declaration of lexical phases, contextual names, separators and unimplemented status.
 - `spec/diagnostics/catalog.json`: 20 stable syntax/type/property/compiler diagnostic contracts with original half-open ranges and fixes.
 - `spec/diagnostics/fixtures.json`: 24 positive/negative/behavior/recovery cases including Unicode semicolon, ternary-in-basic-for, val/null, storage/accessor rules and property event order.
@@ -15,7 +15,7 @@
 
 ## Frozen semantic decisions
 
-1. Unicode escapes follow Java eligibility/parity before lexing and retain raw-to-translated boundary maps. Strings/chars/text blocks/comments own internal semicolons; only a resulting syntax token reports `JV-SYN-0001`.
+1. Unicode escapes follow Java eligibility/parity before lexing and retain raw-to-translated boundary maps. Strings/chars/text blocks/comments own internal semicolons; only a resulting syntax token reports `TY-SYN-0001`.
 2. Newline terminates only a complete non-continuing construct. Return newline is value-less; throw/value-yield require same-line expression start. Postfix/prefix increments cannot silently rebind across terminating newline.
 3. Basic-for has two nesting-aware top-level colons and preserves nested ternary colons; enhanced-for has one. Resources end only on newline after a complete expression. Enum members require one explicit top-level colon.
 4. `var`/`val` are local inference; val is a final binding, not deep immutability. Null/untargeted functional inference fails; typed null remains legal. Field/parameter/return inference is rejected.

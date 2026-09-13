@@ -1,10 +1,10 @@
-# Javelle Language Specification 0.1-draft
+# Teyru Language Specification 0.1-draft
 
 Status: **normative contract, implementation NOT_VERIFIED**. “Must”, “must not”, “shall” and “error” are normative. Examples and rationale are informative. Java semantics mean Java SE 25 non-preview unless a `--release 21` profile is selected.
 
 ## 1. Identity and Java-first rule
 
-The language name is Javelle, extension `.javelle`, language ID `javelle`. Except for the explicit grammar and semantic differences below, Javelle preserves Java syntax, static typing, overload resolution, generics/capture, target typing, reference `==`, numeric overflow/conversions, mutability, checked exceptions, initialization, evaluation order and null behavior. Javelle does not add Kotlin-style `name: Type`, nullable `Type?`, `fun`, implicit bean properties, deep immutability or a different equality operator.
+The language name is Teyru, extension `.teyru`, language ID `teyru`. Except for the explicit grammar and semantic differences below, Teyru preserves Java syntax, static typing, overload resolution, generics/capture, target typing, reference `==`, numeric overflow/conversions, mutability, checked exceptions, initialization, evaluation order and null behavior. Teyru does not add Kotlin-style `name: Type`, nullable `Type?`, `fun`, implicit bean properties, deep immutability or a different equality operator.
 
 ## 2. Source, Unicode, trivia and locations
 
@@ -17,12 +17,12 @@ The language name is Javelle, extension `.javelle`, language ID `javelle`. Excep
 
 ## 3. No syntax semicolons
 
-`SEMICOLON` is never legal syntax and reports `JV-SYN-0001`. Semicolons within string/char/text-block/comment data are preserved. Generated and input `.java` use normal Java semicolons.
+`SEMICOLON` is never legal syntax and reports `TY-SYN-0001`. Semicolons within string/char/text-block/comment data are preserved. Generated and input `.java` use normal Java semicolons.
 
 A logical newline terminates a statement/declaration only when the prefix is syntactically complete and continuation is not required. Continuation is required inside unclosed delimiters, after an operator/comma/dot/`::`/arrow requiring a right operand, or when the following line begins with a legal chain selector (`.`/`::`) or grammar-approved leading operator. Formatter output must make continuation unambiguous. Blank/comment-only lines do not change the decision.
 
 - `return` followed immediately by logical newline is a value-less return. A value must start on the same line; `return (` may continue until the matching `)`.
-- `throw` and value-requiring `yield` must begin their expression on the same line (or open it with `(`); otherwise `JV-SYN-0003`.
+- `throw` and value-requiring `yield` must begin their expression on the same line (or open it with `(`); otherwise `TY-SYN-0003`.
 - `++`/`--` never attach across a terminating newline. A postfix operator must be on the operand's logical line; a prefix operator belongs to the following operand only where a new expression is expected.
 - Multiple ordinary statements cannot share a line via `;`. A Java empty statement migrates to an explicit empty block where grammar permits. `do { } while (condition)` has no trailing semicolon.
 - Abstract/interface methods, annotation elements and module directives end at logical newline or containing `}` according to their productions.
@@ -45,7 +45,7 @@ Enum constants use the Java comma grammar. If declarations follow, exactly one t
 
 `var` is Java local inference with reassignment allowed. `val` uses the same inference then creates a final local binding; it is not deep immutability. Both require an initializer and are allowed only for local variables and the corresponding enhanced-for/resource contexts defined by grammar. `val` is not a parameter syntax; Java's contextual `var` lambda-parameter syntax remains available.
 
-Fields, parameters and return types require explicit Java types. `private var x`, `private val x`, `var` return types and `name: Type` report context errors. `var x = null`, `val x = null`, and untargeted lambda/method-reference initializers cannot infer a type. `(String)null` has type String. Explicit `String x = null` is valid and differs from `""`; Javelle adds no implicit null check.
+Fields, parameters and return types require explicit Java types. `private var x`, `private val x`, `var` return types and `name: Type` report context errors. `var x = null`, `val x = null`, and untargeted lambda/method-reference initializers cannot infer a type. `(String)null` has type String. Explicit `String x = null` is valid and differs from `""`; Teyru adds no implicit null check.
 
 Anonymous, intersection and captured inferred types must not be widened to `Object` merely for emission. Legal emitted Java may retain `var`/`final var`; no unnameable inferred type may leak into ABI.
 
@@ -65,11 +65,11 @@ Initializers write storage exactly once in Java field-initializer order and neve
 
 ### 6.2 Access, ABI and names
 
-Resolved property reads call the getter and writes call the setter, including unqualified and `this.name` accesses inside the declaring class. Only contextual `field` and explicit initialization lowering access storage. Missing getter makes normal reads invalid; missing setter makes normal writes invalid. Explicit generated `getX`/`setX` calls remain legal Java/Javelle calls.
+Resolved property reads call the getter and writes call the setter, including unqualified and `this.name` accesses inside the declaring class. Only contextual `field` and explicit initialization lowering access storage. Missing getter makes normal reads invalid; missing setter makes normal writes invalid. Explicit generated `getX`/`setX` calls remain legal Java/Teyru calls.
 
 Default ABI follows JavaBeans capitalization: compute a base by uppercasing the first code point unless the first two code points are already uppercase; getter is `get<Base>`, except primitive `boolean` may use `is<Base>`; boxed `Boolean` uses `get<Base>`. Setter is `set<Base>(T)`. Conflicts, acronyms and explicit Lombok `@Accessors` are resolved before emission and may not silently duplicate a signature.
 
-Unannotated plain Java fields/getters are not properties. Cross-JAR Javelle property use requires versioned `META-INF/javelle/` metadata identifying owner symbol, property name/type, accessors, modifiers and source origin; absence/incompatible version must not trigger getter-name guessing. Java consumers use ordinary accessor ABI without metadata.
+Unannotated plain Java fields/getters are not properties. Cross-JAR Teyru property use requires versioned `META-INF/teyru/` metadata identifying owner symbol, property name/type, accessors, modifiers and source origin; absence/incompatible version must not trigger getter-name guessing. Java consumers use ordinary accessor ABI without metadata.
 
 ### 6.3 Evaluation order
 
@@ -91,11 +91,11 @@ Annotations are copied only to explicitly specified and legal targets. FIELD-onl
 
 Package/import/static import, Java types/generics/annotations, classes/interfaces/enums/records/sealed forms, nested/local/anonymous types, initializers/constructors, all Java statements/expressions/patterns/text blocks and Java 25 non-preview features remain in scope. Preview syntax is rejected unless a future explicit profile says otherwise. `--release 21` rejects later features precisely.
 
-Resolution includes JDK, class/module path, source/source-JAR, generated sources, module outputs and unsaved overlays. Mixed compilation collects Javelle/generated member shapes, creates source-mapped Java-facing analysis projections, jointly attributes Java sources, completes lowering, then sends Java plus generated Java to one javac compilation. Stubs are never release classes. Processor rounds are explicit, finite and duplicate-safe; untrusted editor analysis uses `-proc:none`.
+Resolution includes JDK, class/module path, source/source-JAR, generated sources, module outputs and unsaved overlays. Mixed compilation collects Teyru/generated member shapes, creates source-mapped Java-facing analysis projections, jointly attributes Java sources, completes lowering, then sends Java plus generated Java to one javac compilation. Stubs are never release classes. Processor rounds are explicit, finite and duplicate-safe; untrusted editor analysis uses `-proc:none`.
 
 ### 7.1 JLS chapter coverage contract
 
-The Java SE 25 inventory is chapter-complete, not syntax-only. Chapters 1–2 define scope/notation; 3 lexical input; 4–5 types/conversions; 6–7 names/packages/modules; 8–10 declarations/arrays; 11 exceptions; 12 execution; 13 binary compatibility; 14–15 statements/expressions; 16 definite assignment; 17 concurrency; 18 inference; 19 syntax. Javelle differences are limited to this specification. In particular, Chapter 16 governs uninitialized explicit declarations and final property constructor assignment, while Chapter 19 is the formal base imported by `javelle.ebnf`. The machine grammar contract lists chapters 1 through 19; Java 21 profile differences must be attached per feature and may not remove a chapter from coverage.
+The Java SE 25 inventory is chapter-complete, not syntax-only. Chapters 1–2 define scope/notation; 3 lexical input; 4–5 types/conversions; 6–7 names/packages/modules; 8–10 declarations/arrays; 11 exceptions; 12 execution; 13 binary compatibility; 14–15 statements/expressions; 16 definite assignment; 17 concurrency; 18 inference; 19 syntax. Teyru differences are limited to this specification. In particular, Chapter 16 governs uninitialized explicit declarations and final property constructor assignment, while Chapter 19 is the formal base imported by `teyru.ebnf`. The machine grammar contract lists chapters 1 through 19; Java 21 profile differences must be attached per feature and may not remove a chapter from coverage.
 
 ## 8. Diagnostics and conformance
 

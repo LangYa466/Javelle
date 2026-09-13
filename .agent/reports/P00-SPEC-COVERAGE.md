@@ -12,12 +12,12 @@
 2. 再走 P04–P11 early end-to-end；IDEA smoke 必須早於完整 Lombok。其後依 D2 推進完整語言、生態、IDE、文件，P49–P55 統合驗收。
 3. 每個 checkbox 都是必要驗收點並疊加共同 DoD；實作者與 reviewer 分離，只有獨立證據齊全才可 ACCEPTED。
 
-- 身分固定：Javelle、`.javelle`、ID `javelle`、CLI `javelle`、server `javelle-lsp`。
+- 身分固定：Teyru、`.teyru`、ID `teyru`、CLI `teyru`、server `teyru-lsp`。
 - Java-first：Java SE 25 non-preview，另驗證 Java 21 profile；保留 Java 型別優先、泛型、例外、語義及互通，不引入 Kotlin 型別系統。
-- `.javelle` 禁止語法 `;`，資料中的分號保留；basic-for 用兩個 `:`，TWR 以完整 resource 換行，enum 常量/成員用 `:`；由 grammar 決定，不得 regex 轉換。
+- `.teyru` 禁止語法 `;`，資料中的分號保留；basic-for 用兩個 `:`，TWR 以完整 resource 換行，enum 常量/成員用 `:`；由 grammar 決定，不得 regex 轉換。
 - `var` 是可重賦值局部推斷，`val` 是 final 局部推斷；不可作 field/parameter/return type；無 target 的 null/lambda/reference 不可推斷。
 - 只有 accessor block 是 property；普通 field/bean getter 不自動轉 property。backing field private；accessor 預設繼承 property visibility；`field` 僅在 accessor contextual binding。
-- 後端固定 `.javelle→AST/semantic/lowering→readable .java→javac→.class`；輸出決定性、可追蹤。必要 runtime helper 必須明示 ABI/依賴/授權。
+- 後端固定 `.teyru→AST/semantic/lowering→readable .java→javac→.class`；輸出決定性、可追蹤。必要 runtime helper 必須明示 ABI/依賴/授權。
 - Lombok 鎖定 baseline，以原生 AST/symbol/lowering 實作全部公開 feature/option/config/組合；官方 Lombok 僅作 oracle，production path 禁用其 processor/AST injection。
 - 單一 editor-neutral language tooling；LSP 獨立於 IDEA，IDEA 是 client/projection/run-debug adapter。source map、LSP positions、debug mapping 是不同契約。
 - 自有工具授權固定 `GPL-2.0-only WITH Classpath-exception-2.0`；第三方逐項審核。發布、網域、namespace、signing 是額外授權 gate。

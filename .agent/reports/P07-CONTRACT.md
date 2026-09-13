@@ -6,17 +6,17 @@ STATUS: **CONTRACT_FROZEN — implementation remains NOT_IMPLEMENTED / NOT_VERIF
 
 ## 1. Command surface frozen at P07
 
-The installed application name is `javelle`. POSIX and Windows launchers invoke the same `compiler-cli` main class without requiring users to assemble a classpath. `javelle --version` prints exactly `Javelle <semver> (language <major>, Java <min>-<max>)` plus LF; `--help` and each `<command> --help` are locale-stable, list only options actually accepted, write to stdout and exit 0.
+The installed application name is `teyru`. POSIX and Windows launchers invoke the same `compiler-cli` main class without requiring users to assemble a classpath. `teyru --version` prints exactly `Teyru <semver> (language <major>, Java <min>-<max>)` plus LF; `--help` and each `<command> --help` are locale-stable, list only options actually accepted, write to stdout and exit 0.
 
 | Command | P07 behavior |
 |---|---|
 | `doctor [--format human|json] [--jdk <path>]` | Check launcher/runtime, selected `java`/`javac`, feature/release support and readable paths. It never compiles user code or downloads/runs a build. |
-| `check --project <workspace-model.json> [--diagnostics human|json]` | Consume exactly the P08 workspace-model schema when available; before P08, also accept one or more explicit `.javelle` files. Parse/bind/compile-check through `compiler-driver`, publish no generated/class output. |
+| `check --project <workspace-model.json> [--diagnostics human|json]` | Consume exactly the P08 workspace-model schema when available; before P08, also accept one or more explicit `.teyru` files. Parse/bind/compile-check through `compiler-driver`, publish no generated/class output. |
 | `compile --project <workspace-model.json> [--output <dir>] [--diagnostics human|json]` | Use the same driver pipeline and atomically publish P06 generated/classes/manifest only on success. Explicit-file mode is allowed before P08. |
 | `emit-java <file>... --output <dir> [--diagnostics human|json]` | Run through frontend/binding/emitter and atomically publish readable Java/source maps/ownership manifest, but no class files. |
-| `explain <diagnostic-code> [--format human|json]` | Read the pinned diagnostic catalog. Unknown code is a usage error with `JV-CLI-UNKNOWN-DIAGNOSTIC`; never synthesize text. |
+| `explain <diagnostic-code> [--format human|json]` | Read the pinned diagnostic catalog. Unknown code is a usage error with `TY-CLI-UNKNOWN-DIAGNOSTIC`; never synthesize text. |
 
-`format`, `migrate`, `inspect`, project-directory discovery, and `javelle-lsp` are recognized roadmap commands but unavailable at P07: they do not appear as usable in normal help, and direct invocation prints a stable “not available in this version” error to stderr and exits 6. P07 does not redefine a workspace model: `--project` is a reference to the versioned P08 schema only; unknown/missing/future schema is exit 4.
+`format`, `migrate`, `inspect`, project-directory discovery, and `teyru-lsp` are recognized roadmap commands but unavailable at P07: they do not appear as usable in normal help, and direct invocation prints a stable “not available in this version” error to stderr and exits 6. P07 does not redefine a workspace model: `--project` is a reference to the versioned P08 schema only; unknown/missing/future schema is exit 4.
 
 ## 2. Arguments, input and trust
 
@@ -34,7 +34,7 @@ Human `check`/`compile` diagnostics go to stderr; successful human commands may 
 
 ## 4. Diagnostic JSON and deterministic ordering (P07-04)
 
-`spec/cli/diagnostics-v1.schema.json` is the v1 envelope. It carries `schemaVersion`, command, status, structured P04 diagnostics and exact severity counts. Source URIs are normalized workspace-relative URIs with SHA-256; ranges are original raw UTF-16 half-open coordinates. Related information, typed fixes and data remain structured. Codes use the normative `JV-*` namespace; the known P04 implementation drift that only accepts `JVL-*` must be repaired, not reflected in this public schema.
+`spec/cli/diagnostics-v1.schema.json` is the v1 envelope. It carries `schemaVersion`, command, status, structured P04 diagnostics and exact severity counts. Source URIs are normalized workspace-relative URIs with SHA-256; ranges are original raw UTF-16 half-open coordinates. Related information, typed fixes and data remain structured. Codes use the normative `TY-*` namespace; the known P04 implementation drift that only accepts `JVL-*` must be repaired, not reflected in this public schema.
 
 Writers emit schema property order, diagnostics sorted by source URI/start/end/severity/code/data identity, related information in semantic order, canonical fixes, and lexicographic data keys. Readers ignore additive diagnostic fields in major 1 but reject missing/wrong required values and higher envelope major. Two runs, workspaces relocated under different absolute roots, locale/timezone changes and color environment produce byte-identical JSON.
 
@@ -68,7 +68,7 @@ A JVM shutdown handler converts first SIGINT/Ctrl-C to the shared cancellation t
 ## 8. Black-box fixture matrix
 
 1. Success: P06 `stored-custom-user` through `check`, `emit-java`, then `compile`; run class and validate stdout/reflection separately.
-2. Compilation negatives: syntax semicolon and javac missing-symbol/type mismatch; exact `JV-*` code/range, exit 3, empty/new output absent and old output retained.
+2. Compilation negatives: syntax semicolon and javac missing-symbol/type mismatch; exact `TY-*` code/range, exit 3, empty/new output absent and old output retained.
 3. Invocation negatives: no command, unknown/duplicate flags, missing file/project, directory supplied as file, malformed/future P08 JSON, source/output alias, symlink escape and paths with spaces/中文/emoji.
 4. Toolchain/lifecycle: missing javac, release mismatch, unwritable target, disk-write fault seam, SIGINT, timeout and forced internal exception sanitization.
 5. Determinism: run JSON/emission twice, from relocated working directory and different locale/timezone/`NO_COLOR`; compare bytes and scan for checkout/home path leakage.
@@ -92,5 +92,5 @@ JAVA_HOME=/usr/lib/jvm/java-25-openjdk PATH=/usr/lib/jvm/java-25-openjdk/bin:$PA
 
 - P06 implementation/acceptance is required before functional CLI acceptance. Current `compiler-cli` contains only `CompilerCliBoundary`; no command handler or launcher is claimed.
 - P08 model does not yet exist. P07 explicit-file mode can ship first; `--project` must reject unavailable/invalid model with exit 4 until it consumes the accepted P08 schema.
-- Public diagnostics require resolution of the `JV-*` versus current `JVL-*` implementation drift.
+- Public diagnostics require resolution of the `TY-*` versus current `JVL-*` implementation drift.
 - Full CLI (`format`, migration, inspect), standalone LSP and build-tool project discovery remain later work and cannot be advertised as successful by P07.

@@ -8,7 +8,7 @@ Canonical machine contract: `spec/lsp/p10-minimal-contract.json`.
 
 ## Boundary and immutable decisions
 
-`javelle-lsp --stdio` is a standalone process. `language-server` owns JSON-RPC transport/lifecycle and calls `language-tooling`; parsing and coordinate truth remain in `compiler-core`, workspace/JDK/classpath truth comes from the validated `workspace-model`, and no IntelliJ class may enter the server. stdout contains framed protocol bytes only. Human logs, warnings and bounded stack traces use stderr or a configured local log.
+`teyru-lsp --stdio` is a standalone process. `language-server` owns JSON-RPC transport/lifecycle and calls `language-tooling`; parsing and coordinate truth remain in `compiler-core`, workspace/JDK/classpath truth comes from the validated `workspace-model`, and no IntelliJ class may enter the server. stdout contains framed protocol bytes only. Human logs, warnings and bounded stack traces use stderr or a configured local log.
 
 The fixed baseline is LSP 3.18 and the pinned LSP4J 1.0.0 binding. This is not a version handshake. The authoritative 95-method inventory remains `compatibility/lsp-methods.json`; P10 may change support/advertisement status only for behavior proven by its black-box tests. Library DTO presence never constitutes handler support.
 
@@ -24,13 +24,13 @@ State is `PRE_INITIALIZE → INITIALIZING → RUNNING → SHUTDOWN → EXITED`. 
 
 Each open/change produces an immutable snapshot keyed by normalized URI, strictly increasing document version, workspace model fingerprint and overlay analysis fingerprint. Incremental edits are applied in array order to the prior version. LSP ranges are zero-based UTF-16 code units; the compiler boundary explicitly converts to/from Unicode-code-point coordinates and preserves CRLF, CJK and surrogate-pair emoji boundaries. Invalid ranges reject the whole notification without partial mutation.
 
-Stale versions are ignored and cannot publish. `$/cancelRequest` is cooperative at parse/query boundaries; a cancellation race may finish normally or return `-32800`, never both, and an old task cannot overwrite a newer snapshot. Syntax diagnostics publish against the original `.javelle` URI with document version. A successful fix and `didClose` each publish an empty diagnostic array to clear stale UI state.
+Stale versions are ignored and cannot publish. `$/cancelRequest` is cooperative at parse/query boundaries; a cancellation race may finish normally or return `-32800`, never both, and an old task cannot overwrite a newer snapshot. Syntax diagnostics publish against the original `.teyru` URI with document version. A successful fix and `didClose` each publish an empty diagnostic array to clear stale UI state.
 
-Unsaved text is the parser input. Hover covers real declarations/locals/String/native property data; completion covers contextual Javelle keywords plus String/current-type property symbols obtained from the shared semantic/workspace model. Empty or fixed fake results do not satisfy the contract.
+Unsaved text is the parser input. Hover covers real declarations/locals/String/native property data; completion covers contextual Teyru keywords plus String/current-type property symbols obtained from the shared semantic/workspace model. Empty or fixed fake results do not satisfy the contract.
 
 ## Workspace and trust
 
-The only P10 discovery input is `initializationOptions.javelle.workspaceModelUri`, a local `file:` URI to the P08 schema. Decode, limit, path, fingerprint and trust validation occurs without evaluating Gradle, running processors/user code, executing downloaded tools or accessing network. Invalid/stale models return bounded structured errors and cannot seed symbol state. Reload changes the workspace fingerprint and invalidates dependent snapshots.
+The only P10 discovery input is `initializationOptions.teyru.workspaceModelUri`, a local `file:` URI to the P08 schema. Decode, limit, path, fingerprint and trust validation occurs without evaluating Gradle, running processors/user code, executing downloaded tools or accessing network. Invalid/stale models return bounded structured errors and cannot seed symbol state. Reload changes the workspace fingerprint and invalidates dependent snapshots.
 
 ## Requirement coverage and executable acceptance
 

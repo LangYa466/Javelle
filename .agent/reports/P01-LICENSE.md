@@ -7,9 +7,9 @@
 
 ## 已核驗的不變結論
 
-1. Javelle 自有工具程式碼的規定 SPDX expression 是 `GPL-2.0-only WITH Classpath-exception-2.0`。SPDX 將舊 `GPL-2.0-with-classpath-exception` 列為 deprecated，現行表達方式應使用 license + `WITH` exception。
+1. Teyru 自有工具程式碼的規定 SPDX expression 是 `GPL-2.0-only WITH Classpath-exception-2.0`。SPDX 將舊 `GPL-2.0-with-classpath-exception` 列為 deprecated，現行表達方式應使用 license + `WITH` exception。
 2. OpenJDK `LICENSE` 同檔包含 GPL v2 與 Classpath Exception，但 exception 明示只套用到權利人已在特定來源檔 header 指定的檔案；因此不能以 OpenJDK LICENSE 存在就替任何第三方或未標示檔案套用 exception。
-3. Project Lombok 1.18.48 官網標為 current release/MIT；其 tag LICENSE 也包含 bundled component notices。Javelle production compiler 不得依賴 Lombok processor；oracle jar、移植/重用的 annotation definition、fixture 或原始碼各自保留對應 copyright/license/notice。
+3. Project Lombok 1.18.48 官網標為 current release/MIT；其 tag LICENSE 也包含 bundled component notices。Teyru production compiler 不得依賴 Lombok processor；oracle jar、移植/重用的 annotation definition、fixture 或原始碼各自保留對應 copyright/license/notice。
 4. GPL 本文說明 compiler 的輸出只有在包含/衍生自受保護程式碼時才可能受其涵蓋；這不是自動豁免。每個 emitted template、runtime helper、compat annotation、source/Javadoc JAR 都需 provenance 檢查。
 
 ## 官方來源與可執行 pins
@@ -28,13 +28,13 @@ Evidence copies are under `.agent/logs/P01-LICENSE/`. Mutable `master/main` down
 
 | 類別 | 預設處理 | releaseCheck 必查 |
 |---|---|---|
-| Javelle compiler/CLI/LSP/Gradle/IDEA/migration 自有源碼與 binary | GPL-2.0-only WITH CE；適用源檔有 SPDX header，distribution 附完整 GPLv2 與 CE | source offer/對應源碼、LICENSE、copyright、例外適用範圍、binary/source JAR 一致 |
-| 生成 `.java` / `.class` | 使用者程式授權不因「執行 compiler」自動改變 | 禁止生成內容複製 Javelle/第三方受保護實作；模板/helper provenance manifest；golden sample 授權分開 |
+| Teyru compiler/CLI/LSP/Gradle/IDEA/migration 自有源碼與 binary | GPL-2.0-only WITH CE；適用源檔有 SPDX header，distribution 附完整 GPLv2 與 CE | source offer/對應源碼、LICENSE、copyright、例外適用範圍、binary/source JAR 一致 |
+| 生成 `.java` / `.class` | 使用者程式授權不因「執行 compiler」自動改變 | 禁止生成內容複製 Teyru/第三方受保護實作；模板/helper provenance manifest；golden sample 授權分開 |
 | tiny `runtime` helper | 不得藏起；預設同專案政策，若採別授權需權利人明確批准 | ABI、runtime dependency、package manifest、source、NOTICE、consumer 缺 class 測試 |
 | `compat-annotations` | 優先隔離 artifact；若重用 Lombok MIT definitions，保留 MIT notice/原 copyright，不綁 processor | class collision、不得同時打包重複 `lombok.*`、target/retention、compile-only/runtime 行為、NOTICE |
 | Lombok oracle/delombok fixtures | 僅 test/migration controlled path；不進 production compiler/distribution | jar hash/tag、MIT + bundled component notices、fixture provenance、release archive absence assertion |
 | 第三方 runtime/compile/test/build deps | 保留上游 license/NOTICE；逐 configuration 分類是否 shipped | resolved graph、artifact hashes/signatures、transitives、modified files、NOTICE obligations、source/binary bundling |
-| Gradle wrapper/start scripts | Gradle upstream Apache-2.0；視為第三方 generated tooling，不重標 Javelle license | wrapper jar/distribution checksum、upstream notice/source、與 GPLv2-only 組合/分發需專業審查，不自行下法律結論 |
+| Gradle wrapper/start scripts | Gradle upstream Apache-2.0；視為第三方 generated tooling，不重標 Teyru license | wrapper jar/distribution checksum、upstream notice/source、與 GPLv2-only 組合/分發需專業審查，不自行下法律結論 |
 | docs/website/examples/fixtures | 依專案政策建立 manifest；不能擅自 public-domain 化 | copied snippets/assets/fonts/search indexes、attribution、i18n content、npm transitive licenses |
 | RC archives/SBOM/notices/checksums | 每個實際 archive 對應一份 manifest/SBOM | SBOM component/version/hash/purl/license、nested jars/npm assets、NOTICE coverage、no absolute/private paths |
 
@@ -43,7 +43,7 @@ Evidence copies are under `.agent/logs/P01-LICENSE/`. Mutable `master/main` down
 - 已觀察：Gradle/Wrapper 為 Apache-2.0；JUnit 6.0.0 專案標示 EPL-2.0。測試依賴通常不隨 runtime 發行，但仍須在 development/test SBOM 與 notices 表示。
 - 候選 SBOM generator：CycloneDX Gradle plugin 3.x 為 Apache-2.0，官方文件稱支援 Gradle 8.4+ 並生成 CycloneDX JSON/XML。不要直接採 mutable README 顯示版本；由 P01 build owner pin release/tag/plugin artifact hash後再導入。
 - 未選定的 parser、JSON、LSP、IntelliJ Platform、Astro/Starlight/npm 套件不可預先標示「相容」。選版後輸出 resolved direct+transitive inventory，逐一確認 license expression、NOTICE、source availability、是否 bundled/shaded。
-- `group=io.langya` 只是本地建置設定；不證明 Maven namespace/Plugin Portal ownership。`org.javelle` 只允許 internal package root，公開 coordinates 仍是外部 gate。
+- `group=io.langya` 只是本地建置設定；不證明 Maven namespace/Plugin Portal ownership。`dev.teyru` 只允許 internal package root，公開 coordinates 仍是外部 gate。
 
 ## 供應鏈與 SBOM 驗收
 

@@ -1,8 +1,8 @@
 <idea-plugin>
-    <id>org.javelle.ide</id>
-    <name>Javelle</name>
-    <vendor>Javelle</vendor>
-    <description>Editor support for the Javelle language via the javelle-lsp server.</description>
+    <id>dev.teyru.ide</id>
+    <name>Teyru</name>
+    <vendor>Teyru</vendor>
+    <description>Editor support for the Teyru language via the teyru-lsp server.</description>
 
     <idea-version since-build="261" until-build="261.*"/>
 
@@ -10,14 +10,14 @@
 
     <extensions defaultExtensionNs="com.intellij">
         <fileType
-            name="Javelle"
-            implementationClass="org.javelle.intellij.plugin.JavelleFileType"
+            name="Teyru"
+            implementationClass="dev.teyru.intellij.plugin.TeyruFileType"
             fieldName="INSTANCE"
             language="TEXT"
-            extensions="javelle"/>
+            extensions="teyru"/>
     </extensions>
 
     <extensions defaultExtensionNs="com.intellij.platform.lsp">
-        <serverSupportProvider implementation="org.javelle.intellij.plugin.JavelleLspServerSupportProvider"/>
+        <serverSupportProvider implementation="dev.teyru.intellij.plugin.TeyruLspServerSupportProvider"/>
     </extensions>
 </idea-plugin>

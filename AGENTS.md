@@ -1,7 +1,7 @@
-# AGENTS.md — Javelle 專案完整工作規範
+# AGENTS.md — Teyru 專案完整工作規範
 
 > 適用：本儲存庫內所有人類貢獻者與 Coding Agents。規範版本：1.0；建立日期：2026-09-11（UTC+8）。
-> 本檔定義長期工作方式；`prompts/JAVELLE_IMPLEMENTATION_PLAN.md` 定義本次完整交付範圍、語言決策與逐步驗收。
+> 本檔定義長期工作方式；`prompts/TEYRU_IMPLEMENTATION_PLAN.md` 定義本次完整交付範圍、語言決策與逐步驗收。
 > **這是待執行規範，不是已完成能力聲明。禁止把目標、目錄、介面或空測試當成已實現功能。**
 
 ## 0. 首要指令
@@ -15,14 +15,14 @@
 
 ## 1. 產品契約：Java first
 
-- 名稱固定 **Javelle**；副檔名 `.javelle`；語言 ID `javelle`；CLI `javelle`；獨立 server `javelle-lsp`。不要重新命名。
+- 名稱固定 **Teyru**；副檔名 `.teyru`；語言 ID `teyru`；CLI `teyru`；獨立 server `teyru-lsp`。不要重新命名。
 - 保留 Java 的型別優先宣告、修飾符、建構子、方法、泛型、註解、lambda、多行 lambda、方法參照、控制流程、例外與 Java 互通。除規範列出的差異外，Java 語義不變。
-- Javelle 原始碼不接受作為語法 token 的 `;`。字串、字元、註解、text block 中的分號是資料，不刪除。Java 原始碼與生成 Java 保留合法分號。
+- Teyru 原始碼不接受作為語法 token 的 `;`。字串、字元、註解、text block 中的分號是資料，不刪除。Java 原始碼與生成 Java 保留合法分號。
 - `var` 是可重新賦值的局部推斷；`val` 是 `final` 局部推斷。欄位、參數與回傳型別保持 Java 顯式型別。`var x = null` 不合法；`String x = null` 合法；`""` 不等於 `null`。
 - 不引入 Kotlin 式 `name: Type`、`String?`、`fun`、全域 property 化、預設非空或不同的 `==`。Java 的參照相等、checked exceptions、可變性、溢位等維持原意。
 - 普通欄位仍是普通欄位；只有 accessor block 宣告原生 property。`field` 只在該 accessor 語境代表 backing field。可見性、初始化與讀寫規則以實作計畫的語義章節為準。
 - 自行實現釘選版本 Lombok 的完整功能相容層：穩定／實驗功能、參數、設定與必要組合都要有測試。正常編譯路徑不依賴 Lombok annotation processor 或 javac AST 注入。
-- 主要編譯路徑固定 `.javelle → AST/語義/lowering → 可讀 .java → javac → .class`。不得為省事改成 Kotlin、Groovy 或自行生成 JVM 指令的另一套後端。
+- 主要編譯路徑固定 `.teyru → AST/語義/lowering → 可讀 .java → javac → .class`。不得為省事改成 Kotlin、Groovy 或自行生成 JVM 指令的另一套後端。
 - 獨立 LSP 是共用語言服務介面；IDEA 是客戶端與 UI／Java-PSI／debug 適配層，不是另一套編譯器。
 - 編譯器、CLI、Gradle、LSP、IDEA、遷移器、官網、規範、changelog、AI 文件、測試與可發布產物都是本次範圍。
 - 「Java 開發者 95% 熟悉」是設計方向，不是測量結果或 95% 相容率。未經驗證不得對外宣稱 100% 相容。
@@ -125,21 +125,21 @@ compiler-driver     → compiler-core + java-resolver + workspace-model
 compiler-cli        → compiler-driver
 language-tooling    → compiler-driver + workspace-model
 language-server     → language-tooling + LSP transport
-language-protocol   ← Javelle 自有擴充 DTO，不包含語義實作
+language-protocol   ← Teyru 自有擴充 DTO，不包含語義實作
 intellij-plugin     → LSP client + language-protocol + IDE 平台適配
 Gradle plugin       → workspace-model + 獨立 compiler 執行介面
 ```
 
 箭頭表示「依賴」。核心不得依賴 IntelliJ／Gradle／LSP；server 不得依賴 IDEA；workspace-model 不得知道任何 IDE 或 Gradle 類別；禁止循環依賴。Gradle／IDEA 必須隔離 JDK、classpath 與 compiler process，不能把編譯器內部塞進平台 classloader。
 
-- compiler 與核心 JVM 模組優先使用 Java；建置 DSL 不等於語言語法，可使用 Kotlin DSL。不以 Kotlin 重新定義 Javelle。
+- compiler 與核心 JVM 模組優先使用 Java；建置 DSL 不等於語言語法，可使用 Kotlin DSL。不以 Kotlin 重新定義 Teyru。
 - 詳細型別解析優先透過 JDK 公開 compiler/tree/model API。需要 `com.sun.tools.javac.*` 等內部 API 時，必須先有有理由的 ADR、局部 bridge、JDK 相容測試與明確支援範圍；不可反射繞過模組封裝後假裝跨版本穩定。
 - 不用正則替代 lexer/parser；正則只可用於簡單輸出校驗等非語法用途。必須保留 source span、trivia、Unicode 與錯誤恢復資訊。
-- Java ↔ Javelle 同 module 互相參照不能被前置 typecheck 意外擋掉。先收集／投影宣告，再解析與 lowering，最後將 Java 與生成 Java 聯合交給 javac。annotation processing 必須有可控且不循環的安排。
+- Java ↔ Teyru 同 module 互相參照不能被前置 typecheck 意外擋掉。先收集／投影宣告，再解析與 lowering，最後將 Java 與生成 Java 聯合交給 javac。annotation processing 必須有可控且不循環的安排。
 - LSP 的 completion、rename、references 與 property 判斷不得用字串搜尋假冒。IDEA 需要的 PSI／light-element 是伺服器模型投影，不能再實作一份型別系統；共用 lexer 的語法著色例外允許。
 - Java source map、LSP 位置與 debugger 是三種不同契約。編譯錯誤映射正確不等於斷點可用；debug 不屬於 LSP，必須另外實作及驗收。
 - 生成 Java 必須可讀、決定性、可追蹤；禁止不必要混淆、隨機命名、時間戳與絕對路徑。刪除來源時清掉對應舊輸出，但不得刪除非本工具擁有的檔案。
-- 普通 Javelle 程式以無 Javelle runtime 為目標；需要 tiny runtime／外部 annotations 的少數功能必須明示且測試。不能為「零依賴」偷偷改變語義或嵌入授權不清的模板。
+- 普通 Teyru 程式以無 Teyru runtime 為目標；需要 tiny runtime／外部 annotations 的少數功能必須明示且測試。不能為「零依賴」偷偷改變語義或嵌入授權不清的模板。
 
 ## 5. 規範與品質閘門
 
@@ -184,12 +184,12 @@ Gradle plugin       → workspace-model + 獨立 compiler 執行介面
 - 不自動 push、發布 Maven／Plugin Portal／Marketplace、部署公開網站、註冊網域、購買服務、上傳私有原始碼或建立公開 release。這些需要使用者明確授權及可用憑證；先完成本地可發布產物與 dry-run。
 - 不修改使用者全域 Codex 設定、關閉 sandbox／approval、切換高費率模型、安裝全域工具或要求管理員權限來「解決」限制。需要的設定以專案範本和已驗證說明交付。
 - 下載使用官方／可信發行來源，釘選版本與校驗；禁止 `curl | sh`、動態 `latest` 依賴、未審查遙測。依賴授權與漏洞掃描結果都要保留。
-- Javelle LSP 開啟不受信任專案時不得擅自跑 Gradle、annotation processor、使用者程式或網路腳本。建立 trust 模式；本專案自身受授權的測試與 build 路徑可正常執行。
+- Teyru LSP 開啟不受信任專案時不得擅自跑 Gradle、annotation processor、使用者程式或網路腳本。建立 trust 模式；本專案自身受授權的測試與 build 路徑可正常執行。
 - 對檔案／archive／source-map URI 防路徑穿越；對測試與編譯限制 CPU、RAM、時間、輸出大小。禁止把使用者源碼自動送去外部 AI。
 
 ## 7. 授權與第三方程式碼
 
-Javelle 自有工具程式碼的主授權為 **`GPL-2.0-only WITH Classpath-exception-2.0`**。完整 GPLv2 與 Classpath Exception 文本必須附帶，適用檔案明確標示 SPDX。這是專案政策，不是 Oracle 背書，也不能替代第三方相容性審查。[R3][R4]
+Teyru 自有工具程式碼的主授權為 **`GPL-2.0-only WITH Classpath-exception-2.0`**。完整 GPLv2 與 Classpath Exception 文本必須附帶，適用檔案明確標示 SPDX。這是專案政策，不是 Oracle 背書，也不能替代第三方相容性審查。[R3][R4]
 
 - 保留第三方原有 copyright/license；不能把 OpenJDK 或其他專案每個檔案都假定有相同例外。
 - 區分「使用 GPL compiler」與「輸出複製了受保護工具程式碼」。使用工具本身不自動決定使用者程式的授權；模板、helper、runtime、第三方 annotations 必須逐項交代。
@@ -224,4 +224,4 @@ CLI 需有穩定 exit code、JSON diagnostics、可預期 stdout/stderr、`--che
 - [R3] OpenJDK，授權文本：<https://raw.githubusercontent.com/openjdk/jdk/master/LICENSE>
 - [R4] SPDX，Classpath Exception 2.0：<https://spdx.org/licenses/Classpath-exception-2.0.html>
 
-**讀完後立即進入 `prompts/JAVELLE_IMPLEMENTATION_PLAN.md` 的 P00。不得只回覆「我理解了」，也不得只再次輸出另一份計畫。**
+**讀完後立即進入 `prompts/TEYRU_IMPLEMENTATION_PLAN.md` 的 P00。不得只回覆「我理解了」，也不得只再次輸出另一份計畫。**

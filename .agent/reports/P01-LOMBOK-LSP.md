@@ -1,7 +1,7 @@
 # P01-W06 — Lombok 1.18.48 / LSP 3.18 inventories
 
 - Agent: `/root/p00_spec`; base: `NO_GIT_REPOSITORY`; checked 2026-09-11
-- Scope: inventories only. No Javelle feature is claimed implemented.
+- Scope: inventories only. No Teyru feature is claimed implemented.
 - Evidence: `.agent/logs/P01-LOMBOK-LSP/`
 
 ## Immutable inputs and hashes
@@ -37,7 +37,7 @@ Production 禁止把此 jar/processor 當實作；僅 oracle/migration controlle
 
 | 類別 | 處理 |
 |---|---|
-| lifecycle/transport | LSP4J launcher + service interfaces；Javelle 仍須測 Content-Length、stdout purity、shutdown/exit、cancel、error codes |
+| lifecycle/transport | LSP4J launcher + service interfaces；Teyru 仍須測 Content-Length、stdout purity、shutdown/exit、cancel、error codes |
 | text/workspace language methods | 使用 LSP4J DTO/service default methods；每一 advertised method 必須有 handler、capability gate 與 black-box test |
 | client-bound requests/notifications | `LanguageClient` API；只在 client capability 支援時發送 refresh/register/configuration/progress |
 | meta-model 有、typed interface 缺少/變動 | 先查 1.0.0 tag source；必要時用版本化自有 DTO/JSON-RPC method registration，記 gap test；不可回空集合冒充支援 |
@@ -50,7 +50,7 @@ Capability negotiation 必須至少覆蓋 positionEncoding/UTF-16 fallback、inc
 重要 gap/risk：
 
 1. 官方 meta-model版本為 release branch 3.18.2，而 LSP4J release note說實作 3.18.0 draft；新增/變更 DTO、optional fields、proposals需逐项 diff。
-2. LSP4J DTO availability不代表 Javelle semantic handler已实现；`compatibility/lsp-methods.json` 初始必须 NOT_IMPLEMENTED/NOT_VERIFIED。
+2. LSP4J DTO availability不代表 Teyru semantic handler已实现；`compatibility/lsp-methods.json` 初始必须 NOT_IMPLEMENTED/NOT_VERIFIED。
 3. LSP4J同时包含 DAP surface；debug 不得因 jar 有 DAP DTO 就宣称完成，P42仍需独立调试验收。
 4. JSON-RPC、Gson 等 transitives需由 build owner pin/hash/license；本包没有修改 dependencies。
 
@@ -81,6 +81,6 @@ sha256sum <all inputs and generated inventories>
 
 - P01-05/P01-06 research repair: IMPLEMENTED, awaiting independent reviewer.
 - P20 full semantic feature registry and production implementation: NOT_IMPLEMENTED.
-- LSP per-method Javelle support/capability matrix and black-box handlers: NOT_IMPLEMENTED.
+- LSP per-method Teyru support/capability matrix and black-box handlers: NOT_IMPLEMENTED.
 
 Primary sources: [Lombok download](https://projectlombok.org/download), [Lombok v1.18.48 tag](https://github.com/projectlombok/lombok/tree/v1.18.48), [LSP 3.18 spec](https://microsoft.github.io/language-server-protocol/specifications/lsp/3.18/specification/), [LSP4J v1.0.0 release](https://github.com/eclipse-lsp4j/lsp4j/releases/tag/v1.0.0), [Maven Central LSP4J 1.0.0](https://repo1.maven.org/maven2/org/eclipse/lsp4j/org.eclipse.lsp4j/1.0.0/).

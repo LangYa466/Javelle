@@ -6,11 +6,11 @@ Status: normative boundary frozen; inventory/oracle/native implementation NOT_IM
 
 The exact baseline is the P01-pinned Maven coordinate and checksum recorded in the version catalog/verification metadata; no dynamic `latest` is allowed. Before differential claims, P20 must record artifact SHA-256, `Implementation-Version`, complete public annotation/utility class inventory, official feature/config indexes and license. A mismatch is `JVL-LOMBOK-BASELINE-MISMATCH`.
 
-Recognition follows ADR-0006: resolved FQN only, including explicit/wildcard/FQN forms for `lombok.*`, `lombok.experimental.*` and logging namespaces. Custom same-name annotations retain their semantics. Normal compilation uses Javelle symbols/AST/lowering; the Lombok processor/delombok is an isolated oracle only.
+Recognition follows ADR-0006: resolved FQN only, including explicit/wildcard/FQN forms for `lombok.*`, `lombok.experimental.*` and logging namespaces. Custom same-name annotations retain their semantics. Normal compilation uses Teyru symbols/AST/lowering; the Lombok processor/delombok is an isolated oracle only.
 
 ## Profiles and configuration
 
-`native` consumes supported Lombok syntax and emits Javelle-native ABI without promising retained Lombok metadata. `strict-metadata` additionally preserves baseline-observable annotation namespace/retention and declares any isolated compile-only compatibility artifact and its MIT notices; it never activates the processor or duplicates classes already supplied by consumer Lombok.
+`native` consumes supported Lombok syntax and emits Teyru-native ABI without promising retained Lombok metadata. `strict-metadata` additionally preserves baseline-observable annotation namespace/retention and declares any isolated compile-only compatibility artifact and its MIT notices; it never activates the processor or duplicates classes already supplied by consumer Lombok.
 
 Configuration lookup is deterministic from source directory toward workspace root, honors the baseline's `config.stopBubbling`, clear/list/import semantics, reports the value and source location, rejects cycles/path escape, and applies `flagUsage`. Unknown baseline keys/features/options are concrete diagnostics, never ignored.
 
@@ -22,7 +22,7 @@ Families must cover inference; accessor/lazy; null/cleanup; constructors; toStri
 
 ## Oracle and joint compilation
 
-Oracle side compiles Java with the pinned official processor and, where useful, delombok. Candidate side compiles Javelle native lowering then javac. Compare runtime results, reflection, visibility, descriptors/generic signatures, annotations/framework behavior and necessary private structure—never require whole classfile equality or normalize away API differences. Runs are isolated, bounded and archive evidence with toolchain/config fingerprints.
+Oracle side compiles Java with the pinned official processor and, where useful, delombok. Candidate side compiles Teyru native lowering then javac. Compare runtime results, reflection, visibility, descriptors/generic signatures, annotations/framework behavior and necessary private structure—never require whole classfile equality or normalize away API differences. Runs are isolated, bounded and archive evidence with toolchain/config fingerprints.
 
 Processors for consumer code follow the finite rounds contract in `abi/generated-java.md`; the Lombok oracle is not inserted there. IDE analysis is `-proc:none`.
 

@@ -8,15 +8,15 @@
 ## Implemented
 
 - Replaced repeated-character operator recognition with ordered longest matching for Java multi-character operators, shifts/assignments, method reference, lambda arrow, and ellipsis.
-- Emits one bounded `JV-SYN-0002` error token for malformed numeric identifier suffixes such as `12abc`, then resumes lexing.
+- Emits one bounded `TY-SYN-0002` error token for malformed numeric identifier suffixes such as `12abc`, then resumes lexing.
 - Assigns same-line comment trivia (including surrounding whitespace) to the preceding token's trailing trivia while preserving every raw byte exactly once.
-- Emits unsupported text blocks as one `ERROR` token with `JV-DEV-0001`; semicolons inside them cannot leak into syntax tokens.
+- Emits unsupported text blocks as one `ERROR` token with `TY-DEV-0001`; semicolons inside them cannot leak into syntax tokens.
 - Preserves semicolons in strings, chars, and comments. Unicode-translated operators and semicolons retain original raw UTF-16 spans/text.
 - Checks cancellation on every lexer loop iteration.
 
 ## Verification
 
-1. `./gradlew --no-daemon --dependency-verification=strict :compiler-core:spotlessApply :compiler-core:test --tests org.javelle.compiler.core.P05LexerRepairTest`
+1. `./gradlew --no-daemon --dependency-verification=strict :compiler-core:spotlessApply :compiler-core:test --tests dev.teyru.compiler.core.P05LexerRepairTest`
    - Exit 0; 5 tests passed, 0 failed/skipped.
 2. `./gradlew --no-daemon --dependency-verification=strict :compiler-core:test`
    - Exit 0; XML aggregate 51 tests, 0 failures/errors/skipped.

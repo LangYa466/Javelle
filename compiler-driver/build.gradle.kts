@@ -1,6 +1,6 @@
 import org.gradle.jvm.toolchain.JavaLanguageVersion
 
-plugins { id("org.javelle.java-conventions") }
+plugins { id("dev.teyru.java-conventions") }
 
 dependencies {
     implementation(project(":compiler-core"))
@@ -16,13 +16,13 @@ tasks.test {
 }
 
 tasks.register<Test>("p06EndToEnd") {
-    description = "Runs the real Javelle-to-javac-to-JVM P06 acceptance suite."
+    description = "Runs the real Teyru-to-javac-to-JVM P06 acceptance suite."
     group = "verification"
     useJUnitPlatform { excludeTags("native-jdk21") }
     testClassesDirs = sourceSets["test"].output.classesDirs
     classpath = sourceSets["test"].runtimeClasspath
     dependsOn(tasks.testClasses)
-    filter.includeTestsMatching("org.javelle.compiler.driver.P06CompilerDriverTest")
+    filter.includeTestsMatching("dev.teyru.compiler.driver.P06CompilerDriverTest")
 }
 
 tasks.register<Test>("p06Release21") {
@@ -34,5 +34,5 @@ tasks.register<Test>("p06Release21") {
     classpath = sourceSets["test"].runtimeClasspath
     dependsOn(tasks.testClasses)
     useJUnitPlatform { includeTags("native-jdk21") }
-    filter.includeTestsMatching("org.javelle.compiler.driver.P06CompilerDriverTest.nativeJdk21RunsTheRealDriverPipeline")
+    filter.includeTestsMatching("dev.teyru.compiler.driver.P06CompilerDriverTest.nativeJdk21RunsTheRealDriverPipeline")
 }

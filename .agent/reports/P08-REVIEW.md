@@ -44,7 +44,7 @@ STATUS: **FAILED — one model blocker remains; P08-07 PENDING**
 | ID | Decision | Current independent result |
 |---|---|---|
 | P08-01 | **FAIL** | Every frozen DTO field round-trips, collections are copied, and every production classfile is scanned for Gradle/IDE/LSP references. The checked-in API golden fixes only `WorkspaceModel` and nested record components; it omits the frozen public methods/types (`WorkspaceModelCodec`, `WorkspaceModelValidator`, fingerprinter, diagnostics/read options/results). Adding/removing/changing one of those methods does not affect the golden, so the requested API drift gate is incomplete. |
-| P08-02 | PASS | Real Gradle `ProjectBuilder` capture exports main/test for `:app` and `:lib`, retains empty and missing roots, captures portable toolchain data, round-trips through the shared codec, and registers no P09 Javelle tasks. |
+| P08-02 | PASS | Real Gradle `ProjectBuilder` capture exports main/test for `:app` and `:lib`, retains empty and missing roots, captures portable toolchain data, round-trips through the shared codec, and registers no P09 Teyru tasks. |
 | P08-03 | PASS | Portable/resolved separation, relocation-stable fingerprints, unsafe absolute/drive/query/fragment/archive paths and URI/containment rules are executable and green. |
 | P08-04 | PASS | All compile/runtime/processor/module/source-JAR/toolchain/release/options/trust fields round-trip; processor authorization and release-vs-toolchain negatives pass. |
 | P08-05 | PASS | Empty/missing roots, decoded traversal, exact/case-unknown duplicates, descendant overlap, URI shape, symlink/containment validation and exact diagnostic families pass. |
@@ -94,9 +94,9 @@ STATUS: **VERIFIED — ACCEPT P08**
 
 - Java 25 strict `:workspace-model:test :gradle-plugin:test :compiler-cli:installDist :compiler-cli:test --rerun-tasks`: exit 0; model 13, exporter/client 3 and packaged CLI 7 tests, zero failures/errors/skips; 29 tasks executed. `.agent/logs/P08-REVIEW/r3-all-tests.log`.
 - API golden contains 422 lines and its executable differential gate checks addition, deletion and signature change; classfile scan covers every production class.
-- Independent review helper compiled with `javac --release 21` against only the workspace-model JAR, generated a canonical two-Javelle-root model, and packaged `javelle check --project workspace.json --diagnostics json` returned one SUCCESS document, exit 0. `.agent/logs/P08-REVIEW/cli-multiroot.json`.
+- Independent review helper compiled with `javac --release 21` against only the workspace-model JAR, generated a canonical two-Teyru-root model, and packaged `teyru check --project workspace.json --diagnostics json` returned one SUCCESS document, exit 0. `.agent/logs/P08-REVIEW/cli-multiroot.json`.
 - CLI source/dependency audit: compiler-cli has only compiler-driver as its direct project dependency; project loading invokes the bounded workspace codec and local `Files.walk`, with no Gradle API, build-script evaluation, network client or process execution.
-- `verifyQuick` exit 1 only inside `verifyProductArchives` because its clean copy captured an actively changing P07 `JavelleCli` call/signature mismatch. This concurrent P07-owned failure is preserved in `.agent/logs/P08-REVIEW/r3-verifyQuick.log` and is not represented as P08 success; all P08-owned tasks and artifacts passed independently.
+- `verifyQuick` exit 1 only inside `verifyProductArchives` because its clean copy captured an actively changing P07 `TeyruCli` call/signature mismatch. This concurrent P07-owned failure is preserved in `.agent/logs/P08-REVIEW/r3-verifyQuick.log` and is not represented as P08 success; all P08-owned tasks and artifacts passed independently.
 
 Final result: PASS `P08-01..12`; **ACCEPT P08**. This accepts workspace model/export/CLI consumption neutrality only, not the later P09 compilation Gradle plugin.
 

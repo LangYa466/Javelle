@@ -5,7 +5,7 @@ cat=json.loads((root/'spec/diagnostics/catalog.json').read_text())
 fix=json.loads((root/'spec/diagnostics/fixtures.json').read_text())
 grammar=json.loads((root/'spec/grammar/grammar-contract.json').read_text())
 codes=[x['code'] for x in cat['diagnostics']]; cases=[x['id'] for x in fix['cases']]
-assert len(codes)==len(set(codes)) and all(re.fullmatch(r'JV-[A-Z]+-\d{4}',x) for x in codes)
+assert len(codes)==len(set(codes)) and all(re.fullmatch(r'TY-[A-Z]+-\d{4}',x) for x in codes)
 assert len(cases)==len(set(cases)) and {'positive','negative','behavior','recovery'}<=set(x['kind'] for x in fix['cases'])
 known=set(codes)
 for x in fix['cases']:

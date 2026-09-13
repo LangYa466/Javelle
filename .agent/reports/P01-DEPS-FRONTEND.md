@@ -20,14 +20,14 @@ REQUIREMENTS: `P01-07`, `P01-11`, local portion of `P01-12`.
 | JSON outside LSP | JDK-only until a module proves a JSON requirement | None initially | Do not add a second JSON stack pre-emptively. |
 | LSP/JSON-RPC | `org.eclipse.lsp4j:org.eclipse.lsp4j:1.0.0` and `org.eclipse.lsp4j:org.eclipse.lsp4j.jsonrpc:1.0.0` | Lock every Maven transitive after modules consume these aliases | EPL-2.0; accepted direct JAR SHA-256 values remain those in P01-VERSIONS. LSP4J owns the wire JSON boundary. |
 | IntelliJ client | `org.jetbrains.intellij.platform` plugin `2.18.1`; fixed IU/JBR remains P01-04 repair | Platform modules must be explicit, never copied into product artifacts | Plugin Apache-2.0; IDE/JBR and bundled-module license/integrity remain a P01 blocker until resolved. |
-| Javelle ordinary output | No runtime dependency by default | Any future helper requires a separately licensed tiny runtime decision | Prevents tool dependencies leaking into user programs. |
+| Teyru ordinary output | No runtime dependency by default | Any future helper requires a separately licensed tiny runtime decision | Prevents tool dependencies leaking into user programs. |
 
 ### Test/build-only dependencies
 
 | Purpose | Fixed direct selection | Minimality and follow-up |
 |---|---|---|
 | Unit/parameterized/engine | JUnit BOM/Jupiter/Launcher `6.0.0` | Existing strict graph resolves to JUnit API/engine/params/platform plus `opentest4j 1.3.0`, `apiguardian 1.1.2`, `jspecify 1.0.0`; current checksums are in `gradle/verification-metadata.xml`. |
-| Lombok oracle | `org.projectlombok:lombok:1.18.48` | Test/oracle and migration only; never normal Javelle compilation runtime. MIT; fixed JAR SHA recorded in P01-VERSIONS. |
+| Lombok oracle | `org.projectlombok:lombok:1.18.48` | Test/oracle and migration only; never normal Teyru compilation runtime. MIT; fixed JAR SHA recorded in P01-VERSIONS. |
 | Java/Kotlin/build formatting | Spotless plugin `com.diffplug.spotless:8.10.2`, with `google-java-format:1.36.0` for Java | Add only in P02 build logic after artifact/transitive checksums are generated and independently reviewed. Spotless and google-java-format are Apache-2.0. Do not use the deprecated `com.diffplug.gradle.spotless` ID. |
 | Compiler lint | `javac -Xlint:all -Werror` through shared conventions | JDK-native; no separate lint engine until a demonstrated rule gap exists. |
 | SBOM | CycloneDX Gradle plugin `org.cyclonedx.bom:3.4.1` | Build/reporting only. Pin and checksum its full plugin graph before application. Apache-2.0. |

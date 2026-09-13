@@ -1,6 +1,6 @@
 # Frontend dependency baseline
 
-This directory is a supply-chain fixture for P01, not the Javelle website implementation.
+This directory is a supply-chain fixture for P01, not the Teyru website implementation.
 
 - Node: `22.22.2`
 - npm: `10.9.7`

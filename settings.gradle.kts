@@ -20,7 +20,7 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "Javelle"
+rootProject.name = "Teyru"
 
 include(
     "compiler-core",

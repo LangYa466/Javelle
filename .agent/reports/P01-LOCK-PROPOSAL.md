@@ -32,7 +32,7 @@ The system `gradle` reports 9.6.1 on OpenJDK 25.0.3. This proves local executabi
 2. `gradle/libs.versions.toml`
    - One central catalog with exact `[versions]`, `[libraries]`, and `[plugins]`; no `latest.*`, ranges, `+`, snapshots, or changing modules.
    - Aliases grouped by contracts: parser/compiler, JSON/RPC/LSP, tests, quality, IntelliJ Platform, website-supporting JVM tools. The Node lock belongs under `website/`, not this catalog.
-3. `build-logic/settings.gradle.kts`, `build-logic/build.gradle.kts`, and `build-logic/src/main/kotlin/org.javelle.*-conventions.gradle.kts`
+3. `build-logic/settings.gradle.kts`, `build-logic/build.gradle.kts`, and `build-logic/src/main/kotlin/dev.teyru.*-conventions.gradle.kts`
    - Freeze Java toolchains, `options.release`, test launcher, UTF-8, reproducible archives, dependency locking, and quality rules once.
    - Import the root catalog explicitly into the included build; Gradle auto-import only covers the root `gradle/libs.versions.toml`.
 4. `gradle/verification-metadata.xml`
@@ -53,7 +53,7 @@ Do not collapse these axes:
 |---|---|---|
 | Compiler runtime JDK | Java launcher/toolchain for compiler process | JDK 25 exact vendor/build/checksum: **WAIT P01-W01** |
 | Gradle daemon JDK | CI matrix/environment plus daemon criteria; not inferred from target release | Minimum/fixed CI vendor/build: **WAIT P01-W01** |
-| Javelle target release | explicit compiler option/API accepting 21 and 25 profiles | semantic inventory: **WAIT P01-W01/spec** |
+| Teyru target release | explicit compiler option/API accepting 21 and 25 profiles | semantic inventory: **WAIT P01-W01/spec** |
 | IDEA client bytecode | IntelliJ module toolchain plus `options.release` matching lowest IDE platform Java | exact IDE floor: **WAIT P01-W02/P01-04** |
 
 Gradle's official compatibility table says Java 25 toolchains and daemon execution are supported from Gradle 9.1.0. IntelliJ Platform Gradle Plugin 2.x requires Gradle 9.0.0+ and Java 17+, so either fixed 9.6.0 or 9.6.1 satisfies those lower bounds. **Candidate recommendation:** accept Gradle 9.6.1 because it is locally executable and is a patch successor to the current 9.6.0 URL, but W01 must approve the exact version/source snapshot before P02 changes the wrapper.

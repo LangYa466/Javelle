@@ -8,7 +8,7 @@ plugins {
     alias(libs.plugins.spotless) apply false
 }
 
-group = "org.javelle"
+group = "dev.teyru"
 version = "0.1.0-SNAPSHOT"
 
 val expectedProductionEdges = mapOf(
@@ -87,10 +87,10 @@ val verifyArchitecture = tasks.register("verifyArchitecture") {
         val forbiddenImports = mapOf(
             "compiler-core" to listOf("org.gradle.", "com.intellij.", "org.eclipse.lsp4j."),
             "workspace-model" to listOf("org.gradle.", "com.intellij.", "org.eclipse.lsp4j."),
-            "language-protocol" to listOf("org.javelle.compiler", "org.javelle.semantic"),
+            "language-protocol" to listOf("dev.teyru.compiler", "dev.teyru.semantic"),
             "language-server" to listOf("com.intellij."),
-            "intellij-plugin" to listOf("org.javelle.compiler"),
-            "gradle-plugin" to listOf("org.javelle.compiler"),
+            "intellij-plugin" to listOf("dev.teyru.compiler"),
+            "gradle-plugin" to listOf("dev.teyru.compiler"),
         )
         forbiddenImports.forEach { (module, prefixes) ->
             fileTree("$module/src/main/java").matching { include("**/*.java") }.forEach { source ->
@@ -148,7 +148,7 @@ val verifyCompiledArchitecture = tasks.register<JavaExec>("verifyCompiledArchite
     group = "verification"
     dependsOn(buildLogicClasses, subprojects.map { it.tasks.named("classes") })
     classpath = files("build-logic/build/classes/java/main")
-    mainClass.set("org.javelle.buildlogic.architecture.ArchitectureBoundaryChecker")
+    mainClass.set("dev.teyru.buildlogic.architecture.ArchitectureBoundaryChecker")
     args(rootDir.absolutePath)
 }
 

@@ -121,7 +121,7 @@ Acceptance requires: project/DAG exactly matches contract; compilation/quick gat
 
 ## Current-state cautions for build owner
 
-- Current root is still single-project (`settings.gradle.kts` only names `Javelle`; root applies `java`). This is baseline material, not P02-01 completion.
+- Current root is still single-project (`settings.gradle.kts` only names `Teyru`; root applies `java`). This is baseline material, not P02-01 completion.
 - Current `publicationStatus=PUBLISHED` reflects user-authorized P00 Git publication, but P02 must not infer authorization for future release artifacts.
 - Preserve P01 pins: Gradle 9.6.0, JUnit 6.0.0, Spotless 8.10.2/google-java-format 1.36.0, toolchain matrix and strict verification metadata. Changes require new evidence/review.
 - Build owner must capture pre-change `git status`; the sole observed untracked `.idea/vcs.xml` is user-owned and out of scope.

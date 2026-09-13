@@ -9,10 +9,10 @@ tokens; it does not rescan source text or use regular expressions.
 
 ## Paths
 
-- `compiler-core/src/main/java/org/javelle/compiler/core/semantic/**`
-- `compiler-core/src/main/java/org/javelle/compiler/core/lowering/EarlyLowerer.java`
-- `compiler-core/src/main/java/org/javelle/compiler/core/emitter/**`
-- `compiler-core/src/test/java/org/javelle/compiler/core/P06EmitterTest.java`
+- `compiler-core/src/main/java/dev/teyru/compiler/core/semantic/**`
+- `compiler-core/src/main/java/dev/teyru/compiler/core/lowering/EarlyLowerer.java`
+- `compiler-core/src/main/java/dev/teyru/compiler/core/emitter/**`
+- `compiler-core/src/test/java/dev/teyru/compiler/core/P06EmitterTest.java`
 - `compiler-core/src/test/resources/public-api-v1.txt`
 
 ## Verified behavior

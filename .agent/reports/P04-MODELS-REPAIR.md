@@ -1,6 +1,6 @@
 # P04-R01 model/source/syntax/type repair
 
-Agent `/root/p00_repair`. Actual owned implementation paths: `compiler-core/src/main/java/org/javelle/compiler/core/source/**`, `syntax/**`, `symbol/**`; mirrored targeted tests under `compiler-core/src/test/**`; model entries in `compiler-core/src/test/resources/public-api-v1.txt`. No diagnostic, lowering/generation, sourcemap, classfile, budget, build, ledger or IDE paths are owned.
+Agent `/root/p00_repair`. Actual owned implementation paths: `compiler-core/src/main/java/dev/teyru/compiler/core/source/**`, `syntax/**`, `symbol/**`; mirrored targeted tests under `compiler-core/src/test/**`; model entries in `compiler-core/src/test/resources/public-api-v1.txt`. No diagnostic, lowering/generation, sourcemap, classfile, budget, build, ledger or IDE paths are owned.
 
 ## Result
 

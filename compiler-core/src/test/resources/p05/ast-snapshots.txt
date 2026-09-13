@@ -16,7 +16,7 @@ AST
 3|NumericLiteral||20:21|id=0|parent=2
 3|ErrorNode||21:22|id=1|parent=2
 DIAGNOSTICS
-JV-SYN-0001|21:22|Javelle syntax does not allow semicolons
+TY-SYN-0001|21:22|Teyru syntax does not allow semicolons
 === TYP-VAR-CAST-NULL ===
 AST
 0|CompilationUnit||0:70|id=7|parent=-
@@ -38,14 +38,14 @@ AST
 3|ReturnStatement||46:54|id=3|parent=4
 4|NameExpression|x|53:54|id=2|parent=3
 DIAGNOSTICS
-JV-TYP-0002|37:41|cannot infer null
+TY-TYP-0002|37:41|cannot infer null
 === TYP-FIELD-INFERENCE ===
 AST
 0|CompilationUnit||0:32|id=2|parent=-
 1|ClassDeclaration|C|0:31|id=1|parent=2
 2|ErrorNode||20:23|id=0|parent=1
 DIAGNOSTICS
-JV-TYP-0003|20:23|inferred field type is illegal
+TY-TYP-0003|20:23|inferred field type is illegal
 === PROP-PLAIN-FIELD ===
 AST
 0|CompilationUnit||0:38|id=3|parent=-
@@ -79,8 +79,8 @@ AST
 4|ErrorNode||27:33|id=0|parent=2
 4|ErrorNode||33:33|id=1|parent=2
 DIAGNOSTICS
-JV-SYN-0002|27:33|missing return expression
-JV-SYN-0002|33:33|unterminated block
+TY-SYN-0002|27:33|missing return expression
+TY-SYN-0002|33:33|unterminated block
 === P14-BASIC-FOR ===
 AST
 0|CompilationUnit||0:58|id=14|parent=-

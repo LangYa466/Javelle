@@ -6,7 +6,7 @@ STATUS: **CONTRACT_FROZEN — implementation remains NOT_IMPLEMENTED / NOT_VERIF
 
 ## 1. Scope and entry points
 
-Package ownership is `org.javelle.compiler.core.frontend` plus required concrete nodes under the existing `syntax` package. No Gradle, IDE, LSP, javac-internal or filesystem API enters these signatures.
+Package ownership is `dev.teyru.compiler.core.frontend` plus required concrete nodes under the existing `syntax` package. No Gradle, IDE, LSP, javac-internal or filesystem API enters these signatures.
 
 ```java
 record FrontendOptions(int languageMajor, int maxDiagnostics) {}
@@ -14,16 +14,16 @@ record LexResult(List<Token> tokens, List<Diagnostic> diagnostics) {}
 record ParseResult(CompilationUnit ast, CstNode cst, NodeIndex nodes,
                    List<Diagnostic> diagnostics, boolean recovered) {}
 
-interface JavelleLexer {
+interface TeyruLexer {
   LexResult lex(SourceFile source, FrontendOptions options,
                 ResourceTracker resources, CancellationToken cancellation);
 }
-interface JavelleParser {
+interface TeyruParser {
   ParseResult parse(SourceFile source, LexResult lexical,
                     FrontendOptions options, ResourceTracker resources,
                     CancellationToken cancellation);
 }
-final class JavelleFrontend {
+final class TeyruFrontend {
   ParseResult parse(SourceFile source, FrontendOptions options,
                     ResourceBudget budget, CancellationToken cancellation);
 }
@@ -43,7 +43,7 @@ The façade runs Unicode translation already owned by `SourceFile`, lexes transl
 
 ### Explicitly not advertised in P05
 
-Enums/records/interfaces/annotations, generics/type-use annotations, arrays/varargs, lambdas/method references, switch/loops/try/synchronized/assert/labeled statements, anonymous/local classes, text blocks/templates, pattern matching, modules and all preview features emit `JV-DEV-0001` with data `{feature, languageVersion:"0.1", stage:"P05"}` over the introducing token. The parser consumes a balanced construct into `UnsupportedSyntaxNode`; it never ignores it or calls it successful. `JV-DEV-0001` is a development capability diagnostic and must be added by the diagnostics catalog owner before implementation merges; until then this is a named dependency, not a fabricated completed code.
+Enums/records/interfaces/annotations, generics/type-use annotations, arrays/varargs, lambdas/method references, switch/loops/try/synchronized/assert/labeled statements, anonymous/local classes, text blocks/templates, pattern matching, modules and all preview features emit `TY-DEV-0001` with data `{feature, languageVersion:"0.1", stage:"P05"}` over the introducing token. The parser consumes a balanced construct into `UnsupportedSyntaxNode`; it never ignores it or calls it successful. `TY-DEV-0001` is a development capability diagnostic and must be added by the diagnostics catalog owner before implementation merges; until then this is a named dependency, not a fabricated completed code.
 
 ## 3. Lexer contract (P05-01/05)
 
@@ -56,10 +56,10 @@ Enums/records/interfaces/annotations, generics/type-use annotations, arrays/vara
 
 - Recursive descent/Pratt or generated formal parser is permitted; regex recognition is not. Expression precedence tests must distinguish `a + b * c`, chained member/call, ternary nesting and right-associative assignment.
 - Every AST node has a deterministic `NodeId`, exact half-open raw range, parent ID and corresponding CST coverage. AST snapshots are supplemental: tests also assert node kinds, relationships and ranges from independently specified anchors.
-- `var`/`val` locals require an initializer; `var x = null` emits `JV-TYP-0002`; field `var`/`val` emits `JV-TYP-0003`. Full inference/reassignment belongs later, so P05 must not advertise it.
-- A syntax `SEMICOLON` emits `JV-SYN-0001` on exactly that token with a `QUICK_FIX` deleting it. Parsing continues at newline/member/block synchronization.
+- `var`/`val` locals require an initializer; `var x = null` emits `TY-TYP-0002`; field `var`/`val` emits `TY-TYP-0003`. Full inference/reassignment belongs later, so P05 must not advertise it.
+- A syntax `SEMICOLON` emits `TY-SYN-0001` on exactly that token with a `QUICK_FIX` deleting it. Parsing continues at newline/member/block synchronization.
 - Recovery nodes are mandatory for missing expression, unterminated block/string/comment, incomplete accessor and unsupported balanced syntax. Each recovery iteration consumes a token or returns; nesting/token/node/diagnostic budgets are charged. At most one primary diagnostic is emitted at the same `(code,range)` and the fixture ceiling is enforced.
-- Names `get`, `set`, `field`, `value` lex as contextual identifiers. Outside an accessor header/body, `obj.get`, `set()`, local `field`, and parameter `value` parse normally. Inside a computed getter without storage, `field` is retained as an identifier node plus later `JV-PROP-0006`; it is never silently rebound.
+- Names `get`, `set`, `field`, `value` lex as contextual identifiers. Outside an accessor header/body, `obj.get`, `set()`, local `field`, and parameter `value` parse normally. Inside a computed getter without storage, `field` is retained as an identifier node plus later `TY-PROP-0006`; it is never silently rebound.
 
 ## 5. Fixture manifest
 
@@ -79,7 +79,7 @@ The selected set covers literal versus syntax semicolon, plain field versus prop
 | P05-06 | Truncation at every token boundary of property sample: no crash/hang, progress, ≤ configured diagnostics, error node. |
 | P05-07 | AST golden plus explicit node-kind/range/parent/CST assertions; mutation of precedence must fail. |
 | P05-08 | `TYP-VAR-NULL`, `TYP-FIELD-INFERENCE`, `TYP-VAR-CAST-NULL`; exact codes, no false success. |
-| P05-09 | Unsupported enum/basic-for fixtures return `JV-DEV-0001`, `UnsupportedSyntaxNode`, and `success=false`. |
+| P05-09 | Unsupported enum/basic-for fixtures return `TY-DEV-0001`, `UnsupportedSyntaxNode`, and `success=false`. |
 | P05-10 | Plain-field/property pair assert different sealed node classes and property accessor list only on property. |
 | P05-11 | Fixture with ordinary `get/set/field/value` names outside accessors plus invalid computed `field` binding. |
 | P05-12 | Independent reviewer runs token-boundary truncation corpus under timeout and verifies diagnostic cascade ceiling. |
@@ -97,6 +97,6 @@ Implementation acceptance additionally requires a focused `P05FrontendTest`, lex
 
 ## 8. Risks/dependencies
 
-- Current P04 `DiagnosticCode` accepts only `JVL-*` while the normative P03 catalog uses `JV-*`; frontend implementation is blocked from emitting contract codes until the diagnostics owner resolves that drift without renaming P03 codes.
+- Current P04 `DiagnosticCode` accepts only `JVL-*` while the normative P03 catalog uses `TY-*`; frontend implementation is blocked from emitting contract codes until the diagnostics owner resolves that drift without renaming P03 codes.
 - Existing generic CST/AST variants are insufficient to prove all concrete declarations/expressions; compiler owner must add real sealed nodes, not encode kinds in strings.
 - Semantic property storage, full Java attribution and emission remain P06+; P05 only preserves syntax/context needed by those stages.

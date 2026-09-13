@@ -7,12 +7,12 @@
 
 ## Mapping matrix
 
-- Two real javac errors produced from one CRLF Javelle source containing an astral emoji and a Unicode-escaped identifier.
+- Two real javac errors produced from one CRLF Teyru source containing an astral emoji and a Unicode-escaped identifier.
 - Exact generated Unicode-code-point ranges are `[180,198)` and `[259,278)`; exact original ranges are `[33,53)` and `[55,81)`.
 - A returned `new Missing()` invocation is asserted against its exact original expression range, not merely a containing member.
-- Missing-type and generated synthetic class diagnostics resolve to their mapped Javelle owners.
-- A diagnostic from a caller-supplied Java source has normalized `Bad.java`, an empty origin list, and no guessed Javelle range.
-- Diagnostic codes are stable `JV-JAVAC-ERROR`; the underlying javac code remains in the structured message.
+- Missing-type and generated synthetic class diagnostics resolve to their mapped Teyru owners.
+- A diagnostic from a caller-supplied Java source has normalized `Bad.java`, an empty origin list, and no guessed Teyru range.
+- Diagnostic codes are stable `TY-JAVAC-ERROR`; the underlying javac code remains in the structured message.
 
 The driver converts javac UTF-16 boundaries to Unicode code points before exact source-map overlap. It keeps generated coordinates for related/fallback inspection. If no valid generated map exists, it reports only the normalized generated filename and generated range.
 
@@ -26,4 +26,4 @@ The driver converts javac UTF-16 boundaries to Unicode code points before exact 
 
 ## Review handoff
 
-Independently reproduce exact ranges after changing emoji width, CRLF to LF, and the Unicode escape spelling. Confirm no-map Java diagnostics never acquire a guessed Javelle origin. Re-run transaction fault injection to ensure mapping failures cannot publish output.
+Independently reproduce exact ranges after changing emoji width, CRLF to LF, and the Unicode escape spelling. Confirm no-map Java diagnostics never acquire a guessed Teyru origin. Re-run transaction fault injection to ensure mapping failures cannot publish output.

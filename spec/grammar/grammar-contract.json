@@ -3,7 +3,7 @@
   "languageVersion": "0.1-draft",
   "baseGrammar": "Java SE 25 non-preview",
   "jlsChapterCoverage": [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19],
-  "formalGrammar": "spec/grammar/javelle.ebnf",
+  "formalGrammar": "spec/grammar/teyru.ebnf",
   "lexicalOrder": ["UTF8_DECODE", "UNICODE_ESCAPE_TRANSLATION", "TOKENIZE_WITH_TRIVIA", "PARSE"],
   "forbiddenTokens": ["SEMICOLON"],
   "contextualNames": ["var", "val", "get", "set", "field", "value"],

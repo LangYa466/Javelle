@@ -10,7 +10,7 @@
 ## 實作結果
 
 1. `settings.gradle.kts` 明列 15 個 contract project，並以 included build 載入 `build-logic`。
-2. `org.javelle.java-conventions` 固定 Java toolchain 25、`--release 21`、UTF-8、`-Xlint:all -Werror`、決定性 test locale/timezone 與可重現 JAR 設定。
+2. `dev.teyru.java-conventions` 固定 Java toolchain 25、`--release 21`、UTF-8、`-Xlint:all -Werror`、決定性 test locale/timezone 與可重現 JAR 設定。
 3. 每個 project 有可編譯的 module-boundary API；production `implementation` 邊完全符合 P02-CONTRACT 固定 DAG。根任務 `verifyArchitecture` 比較完整期望圖、偵測 cycle、禁止核心層 import Gradle/IntelliJ/LSP 類別。
 4. `testkit` 提供有 timeout 與輸出上限的外部 process runner、archive inspector，並以真實子程序、timeout、錯誤 Java 編譯 fixture 測試。
 5. Gradle plugin 以隔離外部 compiler executable 為契約：未設定或不可執行會明確失敗，不將 compiler internals 載入 Gradle classloader。
