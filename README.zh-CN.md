@@ -246,7 +246,9 @@ System.out.println(p.getName() + " " + p.getAge())
 `@SneakyThrows`／`@Synchronized`／`@With`／`@Accessors`／`@FieldDefaults`／
 `@UtilityClass`／`@StandardException`／`@Log` 系列／`@ExtensionMethod`／
 `@FieldNameConstants`／`@Delegate`／`@Helper`／`@Tolerate`／`@Locked`／
-`@NonFinal`／`@PackagePrivate` 全部支持。
+`@NonFinal`／`@PackagePrivate` 全部支持，包含 `@Singular`（逐项累积、整批加入、
+清除、`build()` 取得副本）、`@SuperBuilder`（覆盖整条继承链的字段）与
+`@Builder.ObtainVia`。
 
 ### Java 25 语法对照
 

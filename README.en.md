@@ -282,7 +282,9 @@ The full list and the differences are in **[docs/lombok.md](docs/lombok.md)**:
 `@NonNull`/`@Cleanup`/`@SneakyThrows`/`@Synchronized`/`@With`/`@Accessors`/
 `@FieldDefaults`/`@UtilityClass`/`@StandardException`/the `@Log` family/
 `@ExtensionMethod`/`@FieldNameConstants`/`@Delegate`/`@Helper`/`@Tolerate`/`@Locked`/
-`@NonFinal`/`@PackagePrivate` are all supported.
+`@NonFinal`/`@PackagePrivate` are all supported, including `@Singular`
+(accumulate one at a time, add a whole collection, clear, and build() takes a
+copy), `@SuperBuilder` over a whole hierarchy, and `@Builder.ObtainVia`.
 
 ### Language features
 

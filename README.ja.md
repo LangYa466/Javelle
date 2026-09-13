@@ -254,7 +254,9 @@ System.out.println(p.getName() + " " + p.getAge())
 `@Builder`／`@NonNull`／`@Cleanup`／`@SneakyThrows`／`@Synchronized`／`@With`／
 `@Accessors`／`@FieldDefaults`／`@UtilityClass`／`@StandardException`／`@Log` 系／
 `@ExtensionMethod`／`@FieldNameConstants`／`@Delegate`／`@Helper`／`@Tolerate`／
-`@Locked`／`@NonFinal`／`@PackagePrivate` に対応）。
+`@Locked`／`@NonFinal`／`@PackagePrivate` に対応。`@Singular`（1 件ずつ追加、
+まとめて追加、クリア、`build()` がコピーを受け取る）、`@SuperBuilder`（継承チェーン
+全体のフィールド）、`@Builder.ObtainVia` も含みます）。
 
 ### Java 25 構文への対応
 

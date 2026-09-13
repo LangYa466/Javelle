@@ -187,6 +187,9 @@ hello.teyru:4:11: error[TY-TYP-0051]: incompatible types: String cannot be conve
 |---|---|---|
 | TY-INT-0001 | `prelude is missing class %s` | 前導程式庫損壞或類別被覆蓋，屬於編譯器內部錯誤。 |
 | TY-INT-0002 | `unsupported expression %T` | 語意分析遇到未處理的節點，屬於編譯器內部錯誤（請回報）。 |
+| TY-INT-0004 | `@Singular goes on a builder field, not on the class` | 寫在類別上沒有意義。 |
+| TY-INT-0005 | `@Singular needs a List or Map field, found %s` | `@Singular` 只能用在集合欄位。 |
+| TY-INT-0006 | `@CustomLog needs lombok.config…` | Teyru 不讀設定檔，請改用 `@Log` 或自己宣告欄位。 |
 | TY-IO-0001 | `cannot read %s: %v` | 來源檔讀不到，檢查路徑與權限。 |
 
 ## 執行期錯誤

@@ -274,7 +274,9 @@ System.out.println(p)
 `@SneakyThrows`／`@Synchronized`／`@With`／`@Accessors`／`@FieldDefaults`／
 `@UtilityClass`／`@StandardException`／`@Log` 家族／`@ExtensionMethod`／
 `@FieldNameConstants`／`@Delegate`／`@Helper`／`@Tolerate`／`@Locked`／
-`@NonFinal`／`@PackagePrivate` 全部支援。
+`@NonFinal`／`@PackagePrivate` 全部支援，包含 `@Singular`（逐項累積、整批加入、
+清除、`build()` 取得副本）、`@SuperBuilder`（涵蓋整條繼承鏈的欄位）與
+`@Builder.ObtainVia`。
 
 ### Java 25 語法對照
 
