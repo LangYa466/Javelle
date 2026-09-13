@@ -1,4 +1,0 @@
-Deprecated class com.intellij.platform.lsp.api.LspServerDescriptor is referenced in org.javelle.intellij.plugin.JavelleLspServerDescriptor
-Deprecated class com.intellij.platform.lsp.api.LspServerDescriptor is referenced in org.javelle.intellij.plugin.JavelleLspServerDescriptor.<init>(Project, VirtualFile[])
-Deprecated interface com.intellij.platform.lsp.api.LspServerSupportProvider.LspServerStarter is referenced in org.javelle.intellij.plugin.JavelleLspServerSupportProvider.fileOpened(Project, VirtualFile, LspServerSupportProvider.LspServerStarter) : void
-Deprecated interface com.intellij.platform.lsp.api.LspServerSupportProvider is referenced in org.javelle.intellij.plugin.JavelleLspServerSupportProvider

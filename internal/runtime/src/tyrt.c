@@ -41,6 +41,8 @@ static void **roots_static = NULL; /* addresses of global slots */
 static size_t nroots_static = 0, caproots_static = 0;
 static char *stack_top = NULL;   /* highest address of the current thread stack */
 static int64_t alloc_since_gc = 0;
+static int64_t gc_threshold = 4 << 20;
+static int64_t live_bytes = 0;
 static int gc_disabled = 0;
 
 void *ty_roots[TY_SHADOW_MAX];
@@ -134,8 +136,8 @@ void ty_gc(void) {
     void *o = mark_stack[--mark_sp];
     trace_object(o);
   }
-  /* sweep: unmarked objects become free; we simply unlink their chunks'
-     used range is left intact but the block is added to the free list. */
+  /* sweep: unmarked objects become free; the block goes on a free list. */
+  live_bytes = 0;
   for (tychunk *c = chunks; c; c = c->next) {
     char *p = c->mem;
     while (p < c->mem + c->used) {
@@ -145,11 +147,14 @@ void ty_gc(void) {
         ty_free_block(p + TY_HDR, sz);
       } else {
         *h &= ~(uint64_t)TY_MARK_BIT;
+        live_bytes += (int64_t)sz;
       }
       p += sz;
     }
   }
   alloc_since_gc = 0;
+  gc_threshold = live_bytes * 2;
+  if (gc_threshold < (4 << 20)) gc_threshold = 4 << 20;
 }
 
 /* ------------------------------------------------------------------ allocation */
@@ -200,7 +205,7 @@ static void *alloc_slow(size_t total) {
 
 void *ty_alloc(size_t size) {
   size_t total = (size + TY_HDR + TY_ALIGN - 1) & ~(size_t)(TY_ALIGN - 1);
-  if (alloc_since_gc > (1 << 21)) ty_gc();
+  if (alloc_since_gc > gc_threshold) ty_gc();
   void *p = alloc_slow(total);
   if (!p) {
     tychunk *c = chunks;

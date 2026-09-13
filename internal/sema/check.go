@@ -350,7 +350,7 @@ func (ctx *methodCtx) checkLocalVar(v *ast.LocalVar) {
 			t = it
 		} else if vd.Init != nil {
 			ctx.checkExpr(vd.Init, t)
-			ctx.convert(vd.Init, t)
+			ctx.convertTo(vd.Init, t)
 		}
 		v2 := ctx.declare(vd.Name, t, vd.Pos)
 		if v.Type.Name == "val" || v.Mods.Has(ast.ModFinal) {
