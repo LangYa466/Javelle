@@ -308,7 +308,10 @@ String kind = switch (obj) {
   要比內容請用 `equals`。
 - 字串串接：`+` 的任一側是 `String` 時就做串接，其他運算元會自動轉成字串
   （`null` 變成 `"null"`）。
-- `instanceof` 支援型別 pattern：`if (o instanceof String s) { … }`。
+- `instanceof` 支援型別 pattern：`if (o instanceof String s) { … }`，以及 record 解構
+  pattern：`if (o instanceof Point(int x, int y)) { … }`。
+- `Interface.super.method()` 會靜態綁定到該介面的 default 實作：
+  `A.super.hello()`；介面必須是當前類別的 super interface。
 - cast：數值間做轉換，參考型別間做執行期檢查（失敗丟 `ClassCastException`）。
 - boxing／unboxing 自動發生，`null` 拆箱會丟 `NullPointerException`。
 - 物件初始化列表：`new int[]{…}`、`int[] xs = {1,2,3}`、巢狀 `{{1,2},{3}}`。
@@ -339,6 +342,8 @@ class Util {
 
 - 支援型別參數、bound（`<T extends Number>`）、多重 bound（`&`）、
   萬用字元（`?`、`? extends`、`? super`）、泛型方法、diamond `new Box<>("x")`。
+- 泛型方法可以由引數推斷型別參數（原生引數會自動 boxing），也可以顯式指定：
+  `Main.<String>identity("x")`、`box.<Integer>map(v -> v.length())`。
 - **泛型在編譯期抹除**：執行期只知道類別，不會有 `ClassCastException` 之外的
   泛型檢查；`List<String>` 與 `List<Integer>` 在執行期是同一個型別。
 - 原生型別不能當型別引數（`Box<int>` 不合法），請用包裝類別。
@@ -426,10 +431,12 @@ try {
 
 ## 13. 尚未實作
 
-- checked exception 的編譯期檢查
+- checked exception 的編譯期檢查（`throws` 只被解析）
 - `sealed` 家族的窮盡性檢查
 - 反射、執行緒、`java.util` 集合、檔案與網路 I/O
 - 與 Java 生態互通（JAR、JDK 類別庫、JNI）
-- `switch` 的 `null` 標籤與 `case null, default`
+- 識別字中的 Unicode 逸出（`\u0041` 不能拼出識別字）
+- 泛型建構子的顯式型別引數 `new <T>Foo(...)`
 - 文字區塊的縮排細則（目前實作最小縮排去除）
-- 註解的執行期保留與讀取
+- 註解的執行期保留與讀取（`java.lang.annotation` 不存在）
+- 模組系統的語意（`import module` 與 `module-info` 只被解析）

@@ -102,7 +102,7 @@ func (e *Emitter) emitEnumInit(cl *ast.Class) {
 			}
 		}
 		g := staticName(cl, f)
-		e.line("%s = (%s*)ty_alloc(sizeof(%s));\n", g, cname(cls), cname(cls))
+		e.line("%s = (%s)ty_alloc(sizeof(%s));\n", g, e.ctype(f.Type), cname(cls))
 		e.line("%s->obj.cls = &cls_%s;\n", g, mangle(cls.Full))
 		e.line("((tyEnumBase*)%s)->ordinal = %d;\n", g, f.EnumOrd)
 		e.line("((tyEnumBase*)%s)->name = ty_str_intern(%s);\n", g, e.cstr(ec.Name))
