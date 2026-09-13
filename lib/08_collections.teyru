@@ -1,0 +1,248 @@
+package teyru
+
+interface List<T> extends Iterable<T> {
+  int size()
+  T get(int i)
+  void add(T v)
+  boolean isEmpty()
+  boolean contains(T v)
+  int indexOf(T v)
+}
+
+class ArrayList<T> implements List<T>, Iterable<T> {
+  private Object[] items
+  private int count
+
+  public ArrayList() {
+    items = new Object[8]
+  }
+
+  public ArrayList(int capacity) {
+    if (capacity < 0) {
+      throw new IllegalArgumentException("negative capacity")
+    }
+    items = new Object[capacity > 0 ? capacity : 1]
+  }
+
+  public int size() {
+    return count
+  }
+
+  public boolean isEmpty() {
+    return count == 0
+  }
+
+  public void add(T v) {
+    if (count == items.length) {
+      grow()
+    }
+    items[count] = v
+    count++
+  }
+
+  public T get(int i) {
+    checkIndex(i)
+    return (T) items[i]
+  }
+
+  public T set(int i, T v) {
+    checkIndex(i)
+    T old = (T) items[i]
+    items[i] = v
+    return old
+  }
+
+  public T removeAt(int i) {
+    checkIndex(i)
+    T old = (T) items[i]
+    for (int j = i : j < count - 1 : j++) {
+      items[j] = items[j + 1]
+    }
+    count--
+    items[count] = null
+    return old
+  }
+
+  public boolean contains(T v) {
+    return indexOf(v) >= 0
+  }
+
+  public int indexOf(T v) {
+    for (int i = 0 : i < count : i++) {
+      Object e = items[i]
+      if (v == null) {
+        if (e == null) {
+          return i
+        }
+      } else if (v.equals(e)) {
+        return i
+      }
+    }
+    return -1
+  }
+
+  public void clear() {
+    for (int i = 0 : i < count : i++) {
+      items[i] = null
+    }
+    count = 0
+  }
+
+  public Iterator<T> iterator() {
+    return new ArrayListIterator<T>(this)
+  }
+
+  public String toString() {
+    StringBuilder sb = new StringBuilder()
+    sb.append("[")
+    for (int i = 0 : i < count : i++) {
+      if (i > 0) {
+        sb.append(", ")
+      }
+      sb.append(items[i])
+    }
+    sb.append("]")
+    return sb.toString()
+  }
+
+  private void checkIndex(int i) {
+    if (i < 0 || i >= count) {
+      throw new IndexOutOfBoundsException("index " + i + ", size " + count)
+    }
+  }
+
+  private void grow() {
+    int bigger = items.length * 2
+    Object[] next = new Object[bigger]
+    for (int i = 0 : i < count : i++) {
+      next[i] = items[i]
+    }
+    items = next
+  }
+}
+
+class ArrayListIterator<T> implements Iterator<T> {
+  private ArrayList<T> list
+  private int next
+
+  public ArrayListIterator(ArrayList<T> l) {
+    list = l
+  }
+
+  public boolean hasNext() {
+    return next < list.size()
+  }
+
+  public T next() {
+    if (!hasNext()) {
+      throw new NoSuchElementException("no more elements")
+    }
+    T v = list.get(next)
+    next++
+    return v
+  }
+}
+
+class HashMap<K, V> {
+  private Object[] keys
+  private Object[] values
+  private int count
+  private int mask
+
+  public HashMap() {
+    keys = new Object[16]
+    values = new Object[16]
+    mask = 15
+  }
+
+  public int size() {
+    return count
+  }
+
+  public boolean isEmpty() {
+    return count == 0
+  }
+
+  public void put(K key, V value) {
+    if (key == null) {
+      throw new NullPointerException("null key")
+    }
+    if (count * 4 >= keys.length * 3) {
+      rehash()
+    }
+    int slot = slotOf(key)
+    keys[slot] = key
+    values[slot] = value
+    count++
+  }
+
+  public V get(K key) {
+    if (key == null) {
+      return null
+    }
+    int slot = slotOf(key)
+    if (keys[slot] == null || keys[slot].equals(key)) {
+      return (V) values[slot]
+    }
+    return null
+  }
+
+  public boolean containsKey(K key) {
+    return key != null && keys[slotOf(key)] != null
+  }
+
+  public V remove(K key) {
+    if (key == null) {
+      return null
+    }
+    int slot = slotOf(key)
+    if (keys[slot] == null) {
+      return null
+    }
+    V old = (V) values[slot]
+    keys[slot] = null
+    values[slot] = null
+    count--
+    return old
+  }
+
+  public String toString() {
+    StringBuilder sb = new StringBuilder()
+    sb.append("{")
+    boolean first = true
+    for (int i = 0 : i < keys.length : i++) {
+      if (keys[i] == null) {
+        continue
+      }
+      if (!first) {
+        sb.append(", ")
+      }
+      sb.append(keys[i]).append("=").append(values[i])
+      first = false
+    }
+    sb.append("}")
+    return sb.toString()
+  }
+
+  private int slotOf(K key) {
+    return (key.hashCode() & 0x7fffffff) & mask
+  }
+
+  private void rehash() {
+    Object[] oldKeys = keys
+    Object[] oldValues = values
+    int size = keys.length * 2
+    keys = new Object[size]
+    values = new Object[size]
+    mask = size - 1
+    count = 0
+    for (int i = 0 : i < oldKeys.length : i++) {
+      if (oldKeys[i] != null) {
+        K k = (K) oldKeys[i]
+        keys[slotOf(k)] = oldKeys[i]
+        values[slotOf(k)] = oldValues[i]
+        count++
+      }
+    }
+  }
+}
