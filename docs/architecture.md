@@ -61,6 +61,26 @@ Teyru 沒有分號。詞法分析器不產生 NEWLINE token，而是在每個 to
 | 記錄 `Point(int x,int y)` | struct + 建構子 + `x()`/`y()` + `toString`/`hashCode`/`equals` |
 | enum 常數 | 靜態欄位，於 `<clinit>` 建立並填入 ordinal／name |
 
+## 效能設計
+
+產生的 C 由 clang/LLVM 以 `-O2` 加 LTO 編譯（`--no-lto` 可關閉；不支援 LTO 的
+工具鏈會自動退回），跨函式 inline、常數傳播與迴圈向量化都由 LLVM 負責。在此之上，
+編譯器與執行期刻意讓熱路徑保持單一指令層級：
+
+| 機制 | 位置 | 說明 |
+|---|---|---|
+| 行內配置 | `tyrt.h` 的 `static inline ty_alloc` | 指標碰撞（bump pointer）路徑完全內聯，只有區塊用盡或超過 GC 門檻才呼叫 `ty_alloc_slow` |
+| 行內邊界檢查 | `codegen.boundCheck` | 檢查以敘述運算式內聯在取用點；索引為常數時由 `sema` 先摺疊，不產生多餘比較 |
+| 常數折疊 | `codegen.foldBinary`、`ident` | 字面值運算、`static final` 常數、字串相加在編譯期算完 |
+| 死 chunk 回收 | `tyrt.c` 的 sweep | 一個 chunk 內若沒有任何存活物件就整塊 `free` 還給系統，回收成本因此與存活量成正比，而不是與歷史配置量成正比 |
+| 字串常數 | `codegen.strLit` | 字串字面值是靜態 `tystr`，不經配置、不進 GC |
+| 類別初始化 | `ty_clinit` | 惰性初始化，且只在靜態成員存取與 `new` 時檢查 |
+
+已知的效能邊界：GC 是保守式標記清除（無分代假設），因此「大量短命物件」的
+microbenchmark 上會輸給 HotSpot 的逃逸分析。`bench_alloc` 是唯一落後的項目，
+其餘四項（`fib`、`loop`、`oop`、`string`）皆快於 JVM；重現方式見
+`sh scripts/bench.sh`。
+
 ## 垃圾回收
 
 - **保守式標記清除**。物件不搬移，所以 C 端的暫存指標永遠有效。
@@ -68,12 +88,25 @@ Teyru 沒有分號。詞法分析器不產生 NEWLINE token，而是在每個 to
   以及**原生堆疊的保守掃描**（起點為當前堆疊指標，終點為執行緒堆疊頂端，
   由 `pthread_getattr_np` 取得）。
 - 標記：`tyclass.refoffs` 列出每個類別需要追蹤的參考欄位位移；陣列用 `refs` 旗標。
-- 清除：未標記的區塊進入大小分級的 free list；下一次配置優先重用。
+- 清除：未標記的區塊進入大小分級的 free list；下一次配置優先重用。完全空掉的
+  chunk 直接 `free` 還給系統，所以長時間執行的程式不會一直佔住尖峰記憶體。
 - 觸發：配置量超過 `gc_threshold`（初始 4 MB，每次回收後設為存活量的兩倍）。
 - 已知代價：每次回收都要掃描整個使用中的堆疊，且沒有分代假設。
 
 ## 例外
 
 `ty_cur_catch` 是一條 handler 鏈。`throw` 呼叫 `ty_throw`，後者 `longjmp` 到最近的
-handler；沒有 handler 時印出訊息並以狀態 1 結束。`finally` 以「外層 handler
-捕捉內層所有路徑」的方式實作，確保 catch 區塊內再拋出時仍會執行。
+handler；沒有 handler 時印出訊息並以狀態 1 結束。
+
+`finally` 有兩條路徑，缺一不可：
+
+1. **例外路徑**：`try` 外層包一個 handler，`setjmp` 回來後先跑 `finally`，
+   再把例外重拋。catch 區塊內再拋出時也走同一條路。
+2. **正常離開路徑**：`return`、`break`、`continue` 不會經過 `longjmp`，
+   所以程式碼產生器維護一個 finally 堆疊（`Emitter.finallys`），在每個
+   跳躍敘述前先跑完被離開的 `finally`（由內而外），最後才跳。
+   `try`-with-resources 的 `close()` 是同一個機制的隱含 `finally`，
+   因此資源在 return 與例外兩條路徑上都會關閉。
+
+區域與匿名類別捕獲的區域變數會變成合成類別的欄位（`Class.CapFields`），
+由建構子或 closure 建立運算式填入；這讓「方法參考的接收者」也只在建立時求值一次。

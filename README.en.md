@@ -44,36 +44,40 @@ into `opt`, `llc` or a custom pass; `./teyru emit` prints the generated C.
 
 ## Why it is faster than the JVM
 
-Same `Hello` program, measured on one machine (Linux x86-64, clang 22, OpenJDK 21, 100 runs each):
+Measured on one machine (Linux x86-64, clang 22, OpenJDK 21 Temurin, best of 5 runs):
 
 | Metric | Teyru (native) | Java (HotSpot) | Difference |
 |---|---|---|---|
-| 100 startups | **0.075 s** (0.75 ms each) | 2.00 s (20 ms each) | **~27x faster** |
-| Executable / runtime size | **56 KB** | ~200 MB JDK runtime | ~3600x smaller |
-| Peak memory | **4.4 MB** | 50.9 MB | **~11x less** |
-| `fib(32)` recursion | **6 ms** | 27 ms | ~4.5x faster |
-| Compile time | tens of milliseconds | javac is slower and needs JIT warm-up | — |
+| 100 startups | **0.068 s** (0.68 ms each) | 1.97 s (19.8 ms each) | **~29x faster** |
+| Executable size | **33 KB** | ~200 MB JDK runtime | ~6000x smaller |
+| Peak RSS (hello) | **2.1 MB** | 50.2 MB | **~24x less** |
+| `bench_fib` recursion | **0.0060 s** | 0.0259 s | **4.3x faster** |
+| `bench_loop` loops and integer math | **0.0208 s** | 0.0430 s | **2.1x faster** |
+| `bench_oop` objects and virtual calls | **0.0044 s** | 0.0261 s | **5.9x faster** |
+| `bench_string` string handling | **0.0096 s** | 0.0542 s | **5.7x faster** |
+| `bench_alloc` short-lived allocation | 0.0605 s | **0.0323 s** | 0.53x (JVM wins) |
 
-**Why it is fast:**
+**Where the speed comes from:**
 
-1. **No JVM startup.** No class loading, no JIT warm-up, no GC threads spinning up.
-   Good for CLI tools, short-lived processes, container start-up and serverless.
-2. **Work happens at compile time, not at run time.** Generics are erased, calls are
-   bound to addresses, string literals are static objects, `static final` constants are
-   folded, and vtables plus interface tables are filled in by the compiler.
-3. **No bytecode interpretation stage.** clang/LLVM optimises the whole program at once
-   (cross-method inlining, constant propagation, loop vectorisation) instead of waiting
-   for a JIT to find hot spots.
-4. **Predictable performance.** No deoptimisation, no warm-up curve, no GC tuning knobs;
-   the first run is the fastest run.
+1. **No JVM startup.** No class loading, no JIT warmup, no GC threads to spawn.
+2. **Compile-time work stays at compile time.** Generics are erased, calls are
+   addressed statically, string constants are allocated statically, `static final`
+   constants are folded, and the compiler fills in the vtables and interface tables.
+3. **No bytecode interpreter.** clang/LLVM optimises the whole program up front
+   (LTO inlining across the module, constant propagation, loop vectorisation)
+   instead of waiting for a JIT to find hot spots.
+4. **Allocation and bounds checks take an inlined fast path.** `ty_alloc` bumps a
+   pointer inline in the header, array access only calls the slow path when it must,
+   and the collector releases chunks that are completely empty.
+5. **Predictable performance.** No deoptimisation, no warmup curve, no GC tuning.
 
-**The honest boundary.** On microbenchmarks dominated by short-lived objects, HotSpot's
-escape analysis can eliminate the allocation entirely (scalar replacement) and the JVM
-wins — measured at 20M allocations: Teyru 0.13 s vs JVM 0.03 s. Teyru's collector is a
-conservative mark-and-sweep, not a generational copying collector; that is the next
-optimisation target, and it is why we do **not** claim to be faster in every scenario.
-Every number above is reproducible with `sh bench/bench.sh` or by comparing
-`tests/programs/bench_*.teyru`.
+**The honest boundary.** On microbenchmarks dominated by short-lived objects,
+HotSpot's escape analysis can eliminate the objects outright (scalar replacement),
+and the JVM wins (`bench_alloc`: Teyru 0.0605 s vs JVM 0.0323 s). Every number above
+includes process startup, so the absolute values are small. Teyru's collector is a
+conservative mark-and-sweep with chunk reclamation, not a generational copying
+collector, which is why we do not claim to be faster in every situation. Every
+number is reproducible with `sh scripts/bench.sh`.
 
 ---
 
@@ -400,7 +404,7 @@ teyru help                                     print usage
 go build ./...          # build
 go test ./...           # end-to-end tests (compiles every program under tests/programs)
 go vet ./...
-sh bench/bench.sh       # JVM comparison (the JVM half runs only if java is installed)
+sh scripts/bench.sh       # JVM comparison (the JVM half runs only if java is installed)
 ```
 
 To add a test, drop `xxx.teyru` and `xxx.expected` into `tests/programs/`; if the program

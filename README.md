@@ -42,15 +42,18 @@ Teyru 原始碼 (.teyru)
 
 ## 為什麼比 JVM 快
 
-同一個 `Hello` 程式，在同一台機器上實測（Linux x86-64、clang 22、OpenJDK 21、各執行 100 次）：
+同一台機器實測（Linux x86-64、clang 22、OpenJDK 21 Temurin、每個數字取 5 次最佳）：
 
 | 指標 | Teyru（原生） | Java（HotSpot） | 差距 |
 |---|---|---|---|
-| 啟動 100 次總時間 | **0.075 s**（0.75 ms/次） | 2.00 s（20 ms/次） | **約 27 倍快** |
-| 執行檔／執行期大小 | **56 KB** | JDK 執行期約 200 MB | 約 3600 倍小 |
-| 尖峰記憶體 | **4.4 MB** | 50.9 MB | **約 11 倍省** |
-| `fib(32)` 遞迴 | **6 ms** | 27 ms | 約 4.5 倍快 |
-| 編譯時間 | 數十毫秒 | javac 較慢且需 JIT 暖機 | — |
+| 啟動 100 次總時間 | **0.068 s**（0.68 ms/次） | 1.97 s（19.8 ms/次） | **約 29 倍快** |
+| 執行檔大小 | **33 KB** | JDK 執行期約 200 MB | 約 6000 倍小 |
+| 尖峰記憶體（hello） | **2.1 MB** | 50.2 MB | **約 24 倍省** |
+| `bench_fib` 遞迴 | **0.0060 s** | 0.0259 s | **4.3 倍快** |
+| `bench_loop` 迴圈與整數運算 | **0.0208 s** | 0.0430 s | **2.1 倍快** |
+| `bench_oop` 物件與虛擬呼叫 | **0.0044 s** | 0.0261 s | **5.9 倍快** |
+| `bench_string` 字串處理 | **0.0096 s** | 0.0542 s | **5.7 倍快** |
+| `bench_alloc` 短命物件配置 | 0.0605 s | **0.0323 s** | 0.53 倍（JVM 較快） |
 
 **為什麼會快：**
 
@@ -58,16 +61,18 @@ Teyru 原始碼 (.teyru)
    適合 CLI 工具、短命 process、容器啟動、serverless。
 2. **編譯期就做完的事不留到執行期。** 泛型在編譯期抹除、方法呼叫在編譯期定址、
    字串常數靜態配置、`static final` 常數直接折疊、vtable 與介面表由編譯器填好。
-3. **沒有 bytecode 解譯階段。** clang/LLVM 直接最佳化整份程式（跨方法 inline、
+3. **沒有 bytecode 解譯階段。** clang/LLVM 直接最佳化整份程式（LTO 跨模組 inline、
    常數傳播、迴圈向量化），不需要等 JIT 觀察熱點。
-4. **可預測的效能。** 沒有 deopt、沒有暖機曲線、沒有 GC 調校參數，
+4. **配置與邊界檢查都走行內快速路徑。** `ty_alloc` 的指標碰撞配置在標頭檔內聯，
+   陣列存取只在必要時呼叫慢路徑；GC 會回收完全空掉的 chunk。
+5. **可預測的效能。** 沒有 deopt、沒有暖機曲線、沒有 GC 調校參數，
    第一次執行就是最快速度。
 
 **誠實的邊界。** 在「大量短命物件」的 microbenchmark 上，HotSpot 的逃逸分析可能直接把
-物件消除（scalar replacement），此時 JVM 反而會贏（實測 20M 次配置：Teyru 0.13 s
-vs JVM 0.03 s）。Teyru 目前的 GC 是保守式標記清除，不是分代複製式；這是後續最佳化的
-重點，也是我們不宣稱「所有情境都比較快」的原因。所有數字都可以用 `sh bench/bench.sh`
-重現，或自行用 `tests/programs/bench_*.teyru` 對照。
+物件消除（scalar replacement），此時 JVM 反而會贏（`bench_alloc`：Teyru 0.0605 s
+vs JVM 0.0323 s）。上面的數字都含 process 啟動，所以 absolute 值都很小；Teyru 目前的
+GC 是保守式標記清除（含 chunk 回收），不是分代複製式，這是後續最佳化的重點，也是我們
+不宣稱「所有情境都比較快」的原因。所有數字都可以用 `sh scripts/bench.sh` 重現。
 
 ---
 
@@ -404,7 +409,7 @@ teyru help                                     說明
 go build ./...          # 建置
 go test ./...           # 端到端測試（會編譯 tests/programs 下每個程式並比對輸出）
 go vet ./...
-sh bench/bench.sh       # 與 JVM 對照的效能測試（需要 java 才會跑 JVM 那一半）
+sh scripts/bench.sh       # 與 JVM 對照的效能測試（需要 java 才會跑 JVM 那一半）
 ```
 
 新增測試只要在 `tests/programs/` 放 `xxx.teyru` 與 `xxx.expected`；

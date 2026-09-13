@@ -42,32 +42,35 @@ Teyru 源码 (.teyru)
 
 ## 为什么比 JVM 快
 
-同一个 `Hello` 程序，在同一台机器上实测（Linux x86-64、clang 22、OpenJDK 21、各执行 100 次）：
+同一台机器实测（Linux x86-64、clang 22、OpenJDK 21 Temurin、每个数字取 5 次最佳）：
 
 | 指标 | Teyru（原生） | Java（HotSpot） | 差距 |
 |---|---|---|---|
-| 启动 100 次总时间 | **0.075 s**（0.75 ms/次） | 2.00 s（20 ms/次） | **约 27 倍快** |
-| 可执行文件／运行时大小 | **56 KB** | JDK 运行时约 200 MB | 约 3600 倍小 |
-| 峰值内存 | **4.4 MB** | 50.9 MB | **约 11 倍省** |
-| `fib(32)` 递归 | **6 ms** | 27 ms | 约 4.5 倍快 |
-| 编译时间 | 数十毫秒 | javac 较慢且需 JIT 预热 | — |
+| 启动 100 次总时间 | **0.068 s**（0.68 ms/次） | 1.97 s（19.8 ms/次） | **约 29 倍快** |
+| 可执行文件大小 | **33 KB** | JDK 运行时约 200 MB | 约 6000 倍小 |
+| 峰值内存（hello） | **2.1 MB** | 50.2 MB | **约 24 倍省** |
+| `bench_fib` 递归 | **0.0060 s** | 0.0259 s | **4.3 倍快** |
+| `bench_loop` 循环与整数运算 | **0.0208 s** | 0.0430 s | **2.1 倍快** |
+| `bench_oop` 对象与虚调用 | **0.0044 s** | 0.0261 s | **5.9 倍快** |
+| `bench_string` 字符串处理 | **0.0096 s** | 0.0542 s | **5.7 倍快** |
+| `bench_alloc` 短命对象分配 | 0.0605 s | **0.0323 s** | 0.53 倍（JVM 更快） |
 
 **为什么快：**
 
 1. **没有 JVM 启动成本。** 没有 class loading、没有 JIT 预热、没有 GC 线程启动。
-   适合 CLI 工具、短命进程、容器启动、serverless。
-2. **编译期做完的事不留到运行期。** 泛型在编译期擦除、方法调用在编译期定址、
-   字符串常量静态分配、`static final` 常量直接折叠、vtable 与接口表由编译器填好。
-3. **没有 bytecode 解释阶段。** clang/LLVM 直接优化整个程序（跨方法 inline、
+2. **编译期能做完的事不留到运行期。** 泛型擦除、调用定址、字符串常量静态分配、
+   `static final` 常量折叠、vtable 与接口表都由编译器填好。
+3. **没有字节码解释阶段。** clang/LLVM 直接优化整个程序（LTO 跨模块内联、
    常量传播、循环向量化），不需要等 JIT 观察热点。
-4. **可预测的性能。** 没有 deopt、没有预热曲线、没有 GC 调参，
-   第一次执行就是最快速度。
+4. **分配与边界检查都走行内快速路径。** `ty_alloc` 的指针碰撞分配在头文件内联，
+   数组访问只在必要时调用慢路径；GC 会回收完全空掉的 chunk。
+5. **可预测的性能。** 没有 deopt、没有预热曲线、没有 GC 调参。
 
-**诚实的边界。** 在“大量短命对象”的 microbenchmark 上，HotSpot 的逃逸分析可能直接
-把对象消除（scalar replacement），此时 JVM 反而更快（实测 20M 次分配：Teyru 0.13 s
-vs JVM 0.03 s）。Teyru 当前的 GC 是保守式标记清除，不是分代复制；这是后续优化的
-重点，也是我们**不**宣称“所有场景都更快”的原因。所有数字都可以用 `sh bench/bench.sh`
-重现，或自行用 `tests/programs/bench_*.teyru` 对照。
+**诚实的边界。** 在“大量短命对象”的 microbenchmark 上，HotSpot 的逃逸分析可能直接把
+对象消除（scalar replacement），此时 JVM 反而会赢（`bench_alloc`：Teyru 0.0605 s
+vs JVM 0.0323 s）。上面的数字都包含 process 启动，所以绝对值都很小；Teyru 目前的 GC
+是保守标记清除（含 chunk 回收），不是分代复制式。所有数字都可以用
+`sh scripts/bench.sh` 重现。
 
 ---
 
@@ -368,7 +371,7 @@ teyru help                                     帮助
 go build ./...          # 构建
 go test ./...           # 端到端测试（会编译 tests/programs 下每个程序并比对输出）
 go vet ./...
-sh bench/bench.sh       # 与 JVM 对照的性能测试（需要 java 才会跑 JVM 那一半）
+sh scripts/bench.sh       # 与 JVM 对照的性能测试（需要 java 才会跑 JVM 那一半）
 ```
 
 新增测试只需在 `tests/programs/` 放 `xxx.teyru` 与 `xxx.expected`；
