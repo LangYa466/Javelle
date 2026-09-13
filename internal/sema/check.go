@@ -37,10 +37,9 @@ func (c *Checker) checkBodies(cl *ast.Class) {
 			if d.Sym == nil || d.Body == nil {
 				continue
 			}
+			// a compact constructor already carries the record components as
+			// its parameters, so its body binds those names directly
 			ctx := c.newCtx(cl, d.Sym)
-			if d.Compact {
-				ctx.declareCompact(cl, d)
-			}
 			ctx.checkBlock(d.Body, false)
 			if d.Sym.Result != ast.TVoid && !d.Sym.IsCtor && !endsWithReturn(d.Body) {
 				ctx.errf(d.Body.End, "TY-TYP-0020", "missing return statement")
@@ -291,17 +290,6 @@ func isStaticCtx(cl *ast.Class) bool {
 func (ctx *methodCtx) inStatic() bool { return ctx.m == nil || ctx.m.IsStatic() }
 
 // expectType gives the declared type of a field declarator.
-// declareCompact binds the record components inside a compact constructor.
-func (ctx *methodCtx) declareCompact(cl *ast.Class, d *ast.MethodDecl) {
-	for _, rc := range cl.Decl.RecordComps {
-		f := cl.FieldMap[rc.Name]
-		if f == nil {
-			continue
-		}
-		ctx.declare(rc.Name, f.Type, rc.Pos)
-	}
-}
-
 // ---------------------------------------------------------------- statements
 
 func (ctx *methodCtx) checkBlock(b *ast.Block, scoped bool) {
@@ -2305,9 +2293,11 @@ func (ctx *methodCtx) checkCall(v *ast.Call, want ast.Type) {
 	v.RecvType = rt
 	if rt != nil {
 		if _, ok := rt.(*ast.ArrayType); ok {
-			if !ctx.checkArrayCall(v, rt) {
+			if ctx.checkArrayCall(v, rt) {
 				return
 			}
+			// not an array specific method: fall through, checkArrayObjCall
+			// resolves the Object methods an array inherits
 		}
 	}
 	if rt == nil {
@@ -2326,7 +2316,8 @@ func (ctx *methodCtx) checkArrayCall(v *ast.Call, rt ast.Type) bool {
 		v.SetType(rt)
 		return true
 	case "toString", "hashCode", "equals":
-		v.SetType(ast.ErrorType{})
+		// handled as the Object methods an array inherits; leave the type to
+		// the caller instead of failing here
 		return false
 	}
 	return false

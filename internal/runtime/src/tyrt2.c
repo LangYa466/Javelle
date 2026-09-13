@@ -29,6 +29,16 @@ tystr *ty_str_ident(tystr *s) { return s; }
 
 tystr *ty_str_copy(tystr *s) { return s ? ty_str_new(s->data, s->len) : NULL; }
 
+/* Identity hash of an object or array, used where no user hashCode exists.
+   The address is stable because the collector never moves objects. */
+int32_t ty_object_hash(tyobj *o) {
+  if (!o) ty_npe();
+  uintptr_t p = (uintptr_t)o;
+  return (int32_t)((p >> 4) ^ (p >> 32) ^ (p >> 20));
+}
+
+int32_t ty_object_equals(tyobj *a, tyobj *b) { return a == b; }
+
 int32_t ty_str_eq_obj(tystr *a, void *b) {
   if (b == NULL) return a == NULL;
   return ty_str_eq(a, (tystr *)b);

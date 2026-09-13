@@ -646,6 +646,14 @@ func (e *Emitter) hoistPatterns(cond ast.Expr) {
 	walk(cond)
 }
 
+// instTarget renders the class object an instanceof test compares against.
+func (e *Emitter) instTarget(v *ast.InstanceOf) string {
+	if ct, ok := v.Type.Resolved.(*ast.ClassType); ok {
+		return "&cls_" + mangle(ct.Class.Full)
+	}
+	return "&cls_" + mangle(e.prog.ArrayClass().Full)
+}
+
 // bindExprPattern declares the variable of an instanceof pattern and returns
 // the C expression that holds the matched value (empty for `_`).
 func (e *Emitter) bindExprPattern(v *ast.InstanceOf) string {
@@ -656,7 +664,10 @@ func (e *Emitter) bindExprPattern(v *ast.InstanceOf) string {
 	src := e.expr(v.X)
 	typeName := e.ctype(v.Type.Resolved)
 	n := e.tmpName()
-	e.line("%s %s = (%s)(void*)%s;\n", typeName, n, typeName, src)
+	// the bound variable holds the value only when the type test succeeds,
+	// which is what `x instanceof T t` means as a condition
+	e.line("%s %s = (%s)ty_instanceof((tyobj*)%s, %s) ? (%s)%s : NULL;\n",
+		typeName, n, typeName, src, e.instTarget(v), typeName, src)
 	if len(pat.Decomp) > 0 {
 		e.bindComponents(pat, n)
 		return n
@@ -746,8 +757,14 @@ func (e *Emitter) switchStmt(s *ast.Switch, resultTmp string) {
 		if isDefaultCase(cs) {
 			continue
 		}
-		for _, l := range cs.Labels {
-			e.line("case %s: ", e.constInt(l))
+		if s.Kind == ast.SwitchString {
+			// the selector holds the index of the matching case, because
+			// strings cannot be compared in a C case label
+			e.line("case %d: ", i)
+		} else {
+			for _, l := range cs.Labels {
+				e.line("case %s: ", e.constInt(l))
+			}
 		}
 		if len(cs.Labels) > 0 {
 			e.line("goto _c%d_%d;\n", id, i)
