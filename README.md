@@ -237,6 +237,7 @@ Teyru 以 Java SE 25 的最終定案語法為基準（預覽功能不算），�
 | 513 | 彈性建構子本體（`super()` 之前可以有敘述） | ✅ |
 | 440 | Record 模式（含巢狀解構、`instanceof` 版本） | ✅ |
 | 441 | switch 的模式比對與 `when` 守衛 | ✅ |
+| 507 | 原生型別 pattern（`case int i`、`o instanceof int i`，精確轉換語意） | ✅ |
 | 456 | 未命名變數與模式 `_` | ✅ |
 | 395 | record（含精簡建構子） | ✅ |
 | 394 | `instanceof` 型別模式 | ✅ |

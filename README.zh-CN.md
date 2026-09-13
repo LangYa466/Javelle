@@ -254,6 +254,7 @@ Teyru 以 Java SE 25 最终定案的语法为基准（不含预览功能），�
 只去掉分号并加入原生 property：JEP 512 紧凑源文件与实例 `main`（含隐式
 `println`／`print`／`readln`）、JEP 511 模块导入、JEP 513 弹性构造器本体、
 JEP 440 record 模式、JEP 441 switch 模式与 `when` 守卫、JEP 456 未命名变量 `_`、
+JEP 507 原生类型 pattern（`case int i`、`o instanceof int i`，精确转换）、
 JEP 395 record、JEP 394 `instanceof` 模式、JEP 378 文本块、JEP 361 switch 表达式、
 JEP 286 `var`。
 

@@ -262,6 +262,7 @@ Teyru は Java SE 25 の確定した構文（プレビューを除く）を基�
 JEP 512 コンパクトソースファイルとインスタンス `main`（暗黙の `println`／`print`／
 `readln` を含む）、JEP 511 モジュールインポート、JEP 513 柔軟なコンストラクタ本体、
 JEP 440 レコードパターン、JEP 441 switch のパターンと `when` ガード、
+JEP 507 プリミティブ型パターン（`case int i`、`o instanceof int i`、正確な変換）、
 JEP 456 未使用変数 `_`、JEP 395 record、JEP 394 `instanceof` パターン、
 JEP 378 テキストブロック、JEP 361 switch 式、JEP 286 `var`。
 

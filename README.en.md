@@ -244,6 +244,7 @@ dropping only semicolons and adding native properties:
 | 513 | Flexible constructor bodies (statements before `super()`) | ✅ |
 | 440 | Record patterns (including nested and in `instanceof`) | ✅ |
 | 441 | Pattern matching for switch with `when` guards | ✅ |
+| 507 | Primitive type patterns (`case int i`, `o instanceof int i`, exact conversions) | ✅ |
 | 456 | Unnamed variables and patterns `_` | ✅ |
 | 395 | Records (including compact constructors) | ✅ |
 | 394 | `instanceof` patterns | ✅ |

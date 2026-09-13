@@ -165,6 +165,9 @@ hello.teyru:4:11: error[TY-TYP-0051]: incompatible types: String cannot be conve
 | TY-TYP-0084 | `lambda has %d parameters but %s requires %d` | lambda 參數數量不符。 |
 | TY-TYP-0085 | `cannot construct %s` | 建構子參照的目標不能建構。 |
 | TY-TYP-0086 | `cannot resolve static import %s` | 靜態 import 找不到對應成員。 |
+| TY-TYP-0092 | `a primitive pattern needs a name to bind the value to` | 原生型別 pattern 一定要綁定變數：`o instanceof int i`，不能只寫 `o instanceof int`。 |
+| TY-TYP-0093 | `boolean cannot be converted to %s` | `boolean` 只能和 `boolean` pattern 配對。 |
+| TY-TYP-0094 | `primitive pattern %s needs a boxed value, found %s` | 選擇子既不是參考型別也不是原生數值。 |
 
 ## TY-PROP：原生 property
 

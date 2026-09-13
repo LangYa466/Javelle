@@ -310,6 +310,20 @@ String kind = switch (obj) {
   （`null` 變成 `"null"`）。
 - `instanceof` 支援型別 pattern：`if (o instanceof String s) { … }`，以及 record 解構
   pattern：`if (o instanceof Point(int x, int y)) { … }`。
+- **原生型別 pattern**（JEP 507）：`if (o instanceof int i)`、`case byte b ->`。
+  配對條件是**轉換精確**：`Integer(42)` 可以匹配 `int`、`long`、`double`，也可以
+  匹配 `byte`，但 `Integer(300)` 不匹配 `byte`；`16777217` 不匹配 `float`
+  （會失真），`16777216` 則匹配。`boolean` 只和 `Boolean` 配對，`null` 一律不匹配。
+  原生型別 pattern 一定要有變數名稱。
+
+  ```teyru
+  String kind = switch (o) {
+    case int i when i > 100 -> "large int"
+    case int i -> "int " + i
+    case double d -> "double " + d
+    default -> "other"
+  }
+  ```
 - `Interface.super.method()` 會靜態綁定到該介面的 default 實作：
   `A.super.hello()`；介面必須是當前類別的 super interface。
 - cast：數值間做轉換，參考型別間做執行期檢查（失敗丟 `ClassCastException`）。
