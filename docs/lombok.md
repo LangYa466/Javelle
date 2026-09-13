@@ -69,7 +69,10 @@ System.out.println(p)                  // Person(name=ada, age=36)
 | `@onMethod_`／`@onParam_`／`@onConstructor_` | ⚠️ 有限 | 會被解析，但註解不會被複製到產生的成員上 |
 | `@CustomLog` | ❌ 不支援 | 需要 `lombok.config` 的 `lombok.log.custom.declaration`；Teyru 不讀設定檔，所以回報 `TY-INT-0006` 而不是默默不產生東西 |
 
-「完整」的定義：`tests/programs/t16`–`t19` 與 `t54` 有對應的測試，`go test ./...` 會驗證輸出。
+「完整」的定義：`tests/programs/t16`–`t19`、`t54` 有對應的測試，`go test ./...` 會驗證輸出；
+`t55_lombok_every.teyru` 在一支程式裡把上表每一個支援的註解各用一次，輸出逐行比對。
+（寫 `t55` 時才發現 `@Builder.Default`、`@StandardException`、回傳值的 `@Synchronized`
+三個「文件說完成、實際沒測過」的 bug，已修。）
 
 ---
 
