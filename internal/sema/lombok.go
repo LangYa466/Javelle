@@ -1070,8 +1070,14 @@ func (c *Checker) lombokBuilderFor(cl *ast.Class, a *ast.Annotation, classAnnos 
 			continue
 		}
 		for _, ctor := range b.Ctors {
-			ctor.Body = blockOf(append(ctor.Body.Stmts,
-				exprStmtOf(assignTo(sel(&ast.This{ExprBase: ast.ExprBase{Pos: pos()}}, bf.Name), bf.DefaultExpr)))...)
+			// the builder's synthesized constructor has no body yet
+			var stmts []ast.Stmt
+			if ctor.Body != nil {
+				stmts = ctor.Body.Stmts
+			}
+			stmts = append(stmts, exprStmtOf(assignTo(
+				sel(&ast.This{ExprBase: ast.ExprBase{Pos: pos()}}, bf.Name), bf.DefaultExpr)))
+			ctor.Body = blockOf(stmts...)
 		}
 	}
 	c.layout(b)
@@ -1561,17 +1567,14 @@ func (c *Checker) lombokStandardException(cl *ast.Class) {
 		Result: ast.TVoid, Pos: pos(), Body: blockOf()})
 	c.addSynthCtor(cl, &ast.Method{Name: "<init>", Owner: cl, IsCtor: true, Mods: ast.ModPublic,
 		Result: ast.TVoid, Params: []ast.Type{strT}, ParamNames: []string{"message"},
-		Body: blockOf(exprStmtOf(callNew(nil, "super", id("message")))), Pos: pos()})
+		Body: blockOf(exprStmtOf(superCall("<init>", id("message")))), Pos: pos()})
 	thr := &ast.ClassType{Class: c.b.Throwable}
 	c.addSynthCtor(cl, &ast.Method{Name: "<init>", Owner: cl, IsCtor: true, Mods: ast.ModPublic,
 		Result: ast.TVoid, Params: []ast.Type{strT, thr}, ParamNames: []string{"message", "cause"},
-		Body: blockOf(
-			exprStmtOf(callNew(nil, "super", id("message"))),
-			exprStmtOf(assignTo(sel(&ast.This{ExprBase: ast.ExprBase{Pos: pos()}}, "cause"), id("cause"))),
-		), Pos: pos()})
+		Body: blockOf(exprStmtOf(superCall("<init>", id("message"), id("cause")))), Pos: pos()})
 	c.addSynthCtor(cl, &ast.Method{Name: "<init>", Owner: cl, IsCtor: true, Mods: ast.ModPublic,
 		Result: ast.TVoid, Params: []ast.Type{thr}, ParamNames: []string{"cause"},
-		Body: blockOf(exprStmtOf(assignTo(sel(&ast.This{ExprBase: ast.ExprBase{Pos: pos()}}, "cause"), id("cause")))), Pos: pos()})
+		Body: blockOf(exprStmtOf(superCall("<init>", id("cause")))), Pos: pos()})
 }
 
 func (c *Checker) lombokFieldNameConstants(cl *ast.Class, a *ast.Annotation) {

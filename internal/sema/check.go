@@ -146,6 +146,10 @@ func endsWithReturn(b *ast.Block) bool {
 		if _, ok := s.X.(*ast.Call); ok {
 			return false
 		}
+	case *ast.Sync:
+		return endsWithReturn(s.Body)
+	case *ast.Labeled:
+		return endsWithReturn(fromStmt(s.Body))
 	}
 	return false
 }
@@ -180,6 +184,10 @@ func endsWithThrow(b *ast.Block) bool {
 			}
 		}
 		return true
+	case *ast.Sync:
+		return endsWithThrow(s.Body)
+	case *ast.Labeled:
+		return endsWithThrow(fromStmt(s.Body))
 	}
 	return false
 }
