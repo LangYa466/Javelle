@@ -237,3 +237,67 @@ func TestUnnamedVariables(t *testing.T) {
 		t.Fatalf("parse errors: %s", errs)
 	}
 }
+
+func TestYieldOnItsOwnLine(t *testing.T) {
+	src := `class A {
+  static int f(int n) {
+    return switch (n) {
+      case 1 -> {
+        int v = 10
+        yield v
+      }
+      default -> {
+        yield -1
+      }
+    }
+  }
+}
+`
+	f, errs := parse(t, src)
+	if errs != "" {
+		t.Fatalf("yield may start a line: %s", errs)
+	}
+	body := f.Types[0].Members[0].(*ast.MethodDecl).Body
+	sw := body.Stmts[0].(*ast.Return).X.(*ast.SwitchExpr)
+	block, ok := sw.S.Cases[0].Body[0].(*ast.Block)
+	if !ok {
+		t.Fatalf("expected a case body block, got %T", sw.S.Cases[0].Body[0])
+	}
+	if _, ok := block.Stmts[len(block.Stmts)-1].(*ast.Yield); !ok {
+		t.Errorf("expected a yield statement, got %T", block.Stmts[len(block.Stmts)-1])
+	}
+}
+
+func TestYieldAsAVariableName(t *testing.T) {
+	src := `class A {
+  static int f() {
+    int yield = 5
+    yield = yield + 1
+    return yield
+  }
+}
+`
+	_, errs := parse(t, src)
+	if errs != "" {
+		t.Fatalf("yield is contextual and may be a variable: %s", errs)
+	}
+}
+
+func TestRecordPatternWithoutComponents(t *testing.T) {
+	src := `record Dot() {
+}
+
+class A {
+  static String f(Object o) {
+    return switch (o) {
+      case Dot() -> "dot"
+      default -> "other"
+    }
+  }
+}
+`
+	_, errs := parse(t, src)
+	if errs != "" {
+		t.Fatalf("a record with no components still matches with Dot(): %s", errs)
+	}
+}

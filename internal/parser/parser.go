@@ -959,7 +959,10 @@ func (p *parser) parseStatement() ast.Stmt {
 		s := &ast.Throw{Pos: pos, X: p.parseExpr()}
 		p.terminator()
 		return s
-	case p.isIdent("yield") && !p.tok().NL && !p.isAt(1, "=") && !p.isAt(1, "(") && !p.isAt(1, ".") && !p.peekN(1).NL:
+	// `yield` is contextual: it starts a statement unless what follows shows
+	// the name is being used as a variable or a method
+	case p.isIdent("yield") && !p.isAt(1, "=") && !p.isAt(1, "(") && !p.isAt(1, ".") &&
+		!p.isAt(1, "[") && !p.isAt(1, "++") && !p.isAt(1, "--") && !p.peekN(1).NL:
 		p.next()
 		s := &ast.Yield{Pos: pos, X: p.parseExpr()}
 		p.terminator()
@@ -1257,10 +1260,8 @@ func (p *parser) tryTypePatternOpt(inComponent bool) *ast.Param {
 		}
 		typ := p.parseType()
 		if p.is("(") {
+			// a record with no components still matches with `case Dot()`
 			prm = p.parseRecordComponents(typ)
-			if len(prm.Decomp) == 0 {
-				return false
-			}
 			return p.patternEnd(inComponent)
 		}
 		if p.tok().Kind != lexer.Ident || p.isIdent("when") {
